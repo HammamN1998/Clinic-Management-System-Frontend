@@ -43,6 +43,7 @@ bower_components
 
 # Compiled binary addons (http://nodejs.org/api/addons.html)
 build/Release
+dist/
 
 # Dependency directories
 node_modules/
@@ -64,3 +65,9 @@ node_modules/
 
 # dotenv environment variables file
 .env
+
+# Ignore the .angular folder
+.angular/
+
+# Ignore the .idea folder
+.idea/
