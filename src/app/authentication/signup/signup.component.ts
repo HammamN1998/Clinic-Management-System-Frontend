@@ -5,6 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import {FirebaseAuthenticationService} from "../services/firebase-authentication.service";
 @Component({
     selector: 'app-signup',
     templateUrl: './signup.component.html',
@@ -29,7 +30,8 @@ export class SignupComponent implements OnInit {
   constructor(
     private formBuilder: UntypedFormBuilder,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private firebaseAuthenticationService: FirebaseAuthenticationService
   ) { }
   ngOnInit() {
     this.authForm = this.formBuilder.group({
@@ -53,7 +55,22 @@ export class SignupComponent implements OnInit {
     if (this.authForm.invalid) {
       return;
     } else {
-      this.router.navigate(['/admin/dashboard/main']);
+        this.firebaseAuthenticationService
+            .signup(this.f['email'].value, this.f['password'].value, this.f['username'].value)
+            .subscribe( {
+                next: (user) => {
+                    if(user) {
+                        console.log("signup user: " + JSON.stringify(user));
+                        this.router.navigate(['authentication/signin']).then(() => {});
+                    } else {
+                        console.log('invalid signup');
+                    }
+                },
+                error: (error) => {
+                    console.log('login failed: '+ JSON.stringify(error));
+                }
+            });
+        // this.router.navigate(['/admin/dashboard/main']);
     }
   }
 }

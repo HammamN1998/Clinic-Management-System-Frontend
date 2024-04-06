@@ -7,6 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
+import {FirebaseAuthenticationService} from "../services/firebase-authentication.service";
 @Component({
     selector: 'app-signin',
     templateUrl: './signin.component.html',
@@ -34,7 +35,8 @@ export class SigninComponent
     private formBuilder: UntypedFormBuilder,
     private route: ActivatedRoute,
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private firebaseAuthenticationService: FirebaseAuthenticationService
   ) {
     super();
   }
@@ -68,33 +70,37 @@ export class SigninComponent
       this.error = 'Username and Password not valid !';
       return;
     } else {
-      this.subs.sink = this.authService
+        this.subs.sink = this.firebaseAuthenticationService
         .login(this.f['username'].value, this.f['password'].value)
         .subscribe({
-          next: (res) => {
-            if (res) {
-              setTimeout(() => {
-                const role = this.authService.currentUserValue.role;
-                if (role === Role.All || role === Role.Admin) {
-                  this.router.navigate(['/admin/dashboard/main']);
-                } else if (role === Role.Doctor) {
-                  this.router.navigate(['/doctor/dashboard']);
-                } else if (role === Role.Patient) {
-                  this.router.navigate(['/patient/dashboard']);
+            next: (user) => {
+                if (user != null) {
+                    console.log('login user: ' + JSON.stringify(user));
+                    setTimeout(() => {
+                        // TODO: rout the users according to their roles.
+                        this.router.navigate(['/admin/dashboard/main']);
+                        // const role = this.authService.currentUserValue.role;
+                        // if (role === Role.All || role === Role.Admin) {
+                        //     this.router.navigate(['/admin/dashboard/main']);
+                        // } else if (role === Role.Doctor) {
+                        //     this.router.navigate(['/doctor/dashboard']);
+                        // } else if (role === Role.Patient) {
+                        //     this.router.navigate(['/patient/dashboard']);
+                        // } else {
+                        //     this.router.navigate(['/authentication/signin']);
+                        // }
+                        this.loading = false;
+                    }, 1000);
                 } else {
-                  this.router.navigate(['/authentication/signin']);
+                    this.error = 'Invalid Login';
                 }
+            },
+            error: (error) => {
+                console.log('login failed: '+ error);
+                this.error = error;
+                this.submitted = false;
                 this.loading = false;
-              }, 1000);
-            } else {
-              this.error = 'Invalid Login';
-            }
-          },
-          error: (error) => {
-            this.error = error;
-            this.submitted = false;
-            this.loading = false;
-          },
+            },
         });
     }
   }

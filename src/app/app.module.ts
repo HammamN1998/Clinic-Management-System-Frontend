@@ -17,6 +17,8 @@ import { JwtInterceptor } from './core/interceptor/jwt.interceptor';
 import { LocationStrategy, HashLocationStrategy } from '@angular/common';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+import { AngularFireModule } from "@angular/fire/compat";
+import { AngularFireAuthModule } from "@angular/fire/compat/auth";
 import {
     HttpClientModule,
     HTTP_INTERCEPTORS,
@@ -25,6 +27,7 @@ import {
 
 import { LoadingBarRouterModule } from '@ngx-loading-bar/router';
 import { NgScrollbarModule } from 'ngx-scrollbar';
+import {environment} from "../environments/environment";
 
 export function createTranslateLoader(http: HttpClient) {
     return new TranslateHttpLoader(http, 'assets/i18n/', '.json');
@@ -55,6 +58,8 @@ export function createTranslateLoader(http: HttpClient) {
         RightSidebarComponent,
         AuthLayoutComponent,
         MainLayoutComponent,
+        AngularFireModule.initializeApp(environment.firebase),
+        AngularFireAuthModule,
     ],
     providers: [
         { provide: LocationStrategy, useClass: HashLocationStrategy },
