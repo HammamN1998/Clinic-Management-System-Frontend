@@ -36,7 +36,6 @@ export class FirebaseAuthenticationService {
       ).pipe(
           map((userCredential) => {
               if (userCredential != null) {
-                  console.log('login credentials: ' + JSON.stringify(userCredential));
                   // Assign userCredential to user:User
                   user = this.firebaseUserCredentialToUser(userCredential);
                   // store user details and jwt token in local storage to keep user logged in between page refreshes
@@ -45,7 +44,6 @@ export class FirebaseAuthenticationService {
               } else {
                 console.log('userCredential is null of undefined!!')
               }
-
               return user;
           })
       );
@@ -58,7 +56,6 @@ export class FirebaseAuthenticationService {
     ).pipe(
       map((userCredential) => {
           if (userCredential != null) {
-              console.log('displayName: ' + displayName);
               userCredential.user!.updateProfile({ displayName: displayName});
               // Assign userCredential to user:User
               user = this.firebaseUserCredentialToUser(userCredential);
@@ -84,7 +81,7 @@ export class FirebaseAuthenticationService {
 
   firebaseUserCredentialToUser(fireUserCredential: UserCredential) : User {
     return {
-        id: parseInt(fireUserCredential!.user!.uid!),
+        id: fireUserCredential!.user!.uid!,
         img: fireUserCredential!.user!.photoURL!,
         username: fireUserCredential!.user!.email!,
         firstName: fireUserCredential!.user!.displayName!,

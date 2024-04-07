@@ -14,7 +14,7 @@ import { Role } from '../models/role';
 
 const users: User[] = [
   {
-    id: 1,
+    id: '1',
     img: 'assets/images/user/admin.jpg',
     username: 'admin@hospital.org',
     password: 'admin@123',
@@ -24,7 +24,7 @@ const users: User[] = [
     token: 'admin-token',
   },
   {
-    id: 2,
+    id: '2',
     img: 'assets/images/user/doctor.jpg',
     username: 'doctor@hospital.org',
     password: 'doctor@123',
@@ -34,7 +34,7 @@ const users: User[] = [
     token: 'doctor-token',
   },
   {
-    id: 3,
+    id: '3',
     img: 'assets/images/user/patient.jpg',
     username: 'patient@hospital.org',
     password: 'patient@123',
@@ -89,7 +89,7 @@ export class FakeBackendInterceptor implements HttpInterceptor {
     // helper functions
 
     function ok(body?: {
-      id: number;
+      id: string;
       img: string;
       username: string;
       firstName: string;
