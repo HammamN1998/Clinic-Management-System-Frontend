@@ -12,10 +12,12 @@ import {
 } from '@angular/core';
 import { ROUTES } from './sidebar-items';
 import { RouteInfo } from './sidebar.metadata';
-import { FirebaseAuthenticationService, Role } from '@core';
+import { Role } from '@core';
 import { TranslateModule } from '@ngx-translate/core';
 import { NgScrollbar } from 'ngx-scrollbar';
 import { UnsubscribeOnDestroyAdapter } from '@shared';
+import {FirebaseAuthenticationService} from "../../authentication/services/firebase-authentication.service";
+
 @Component({
   selector: 'app-sidebar',
   templateUrl: './sidebar.component.html',

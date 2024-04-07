@@ -1,7 +1,7 @@
 export * from './core.module';
 
 // services
-export { FirebaseAuthenticationService } from './service/auth.service';
+export { FirebaseAuthenticationService } from '../authentication/services/firebase-authentication.service';
 export { DirectionService } from './service/direction.service';
 export { LanguageService } from './service/language.service';
 export { RightSidebarService } from './service/rightsidebar.service';

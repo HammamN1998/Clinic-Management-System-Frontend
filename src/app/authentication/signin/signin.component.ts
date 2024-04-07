@@ -8,6 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
 import { FirebaseAuthenticationService } from "../services/firebase-authentication.service";
+
 @Component({
     selector: 'app-signin',
     templateUrl: './signin.component.html',

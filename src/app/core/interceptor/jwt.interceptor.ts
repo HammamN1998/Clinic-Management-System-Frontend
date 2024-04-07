@@ -6,7 +6,8 @@ import {
   HttpInterceptor,
 } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { FirebaseAuthenticationService } from '../service/auth.service';
+import {FirebaseAuthenticationService} from "../../authentication/services/firebase-authentication.service";
+
 
 @Injectable()
 export class JwtInterceptor implements HttpInterceptor {

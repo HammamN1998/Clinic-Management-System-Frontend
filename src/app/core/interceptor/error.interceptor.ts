@@ -1,4 +1,4 @@
-import { FirebaseAuthenticationService } from "../service/auth.service";
+import { FirebaseAuthenticationService } from "../../authentication/services/firebase-authentication.service";
 import { Injectable } from "@angular/core";
 import {
   HttpRequest,

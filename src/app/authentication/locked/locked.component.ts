@@ -1,11 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { UntypedFormBuilder, UntypedFormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { FirebaseAuthenticationService, Role } from '@core';
+import { Role } from '@core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import {FirebaseAuthenticationService} from "../services/firebase-authentication.service";
 @Component({
     selector: 'app-locked',
     templateUrl: './locked.component.html',
