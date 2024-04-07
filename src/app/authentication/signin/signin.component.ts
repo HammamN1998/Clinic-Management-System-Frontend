@@ -2,12 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { UntypedFormBuilder, UntypedFormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { UnsubscribeOnDestroyAdapter } from '@shared';
-import { AuthService, Role } from '@core';
+import { Role } from '@core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
-import {FirebaseAuthenticationService} from "../services/firebase-authentication.service";
+import { FirebaseAuthenticationService } from "../services/firebase-authentication.service";
 @Component({
     selector: 'app-signin',
     templateUrl: './signin.component.html',
@@ -35,7 +35,6 @@ export class SigninComponent
     private formBuilder: UntypedFormBuilder,
     private route: ActivatedRoute,
     private router: Router,
-    private authService: AuthService,
     private firebaseAuthenticationService: FirebaseAuthenticationService
   ) {
     super();
@@ -79,7 +78,7 @@ export class SigninComponent
                     setTimeout(() => {
                         // TODO: rout the users according to their roles.
                         this.router.navigate(['/admin/dashboard/main']);
-                        // const role = this.authService.currentUserValue.role;
+                        // const role = this.firebaseAuthenticationService.currentUserValue.role;
                         // if (role === Role.All || role === Role.Admin) {
                         //     this.router.navigate(['/admin/dashboard/main']);
                         // } else if (role === Role.Doctor) {
@@ -90,7 +89,7 @@ export class SigninComponent
                         //     this.router.navigate(['/authentication/signin']);
                         // }
                         this.loading = false;
-                    }, 1000);
+                    }, 500);
                 } else {
                     this.error = 'Invalid Login';
                 }

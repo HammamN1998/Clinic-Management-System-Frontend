@@ -8,7 +8,7 @@ import { environment } from 'environments/environment';
 @Injectable({
   providedIn: 'root',
 })
-export class AuthService {
+export class FirebaseAuthenticationService {
   private currentUserSubject: BehaviorSubject<User>;
   public currentUser: Observable<User>;
 

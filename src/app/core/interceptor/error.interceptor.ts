@@ -1,4 +1,4 @@
-import { AuthService } from "../service/auth.service";
+import { FirebaseAuthenticationService } from "../service/auth.service";
 import { Injectable } from "@angular/core";
 import {
   HttpRequest,
@@ -11,7 +11,7 @@ import { catchError } from "rxjs/operators";
 
 @Injectable()
 export class ErrorInterceptor implements HttpInterceptor {
-  constructor(private authenticationService: AuthService) { }
+  constructor(private authenticationService: FirebaseAuthenticationService) { }
 
   intercept(
     request: HttpRequest<any>,

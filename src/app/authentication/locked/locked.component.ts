@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { UntypedFormBuilder, UntypedFormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { AuthService, Role } from '@core';
+import { FirebaseAuthenticationService, Role } from '@core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -30,7 +30,7 @@ export class LockedComponent implements OnInit {
   constructor(
     private formBuilder: UntypedFormBuilder,
     private router: Router,
-    private authService: AuthService
+    private firebaseAuthenticationService: FirebaseAuthenticationService
   ) {
     // constuctor
   }
@@ -38,11 +38,11 @@ export class LockedComponent implements OnInit {
     this.authForm = this.formBuilder.group({
       password: ['', Validators.required],
     });
-    this.userImg = this.authService.currentUserValue.img;
+    this.userImg = this.firebaseAuthenticationService.currentUserValue.img;
     this.userFullName =
-      this.authService.currentUserValue.firstName +
+      this.firebaseAuthenticationService.currentUserValue.firstName +
       ' ' +
-      this.authService.currentUserValue.lastName;
+      this.firebaseAuthenticationService.currentUserValue.lastName;
   }
   get f() {
     return this.authForm.controls;
@@ -53,7 +53,7 @@ export class LockedComponent implements OnInit {
     if (this.authForm.invalid) {
       return;
     } else {
-      const role = this.authService.currentUserValue.role;
+      const role = this.firebaseAuthenticationService.currentUserValue.role;
       if (role === Role.All || role === Role.Admin) {
         this.router.navigate(['/admin/dashboard/main']);
       } else if (role === Role.Doctor) {

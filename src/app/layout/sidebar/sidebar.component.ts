@@ -12,7 +12,7 @@ import {
 } from '@angular/core';
 import { ROUTES } from './sidebar-items';
 import { RouteInfo } from './sidebar.metadata';
-import { AuthService, Role } from '@core';
+import { FirebaseAuthenticationService, Role } from '@core';
 import { TranslateModule } from '@ngx-translate/core';
 import { NgScrollbar } from 'ngx-scrollbar';
 import { UnsubscribeOnDestroyAdapter } from '@shared';
@@ -45,7 +45,7 @@ export class SidebarComponent extends UnsubscribeOnDestroyAdapter implements OnI
     @Inject(DOCUMENT) private document: Document,
     private renderer: Renderer2,
     public elementRef: ElementRef,
-    private authService: AuthService,
+    private firebaseAuthenticationService: FirebaseAuthenticationService,
     private router: Router
   ) {
     super();
@@ -82,13 +82,13 @@ export class SidebarComponent extends UnsubscribeOnDestroyAdapter implements OnI
     }
   }
   ngOnInit() {
-    if (this.authService.currentUserValue) {
-      const userRole = this.authService.currentUserValue.role;
+    if (this.firebaseAuthenticationService.currentUserValue) {
+      const userRole = this.firebaseAuthenticationService.currentUserValue.role;
       this.userFullName =
-        this.authService.currentUserValue.firstName +
+        this.firebaseAuthenticationService.currentUserValue.firstName +
         ' ' +
-        this.authService.currentUserValue.lastName;
-      this.userImg = this.authService.currentUserValue.img;
+        this.firebaseAuthenticationService.currentUserValue.lastName;
+      this.userImg = this.firebaseAuthenticationService.currentUserValue.img;
 
       this.sidebarItems = ROUTES.filter(
         (x) => x.role.indexOf(userRole) !== -1 || x.role.indexOf('All') !== -1
@@ -147,7 +147,7 @@ export class SidebarComponent extends UnsubscribeOnDestroyAdapter implements OnI
     }
   }
   logout() {
-    this.subs.sink = this.authService.logout().subscribe((res) => {
+    this.subs.sink = this.firebaseAuthenticationService.logout().subscribe((res) => {
       if (!res.success) {
         this.router.navigate(['/authentication/signin']);
       }

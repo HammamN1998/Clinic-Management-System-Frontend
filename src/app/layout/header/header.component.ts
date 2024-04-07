@@ -9,7 +9,7 @@ import {
 import { Router, RouterLink } from '@angular/router';
 import { ConfigService } from '@config';
 import {
-  AuthService,
+  FirebaseAuthenticationService,
   InConfiguration,
   LanguageService,
   RightSidebarService,
@@ -63,7 +63,7 @@ export class HeaderComponent
     public elementRef: ElementRef,
     private rightSidebarService: RightSidebarService,
     private configService: ConfigService,
-    private authService: AuthService,
+    private firebaseAuthenticationService: FirebaseAuthenticationService,
     private router: Router,
     public languageService: LanguageService
   ) {
@@ -128,8 +128,8 @@ export class HeaderComponent
   ];
   ngOnInit() {
     this.config = this.configService.configData;
-    const userRole = this.authService.currentUserValue.role;
-    this.userImg = this.authService.currentUserValue.img;
+    const userRole = this.firebaseAuthenticationService.currentUserValue.role;
+    this.userImg = this.firebaseAuthenticationService.currentUserValue.img;
 
     this.docElement = document.documentElement;
 
@@ -194,7 +194,7 @@ export class HeaderComponent
     }
   }
   logout() {
-    this.subs.sink = this.authService.logout().subscribe((res) => {
+    this.subs.sink = this.firebaseAuthenticationService.logout().subscribe((res) => {
       if (!res.success) {
         this.router.navigate(['/authentication/signin']);
       }
