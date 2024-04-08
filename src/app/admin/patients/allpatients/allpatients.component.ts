@@ -1,10 +1,10 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { PatientService } from './patient.service';
+import { PatientService } from '@core/service/patient.service';
 import { HttpClient } from '@angular/common/http';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
-import { Patient } from './patient.model';
+import { Patient } from '@core/models/patient.model';
 import { DataSource } from '@angular/cdk/collections';
 import {
   MatSnackBar,
@@ -32,6 +32,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { BreadcrumbComponent } from '@shared/components/breadcrumb/breadcrumb.component';
+import {FirebaseAuthenticationService} from "../../../authentication/services/firebase-authentication.service";
+import {AngularFirestore} from "@angular/fire/compat/firestore";
 
 @Component({
   selector: 'app-allpatients',
@@ -79,7 +81,9 @@ export class AllpatientsComponent
     public httpClient: HttpClient,
     public dialog: MatDialog,
     public patientService: PatientService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private firebaseAuthenticationService: FirebaseAuthenticationService,
+    private firestore: AngularFirestore,
   ) {
     super();
   }
@@ -231,7 +235,7 @@ export class AllpatientsComponent
     );
   }
   public loadData() {
-    this.exampleDatabase = new PatientService(this.httpClient);
+    this.exampleDatabase = new PatientService(this.httpClient, this.firebaseAuthenticationService, this.firestore);
     this.dataSource = new ExampleDataSource(
       this.exampleDatabase,
       this.paginator,
@@ -254,10 +258,10 @@ export class AllpatientsComponent
         Name: x.name,
         Gender: x.gender,
         Address: x.address,
-        'Birth Date': formatDate(new Date(x.date), 'yyyy-MM-dd', 'en') || '',
-        'Blood Group': x.bGroup,
-        Mobile: x.mobile,
-        Treatment: x.treatment,
+        'Birth Date': formatDate(new Date(x.birthDate), 'yyyy-MM-dd', 'en') || '',
+        'Blood Group': x.bloodGroup,
+        Mobile: x.phoneNumber,
+        Treatment: x.condition,
       }));
     TableExportUtil.exportToExcel(exportData, 'excel');
   }
@@ -315,10 +319,10 @@ export class ExampleDataSource extends DataSource<Patient> {
               patient.name +
               patient.gender +
               patient.address +
-              patient.date +
-              patient.bGroup +
-              patient.treatment +
-              patient.mobile
+              patient.birthDate +
+              patient.bloodGroup +
+              patient.condition +
+              patient.phoneNumber
             ).toLowerCase();
             return searchStr.indexOf(this.filter.toLowerCase()) !== -1;
           });
@@ -355,13 +359,13 @@ export class ExampleDataSource extends DataSource<Patient> {
           [propertyA, propertyB] = [a.gender, b.gender];
           break;
         case 'date':
-          [propertyA, propertyB] = [a.date, b.date];
+          [propertyA, propertyB] = [a.birthDate, b.birthDate];
           break;
         case 'address':
           [propertyA, propertyB] = [a.address, b.address];
           break;
         case 'mobile':
-          [propertyA, propertyB] = [a.mobile, b.mobile];
+          [propertyA, propertyB] = [a.phoneNumber, b.phoneNumber];
           break;
       }
       const valueA = isNaN(+propertyA) ? propertyA : +propertyA;

@@ -8,7 +8,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { BreadcrumbComponent } from '@shared/components/breadcrumb/breadcrumb.component';
-import {PatientsService} from "@core/service/patients.service";
+import {PatientService} from "@core/service/patient.service";
+import {Patient} from "@core/models/patient.model";
 
 @Component({
   selector: 'app-add-patient',
@@ -32,7 +33,7 @@ export class AddPatientComponent {
   patientForm: UntypedFormGroup;
   constructor(
     private fb: UntypedFormBuilder,
-    private patientsService: PatientsService,
+    private patientService: PatientService,
   ) {
     this.patientForm = this.fb.group({
       first: ['', [Validators.required, Validators.pattern('[a-zA-Z]+')]],
@@ -54,20 +55,22 @@ export class AddPatientComponent {
 
   onSubmit() {
     console.log('Patient Form: ', this.patientForm.value);
-    this.patientsService.addPatient(
-      this.patientForm.value.first.toString(),
-      this.patientForm.value.last.toString(),
-      this.patientForm.value.gender.toString(),
-      this.patientForm.value.mobile.toString(),
-      this.patientForm.value.dob.toString(),
-      this.patientForm.value.age.toString(),
-      this.patientForm.value.email.toString(),
-      this.patientForm.value.maritalStatus.toString(),
-      this.patientForm.value.address.toString(),
-      this.patientForm.value.bGroup.toString(),
-      this.patientForm.value.bPresure.toString(),
-      this.patientForm.value.sugger.toString(),
-      this.patientForm.value.injury.toString(),
-    )
+    const patientData : Patient = {
+      id: 123,
+      name: this.patientForm.value.first.toString() + " " + this.patientForm.value.last.toString(),
+      gender: this.patientForm.value.gender.toString(),
+      phoneNumber: this.patientForm.value.mobile.toString(),
+      birthDate: this.patientForm.value.dob.toString(),
+      email: this.patientForm.value.email.toString(),
+      maritalState: this.patientForm.value.maritalStatus.toString(),
+      address: this.patientForm.value.address.toString(),
+      bloodGroup: this.patientForm.value.bGroup.toString(),
+      bloodPressure: this.patientForm.value.bPresure.toString(),
+      condition: this.patientForm.value.injury.toString(),
+      imgUrl: 'assets/images/user/profile.png', // Or any other image URL
+      doctorId: ''
+    };
+
+    this.patientService.addPatient( new Patient(patientData))
   }
 }

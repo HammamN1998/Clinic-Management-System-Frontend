@@ -1,8 +1,8 @@
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogContent, MatDialogClose } from '@angular/material/dialog';
 import { Component, Inject } from '@angular/core';
-import { PatientService } from '../../patient.service';
+import { PatientService } from '@core/service/patient.service';
 import { UntypedFormControl, Validators, UntypedFormGroup, UntypedFormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { Patient } from '../../patient.model';
+import { Patient } from '@core/models/patient.model';
 import { MatOptionModule } from '@angular/material/core';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -75,14 +75,14 @@ export class FormDialogComponent {
   createContactForm(): UntypedFormGroup {
     return this.fb.group({
       id: [this.patient.id],
-      img: [this.patient.img],
+      img: [this.patient.imgUrl],
       name: [this.patient.name],
       gender: [this.patient.gender],
-      date: [this.patient.date],
-      bGroup: [this.patient.bGroup],
-      mobile: [this.patient.mobile],
+      date: [this.patient.birthDate],
+      bGroup: [this.patient.bloodGroup],
+      mobile: [this.patient.phoneNumber],
       address: [this.patient.address],
-      treatment: [this.patient.treatment],
+      treatment: [this.patient.condition],
     });
   }
   submit() {

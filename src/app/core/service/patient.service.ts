@@ -1,8 +1,10 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { Patient } from './patient.model';
+import { Patient } from '@core/models/patient.model';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { UnsubscribeOnDestroyAdapter } from '@shared';
+import {FirebaseAuthenticationService} from "../../authentication/services/firebase-authentication.service";
+import {AngularFirestore} from "@angular/fire/compat/firestore";
 
 @Injectable({
   providedIn: 'root',
@@ -14,7 +16,11 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
   dataChange: BehaviorSubject<Patient[]> = new BehaviorSubject<Patient[]>([]);
   // Temporarily stores data from dialogs
   dialogData!: Patient;
-  constructor(private httpClient: HttpClient) {
+  constructor(
+    private httpClient: HttpClient,
+    private firebaseAuthenticationService: FirebaseAuthenticationService,
+    private firestore: AngularFirestore,
+  ) {
     super();
   }
   get data(): Patient[] {
@@ -23,7 +29,8 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
   getDialogData() {
     return this.dialogData;
   }
-  /** CRUD METHODS */
+
+
   getAllPatients(): void {
     this.subs.sink = this.httpClient.get<Patient[]>(this.API_URL).subscribe({
       next: (data) => {
@@ -38,16 +45,8 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
   }
   addPatient(patient: Patient): void {
     this.dialogData = patient;
-
-    // this.httpClient.post(this.API_URL, patient)
-    //   .subscribe({
-    //     next: (data) => {
-    //       this.dialogData = patient;
-    //     },
-    //     error: (error: HttpErrorResponse) => {
-    //        // error code here
-    //     },
-    //   });
+    const firestorePatient = this.createFirestorePatient(patient);
+    this.firestore.collection('patients').add(firestorePatient);
   }
   updatePatient(patient: Patient): void {
     this.dialogData = patient;
@@ -75,4 +74,22 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
     //       },
     //     });
   }
+
+    createFirestorePatient(patient: Patient) : object {
+        return {
+            id: patient.id,
+            name: patient.name,
+            gender: patient.gender,
+            phoneNumber: patient.phoneNumber,
+            birthDate: patient.birthDate,
+            email: patient.email,
+            maritalState: patient.maritalState,
+            address: patient.address,
+            bloodGroup: patient.bloodGroup,
+            bloodPressure: patient.bloodPressure,
+            condition: patient.condition,
+            imgUrl: patient.imgUrl,
+            doctorId: patient.doctorId,
+        }
+    }
 }
