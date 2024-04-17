@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import {BehaviorSubject, from} from 'rxjs';
 import { Patient } from '@core/models/patient.model';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import {HttpClient} from '@angular/common/http';
 import { UnsubscribeOnDestroyAdapter } from '@shared';
 import {FirebaseAuthenticationService} from "../../authentication/services/firebase-authentication.service";
 import {AngularFirestore} from "@angular/fire/compat/firestore";
@@ -32,16 +32,28 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
 
 
   getAllPatients(): void {
-    this.subs.sink = this.httpClient.get<Patient[]>(this.API_URL).subscribe({
-      next: (data) => {
-        this.isTblLoading = false;
-        this.dataChange.next(data);
-      },
-      error: (error: HttpErrorResponse) => {
-        this.isTblLoading = false;
-        console.log(error.name + ' ' + error.message);
-      },
-    });
+    const tempPatients : Patient[] = [];
+
+    this.subs.sink = from (this.firestore.collection('patients').ref.where('doctorId', '==', this.firebaseAuthenticationService.currentUserValue.id).get())
+      .subscribe( {
+        next: (patients) => {
+          patients.docs.map( (patient) => {
+              const tempPatient : Patient = patient.data() as Patient;
+              tempPatient.id = patient.id;
+              tempPatients.push(tempPatient);
+            }
+          )
+          this.isTblLoading = false;
+          this.dataChange.next(tempPatients);
+          console.log('tempPatients: ' + JSON.stringify(tempPatients))
+        },
+        error: (error) => {
+          this.isTblLoading = false;
+          console.log('error: ' + JSON.stringify(error))
+        }
+      }
+    );
+
   }
   addPatient(patient: Patient): void {
     this.dialogData = patient;
@@ -88,8 +100,8 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
           bloodGroup: patient.bloodGroup,
           bloodPressure: patient.bloodPressure,
           condition: patient.condition,
-          imgUrl: patient.imgUrl,
-          doctorId: patient.doctorId,
+          img: patient.img,
+          doctorId: this.firebaseAuthenticationService.currentUserValue.id,
       }
   }
 }
