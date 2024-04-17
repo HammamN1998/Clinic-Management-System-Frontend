@@ -86,7 +86,7 @@ export class FormDialogComponent {
         [Validators.required],
       ],
       time: [this.appointment.time, [Validators.required]],
-      mobile: [this.appointment.mobile, [Validators.required]],
+      phoneNumber: [this.appointment.phoneNumber, [Validators.required]],
       doctor: [this.appointment.doctor, [Validators.required]],
       injury: [this.appointment.injury],
     });

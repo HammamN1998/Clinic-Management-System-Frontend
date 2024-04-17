@@ -32,7 +32,7 @@ export class EditDoctorComponent {
     first: 'Pooja',
     last: 'Sarma',
     gender: 'Female',
-    mobile: '123456789',
+    phoneNumber: '123456789',
     password: '123',
     conformPassword: '123',
     email: 'test@example.com',
@@ -57,7 +57,7 @@ export class EditDoctorComponent {
       ],
       last: [this.formdata.last],
       gender: [this.formdata.gender, [Validators.required]],
-      mobile: [this.formdata.mobile, [Validators.required]],
+      phoneNumber: [this.formdata.phoneNumber, [Validators.required]],
       password: [this.formdata.password],
       conformPassword: [this.formdata.conformPassword],
       email: [

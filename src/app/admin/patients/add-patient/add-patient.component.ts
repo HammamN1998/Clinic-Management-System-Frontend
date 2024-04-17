@@ -39,13 +39,13 @@ export class AddPatientComponent {
       first: ['', [Validators.required, Validators.pattern('[a-zA-Z]+')]],
       last: [''],
       gender: ['', [Validators.required]],
-      mobile: ['', [Validators.required]],
+      phoneNumber: ['', [Validators.required]],
       dob: ['', [Validators.required]],
       age: [''],
       email: ['', [Validators.email, Validators.minLength(5)] ],
       maritalStatus: [''],
       address: [''],
-      bGroup: [''],
+      bloodGroup: [''],
       bPresure: [''],
       sugger: [''],
       injury: [''],
@@ -59,15 +59,15 @@ export class AddPatientComponent {
       id: '',
       name: this.patientForm.value.first.toString() + " " + this.patientForm.value.last.toString(),
       gender: this.patientForm.value.gender.toString(),
-      phoneNumber: this.patientForm.value.mobile.toString(),
+      phoneNumber: this.patientForm.value.phoneNumber.toString(),
       birthDate: this.patientForm.value.dob.toString(),
       email: this.patientForm.value.email.toString(),
       maritalState: this.patientForm.value.maritalStatus.toString(),
       address: this.patientForm.value.address.toString(),
-      bloodGroup: this.patientForm.value.bGroup.toString(),
+      bloodGroup: this.patientForm.value.bloodGroup.toString(),
       bloodPressure: this.patientForm.value.bPresure.toString(),
       condition: this.patientForm.value.injury.toString(),
-      imgUrl: 'assets/images/user/profile.png', // Or any other image URL
+      img: 'assets/images/user/profile.png', // Or any other image URL
       doctorId: ''
     };
 

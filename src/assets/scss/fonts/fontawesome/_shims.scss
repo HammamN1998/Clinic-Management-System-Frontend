@@ -420,9 +420,9 @@
 
 .#{$fa-css-prefix}.#{$fa-css-prefix}-tablet:before { content: fa-content($fa-var-tablet-alt); }
 
-.#{$fa-css-prefix}.#{$fa-css-prefix}-mobile:before { content: fa-content($fa-var-mobile-alt); }
+.#{$fa-css-prefix}.#{$fa-css-prefix}-phoneNumber:before { content: fa-content($fa-var-phoneNumber-alt); }
 
-.#{$fa-css-prefix}.#{$fa-css-prefix}-mobile-phone:before { content: fa-content($fa-var-mobile-alt); }
+.#{$fa-css-prefix}.#{$fa-css-prefix}-phoneNumber-phone:before { content: fa-content($fa-var-phoneNumber-alt); }
 
 .#{$fa-css-prefix}.#{$fa-css-prefix}-circle-o {
   font-family: 'Font Awesome 5 Free';

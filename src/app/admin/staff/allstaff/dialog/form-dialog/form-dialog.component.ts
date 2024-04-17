@@ -79,7 +79,7 @@ export class FormDialogComponent {
       ],
       designation: [this.staff.designation],
       address: [this.staff.address],
-      mobile: [this.staff.mobile],
+      phoneNumber: [this.staff.phoneNumber],
     });
   }
   submit() {

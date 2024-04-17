@@ -38,7 +38,7 @@ export class BookAppointmentComponent {
       first: ['', [Validators.required, Validators.pattern('[a-zA-Z]+')]],
       last: [''],
       gender: ['', [Validators.required]],
-      mobile: ['', [Validators.required]],
+      phoneNumber: ['', [Validators.required]],
       address: [''],
       email: [
         '',

@@ -5,7 +5,7 @@ export class Contacts {
   name: string;
   email: string;
   birthDate: string;
-  mobile: string;
+  phoneNumber: string;
   address: string;
   note: string;
 
@@ -17,7 +17,7 @@ export class Contacts {
       this.email = contacts.email || '';
       this.birthDate = formatDate(new Date(), 'yyyy-MM-dd', 'en') || '';
       this.address = contacts.address || '';
-      this.mobile = contacts.mobile || '';
+      this.phoneNumber = contacts.phoneNumber || '';
       this.note = contacts.note || '';
     }
   }

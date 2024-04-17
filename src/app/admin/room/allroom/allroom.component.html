@@ -78,27 +78,27 @@
                   <mat-header-cell mat-header-cell *matHeaderCellDef [ngClass]="'tbl-col-width-per-7'"> Image
                   </mat-header-cell>
                   <mat-cell mat-cell *matCellDef="let row" class="table-img tbl-col-width-per-7"><span
-                      class="mobile-label">Image:</span> <img [src]="row.img" />
+                      class="phoneNumber-label">Image:</span> <img [src]="row.img" />
                   </mat-cell>
                 </ng-container>
                 <ng-container matColumnDef="rNo">
                   <mat-header-cell *matHeaderCellDef mat-sort-header>Room No</mat-header-cell>
-                  <mat-cell *matCellDef="let row"><span class="mobile-label">Room No:</span> {{row.rNo}}</mat-cell>
+                  <mat-cell *matCellDef="let row"><span class="phoneNumber-label">Room No:</span> {{row.rNo}}</mat-cell>
                 </ng-container>
                 <ng-container matColumnDef="pName">
                   <mat-header-cell *matHeaderCellDef mat-sort-header>patient Name</mat-header-cell>
-                  <mat-cell *matCellDef="let row"><span class="mobile-label">Patient Name:</span> {{row.pName}}
+                  <mat-cell *matCellDef="let row"><span class="phoneNumber-label">Patient Name:</span> {{row.pName}}
                   </mat-cell>
                 </ng-container>
                 <ng-container matColumnDef="rType">
                   <mat-header-cell *matHeaderCellDef mat-sort-header>Room Type</mat-header-cell>
-                  <mat-cell *matCellDef="let row"> <span class="mobile-label">Room Type:</span>{{row.rType}}</mat-cell>
+                  <mat-cell *matCellDef="let row"> <span class="phoneNumber-label">Room Type:</span>{{row.rType}}</mat-cell>
                 </ng-container>
                 <ng-container matColumnDef="gender">
                   <mat-header-cell *matHeaderCellDef mat-sort-header> Gender
                   </mat-header-cell>
                   <mat-cell mat-cell *matCellDef="let row">
-                    <span class="mobile-label">Gender:</span>
+                    <span class="phoneNumber-label">Gender:</span>
                     @if (row.gender==='Male') {
                     <div>
                       <span class="badge badge-solid-green">
@@ -115,13 +115,13 @@
                 </ng-container>
                 <ng-container matColumnDef="admitDate">
                   <mat-header-cell *matHeaderCellDef mat-sort-header>Admit Date</mat-header-cell>
-                  <mat-cell *matCellDef="let row"> <span class="mobile-label">Admit
+                  <mat-cell *matCellDef="let row"> <span class="phoneNumber-label">Admit
                       Date:</span>{{row.admitDate | date: 'MM/dd/yyyy'}}
                   </mat-cell>
                 </ng-container>
                 <ng-container matColumnDef="dischargeDate">
                   <mat-header-cell *matHeaderCellDef mat-sort-header>Discharge Date</mat-header-cell>
-                  <mat-cell *matCellDef="let row"> <span class="mobile-label">Discharge
+                  <mat-cell *matCellDef="let row"> <span class="phoneNumber-label">Discharge
                       Date:</span>{{row.dischargeDate | date: 'MM/dd/yyyy'}}
                   </mat-cell>
                 </ng-container>

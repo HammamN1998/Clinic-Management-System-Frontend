@@ -61,7 +61,7 @@ export class AllstaffComponent
     'img',
     'name',
     'designation',
-    'mobile',
+    'phoneNumber',
     'email',
     'date',
     'address',
@@ -259,7 +259,7 @@ export class AllstaffComponent
         Email: x.email,
         Date: formatDate(new Date(x.date), 'yyyy-MM-dd', 'en') || '',
         Address: x.address,
-        Mobile: x.mobile,
+        Mobile: x.phoneNumber,
       }));
 
     TableExportUtil.exportToExcel(exportData, 'excel');
@@ -317,7 +317,7 @@ export class ExampleDataSource extends DataSource<Staff> {
             const searchStr = (
               staff.name +
               staff.designation +
-              staff.mobile +
+              staff.phoneNumber +
               staff.email +
               staff.date +
               staff.address
@@ -362,8 +362,8 @@ export class ExampleDataSource extends DataSource<Staff> {
         case 'address':
           [propertyA, propertyB] = [a.address, b.address];
           break;
-        case 'mobile':
-          [propertyA, propertyB] = [a.mobile, b.mobile];
+        case 'phoneNumber':
+          [propertyA, propertyB] = [a.phoneNumber, b.phoneNumber];
           break;
       }
       const valueA = isNaN(+propertyA) ? propertyA : +propertyA;

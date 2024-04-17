@@ -865,12 +865,12 @@ mat-cell > span.truncate-text {
     width: 32px;
   }
 }
-.mobile-label {
+.phoneNumber-label {
   display: none;
 }
 
 @media (max-width: 600px) {
-  .mobile-label {
+  .phoneNumber-label {
     width: 100px;
     display: inline-block;
     font-weight: bold;

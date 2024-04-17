@@ -54,7 +54,7 @@ export class SidebarComponent extends UnsubscribeOnDestroyAdapter implements OnI
     this.elementRef.nativeElement.closest('body');
     this.subs.sink = this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {
-        // close sidebar on mobile screen after menu select
+        // close sidebar on phoneNumber screen after menu select
         this.renderer.removeClass(this.document.body, 'overlay-open');
       }
     });

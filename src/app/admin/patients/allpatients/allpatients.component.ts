@@ -61,14 +61,15 @@ export class AllpatientsComponent
   implements OnInit {
   displayedColumns = [
     'select',
+    'id',
     'img',
     'name',
     'gender',
     'address',
-    'mobile',
-    'date',
-    'bGroup',
-    'treatment',
+    'phoneNumber',
+    'birthDate',
+    'bloodGroup',
+    'condition',
     'actions',
   ];
   exampleDatabase?: PatientService;
@@ -364,7 +365,7 @@ export class ExampleDataSource extends DataSource<Patient> {
         case 'address':
           [propertyA, propertyB] = [a.address, b.address];
           break;
-        case 'mobile':
+        case 'phoneNumber':
           [propertyA, propertyB] = [a.phoneNumber, b.phoneNumber];
           break;
       }

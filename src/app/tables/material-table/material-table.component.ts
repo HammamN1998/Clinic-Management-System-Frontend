@@ -10,7 +10,7 @@ export interface PeriodicElement {
   gender: string;
   email: string;
   address: string;
-  mobile: number;
+  phoneNumber: number;
   salary: number;
 }
 const ELEMENT_DATA: PeriodicElement[] = [
@@ -20,7 +20,7 @@ const ELEMENT_DATA: PeriodicElement[] = [
     gender: 'male',
     email: 'test@example.com',
     address: '729 S. Paris Hill St',
-    mobile: 1234567890,
+    phoneNumber: 1234567890,
     salary: 120000,
   },
   {
@@ -29,7 +29,7 @@ const ELEMENT_DATA: PeriodicElement[] = [
     gender: 'female',
     email: 'test@example.com',
     address: '9003 Lake Street Hinesville',
-    mobile: 1234567890,
+    phoneNumber: 1234567890,
     salary: 170000,
   },
   {
@@ -38,7 +38,7 @@ const ELEMENT_DATA: PeriodicElement[] = [
     gender: 'male',
     email: 'test@example.com',
     address: '848 Old Durham Street Piedmont',
-    mobile: 1234567890,
+    phoneNumber: 1234567890,
     salary: 150000,
   },
   {
@@ -47,7 +47,7 @@ const ELEMENT_DATA: PeriodicElement[] = [
     gender: 'male',
     email: 'test@example.com',
     address: '8008 Anderson Drive Titusville',
-    mobile: 1234567890,
+    phoneNumber: 1234567890,
     salary: 190000,
   },
   {
@@ -56,7 +56,7 @@ const ELEMENT_DATA: PeriodicElement[] = [
     gender: 'female',
     email: 'test@example.com',
     address: '620 East Ave. Dundalk',
-    mobile: 1234567890,
+    phoneNumber: 1234567890,
     salary: 140000,
   },
   {
@@ -65,7 +65,7 @@ const ELEMENT_DATA: PeriodicElement[] = [
     gender: 'male',
     email: 'test@example.com',
     address: '9641 Delaware Street Camp Hill',
-    mobile: 1234567890,
+    phoneNumber: 1234567890,
     salary: 220000,
   },
   {
@@ -74,7 +74,7 @@ const ELEMENT_DATA: PeriodicElement[] = [
     gender: 'male',
     email: 'test@example.com',
     address: '83 Pennsylvania Road',
-    mobile: 1234567890,
+    phoneNumber: 1234567890,
     salary: 170000,
   },
   {
@@ -83,7 +83,7 @@ const ELEMENT_DATA: PeriodicElement[] = [
     gender: 'female',
     email: 'test@example.com',
     address: '786 Lake Forest Rd. Biloxi',
-    mobile: 1234567890,
+    phoneNumber: 1234567890,
     salary: 320000,
   },
   {
@@ -92,7 +92,7 @@ const ELEMENT_DATA: PeriodicElement[] = [
     gender: 'male',
     email: 'test@example.com',
     address: '226 Heritage Dr. Durham',
-    mobile: 1234567890,
+    phoneNumber: 1234567890,
     salary: 620000,
   },
   {
@@ -101,7 +101,7 @@ const ELEMENT_DATA: PeriodicElement[] = [
     gender: 'male',
     email: 'test@example.com',
     address: '7 SE. Pumpkin Hill Lane',
-    mobile: 1234567890,
+    phoneNumber: 1234567890,
     salary: 110000,
   },
 ];
@@ -125,7 +125,7 @@ export class MaterialTableComponent implements OnInit {
     'gender',
     'email',
     'address',
-    'mobile',
+    'phoneNumber',
     'salary',
   ];
   dataSource = ELEMENT_DATA;

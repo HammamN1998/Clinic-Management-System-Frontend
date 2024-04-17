@@ -78,7 +78,7 @@ export class FormDialogComponent {
         [Validators.required],
       ],
       specialization: [this.doctors.specialization],
-      mobile: [this.doctors.mobile],
+      phoneNumber: [this.doctors.phoneNumber],
       department: [this.doctors.department],
       degree: [this.doctors.degree],
     });

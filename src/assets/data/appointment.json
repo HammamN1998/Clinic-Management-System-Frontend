@@ -6,7 +6,7 @@
     "gender": "male",
     "date": "2018-02-25T14:22:18Z",
     "time": "10:18",
-    "mobile": "1234567890",
+    "phoneNumber": "1234567890",
     "doctor": "Dr.Rajesh",
     "injury": "Fever"
   },
@@ -18,7 +18,7 @@
     "gender": "female",
     "date": "2018-02-17T14:22:18Z",
     "time": "18:25",
-    "mobile": "1234567890",
+    "phoneNumber": "1234567890",
     "doctor": "Dr.Sarah Smith",
     "injury": "Malaria"
   },
@@ -30,7 +30,7 @@
     "gender": "male",
     "date": "2018-02-13T14:22:18Z",
     "time": "11:30",
-    "mobile": "1234567890",
+    "phoneNumber": "1234567890",
     "doctor": "Dr.Rajesh",
     "injury": "Cholera"
   },
@@ -42,7 +42,7 @@
     "gender": "male",
     "date": "2018-02-01T14:22:18Z",
     "time": "10:18",
-    "mobile": "1234567890",
+    "phoneNumber": "1234567890",
     "doctor": "Dr.Jay Soni",
     "injury": "Fever"
   },
@@ -54,7 +54,7 @@
     "gender": "male",
     "date": "2018-02-02T14:22:18Z",
     "time": "10:18",
-    "mobile": "1234567890",
+    "phoneNumber": "1234567890",
     "doctor": "Dr.Pooja Patel",
     "injury": "Fever"
   },
@@ -66,7 +66,7 @@
     "gender": "female",
     "date": "2018-02-26T14:22:18Z",
     "time": "10:18",
-    "mobile": "1234567890",
+    "phoneNumber": "1234567890",
     "doctor": "Dr.Rajesh",
     "injury": "Fever"
   },
@@ -78,7 +78,7 @@
     "gender": "female",
     "date": "2018-02-22T14:22:18Z",
     "time": "10:18",
-    "mobile": "1234567890",
+    "phoneNumber": "1234567890",
     "doctor": "Dr.Rajesh",
     "injury": "Fever"
   },
@@ -90,7 +90,7 @@
     "gender": "male",
     "date": "2018-02-19T14:22:18Z",
     "time": "10:18",
-    "mobile": "1234567890",
+    "phoneNumber": "1234567890",
     "doctor": "Dr.Jay Soni",
     "injury": "Fever"
   },
@@ -102,7 +102,7 @@
     "gender": "male",
     "date": "2018-02-15T14:22:18Z",
     "time": "10:18",
-    "mobile": "1234567890",
+    "phoneNumber": "1234567890",
     "doctor": "Dr.Pooja Patel",
     "injury": "Fever"
   },
@@ -114,7 +114,7 @@
     "gender": "female",
     "date": "2018-02-27T14:22:18Z",
     "time": "10:18",
-    "mobile": "1234567890",
+    "phoneNumber": "1234567890",
     "doctor": "Dr.Rajesh",
     "injury": "Fever"
   },
@@ -126,7 +126,7 @@
     "gender": "female",
     "date": "2018-02-21T14:22:18Z",
     "time": "10:18",
-    "mobile": "1234567890",
+    "phoneNumber": "1234567890",
     "doctor": "Dr.Jay Soni",
     "injury": "Fever"
   },
@@ -138,7 +138,7 @@
     "gender": "male",
     "date": "2018-02-10T14:22:18Z",
     "time": "10:18",
-    "mobile": "1234567890",
+    "phoneNumber": "1234567890",
     "doctor": "Dr.Rajesh",
     "injury": "Fever"
   },
@@ -150,7 +150,7 @@
     "gender": "male",
     "date": "2018-02-11T14:22:18Z",
     "time": "18:25",
-    "mobile": "1234567890",
+    "phoneNumber": "1234567890",
     "doctor": "Dr.Sarah Smith",
     "injury": "Malaria"
   },
@@ -162,7 +162,7 @@
     "gender": "female",
     "date": "2018-02-16T14:22:18Z",
     "time": "11:30",
-    "mobile": "1234567890",
+    "phoneNumber": "1234567890",
     "doctor": "Dr.Pooja Patel",
     "injury": "Cholera"
   },
@@ -174,7 +174,7 @@
     "gender": "female",
     "date": "2018-02-04T14:22:18Z",
     "time": "10:18",
-    "mobile": "1234567890",
+    "phoneNumber": "1234567890",
     "doctor": "Dr.Jay Soni",
     "injury": "Fever"
   },
@@ -186,7 +186,7 @@
     "gender": "male",
     "date": "2018-02-15T14:22:18Z",
     "time": "10:18",
-    "mobile": "1234567890",
+    "phoneNumber": "1234567890",
     "doctor": "Dr.Rajesh",
     "injury": "Fever"
   }

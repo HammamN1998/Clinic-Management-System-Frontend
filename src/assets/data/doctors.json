@@ -5,7 +5,7 @@
     "email": "test@email.com",
     "date": "2018-02-25T14:22:18Z",
     "department": "Urology",
-    "mobile": "1234567890",
+    "phoneNumber": "1234567890",
     "name": "Dr.John Doe",
     "degree": "MBBS,MS"
   },
@@ -16,7 +16,7 @@
     "email": "test@email.com",
     "date": "2018-02-12T14:22:18Z",
     "department": "Dentist",
-    "mobile": "1234567890",
+    "phoneNumber": "1234567890",
     "name": "Dr.Sarah Smith",
     "degree": "BHMS"
   },
@@ -27,7 +27,7 @@
     "email": "test@email.com",
     "date": "2018-02-25T14:22:18Z",
     "department": "General",
-    "mobile": "1234567890",
+    "phoneNumber": "1234567890",
     "name": "Dr.Rajesh",
     "degree": "MBBS,MD"
   },
@@ -38,7 +38,7 @@
     "email": "test@email.com",
     "date": "2018-02-25T14:22:18Z",
     "department": "Urology",
-    "mobile": "1234567890",
+    "phoneNumber": "1234567890",
     "name": "Dr.Jay Soni",
     "degree": "MBBS,MS"
   },
@@ -49,7 +49,7 @@
     "email": "test@email.com",
     "date": "2018-02-25T14:22:18Z",
     "department": "Gynecology",
-    "mobile": "1234567890",
+    "phoneNumber": "1234567890",
     "name": "Dr.Rajesh",
     "degree": "MBBS,MS"
   },
@@ -60,7 +60,7 @@
     "email": "test@email.com",
     "date": "2018-02-25T14:22:18Z",
     "department": "Oncology",
-    "mobile": "1234567890",
+    "phoneNumber": "1234567890",
     "name": "Dr.John Doe",
     "degree": "MBBS,MS"
   },
@@ -71,7 +71,7 @@
     "email": "test@email.com",
     "date": "2018-02-25T14:22:18Z",
     "department": "Otolaryngology",
-    "mobile": "1234567890",
+    "phoneNumber": "1234567890",
     "name": "Dr.Cara Stevens",
     "degree": "MBBS,MS"
   },
@@ -82,7 +82,7 @@
     "email": "test@email.com",
     "date": "2018-02-25T14:22:18Z",
     "department": "Radiology",
-    "mobile": "1234567890",
+    "phoneNumber": "1234567890",
     "name": "Dr.Jay Soni",
     "degree": "MBBS,MS"
   },
@@ -93,7 +93,7 @@
     "email": "test@email.com",
     "date": "2018-02-25T14:22:18Z",
     "department": "Urology",
-    "mobile": "1234567890",
+    "phoneNumber": "1234567890",
     "name": "Dr.Angelica Ramos",
     "degree": "MBBS,MS"
   },
@@ -104,7 +104,7 @@
     "email": "test@email.com",
     "date": "2018-02-25T14:22:18Z",
     "department": "Dentist",
-    "mobile": "1234567890",
+    "phoneNumber": "1234567890",
     "name": "Dr.Airi Satou",
     "degree": "MBBS,MS"
   },
@@ -115,7 +115,7 @@
     "email": "test@email.com",
     "date": "2018-02-25T14:22:18Z",
     "department": "General",
-    "mobile": "1234567890",
+    "phoneNumber": "1234567890",
     "name": "Dr.Jay Soni",
     "degree": "MBBS,MS"
   },
@@ -126,7 +126,7 @@
     "email": "test@email.com",
     "date": "2018-02-25T14:22:18Z",
     "department": "Urology",
-    "mobile": "1234567890",
+    "phoneNumber": "1234567890",
     "name": "Dr.Cara Stevens",
     "degree": "MBBS,MS"
   },
@@ -137,7 +137,7 @@
     "email": "test@email.com",
     "date": "2018-02-25T14:22:18Z",
     "department": "Urology",
-    "mobile": "1234567890",
+    "phoneNumber": "1234567890",
     "name": "Dr.Sarah Smith",
     "degree": "BHMS"
   },
@@ -148,7 +148,7 @@
     "email": "test@email.com",
     "date": "2018-02-25T14:22:18Z",
     "department": "Gynecology",
-    "mobile": "1234567890",
+    "phoneNumber": "1234567890",
     "name": "Dr.Ashton Cox",
     "degree": "MBBS,MD"
   },
@@ -159,7 +159,7 @@
     "email": "test@email.com",
     "date": "2018-02-25T14:22:18Z",
     "department": "Otolaryngology",
-    "mobile": "1234567890",
+    "phoneNumber": "1234567890",
     "name": "Dr.Jay Soni",
     "degree": "MBBS,MS"
   },
@@ -170,7 +170,7 @@
     "email": "test@email.com",
     "date": "2018-02-25T14:22:18Z",
     "department": "General",
-    "mobile": "1234567890",
+    "phoneNumber": "1234567890",
     "name": "Dr.Angelica Ramos",
     "degree": "MBBS,MS"
   }

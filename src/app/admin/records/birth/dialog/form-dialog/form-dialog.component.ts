@@ -80,7 +80,7 @@ export class FormDialogComponent {
       ],
       mother_name: [this.birth.mother_name],
       father_name: [this.birth.father_name],
-      mobile: [this.birth.mobile],
+      phoneNumber: [this.birth.phoneNumber],
       address: [this.birth.address],
       note: [this.birth.note],
     });

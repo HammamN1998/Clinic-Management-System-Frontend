@@ -91,7 +91,7 @@ export class FormComponent {
         [Validators.required],
       ],
       address: [this.contacts.address],
-      mobile: [this.contacts.mobile],
+      phoneNumber: [this.contacts.phoneNumber],
       note: [this.contacts.note],
     });
   }

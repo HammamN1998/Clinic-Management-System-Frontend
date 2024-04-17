@@ -65,7 +65,7 @@ export class BirthComponent
     'birth_date',
     'mother_name',
     'father_name',
-    'mobile',
+    'phoneNumber',
     'address',
     'actions',
   ];
@@ -258,7 +258,7 @@ export class BirthComponent
           formatDate(new Date(x.birth_date), 'yyyy-MM-dd', 'en') || '',
         'Mother Name': x.mother_name,
         'Father Name': x.father_name,
-        Mobile: x.mobile,
+        Mobile: x.phoneNumber,
         Address: x.address,
       }));
 
@@ -321,7 +321,7 @@ export class ExampleDataSource extends DataSource<Birth> {
               birth.birth_date +
               birth.mother_name +
               birth.father_name +
-              birth.mobile +
+              birth.phoneNumber +
               birth.address
             ).toLowerCase();
             return searchStr.indexOf(this.filter.toLowerCase()) !== -1;
@@ -373,8 +373,8 @@ export class ExampleDataSource extends DataSource<Birth> {
         case 'address':
           [propertyA, propertyB] = [a.address, b.address];
           break;
-        case 'mobile':
-          [propertyA, propertyB] = [a.mobile, b.mobile];
+        case 'phoneNumber':
+          [propertyA, propertyB] = [a.phoneNumber, b.phoneNumber];
           break;
       }
       const valueA = isNaN(+propertyA) ? propertyA : +propertyA;

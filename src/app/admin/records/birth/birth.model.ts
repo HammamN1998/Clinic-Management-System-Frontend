@@ -7,7 +7,7 @@ export class Birth {
   birth_date: string;
   mother_name: string;
   father_name: string;
-  mobile: string;
+  phoneNumber: string;
   address: string;
   note: string;
   constructor(birth: Birth) {
@@ -19,7 +19,7 @@ export class Birth {
       this.birth_date = formatDate(new Date(), 'yyyy-MM-dd', 'en') || '';
       this.mother_name = birth.mother_name || '';
       this.father_name = birth.father_name || '';
-      this.mobile = birth.mobile || '';
+      this.phoneNumber = birth.phoneNumber || '';
       this.address = birth.address || '';
       this.note = birth.note || '';
     }

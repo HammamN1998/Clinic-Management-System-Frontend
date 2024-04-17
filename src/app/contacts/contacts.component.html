@@ -83,44 +83,44 @@
                         <mat-header-cell mat-header-cell *matHeaderCellDef [ngClass]="'tbl-col-width-per-6'"> Image
                         </mat-header-cell>
                         <mat-cell mat-cell *matCellDef="let row" class="table-img tbl-col-width-per-6"> <span
-                            class="mobile-label">Image:</span><img [src]="row.img" />
+                            class="phoneNumber-label">Image:</span><img [src]="row.img" />
                         </mat-cell>
                       </ng-container>
                       <ng-container matColumnDef="name">
                         <mat-header-cell *matHeaderCellDef mat-sort-header>Name
                         </mat-header-cell>
-                        <mat-cell *matCellDef="let row"> <span class="mobile-label">Name:</span>{{row.name}}
+                        <mat-cell *matCellDef="let row"> <span class="phoneNumber-label">Name:</span>{{row.name}}
                         </mat-cell>
                       </ng-container>
-                      <ng-container matColumnDef="mobile">
+                      <ng-container matColumnDef="phoneNumber">
                         <mat-header-cell *matHeaderCellDef mat-sort-header>Mobile
                         </mat-header-cell>
-                        <mat-cell *matCellDef="let row"> <span class="mobile-label">Mobile:</span>{{row.mobile}}
+                        <mat-cell *matCellDef="let row"> <span class="phoneNumber-label">Mobile:</span>{{row.phoneNumber}}
                         </mat-cell>
                       </ng-container>
                       <ng-container matColumnDef="email">
                         <mat-header-cell *matHeaderCellDef mat-sort-header>Email
                         </mat-header-cell>
-                        <mat-cell *matCellDef="let row"> <span class="mobile-label">Email:</span>{{row.email}}
+                        <mat-cell *matCellDef="let row"> <span class="phoneNumber-label">Email:</span>{{row.email}}
                         </mat-cell>
                       </ng-container>
                       <ng-container matColumnDef="birthDate">
                         <mat-header-cell *matHeaderCellDef mat-sort-header>Birth Date
                         </mat-header-cell>
                         <mat-cell *matCellDef="let row">
-                          <span class="mobile-label">Birth Date:</span>{{row.birthDate | date: 'MM/dd/yyyy'}}</mat-cell>
+                          <span class="phoneNumber-label">Birth Date:</span>{{row.birthDate | date: 'MM/dd/yyyy'}}</mat-cell>
                       </ng-container>
                       <ng-container matColumnDef="address">
                         <mat-header-cell *matHeaderCellDef mat-sort-header>Address
                         </mat-header-cell>
                         <mat-cell *matCellDef="let row" class="column-nowrap"> <span
-                            class="mobile-label">Address:</span>{{row.address}}
+                            class="phoneNumber-label">Address:</span>{{row.address}}
                         </mat-cell>
                       </ng-container>
                       <ng-container matColumnDef="note">
                         <mat-header-cell *matHeaderCellDef mat-sort-header>Note
                         </mat-header-cell>
-                        <mat-cell *matCellDef="let row"> <span class="mobile-label">Note:</span>{{row.note}}
+                        <mat-cell *matCellDef="let row"> <span class="phoneNumber-label">Note:</span>{{row.note}}
                         </mat-cell>
                       </ng-container>
                       <!-- actions -->

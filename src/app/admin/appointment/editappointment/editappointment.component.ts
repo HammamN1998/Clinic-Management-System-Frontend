@@ -35,7 +35,7 @@ export class EditappointmentComponent {
     first: 'Pooja',
     last: 'Sarma',
     gender: 'female',
-    mobile: '123456789',
+    phoneNumber: '123456789',
     address: '101, Elanxa, New Yourk',
     email: 'test@example.com',
     dob: '1987-02-17T14:22:18Z',
@@ -60,7 +60,7 @@ export class EditappointmentComponent {
       ],
       last: [this.formdata.last],
       gender: [this.formdata.gender, [Validators.required]],
-      mobile: [this.formdata.mobile, [Validators.required]],
+      phoneNumber: [this.formdata.phoneNumber, [Validators.required]],
       address: [this.formdata.address],
       email: [
         this.formdata.email,

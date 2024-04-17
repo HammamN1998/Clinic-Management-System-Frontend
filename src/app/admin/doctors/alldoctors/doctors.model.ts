@@ -6,7 +6,7 @@ export class Doctors {
   email: string;
   date: string;
   specialization: string;
-  mobile: string;
+  phoneNumber: string;
   department: string;
   degree: string;
   constructor(doctors: Doctors) {
@@ -17,7 +17,7 @@ export class Doctors {
       this.email = doctors.email || '';
       this.date = formatDate(new Date(), 'yyyy-MM-dd', 'en') || '';
       this.specialization = doctors.specialization || '';
-      this.mobile = doctors.mobile || '';
+      this.phoneNumber = doctors.phoneNumber || '';
       this.department = doctors.department || '';
       this.degree = doctors.degree || '';
     }

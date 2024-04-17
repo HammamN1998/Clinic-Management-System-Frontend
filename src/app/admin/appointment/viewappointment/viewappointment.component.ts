@@ -66,7 +66,7 @@ export class ViewappointmentComponent
     'gender',
     'date',
     'time',
-    'mobile',
+    'phoneNumber',
     'doctor',
     'injury',
     'actions',
@@ -263,7 +263,7 @@ export class ViewappointmentComponent
         Gender: x.gender,
         Date: formatDate(new Date(x.date), 'yyyy-MM-dd', 'en') || '',
         Time: x.time,
-        Mobile: x.mobile,
+        Mobile: x.phoneNumber,
         Doctor: x.doctor,
         Injury: x.injury,
       }));
@@ -327,7 +327,7 @@ export class ExampleDataSource extends DataSource<Appointment> {
               appointment.date +
               appointment.doctor +
               appointment.injury +
-              appointment.mobile
+              appointment.phoneNumber
             ).toLowerCase();
             return searchStr.indexOf(this.filter.toLowerCase()) !== -1;
           });
@@ -367,8 +367,8 @@ export class ExampleDataSource extends DataSource<Appointment> {
         case 'time':
           [propertyA, propertyB] = [a.time, b.time];
           break;
-        case 'mobile':
-          [propertyA, propertyB] = [a.mobile, b.mobile];
+        case 'phoneNumber':
+          [propertyA, propertyB] = [a.phoneNumber, b.phoneNumber];
           break;
       }
       const valueA = isNaN(+propertyA) ? propertyA : +propertyA;

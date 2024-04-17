@@ -78,38 +78,38 @@
                 <ng-container matColumnDef="i_name">
                   <mat-header-cell *matHeaderCellDef mat-sort-header>Item Name
                   </mat-header-cell>
-                  <mat-cell *matCellDef="let row"><span class="mobile-label">Item Name:</span> {{row.i_name}}
+                  <mat-cell *matCellDef="let row"><span class="phoneNumber-label">Item Name:</span> {{row.i_name}}
                   </mat-cell>
                 </ng-container>
                 <ng-container matColumnDef="category">
                   <mat-header-cell *matHeaderCellDef mat-sort-header>Category</mat-header-cell>
-                  <mat-cell *matCellDef="let row"> <span class="mobile-label">Category:</span>{{row.category}}
+                  <mat-cell *matCellDef="let row"> <span class="phoneNumber-label">Category:</span>{{row.category}}
                   </mat-cell>
                 </ng-container>
                 <ng-container matColumnDef="issue_date">
                   <mat-header-cell *matHeaderCellDef mat-sort-header>Issue Date</mat-header-cell>
-                  <mat-cell *matCellDef="let row"> <span class="mobile-label">Issue
+                  <mat-cell *matCellDef="let row"> <span class="phoneNumber-label">Issue
                       Date:</span>{{row.issue_date | date: 'MM/dd/yyyy'}}</mat-cell>
                 </ng-container>
                 <ng-container matColumnDef="return_date">
                   <mat-header-cell *matHeaderCellDef mat-sort-header>Return Date</mat-header-cell>
-                  <mat-cell *matCellDef="let row"> <span class="mobile-label">Return
+                  <mat-cell *matCellDef="let row"> <span class="phoneNumber-label">Return
                       Date:</span>{{row.return_date | date: 'MM/dd/yyyy'}}</mat-cell>
                 </ng-container>
                 <ng-container matColumnDef="issue_to">
                   <mat-header-cell *matHeaderCellDef mat-sort-header>Issue To</mat-header-cell>
-                  <mat-cell *matCellDef="let row"> <span class="mobile-label">Issue To:</span>{{row.issue_to}}
+                  <mat-cell *matCellDef="let row"> <span class="phoneNumber-label">Issue To:</span>{{row.issue_to}}
                   </mat-cell>
                 </ng-container>
                 <ng-container matColumnDef="qty">
                   <mat-header-cell *matHeaderCellDef mat-sort-header>Quantity</mat-header-cell>
-                  <mat-cell *matCellDef="let row"><span class="mobile-label">Quantity:</span> {{row.qty}}</mat-cell>
+                  <mat-cell *matCellDef="let row"><span class="phoneNumber-label">Quantity:</span> {{row.qty}}</mat-cell>
                 </ng-container>
                 <ng-container matColumnDef="status">
                   <mat-header-cell *matHeaderCellDef mat-sort-header> Status
                   </mat-header-cell>
                   <mat-cell mat-cell *matCellDef="let row">
-                    <span class="mobile-label">Status:</span>
+                    <span class="phoneNumber-label">Status:</span>
                     @if (row.status==='Returned') {
                     <div>
                       <span class="badge badge-solid-green">

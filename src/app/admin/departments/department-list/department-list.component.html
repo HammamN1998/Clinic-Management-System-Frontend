@@ -79,34 +79,34 @@
                   <mat-header-cell *matHeaderCellDef mat-sort-header [ngClass]="'tbl-col-width-per-6'">#
                   </mat-header-cell>
                   <mat-cell *matCellDef="let row" [ngClass]="'tbl-col-width-per-6'"> <span
-                      class="mobile-label">#:</span>{{row.d_no}}</mat-cell>
+                      class="phoneNumber-label">#:</span>{{row.d_no}}</mat-cell>
                 </ng-container>
                 <ng-container matColumnDef="d_name">
                   <mat-header-cell *matHeaderCellDef mat-sort-header>Department Name</mat-header-cell>
-                  <mat-cell *matCellDef="let row"> <span class="mobile-label">Department Name:</span>{{row.d_name}}
+                  <mat-cell *matCellDef="let row"> <span class="phoneNumber-label">Department Name:</span>{{row.d_name}}
                   </mat-cell>
                 </ng-container>
                 <ng-container matColumnDef="description">
                   <mat-header-cell *matHeaderCellDef mat-sort-header [ngClass]="'tbl-col-width-per-100'">Description
                   </mat-header-cell>
                   <mat-cell *matCellDef="let row"> <span class="truncate-text" [ngClass]="'tbl-col-width-per-80'"><span
-                        class="mobile-label">Description:</span>{{row.description}}</span></mat-cell>
+                        class="phoneNumber-label">Description:</span>{{row.description}}</span></mat-cell>
                 </ng-container>
                 <ng-container matColumnDef="d_date">
                   <mat-header-cell *matHeaderCellDef mat-sort-header>Department Date</mat-header-cell>
-                  <mat-cell *matCellDef="let row"> <span class="mobile-label">Department
+                  <mat-cell *matCellDef="let row"> <span class="phoneNumber-label">Department
                       Date:</span>{{row.d_date | date: 'MM/dd/yyyy'}}</mat-cell>
                 </ng-container>
                 <ng-container matColumnDef="d_head">
                   <mat-header-cell *matHeaderCellDef mat-sort-header>Department Head</mat-header-cell>
-                  <mat-cell *matCellDef="let row"> <span class="mobile-label">Department Head:</span>{{row.d_head}}
+                  <mat-cell *matCellDef="let row"> <span class="phoneNumber-label">Department Head:</span>{{row.d_head}}
                   </mat-cell>
                 </ng-container>
                 <ng-container matColumnDef="status">
                   <mat-header-cell *matHeaderCellDef mat-sort-header> Status
                   </mat-header-cell>
                   <mat-cell mat-cell *matCellDef="let row">
-                    <span class="mobile-label">Status:</span>
+                    <span class="phoneNumber-label">Status:</span>
                     @if (row.status==='Active') {
                     <div>
                       <span class="badge badge-solid-green">
@@ -121,14 +121,14 @@
                     }
                   </mat-cell>
                 </ng-container>
-                <ng-container matColumnDef="mobile">
+                <ng-container matColumnDef="phoneNumber">
                   <mat-header-cell *matHeaderCellDef mat-sort-header>Mobile</mat-header-cell>
-                  <mat-cell *matCellDef="let row"> <span class="mobile-label">Mobile:</span>{{row.mobile}}</mat-cell>
+                  <mat-cell *matCellDef="let row"> <span class="phoneNumber-label">Mobile:</span>{{row.phoneNumber}}</mat-cell>
                 </ng-container>
                 <ng-container matColumnDef="address">
                   <mat-header-cell *matHeaderCellDef mat-sort-header>Address</mat-header-cell>
                   <mat-cell *matCellDef="let row">
-                    <span class="truncate-text"><span class="mobile-label">Address:</span>{{row.address}}</span>
+                    <span class="truncate-text"><span class="phoneNumber-label">Address:</span>{{row.address}}</span>
                   </mat-cell>
                 </ng-container>
                 <!-- actions -->

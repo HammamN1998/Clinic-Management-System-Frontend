@@ -63,7 +63,7 @@ export class AppointmentsComponent
     'name',
     'dateTime',
     'email',
-    'mobile',
+    'phoneNumber',
     'disease',
     'actions',
   ];
@@ -207,7 +207,7 @@ export class AppointmentsComponent
         Email: x.email,
         'Date & Time':
           formatDate(new Date(x.dateTime), 'yyyy-MM-dd', 'en') || '',
-        Mobile: x.mobile,
+        Mobile: x.phoneNumber,
         Disease: x.disease,
       }));
 
@@ -267,7 +267,7 @@ export class ExampleDataSource extends DataSource<Appointments> {
               appointments.name +
               appointments.dateTime +
               appointments.email +
-              appointments.mobile +
+              appointments.phoneNumber +
               appointments.address
             ).toLowerCase();
             return searchStr.indexOf(this.filter.toLowerCase()) !== -1;

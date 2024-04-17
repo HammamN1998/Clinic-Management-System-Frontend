@@ -63,7 +63,7 @@ export class AlldoctorsComponent
     'department',
     'specialization',
     'degree',
-    'mobile',
+    'phoneNumber',
     'email',
     'date',
     'actions',
@@ -257,7 +257,7 @@ export class AlldoctorsComponent
         'Joining Date': formatDate(new Date(x.date), 'yyyy-MM-dd', 'en') || '',
         Specialization: x.specialization,
         Degree: x.degree,
-        Mobile: x.mobile,
+        Mobile: x.phoneNumber,
       }));
 
     TableExportUtil.exportToExcel(exportData, 'excel');
@@ -318,7 +318,7 @@ export class ExampleDataSource extends DataSource<Doctors> {
               doctors.specialization +
               doctors.degree +
               doctors.email +
-              doctors.mobile
+              doctors.phoneNumber
             ).toLowerCase();
             return searchStr.indexOf(this.filter.toLowerCase()) !== -1;
           });
@@ -360,8 +360,8 @@ export class ExampleDataSource extends DataSource<Doctors> {
         case 'time':
           [propertyA, propertyB] = [a.department, b.department];
           break;
-        case 'mobile':
-          [propertyA, propertyB] = [a.mobile, b.mobile];
+        case 'phoneNumber':
+          [propertyA, propertyB] = [a.phoneNumber, b.phoneNumber];
           break;
       }
       const valueA = isNaN(+propertyA) ? propertyA : +propertyA;

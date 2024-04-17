@@ -63,7 +63,7 @@ export class ContactsComponent
     'img',
     'name',
     'email',
-    'mobile',
+    'phoneNumber',
     'birthDate',
     'address',
     'actions',
@@ -269,7 +269,7 @@ export class ContactsComponent
       this.dataSource.filteredData.map((x) => ({
         Name: x.name,
         Email: x.email,
-        Mobile: x.mobile,
+        Mobile: x.phoneNumber,
         'Birth Date':
           formatDate(new Date(x.birthDate), 'yyyy-MM-dd', 'en') || '',
         Address: x.address,
@@ -330,7 +330,7 @@ export class ExampleDataSource extends DataSource<Contacts> {
               contacts.name +
               contacts.birthDate +
               contacts.email +
-              contacts.mobile +
+              contacts.phoneNumber +
               contacts.address
             ).toLowerCase();
             return searchStr.indexOf(this.filter.toLowerCase()) !== -1;

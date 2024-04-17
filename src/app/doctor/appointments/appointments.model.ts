@@ -5,7 +5,7 @@ export class Appointments {
   name: string;
   email: string;
   dateTime: string;
-  mobile: string;
+  phoneNumber: string;
   address: string;
   disease: string;
 
@@ -17,7 +17,7 @@ export class Appointments {
       this.email = appointments.email || '';
       this.dateTime = formatDate(new Date(), 'yyyy-MM-dd', 'en') || '';
       this.address = appointments.address || '';
-      this.mobile = appointments.mobile || '';
+      this.phoneNumber = appointments.phoneNumber || '';
       this.disease = appointments.disease || '';
     }
   }

@@ -6,7 +6,7 @@ export class Death {
   gender: string;
   death_date: string;
   gaurdian_name: string;
-  mobile: string;
+  phoneNumber: string;
   address: string;
   note: string;
   constructor(death: Death) {
@@ -17,7 +17,7 @@ export class Death {
       this.gender = death.gender || 'Male';
       this.death_date = formatDate(new Date(), 'yyyy-MM-dd', 'en') || '';
       this.gaurdian_name = death.gaurdian_name || '';
-      this.mobile = death.mobile || '';
+      this.phoneNumber = death.phoneNumber || '';
       this.address = death.address || '';
       this.note = death.note || '';
     }

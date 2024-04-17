@@ -35,7 +35,7 @@ export class AddDoctorComponent {
       first: ['', [Validators.required, Validators.pattern('[a-zA-Z]+')]],
       last: [''],
       gender: ['', [Validators.required]],
-      mobile: ['', [Validators.required]],
+      phoneNumber: ['', [Validators.required]],
       password: ['', [Validators.required]],
       conformPassword: ['', [Validators.required]],
       designation: [''],

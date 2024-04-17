@@ -75,14 +75,14 @@ export class FormDialogComponent {
   createContactForm(): UntypedFormGroup {
     return this.fb.group({
       id: [this.patient.id],
-      img: [this.patient.imgUrl],
+      img: [this.patient.img],
       name: [this.patient.name],
       gender: [this.patient.gender],
       date: [this.patient.birthDate],
-      bGroup: [this.patient.bloodGroup],
-      mobile: [this.patient.phoneNumber],
+      bloodGroup: [this.patient.bloodGroup],
+      phoneNumber: [this.patient.phoneNumber],
       address: [this.patient.address],
-      treatment: [this.patient.condition],
+      condition: [this.patient.condition],
     });
   }
   submit() {

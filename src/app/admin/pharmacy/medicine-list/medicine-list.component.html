@@ -78,43 +78,43 @@
                 <ng-container matColumnDef="m_no">
                   <mat-header-cell *matHeaderCellDef mat-sort-header [ngClass]="'tbl-col-width-per-6'">#
                   </mat-header-cell>
-                  <mat-cell *matCellDef="let row" [ngClass]="'tbl-col-width-per-6'"><span class="mobile-label">#:</span>
+                  <mat-cell *matCellDef="let row" [ngClass]="'tbl-col-width-per-6'"><span class="phoneNumber-label">#:</span>
                     {{row.m_no}}</mat-cell>
                 </ng-container>
                 <ng-container matColumnDef="m_name">
                   <mat-header-cell *matHeaderCellDef mat-sort-header>Medicine Name</mat-header-cell>
-                  <mat-cell *matCellDef="let row"> <span class="mobile-label">Medicine Name:</span>{{row.m_name}}
+                  <mat-cell *matCellDef="let row"> <span class="phoneNumber-label">Medicine Name:</span>{{row.m_name}}
                   </mat-cell>
                 </ng-container>
                 <ng-container matColumnDef="category">
                   <mat-header-cell *matHeaderCellDef mat-sort-header [ngClass]="'tbl-col-width-per-100'">Category
                   </mat-header-cell>
                   <mat-cell *matCellDef="let row"> <span class="truncate-text" [ngClass]="'tbl-col-width-per-80'"><span
-                        class="mobile-label">Category:</span>{{row.category}}</span></mat-cell>
+                        class="phoneNumber-label">Category:</span>{{row.category}}</span></mat-cell>
                 </ng-container>
                 <ng-container matColumnDef="company">
                   <mat-header-cell *matHeaderCellDef mat-sort-header [ngClass]="'tbl-col-width-per-100'">Company Name
                   </mat-header-cell>
                   <mat-cell *matCellDef="let row"> <span class="truncate-text" [ngClass]="'tbl-col-width-per-80'"><span
-                        class="mobile-label">Company Name:</span>{{row.company}}</span></mat-cell>
+                        class="phoneNumber-label">Company Name:</span>{{row.company}}</span></mat-cell>
                 </ng-container>
                 <ng-container matColumnDef="p_date">
                   <mat-header-cell *matHeaderCellDef mat-sort-header>Purchase Date</mat-header-cell>
-                  <mat-cell *matCellDef="let row"> <span class="mobile-label">Purchase
+                  <mat-cell *matCellDef="let row"> <span class="phoneNumber-label">Purchase
                       Date:</span>{{row.p_date | date: 'MM/dd/yyyy'}}</mat-cell>
                 </ng-container>
                 <ng-container matColumnDef="price">
                   <mat-header-cell *matHeaderCellDef mat-sort-header>Price</mat-header-cell>
-                  <mat-cell *matCellDef="let row"> <span class="mobile-label">Price:</span>{{row.price}}</mat-cell>
+                  <mat-cell *matCellDef="let row"> <span class="phoneNumber-label">Price:</span>{{row.price}}</mat-cell>
                 </ng-container>
                 <ng-container matColumnDef="e_date">
                   <mat-header-cell *matHeaderCellDef mat-sort-header>Expired Date</mat-header-cell>
-                  <mat-cell *matCellDef="let row"> <span class="mobile-label">Expired
+                  <mat-cell *matCellDef="let row"> <span class="phoneNumber-label">Expired
                       Date:</span>{{row.e_date | date: 'MM/dd/yyyy'}}</mat-cell>
                 </ng-container>
                 <ng-container matColumnDef="stock">
                   <mat-header-cell *matHeaderCellDef mat-sort-header>Stock</mat-header-cell>
-                  <mat-cell *matCellDef="let row"> <span class="mobile-label">Stock:</span>{{row.stock}}</mat-cell>
+                  <mat-cell *matCellDef="let row"> <span class="phoneNumber-label">Stock:</span>{{row.stock}}</mat-cell>
                 </ng-container>
                 <!-- actions -->
                 <ng-container matColumnDef="actions">

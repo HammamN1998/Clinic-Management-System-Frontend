@@ -84,7 +84,7 @@ export class FormComponent {
         [Validators.required],
       ],
       address: [this.appointments.address],
-      mobile: [this.appointments.mobile],
+      phoneNumber: [this.appointments.phoneNumber],
       disease: [this.appointments.disease],
     });
   }

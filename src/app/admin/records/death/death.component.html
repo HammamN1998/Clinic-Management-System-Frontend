@@ -76,18 +76,18 @@
                 </ng-container>
                 <ng-container matColumnDef="case_no">
                   <mat-header-cell *matHeaderCellDef mat-sort-header>Case No</mat-header-cell>
-                  <mat-cell *matCellDef="let row"><span class="mobile-label">Case No:</span> {{row.case_no}}</mat-cell>
+                  <mat-cell *matCellDef="let row"><span class="phoneNumber-label">Case No:</span> {{row.case_no}}</mat-cell>
                 </ng-container>
                 <ng-container matColumnDef="patient_name">
                   <mat-header-cell *matHeaderCellDef mat-sort-header>Patient Name</mat-header-cell>
-                  <mat-cell *matCellDef="let row"> <span class="mobile-label">Patient Name:</span>{{row.patient_name}}
+                  <mat-cell *matCellDef="let row"> <span class="phoneNumber-label">Patient Name:</span>{{row.patient_name}}
                   </mat-cell>
                 </ng-container>
                 <ng-container matColumnDef="gender">
                   <mat-header-cell *matHeaderCellDef mat-sort-header> Gender
                   </mat-header-cell>
                   <mat-cell mat-cell *matCellDef="let row">
-                    <span class="mobile-label">Gender:</span>
+                    <span class="phoneNumber-label">Gender:</span>
                     @if (row.gender==='Male') {
                     <div>
                       <span class="badge badge-solid-green">
@@ -110,22 +110,22 @@
                 </ng-container>
                 <ng-container matColumnDef="death_date">
                   <mat-header-cell *matHeaderCellDef mat-sort-header>Death Date</mat-header-cell>
-                  <mat-cell *matCellDef="let row"> <span class="mobile-label">Death
+                  <mat-cell *matCellDef="let row"> <span class="phoneNumber-label">Death
                       Date:</span>{{row.death_date | date: 'MM/dd/yyyy'}}</mat-cell>
                 </ng-container>
                 <ng-container matColumnDef="gaurdian_name">
                   <mat-header-cell *matHeaderCellDef mat-sort-header>Gaurdian Name</mat-header-cell>
-                  <mat-cell *matCellDef="let row"><span class="mobile-label">Gaurdian Name:</span> {{row.gaurdian_name}}
+                  <mat-cell *matCellDef="let row"><span class="phoneNumber-label">Gaurdian Name:</span> {{row.gaurdian_name}}
                   </mat-cell>
                 </ng-container>
-                <ng-container matColumnDef="mobile">
+                <ng-container matColumnDef="phoneNumber">
                   <mat-header-cell *matHeaderCellDef mat-sort-header>Mobile</mat-header-cell>
-                  <mat-cell *matCellDef="let row"> <span class="mobile-label">Mobile:</span>{{row.mobile}}</mat-cell>
+                  <mat-cell *matCellDef="let row"> <span class="phoneNumber-label">Mobile:</span>{{row.phoneNumber}}</mat-cell>
                 </ng-container>
                 <ng-container matColumnDef="address">
                   <mat-header-cell *matHeaderCellDef mat-sort-header>Address</mat-header-cell>
                   <mat-cell *matCellDef="let row">
-                    <span class="truncate-text"><span class="mobile-label">Address:</span>{{row.address}}</span>
+                    <span class="truncate-text"><span class="phoneNumber-label">Address:</span>{{row.address}}</span>
                   </mat-cell>
                 </ng-container>
                 <!-- actions -->

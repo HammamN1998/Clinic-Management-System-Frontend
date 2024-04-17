@@ -10,7 +10,7 @@ export class Patient {
   bloodGroup: string;
   bloodPressure: string;
   condition: string;
-  imgUrl: string;
+  img: string;
   doctorId: string;
 
   constructor(patient: Patient) {
@@ -26,7 +26,7 @@ export class Patient {
       this.bloodGroup = patient.bloodGroup || '';
       this.bloodPressure = patient.bloodPressure || '';
       this.condition = patient.condition || '';
-      this.imgUrl = patient.imgUrl || 'assets/images/user/user1.jpg';
+      this.img = patient.img || 'assets/images/user/user1.jpg';
       this.doctorId = patient.doctorId || '';
     }
   }

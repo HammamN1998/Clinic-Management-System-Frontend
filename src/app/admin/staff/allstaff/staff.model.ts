@@ -6,7 +6,7 @@ export class Staff {
   email: string;
   date: string;
   address: string;
-  mobile: string;
+  phoneNumber: string;
   designation: string;
   constructor(staff: Staff) {
     {
@@ -17,7 +17,7 @@ export class Staff {
       this.email = staff.email || '';
       this.date = formatDate(new Date(), 'yyyy-MM-dd', 'en') || '';
       this.address = staff.address || '';
-      this.mobile = staff.mobile || '';
+      this.phoneNumber = staff.phoneNumber || '';
     }
   }
   public getRandomID(): number {

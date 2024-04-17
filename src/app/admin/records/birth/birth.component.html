@@ -76,18 +76,18 @@
                 </ng-container>
                 <ng-container matColumnDef="case_no">
                   <mat-header-cell *matHeaderCellDef mat-sort-header>Case No</mat-header-cell>
-                  <mat-cell *matCellDef="let row"> <span class="mobile-label">Case No:</span>{{row.case_no}}</mat-cell>
+                  <mat-cell *matCellDef="let row"> <span class="phoneNumber-label">Case No:</span>{{row.case_no}}</mat-cell>
                 </ng-container>
                 <ng-container matColumnDef="child_name">
                   <mat-header-cell *matHeaderCellDef mat-sort-header>Child Name</mat-header-cell>
-                  <mat-cell *matCellDef="let row"> <span class="mobile-label">Child Name:</span>{{row.child_name}}
+                  <mat-cell *matCellDef="let row"> <span class="phoneNumber-label">Child Name:</span>{{row.child_name}}
                   </mat-cell>
                 </ng-container>
                 <ng-container matColumnDef="gender">
                   <mat-header-cell *matHeaderCellDef mat-sort-header> Gender
                   </mat-header-cell>
                   <mat-cell mat-cell *matCellDef="let row">
-                    <span class="mobile-label">Gender:</span>
+                    <span class="phoneNumber-label">Gender:</span>
                     @if (row.gender==='Male') {
                     <div>
                       <span class="badge badge-solid-green">
@@ -110,27 +110,27 @@
                 </ng-container>
                 <ng-container matColumnDef="birth_date">
                   <mat-header-cell *matHeaderCellDef mat-sort-header>Birth Date</mat-header-cell>
-                  <mat-cell *matCellDef="let row"> <span class="mobile-label">Birth
+                  <mat-cell *matCellDef="let row"> <span class="phoneNumber-label">Birth
                       Date:</span>{{row.birth_date | date: 'MM/dd/yyyy'}}</mat-cell>
                 </ng-container>
                 <ng-container matColumnDef="mother_name">
                   <mat-header-cell *matHeaderCellDef mat-sort-header>Mother Name</mat-header-cell>
-                  <mat-cell *matCellDef="let row"><span class="mobile-label">Mother Name:</span> {{row.mother_name}}
+                  <mat-cell *matCellDef="let row"><span class="phoneNumber-label">Mother Name:</span> {{row.mother_name}}
                   </mat-cell>
                 </ng-container>
                 <ng-container matColumnDef="father_name">
                   <mat-header-cell *matHeaderCellDef mat-sort-header>Father Name</mat-header-cell>
-                  <mat-cell *matCellDef="let row"> <span class="mobile-label">Father Name:</span>{{row.father_name}}
+                  <mat-cell *matCellDef="let row"> <span class="phoneNumber-label">Father Name:</span>{{row.father_name}}
                   </mat-cell>
                 </ng-container>
-                <ng-container matColumnDef="mobile">
+                <ng-container matColumnDef="phoneNumber">
                   <mat-header-cell *matHeaderCellDef mat-sort-header>Mobile</mat-header-cell>
-                  <mat-cell *matCellDef="let row"> <span class="mobile-label">Mobile:</span>{{row.mobile}}</mat-cell>
+                  <mat-cell *matCellDef="let row"> <span class="phoneNumber-label">Mobile:</span>{{row.phoneNumber}}</mat-cell>
                 </ng-container>
                 <ng-container matColumnDef="address">
                   <mat-header-cell *matHeaderCellDef mat-sort-header>Address</mat-header-cell>
                   <mat-cell *matCellDef="let row">
-                    <span class="truncate-text"><span class="mobile-label">Address:</span>{{row.address}}</span>
+                    <span class="truncate-text"><span class="phoneNumber-label">Address:</span>{{row.address}}</span>
                   </mat-cell>
                 </ng-container>
                 <!-- actions -->

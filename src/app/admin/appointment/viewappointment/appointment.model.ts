@@ -7,7 +7,7 @@ export class Appointment {
   gender: string;
   date: string;
   time: string;
-  mobile: string;
+  phoneNumber: string;
   doctor: string;
   injury: string;
   constructor(appointment: Appointment) {
@@ -19,9 +19,9 @@ export class Appointment {
       this.gender = appointment.gender || 'male';
       this.date = formatDate(new Date(), 'yyyy-MM-dd', 'en') || '';
       this.time = appointment.time || '';
-      this.mobile = appointment.mobile || '';
-      this.doctor = appointment.mobile || '';
-      this.injury = appointment.mobile || '';
+      this.phoneNumber = appointment.phoneNumber || '';
+      this.doctor = appointment.phoneNumber || '';
+      this.injury = appointment.phoneNumber || '';
     }
   }
   public getRandomID(): number {

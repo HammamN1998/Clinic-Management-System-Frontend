@@ -7,7 +7,7 @@ export interface DialogData {
   id: number;
   name: string;
   designation: string;
-  mobile: string;
+  phoneNumber: string;
 }
 
 @Component({

@@ -79,7 +79,7 @@ export class FormDialogComponent {
         [Validators.required],
       ],
       gaurdian_name: [this.death.gaurdian_name],
-      mobile: [this.death.mobile],
+      phoneNumber: [this.death.phoneNumber],
       address: [this.death.address],
       note: [this.death.note],
     });

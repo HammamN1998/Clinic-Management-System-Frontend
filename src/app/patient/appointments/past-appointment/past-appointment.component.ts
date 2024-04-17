@@ -60,7 +60,7 @@ export class PastAppointmentComponent
     'date',
     'time',
     'email',
-    'mobile',
+    'phoneNumber',
     'injury',
     'actions',
   ];
@@ -228,7 +228,7 @@ export class ExampleDataSource extends DataSource<PastAppointment> {
               appointment.time +
               appointment.doctor +
               appointment.injury +
-              appointment.mobile
+              appointment.phoneNumber
             ).toLowerCase();
             return searchStr.indexOf(this.filter.toLowerCase()) !== -1;
           });
@@ -270,8 +270,8 @@ export class ExampleDataSource extends DataSource<PastAppointment> {
         case 'time':
           [propertyA, propertyB] = [a.time, b.time];
           break;
-        case 'mobile':
-          [propertyA, propertyB] = [a.mobile, b.mobile];
+        case 'phoneNumber':
+          [propertyA, propertyB] = [a.phoneNumber, b.phoneNumber];
           break;
       }
       const valueA = isNaN(+propertyA) ? propertyA : +propertyA;

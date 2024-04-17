@@ -64,7 +64,7 @@ export class DeathComponent
     'gender',
     'death_date',
     'gaurdian_name',
-    'mobile',
+    'phoneNumber',
     'address',
     'actions',
   ];
@@ -256,7 +256,7 @@ export class DeathComponent
         'Death Date':
           formatDate(new Date(x.death_date), 'yyyy-MM-dd', 'en') || '',
         'Gaurdian Name': x.gaurdian_name,
-        Mobile: x.mobile,
+        Mobile: x.phoneNumber,
         Address: x.address,
       }));
 
@@ -318,7 +318,7 @@ export class ExampleDataSource extends DataSource<Death> {
               death.gender +
               death.death_date +
               death.gaurdian_name +
-              death.mobile +
+              death.phoneNumber +
               death.address
             ).toLowerCase();
             return searchStr.indexOf(this.filter.toLowerCase()) !== -1;
@@ -367,8 +367,8 @@ export class ExampleDataSource extends DataSource<Death> {
         case 'address':
           [propertyA, propertyB] = [a.address, b.address];
           break;
-        case 'mobile':
-          [propertyA, propertyB] = [a.mobile, b.mobile];
+        case 'phoneNumber':
+          [propertyA, propertyB] = [a.phoneNumber, b.phoneNumber];
           break;
       }
       const valueA = isNaN(+propertyA) ? propertyA : +propertyA;

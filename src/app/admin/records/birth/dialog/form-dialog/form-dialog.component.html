@@ -99,9 +99,9 @@
         <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-2">
           <mat-form-field class="example-full-width" appearance="outline">
             <mat-label>Mobile</mat-label>
-            <input matInput formControlName="mobile" type="number">
+            <input matInput formControlName="phoneNumber" type="number">
             <mat-icon class="material-icons-two-tone color-icon p-3" matSuffix>phone</mat-icon>
-            @if (birthForm.get('mobile')?.hasError('required')) {
+            @if (birthForm.get('phoneNumber')?.hasError('required')) {
             <mat-error>
               Mobile is required
             </mat-error>

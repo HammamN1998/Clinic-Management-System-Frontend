@@ -1,4 +1,4 @@
-<?xml version="1.0" standalone="no"?> 
+<?xml version="1.0" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd" >
 <svg xmlns="http://www.w3.org/2000/svg">
 <defs>
@@ -1515,10 +1515,10 @@
     <glyph glyph-name="minus"
       unicode="&#xF068;"
       horiz-adv-x="448" d=" M416 240H32C14.33 240 0 225.67 0 208V176C0 158.33 14.33 144 32 144H416C433.67 144 448 158.33 448 176V208C448 225.67 433.67 240 416 240z" />
-    <glyph glyph-name="mobile-alt"
+    <glyph glyph-name="phoneNumber-alt"
       unicode="&#xF3CD;"
       horiz-adv-x="320" d=" M272 448H48C21.5 448 0 426.5 0 400V-16C0 -42.5 21.5 -64 48 -64H272C298.5 -64 320 -42.5 320 -16V400C320 426.5 298.5 448 272 448zM160 -32C142.3 -32 128 -17.7 128 0S142.3 32 160 32S192 17.7 192 0S177.7 -32 160 -32zM272 76C272 69.4 266.6 64 260 64H60C53.4 64 48 69.4 48 76V388C48 394.6 53.4 400 60 400H260C266.6 400 272 394.6 272 388V76z" />
-    <glyph glyph-name="mobile"
+    <glyph glyph-name="phoneNumber"
       unicode="&#xF10B;"
       horiz-adv-x="320" d=" M272 448H48C21.5 448 0 426.5 0 400V-16C0 -42.5 21.5 -64 48 -64H272C298.5 -64 320 -42.5 320 -16V400C320 426.5 298.5 448 272 448zM160 -32C142.3 -32 128 -17.7 128 0S142.3 32 160 32S192 17.7 192 0S177.7 -32 160 -32z" />
     <glyph glyph-name="money-bill-alt"
