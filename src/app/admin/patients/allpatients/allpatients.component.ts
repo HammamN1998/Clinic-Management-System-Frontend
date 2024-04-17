@@ -75,7 +75,7 @@ export class AllpatientsComponent
   dataSource!: ExampleDataSource;
   selection = new SelectionModel<Patient>(true, []);
   index?: number;
-  id?: number;
+  id?: string;
   patient?: Patient;
   constructor(
     public httpClient: HttpClient,

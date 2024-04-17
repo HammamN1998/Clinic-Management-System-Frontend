@@ -83,7 +83,7 @@
                 <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-3">
                   <mat-form-field class="example-full-width mb-3" appearance="outline">
                     <mat-label>Email</mat-label>
-                    <input matInput formControlName="email" type="email" required>
+                    <input matInput formControlName="email" type="email" >
                     @if (patientForm.get('email')?.hasError('email') && patientForm.get('email')?.touched) {
                     <mat-error>
                       Please enter a valid email address

@@ -1,5 +1,5 @@
 export class Patient {
-  id: number;
+  id: string;
   name: string;
   gender: string;
   phoneNumber: string;
@@ -15,7 +15,7 @@ export class Patient {
 
   constructor(patient: Patient) {
     {
-      this.id = patient.id || 0;
+      this.id = patient.id || '';
       this.name = patient.name || '';
       this.gender = patient.gender || 'male';
       this.phoneNumber = patient.phoneNumber || '';

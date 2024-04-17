@@ -75,21 +75,21 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
     //     });
   }
 
-    createFirestorePatient(patient: Patient) : object {
-        return {
-            id: patient.id,
-            name: patient.name,
-            gender: patient.gender,
-            phoneNumber: patient.phoneNumber,
-            birthDate: patient.birthDate,
-            email: patient.email,
-            maritalState: patient.maritalState,
-            address: patient.address,
-            bloodGroup: patient.bloodGroup,
-            bloodPressure: patient.bloodPressure,
-            condition: patient.condition,
-            imgUrl: patient.imgUrl,
-            doctorId: patient.doctorId,
-        }
-    }
+  createFirestorePatient(patient: Patient) : object {
+      return {
+          id: patient.id,
+          name: patient.name,
+          gender: patient.gender,
+          phoneNumber: patient.phoneNumber,
+          birthDate: patient.birthDate,
+          email: patient.email,
+          maritalState: patient.maritalState,
+          address: patient.address,
+          bloodGroup: patient.bloodGroup,
+          bloodPressure: patient.bloodPressure,
+          condition: patient.condition,
+          imgUrl: patient.imgUrl,
+          doctorId: patient.doctorId,
+      }
+  }
 }
