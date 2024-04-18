@@ -39,13 +39,11 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
         next: (patients) => {
           patients.docs.map( (patient) => {
               const tempPatient : Patient = patient.data() as Patient;
-              tempPatient.id = patient.id;
               tempPatients.push(tempPatient);
             }
           )
           this.isTblLoading = false;
           this.dataChange.next(tempPatients);
-          console.log('tempPatients: ' + JSON.stringify(tempPatients))
         },
         error: (error) => {
           this.isTblLoading = false;
@@ -58,7 +56,23 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
   addPatient(patient: Patient): void {
     this.dialogData = patient;
     const firestorePatient = this.createFirestorePatient(patient);
-    this.firestore.collection('patients').add(firestorePatient);
+    from (this.firestore.collection('patients').add(firestorePatient))
+      .subscribe( {
+        next: (result) => {
+          from (this.firestore.collection('patients').doc(result.id).ref.update({id: result.id}))
+            .subscribe( {
+                error: (error) => {
+                  console.log('error: ' + JSON.stringify(error))
+                }
+            }
+          );
+          console.log('patient: ' + JSON.stringify(result.id));
+        },
+        error: (error) => {
+          console.log('error: ' + JSON.stringify(error))
+        }
+      }
+    );
   }
   updatePatient(patient: Patient): void {
     this.dialogData = patient;

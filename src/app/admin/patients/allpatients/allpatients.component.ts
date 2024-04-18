@@ -67,7 +67,6 @@ export class AllpatientsComponent
     'gender',
     'address',
     'phoneNumber',
-    'birthDate',
     'bloodGroup',
     'condition',
     'actions',
