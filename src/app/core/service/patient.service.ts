@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import {BehaviorSubject, from} from 'rxjs';
 import { Patient } from '@core/models/patient.model';
-import {HttpClient} from '@angular/common/http';
 import { UnsubscribeOnDestroyAdapter } from '@shared';
 import {FirebaseAuthenticationService} from "../../authentication/services/firebase-authentication.service";
 import {AngularFirestore} from "@angular/fire/compat/firestore";
+import {DateService} from "@core/service/date.service";
 
 @Injectable({
   providedIn: 'root',
@@ -17,7 +17,7 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
   // Temporarily stores data from dialogs
   dialogData!: Patient;
   constructor(
-    private httpClient: HttpClient,
+    private dateService: DateService,
     private firebaseAuthenticationService: FirebaseAuthenticationService,
     private firestore: AngularFirestore,
   ) {
@@ -54,6 +54,7 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
 
   }
   addPatient(patient: Patient): void {
+    patient.birthDate = this.dateService.formatDateToISO8601(new Date(patient.birthDate));
     this.dialogData = patient;
 
     const firestorePatient = this.createFirestorePatient(patient);

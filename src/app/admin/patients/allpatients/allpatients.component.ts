@@ -34,6 +34,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { BreadcrumbComponent } from '@shared/components/breadcrumb/breadcrumb.component';
 import {FirebaseAuthenticationService} from "../../../authentication/services/firebase-authentication.service";
 import {AngularFirestore} from "@angular/fire/compat/firestore";
+import {DateService} from "@core/service/date.service";
 
 @Component({
   selector: 'app-allpatients',
@@ -61,7 +62,6 @@ export class AllpatientsComponent
   implements OnInit {
   displayedColumns = [
     'select',
-    'id',
     'img',
     'name',
     'gender',
@@ -84,6 +84,7 @@ export class AllpatientsComponent
     private snackBar: MatSnackBar,
     private firebaseAuthenticationService: FirebaseAuthenticationService,
     private firestore: AngularFirestore,
+    private dateService: DateService,
   ) {
     super();
   }
@@ -229,7 +230,7 @@ export class AllpatientsComponent
     );
   }
   public loadData() {
-    this.exampleDatabase = new PatientService(this.httpClient, this.firebaseAuthenticationService, this.firestore);
+    this.exampleDatabase = new PatientService(this.dateService, this.firebaseAuthenticationService, this.firestore);
     this.dataSource = new ExampleDataSource(
       this.exampleDatabase,
       this.paginator,
