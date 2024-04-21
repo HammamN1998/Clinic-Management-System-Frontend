@@ -68,10 +68,10 @@
         <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-2">
           <mat-form-field class="example-full-width" appearance="outline">
             <mat-label>Birth date</mat-label>
-            <input matInput [matDatepicker]="picker" formControlName="date">
+            <input matInput [matDatepicker]="picker" formControlName="birthDate">
             <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
             <mat-datepicker #picker></mat-datepicker>
-            @if (patientForm.get('date')?.hasError('required')) {
+            @if (patientForm.get('birthDate')?.hasError('required')) {
             <mat-error>
               Please select date
             </mat-error>

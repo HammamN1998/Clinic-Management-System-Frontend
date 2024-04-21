@@ -78,7 +78,7 @@ export class FormDialogComponent {
       img: [this.patient.img],
       name: [this.patient.name],
       gender: [this.patient.gender],
-      date: [this.patient.birthDate],
+      birthDate: [this.patient.birthDate],
       bloodGroup: [this.patient.bloodGroup],
       phoneNumber: [this.patient.phoneNumber],
       address: [this.patient.address],

@@ -55,6 +55,7 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
   }
   addPatient(patient: Patient): void {
     this.dialogData = patient;
+
     const firestorePatient = this.createFirestorePatient(patient);
     from (this.firestore.collection('patients').add(firestorePatient))
       .subscribe( {
@@ -77,15 +78,14 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
   updatePatient(patient: Patient): void {
     this.dialogData = patient;
 
-    // this.httpClient.put(this.API_URL + patient.id, patient)
-    //     .subscribe({
-    //       next: (data) => {
-    //         this.dialogData = patient;
-    //       },
-    //       error: (error: HttpErrorResponse) => {
-    //          // error code here
-    //       },
-    //     });
+    from (this.firestore.collection('patients').doc(patient.id).ref.update(patient))
+      .subscribe( {
+          error: (error) => {
+            console.log('error: ' + JSON.stringify(error))
+          }
+        }
+    );
+
   }
   deletePatient(id: number): void {
     console.log(id);

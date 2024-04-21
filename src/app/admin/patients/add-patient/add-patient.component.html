@@ -37,10 +37,10 @@
                   <mat-form-field class="example-full-width mb-3" appearance="outline">
                     <mat-label>Gender</mat-label>
                     <mat-select formControlName="gender" required>
-                      <mat-option [value]="'Male'">
+                      <mat-option [value]="'male'">
                         Male
                       </mat-option>
-                      <mat-option [value]="'Female'">
+                      <mat-option [value]="'female'">
                         Female
                       </mat-option>
                     </mat-select>
@@ -123,6 +123,28 @@
                   <mat-form-field class="example-full-width mb-3" appearance="outline">
                     <mat-label>Blood Group</mat-label>
                     <input matInput formControlName="bloodGroup">
+                  </mat-form-field>
+                  <mat-form-field class="example-full-width " appearance="outline">
+                    <mat-label>Blood Group</mat-label>
+                    <mat-select formControlName="bloodGroup" required>
+                      <mat-option [value]="'A+'">
+                        A+
+                      </mat-option>
+                      <mat-option [value]="'B+'">
+                        B+
+                      </mat-option>
+                      <mat-option [value]="'O+'">
+                        O+
+                      </mat-option>
+                      <mat-option [value]="'AB+'">
+                        AB+
+                      </mat-option>
+                    </mat-select>
+                    @if (patientForm.get('bloodGroup')?.hasError('required')) {
+                    <mat-error>
+                      Blood Group is required
+                    </mat-error>
+                    }
                   </mat-form-field>
                 </div>
                 <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-3">
