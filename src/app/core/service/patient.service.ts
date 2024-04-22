@@ -53,19 +53,36 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
     );
 
   }
-  addPatient(patient: Patient): void {
+  addPatient(patient: Patient) {
     patient.birthDate = this.dateService.formatDateToISO8601(new Date(patient.birthDate));
     this.dialogData = patient;
 
+    // Add the patient to the local storage
+    this.dataChange.value.unshift(patient);
+
+    // Add the patient to the Firestore and local storage
     const firestorePatient = this.createFirestorePatient(patient);
     from (this.firestore.collection('patients').add(firestorePatient))
       .subscribe( {
         next: (result) => {
+          // Update patient.id on Firestore
           from (this.firestore.collection('patients').doc(result.id).ref.update({id: result.id}))
             .subscribe( {
-                error: (error) => {
-                  console.log('error: ' + JSON.stringify(error))
+              next: () => {
+                // Update patient.id on local storage
+                patient.id = result.id
+                const foundIndex = this.dataChange.value.findIndex(
+                  (x) => x.id === patient.id
+                );
+                if (foundIndex != null) {
+                  this.dataChange.value[foundIndex].id = result.id;
+                } else {
+                  console.log('Error: Patient doesn\'t exist!!');
                 }
+              },
+              error: (error) => {
+                console.log('error: ' + JSON.stringify(error))
+              }
             }
           );
           console.log('patient ID: ' + JSON.stringify(result.id));
@@ -79,12 +96,23 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
   updatePatient(patient: Patient): void {
     this.dialogData = patient;
 
+    // Update patient on local storage
+    const foundIndex = this.dataChange.value.findIndex(
+      (x) => x.id === patient.id
+    );
+    if (foundIndex != null) {
+      this.dataChange.value[foundIndex] = patient;
+    } else {
+      console.log('Error: Patient doesn\'t exist!!');
+    }
+
+    // Update patient on Firestore
     from (this.firestore.collection('patients').doc(patient.id).ref.update(patient))
       .subscribe( {
           error: (error) => {
             console.log('error: ' + JSON.stringify(error))
           }
-        }
+      }
     );
 
   }

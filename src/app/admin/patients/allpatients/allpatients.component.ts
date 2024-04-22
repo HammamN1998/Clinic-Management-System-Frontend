@@ -22,7 +22,7 @@ import {
   TableElement,
   UnsubscribeOnDestroyAdapter,
 } from '@shared';
-import { formatDate, NgClass, DatePipe } from '@angular/common';
+import {formatDate, NgClass, DatePipe, NgIf} from '@angular/common';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatRippleModule } from '@angular/material/core';
 import { FeatherIconsComponent } from '@shared/components/feather-icons/feather-icons.component';
@@ -55,6 +55,7 @@ import {DateService} from "@core/service/date.service";
     MatProgressSpinnerModule,
     MatPaginatorModule,
     DatePipe,
+    NgIf,
   ],
 })
 export class AllpatientsComponent
@@ -62,16 +63,15 @@ export class AllpatientsComponent
   implements OnInit {
   displayedColumns = [
     'select',
-    'img',
+    //'img', // TODO: uncomment when image ticket is done
     'name',
     'gender',
     'address',
     'phoneNumber',
-    'bloodGroup',
     'condition',
     'actions',
   ];
-  exampleDatabase?: PatientService;
+  //exampleDatabase?: PatientService;
   dataSource!: ExampleDataSource;
   selection = new SelectionModel<Patient>(true, []);
   index?: number;
@@ -80,7 +80,7 @@ export class AllpatientsComponent
   constructor(
     public httpClient: HttpClient,
     public dialog: MatDialog,
-    public patientService: PatientService,
+    public exampleDatabase: PatientService,
     private snackBar: MatSnackBar,
     private firebaseAuthenticationService: FirebaseAuthenticationService,
     private firestore: AngularFirestore,
@@ -115,7 +115,9 @@ export class AllpatientsComponent
     });
     this.subs.sink = dialogRef.afterClosed().subscribe((result) => {
       if (result === 1) {
-        this.patientService.addPatient(dialogRef.componentInstance.patientForm.value);
+
+        // Add patient to Firestore and local storage
+        this.exampleDatabase.addPatient(dialogRef.componentInstance.patientForm.value);
         this.refreshTable();
         this.showNotification(
           'snackbar-success',
@@ -144,8 +146,8 @@ export class AllpatientsComponent
     });
     this.subs.sink = dialogRef.afterClosed().subscribe((result) => {
       if (result === 1) {
-        console.log(JSON.stringify(this.patientService.getDialogData()));
-        this.patientService.updatePatient(dialogRef.componentInstance.patientForm.value);
+        // Edit patient on Firestore and local storage
+        this.exampleDatabase.updatePatient(dialogRef.componentInstance.patientForm.value);
         // And lastly refresh table
         this.refreshTable();
         this.showNotification(
@@ -181,7 +183,6 @@ export class AllpatientsComponent
           'center'
         );
       }
-
     });
   }
   private refreshTable() {
