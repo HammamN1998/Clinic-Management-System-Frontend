@@ -14,7 +14,7 @@
                   <h2>Patients</h2>
                 </li>
                 <li class="tbl-search-box">
-                  <label for="search-input"><i class="material-icons search-icon">search</i></label>
+                  <label><i class="material-icons search-icon">search</i></label>
                   <input placeholder="Search" type="text" #filter class="browser-default search-field"
                     aria-label="Search box">
                 </li>
@@ -90,18 +90,17 @@
                   </mat-header-cell>
                   <mat-cell mat-cell *matCellDef="let row">
                     <span class="phoneNumber-label">Gender:</span>
-                    @if (row.gender.toLowerCase() === 'male') {
-                    <div>
-                      <span class="badge badge-solid-green">
-                        {{row.gender}}</span>
+                    <div *ngIf="row.gender.toLowerCase() === 'male' ">
+                      <span class="badge badge-solid-green" >
+                        {{row.gender}}
+                      </span>
                     </div>
-                    }
-                    @if (row.gender.toLowerCase() === 'female') {
-                    <div>
+                    <div *ngIf="row.gender.toLowerCase() === 'female'">
                       <span class="badge badge-solid-purple">
-                        {{row.gender}}</span>
+                        {{row.gender}}
+                      </span>
                     </div>
-                    }
+
                   </mat-cell>
                 </ng-container>
                 <ng-container matColumnDef="address">
@@ -146,17 +145,14 @@
                 </mat-row>
               </table>
               <!-- Loading spinner -->
-              @if (exampleDatabase?.isTblLoading) {
-              <div class="tbl-spinner">
+              <div class="tbl-spinner" *ngIf="exampleDatabase?.isTblLoading">
                 <mat-progress-spinner color="primary" [diameter]="40" mode="indeterminate">
                 </mat-progress-spinner>
               </div>
-              }
-              @if (!exampleDatabase?.isTblLoading) {
-              <div class="no-results" [style.display]="dataSource.renderedData.length === 0 ? '' : 'none'">
+              <div class="no-results" *ngIf="!exampleDatabase?.isTblLoading" [style.display]="dataSource.renderedData.length === 0 ? '' : 'none'">
                 No results
               </div>
-              }
+
               <mat-paginator #paginator [length]="dataSource.filteredData.length" [pageIndex]="0" [pageSize]="10"
                 [pageSizeOptions]="[5, 10, 25, 100]">
               </mat-paginator>
