@@ -68,7 +68,7 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
                 }
             }
           );
-          console.log('patient: ' + JSON.stringify(result.id));
+          console.log('patient ID: ' + JSON.stringify(result.id));
         },
         error: (error) => {
           console.log('error: ' + JSON.stringify(error))
@@ -88,18 +88,13 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
     );
 
   }
-  deletePatient(id: number): void {
-    console.log(id);
-
-    // this.httpClient.delete(this.API_URL + id)
-    //     .subscribe({
-    //       next: (data) => {
-    //         console.log(id);
-    //       },
-    //       error: (error: HttpErrorResponse) => {
-    //          // error code here
-    //       },
-    //     });
+  deletePatient(patientId: string): void {
+    from(this.firestore.collection('patients').doc(patientId).delete())
+      .subscribe({
+        error: (error) => {
+          console.log('Error: ' + JSON.stringify(error))
+        }
+      })
   }
 
   createFirestorePatient(patient: Patient) : object {

@@ -4,7 +4,7 @@ import { PatientService } from '@core/service/patient.service';
 import { MatButtonModule } from '@angular/material/button';
 
 export interface DialogData {
-  id: number;
+  id: string;
   name: string;
   gender: string;
   bloodGroup: string;
