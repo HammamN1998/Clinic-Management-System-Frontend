@@ -117,6 +117,18 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
 
   }
   deletePatient(patientId: string): void {
+
+    // Delete patient from local storage
+    const foundIndex = this.dataChange.value.findIndex(
+      (x) => x.id === patientId
+    );
+    if (foundIndex != null) {
+      this.dataChange.value.splice(foundIndex, 1);
+    } else {
+      console.log('Error: Patient doesn\'t exist!!');
+    }
+
+    // Delete patient from Firestore
     from(this.firestore.collection('patients').doc(patientId).delete())
       .subscribe({
         error: (error) => {

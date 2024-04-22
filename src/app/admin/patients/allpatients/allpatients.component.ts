@@ -175,6 +175,9 @@ export class AllpatientsComponent
     this.subs.sink = dialogRef.afterClosed().subscribe((result) => {
       if (result === 1) {
 
+        // Delete patient from Firestore and local storage
+        this.exampleDatabase.deletePatient(row.id);
+
         this.refreshTable();
         this.showNotification(
           'snackbar-danger',
@@ -206,14 +209,15 @@ export class AllpatientsComponent
   removeSelectedRows() {
     const totalSelect = this.selection.selected.length;
     this.selection.selected.forEach((item) => {
-      const index: number = this.dataSource.renderedData.findIndex(
-        (d) => d === item
-      );
-      // console.log(this.dataSource.renderedData.findIndex((d) => d === item));
-      this.exampleDatabase?.dataChange.value.splice(index, 1);
-      this.refreshTable();
-      this.selection = new SelectionModel<Patient>(true, []);
+
+      // Delete the patient from Firestore and local storage.
+      this.exampleDatabase.deletePatient(item.id);
+
     });
+
+    this.refreshTable();
+    this.selection = new SelectionModel<Patient>(true, []);
+
     this.showNotification(
       'snackbar-danger',
       totalSelect + ' Record Delete Successfully...!!!',
