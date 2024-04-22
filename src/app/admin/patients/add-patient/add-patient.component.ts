@@ -67,7 +67,7 @@ export class AddPatientComponent {
       bloodGroup: this.patientForm.value.bloodGroup.toString(),
       bloodPressure: this.patientForm.value.bPresure.toString(),
       condition: this.patientForm.value.injury.toString(),
-      img: 'assets/images/user/profile.png', // Or any other image URL
+      img: 'assets/images/user/user1.jpg', // Or any other image URL
       doctorId: ''
     };
 

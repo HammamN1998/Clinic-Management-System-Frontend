@@ -115,11 +115,7 @@ export class AllpatientsComponent
     });
     this.subs.sink = dialogRef.afterClosed().subscribe((result) => {
       if (result === 1) {
-        // After dialog is closed we're doing frontend updates
-        // For add we're just pushing a new row inside DataService
-        this.exampleDatabase?.dataChange.value.unshift(
-          this.patientService.getDialogData()
-        );
+        this.patientService.addPatient(dialogRef.componentInstance.patientForm.value);
         this.refreshTable();
         this.showNotification(
           'snackbar-success',
@@ -149,7 +145,7 @@ export class AllpatientsComponent
     this.subs.sink = dialogRef.afterClosed().subscribe((result) => {
       if (result === 1) {
         console.log(JSON.stringify(this.patientService.getDialogData()));
-        this.patientService.updatePatient(this.patientService.getDialogData());
+        this.patientService.updatePatient(dialogRef.componentInstance.patientForm.value);
         // And lastly refresh table
         this.refreshTable();
         this.showNotification(

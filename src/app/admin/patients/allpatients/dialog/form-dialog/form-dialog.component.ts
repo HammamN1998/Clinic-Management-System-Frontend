@@ -11,6 +11,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import {NgIf} from "@angular/common";
 
 export interface DialogData {
   id: number;
@@ -23,20 +24,21 @@ export interface DialogData {
     templateUrl: './form-dialog.component.html',
     styleUrls: ['./form-dialog.component.scss'],
     standalone: true,
-    imports: [
-        MatButtonModule,
-        MatIconModule,
-        MatDialogContent,
-        FormsModule,
-        ReactiveFormsModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatRadioModule,
-        MatDatepickerModule,
-        MatSelectModule,
-        MatOptionModule,
-        MatDialogClose,
-    ],
+  imports: [
+    MatButtonModule,
+    MatIconModule,
+    MatDialogContent,
+    FormsModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatRadioModule,
+    MatDatepickerModule,
+    MatSelectModule,
+    MatOptionModule,
+    MatDialogClose,
+    NgIf,
+  ],
 })
 export class FormDialogComponent {
   action: string;
@@ -74,24 +76,30 @@ export class FormDialogComponent {
   }
   createContactForm(): UntypedFormGroup {
     return this.fb.group({
+      // Required Fields
+      name: [this.patient.name, [Validators.required]],
+      gender: [this.patient.gender, [Validators.required]],
+      phoneNumber: [this.patient.phoneNumber, [Validators.required]],
+      condition: [this.patient.condition, [Validators.required]],
+      // Non Required Fields
       id: [this.patient.id],
-      img: [this.patient.img],
-      name: [this.patient.name],
-      gender: [this.patient.gender],
       birthDate: [this.patient.birthDate],
-      bloodGroup: [this.patient.bloodGroup],
-      phoneNumber: [this.patient.phoneNumber],
+      email: [this.patient.email],
+      maritalState: [this.patient.maritalState],
       address: [this.patient.address],
-      condition: [this.patient.condition],
+      bloodGroup: [this.patient.bloodGroup],
+      bloodPressure: [this.patient.bloodPressure],
+      img: [this.patient.img],
+      doctorId: [this.patient.doctorId]
     });
   }
   submit() {
-    // emppty stuff
+    // empty stuff
   }
   onNoClick(): void {
     this.dialogRef.close();
   }
   public confirmAdd(): void {
-    this.patientService.addPatient(this.patientForm.getRawValue());
+
   }
 }

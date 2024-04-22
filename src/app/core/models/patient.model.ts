@@ -17,7 +17,7 @@ export class Patient {
     {
       this.id = patient.id || '';
       this.name = patient.name || '';
-      this.gender = patient.gender || 'male';
+      this.gender = patient.gender || '';
       this.phoneNumber = patient.phoneNumber || '';
       this.birthDate = patient.birthDate || '';
       this.email = patient.email || '';
