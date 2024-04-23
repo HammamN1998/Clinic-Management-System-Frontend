@@ -83,7 +83,7 @@
                 </ng-container>
                 <ng-container matColumnDef="name">
                   <mat-header-cell *matHeaderCellDef mat-sort-header>Name</mat-header-cell>
-                  <mat-cell *matCellDef="let row"> <span class="phoneNumber-label">Name:</span>{{row.name}}</mat-cell>
+                  <mat-cell *matCellDef="let row"> <span class="phoneNumber-label">Name:</span>{{row.firstName}} {{row.lastName}}</mat-cell>
                 </ng-container>
                 <ng-container matColumnDef="gender">
                   <mat-header-cell *matHeaderCellDef mat-sort-header> Gender

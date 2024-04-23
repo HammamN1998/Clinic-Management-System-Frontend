@@ -57,7 +57,8 @@ export class AddPatientComponent {
     console.log('Patient Form: ', this.patientForm.value);
     const patientData : Patient = {
       id: '',
-      name: this.patientForm.value.first.toString() + " " + this.patientForm.value.last.toString(),
+      firstName: this.patientForm.value.first.toString(),
+      lastName: this.patientForm.value.last.toString(),
       gender: this.patientForm.value.gender.toString(),
       phoneNumber: this.patientForm.value.phoneNumber.toString(),
       birthDate: this.patientForm.value.dob.toString(),

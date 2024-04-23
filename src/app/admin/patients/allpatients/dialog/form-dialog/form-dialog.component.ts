@@ -56,12 +56,11 @@ export class FormDialogComponent {
     // Set the defaults
     this.action = data.action;
     if (this.action === 'edit') {
-      this.dialogTitle = data.patient.name;
+      this.dialogTitle = data.patient.firstName;
       this.patient = data.patient;
     } else {
       this.dialogTitle = 'New Patient';
-      const blankObject = {} as Patient;
-      this.patient = new Patient(blankObject);
+      this.patient = {} as Patient;
     }
     this.patientForm = this.createContactForm();
   }
@@ -79,12 +78,13 @@ export class FormDialogComponent {
   createContactForm(): UntypedFormGroup {
     return this.fb.group({
       // Required Fields
-      name: [this.patient.name, [Validators.required]],
+      firstName: [this.patient.firstName, [Validators.required]],
       gender: [this.patient.gender, [Validators.required]],
       phoneNumber: [this.patient.phoneNumber, [Validators.required]],
       condition: [this.patient.condition, [Validators.required]],
       // Non Required Fields
       id: [this.patient.id],
+      lastName: [this.patient.lastName],
       birthDate: [this.patient.birthDate],
       email: [this.patient.email],
       maritalState: [this.patient.maritalState],
@@ -101,7 +101,6 @@ export class FormDialogComponent {
   }
   onNoClick(): void {
     this.dialogRef.close();
-    console.log('onNoClick');
   }
   public confirmAdd(): void {
 

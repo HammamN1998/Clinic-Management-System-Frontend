@@ -142,7 +142,8 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
   createFirestorePatient(patient: Patient) : object {
       return {
           id: patient.id,
-          name: patient.name,
+          firstName: patient.firstName,
+          lastName: patient.lastName,
           gender: patient.gender,
           phoneNumber: patient.phoneNumber,
           birthDate: patient.birthDate,

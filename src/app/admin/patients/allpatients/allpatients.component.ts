@@ -12,7 +12,7 @@ import {
   MatSnackBarVerticalPosition,
 } from '@angular/material/snack-bar';
 import { FormDialogComponent } from './dialog/form-dialog/form-dialog.component';
-import { DeleteComponent } from './dialog/delete/delete.component';
+import {DeleteComponent, DialogData} from './dialog/delete/delete.component';
 import { BehaviorSubject, fromEvent, merge, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { SelectionModel } from '@angular/cdk/collections';
@@ -166,7 +166,13 @@ export class AllpatientsComponent
       tempDirection = 'ltr';
     }
     const dialogRef = this.dialog.open(DeleteComponent, {
-      data: row,
+      data: {
+        id: row.id,
+        gender: row.gender,
+        phoneNumber: row.phoneNumber,
+        bloodGroup: row.bloodGroup,
+        name: row.firstName + ' ' + row.lastName,
+      } as DialogData,
       direction: tempDirection,
     });
 
@@ -244,7 +250,7 @@ export class AllpatientsComponent
     // key name with space add in brackets
     const exportData: Partial<TableElement>[] =
       this.dataSource.filteredData.map((x) => ({
-        Name: x.name,
+        Name: x.firstName + x.lastName,
         Gender: x.gender,
         Address: x.address,
         'Birth Date': formatDate(new Date(x.birthDate), 'yyyy-MM-dd', 'en') || '',
@@ -305,7 +311,8 @@ export class ExampleDataSource extends DataSource<Patient> {
           .slice()
           .filter((patient: Patient) => {
             const searchStr = (
-              patient.name +
+              patient.firstName +
+              patient.lastName +
               patient.gender +
               patient.address +
               patient.birthDate +
@@ -342,7 +349,7 @@ export class ExampleDataSource extends DataSource<Patient> {
           [propertyA, propertyB] = [a.id, b.id];
           break;
         case 'name':
-          [propertyA, propertyB] = [a.name, b.name];
+          [propertyA, propertyB] = [a.firstName, b.firstName];
           break;
         case 'gender':
           [propertyA, propertyB] = [a.gender, b.gender];
