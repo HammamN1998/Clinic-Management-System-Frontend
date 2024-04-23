@@ -1,6 +1,5 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { PatientService } from '@core/service/patient.service';
-import { HttpClient } from '@angular/common/http';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
@@ -32,9 +31,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { BreadcrumbComponent } from '@shared/components/breadcrumb/breadcrumb.component';
-import {FirebaseAuthenticationService} from "../../../authentication/services/firebase-authentication.service";
-import {AngularFirestore} from "@angular/fire/compat/firestore";
-import {DateService} from "@core/service/date.service";
 
 @Component({
   selector: 'app-allpatients',
@@ -58,9 +54,8 @@ import {DateService} from "@core/service/date.service";
     NgIf,
   ],
 })
-export class AllpatientsComponent
-  extends UnsubscribeOnDestroyAdapter
-  implements OnInit {
+export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements OnInit {
+
   displayedColumns = [
     'select',
     //'img', // TODO: uncomment when image ticket is done
@@ -71,19 +66,15 @@ export class AllpatientsComponent
     'condition',
     'actions',
   ];
-  //exampleDatabase?: PatientService;
+
   dataSource!: ExampleDataSource;
   selection = new SelectionModel<Patient>(true, []);
   index?: number;
 
   constructor(
-    public httpClient: HttpClient,
-    public dialog: MatDialog,
-    public exampleDatabase: PatientService,
+    private dialog: MatDialog,
+    public patientService: PatientService,
     private snackBar: MatSnackBar,
-    private firebaseAuthenticationService: FirebaseAuthenticationService,
-    private firestore: AngularFirestore,
-    private dateService: DateService,
   ) {
     super();
   }
@@ -114,9 +105,8 @@ export class AllpatientsComponent
     });
     this.subs.sink = dialogRef.afterClosed().subscribe((result) => {
       if (result === 1) {
-
         // Add patient to Firestore and local storage
-        this.exampleDatabase.addPatient(dialogRef.componentInstance.patientForm.value);
+        this.patientService.addPatient(dialogRef.componentInstance.patientForm.value);
         this.refreshTable();
         this.showNotification(
           'snackbar-success',
@@ -128,7 +118,7 @@ export class AllpatientsComponent
     });
   }
   editCall(row: Patient) {
-    this.exampleDatabase.dialogData = row;
+    this.patientService.dialogData = row;
 
     let tempDirection: Direction;
     if (localStorage.getItem('isRtl') === 'true') {
@@ -146,7 +136,7 @@ export class AllpatientsComponent
     this.subs.sink = dialogRef.afterClosed().subscribe((result) => {
       if (result === 1) {
         // Edit patient on Firestore and local storage
-        this.exampleDatabase.updatePatient(dialogRef.componentInstance.patientForm.value);
+        this.patientService.updatePatient(dialogRef.componentInstance.patientForm.value);
         // And lastly refresh table
         this.refreshTable();
         this.showNotification(
@@ -180,7 +170,7 @@ export class AllpatientsComponent
       if (result === 1) {
 
         // Delete patient from Firestore and local storage
-        this.exampleDatabase.deletePatient(row.id);
+        this.patientService.deletePatient(row.id);
 
         this.refreshTable();
         this.showNotification(
@@ -215,7 +205,7 @@ export class AllpatientsComponent
     this.selection.selected.forEach((item) => {
 
       // Delete the patient from Firestore and local storage.
-      this.exampleDatabase.deletePatient(item.id);
+      this.patientService.deletePatient(item.id);
 
     });
 
@@ -230,9 +220,9 @@ export class AllpatientsComponent
     );
   }
   public loadData() {
-    this.exampleDatabase = new PatientService(this.dateService, this.firebaseAuthenticationService, this.firestore);
+    //this.patientService = new PatientService(this.dateService, this.firebaseAuthenticationService, this.firestore);
     this.dataSource = new ExampleDataSource(
-      this.exampleDatabase,
+      this.patientService,
       this.paginator,
       this.sort
     );
@@ -286,7 +276,7 @@ export class ExampleDataSource extends DataSource<Patient> {
   filteredData: Patient[] = [];
   renderedData: Patient[] = [];
   constructor(
-    public exampleDatabase: PatientService,
+    public patientService: PatientService,
     public paginator: MatPaginator,
     public _sort: MatSort
   ) {
@@ -298,16 +288,16 @@ export class ExampleDataSource extends DataSource<Patient> {
   connect(): Observable<Patient[]> {
     // Listen for any changes in the base data, sorting, filtering, or pagination
     const displayDataChanges = [
-      this.exampleDatabase.dataChange,
+      this.patientService.dataChange,
       this._sort.sortChange,
       this.filterChange,
       this.paginator.page,
     ];
-    this.exampleDatabase.getAllPatients();
+    this.patientService.getAllPatients();
     return merge(...displayDataChanges).pipe(
       map(() => {
         // Filter data
-        this.filteredData = this.exampleDatabase.data
+        this.filteredData = this.patientService.data
           .slice()
           .filter((patient: Patient) => {
             const searchStr = (

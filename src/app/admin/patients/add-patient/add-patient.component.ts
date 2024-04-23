@@ -8,8 +8,9 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { BreadcrumbComponent } from '@shared/components/breadcrumb/breadcrumb.component';
-import {PatientService} from "@core/service/patient.service";
+import { PatientService } from '@core/service/patient.service';
 import {Patient} from "@core/models/patient.model";
+import {NgIf} from "@angular/common";
 
 @Component({
   selector: 'app-add-patient',
@@ -27,6 +28,7 @@ import {Patient} from "@core/models/patient.model";
     MatDatepickerModule,
     FileUploadComponent,
     MatButtonModule,
+    NgIf,
   ],
 })
 export class AddPatientComponent {
@@ -36,42 +38,40 @@ export class AddPatientComponent {
     private patientService: PatientService,
   ) {
     this.patientForm = this.fb.group({
-      first: ['', [Validators.required, Validators.pattern('[a-zA-Z]+')]],
-      last: [''],
+      firstName: ['', [Validators.required, Validators.pattern('[a-zA-Z]+')]],
+      lastName: [''],
       gender: ['', [Validators.required]],
       phoneNumber: ['', [Validators.required]],
-      dob: ['', [Validators.required]],
+      birthDate: ['', [Validators.required]],
       age: [''],
       email: ['', [Validators.email, Validators.minLength(5)] ],
-      maritalStatus: [''],
+      maritalState: [''],
       address: [''],
       bloodGroup: [''],
       bloodPressure: [''],
-      sugger: [''],
-      injury: [''],
+      condition: [''],
       uploadFile: [''],
     });
   }
 
   onSubmit() {
-    console.log('Patient Form: ', this.patientForm.value);
     const patientData : Patient = {
       id: '',
-      firstName: this.patientForm.value.first.toString(),
-      lastName: this.patientForm.value.last.toString(),
+      firstName: this.patientForm.value.firstName.toString(),
+      lastName: this.patientForm.value.lastName.toString(),
       gender: this.patientForm.value.gender.toString(),
       phoneNumber: this.patientForm.value.phoneNumber.toString(),
-      birthDate: this.patientForm.value.dob.toString(),
+      birthDate: this.patientForm.value.birthDate.toString(),
       email: this.patientForm.value.email.toString(),
-      maritalState: this.patientForm.value.maritalStatus.toString(),
+      maritalState: this.patientForm.value.maritalState.toString(),
       address: this.patientForm.value.address.toString(),
       bloodGroup: this.patientForm.value.bloodGroup.toString(),
       bloodPressure: this.patientForm.value.bloodPressure.toString(),
-      condition: this.patientForm.value.injury.toString(),
+      condition: this.patientForm.value.condition.toString(),
       img: 'assets/images/user/user1.jpg', // Or any other image URL
       doctorId: ''
     };
 
-    this.patientService.addPatient( new Patient(patientData))
+    this.patientService.addPatient(patientData)
   }
 }

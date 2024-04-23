@@ -1,6 +1,5 @@
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose } from '@angular/material/dialog';
 import { Component, Inject } from '@angular/core';
-import { PatientService } from '@core/service/patient.service';
 import { MatButtonModule } from '@angular/material/button';
 
 export interface DialogData {
@@ -28,7 +27,6 @@ export class DeleteComponent {
   constructor(
     public dialogRef: MatDialogRef<DeleteComponent>,
     @Inject(MAT_DIALOG_DATA) public data: DialogData,
-    public patientService: PatientService
   ) { }
   onNoClick(): void {
     this.dialogRef.close();

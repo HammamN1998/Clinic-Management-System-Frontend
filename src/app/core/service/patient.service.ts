@@ -15,7 +15,7 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
   isTblLoading = true;
   dataChange: BehaviorSubject<Patient[]> = new BehaviorSubject<Patient[]>([]);
   // Temporarily stores data from dialogs
-  dialogData!: Patient;
+  dialogData: Patient = {} as Patient;
   constructor(
     private dateService: DateService,
     private firebaseAuthenticationService: FirebaseAuthenticationService,
@@ -33,6 +33,7 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
 
   getAllPatients(): void {
     const tempPatients : Patient[] = [];
+    this.dataChange.next(tempPatients);
 
     this.subs.sink = from (this.firestore.collection('patients').ref.where('doctorId', '==', this.firebaseAuthenticationService.currentUserValue.id).get())
       .subscribe( {
@@ -62,8 +63,7 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
     this.dataChange.value.unshift(patient);
 
     // Add the patient and patient ID to the Firestore, and patient ID to local storage
-    const firestorePatient = this.createFirestorePatient(patient);
-    from (this.firestore.collection('patients').add(firestorePatient))
+    from (this.firestore.collection('patients').add(patient))
       .subscribe( {
         next: (result) => {
           // Update patient.id on Firestore
@@ -96,6 +96,7 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
     );
   }
   updatePatient(patient: Patient): void {
+    patient.birthDate = this.dateService.formatDateToISO8601(new Date(patient.birthDate));
     this.dialogData = patient;
 
     // Update patient on local storage
@@ -139,22 +140,5 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
       })
   }
 
-  createFirestorePatient(patient: Patient) : object {
-      return {
-          id: patient.id,
-          firstName: patient.firstName,
-          lastName: patient.lastName,
-          gender: patient.gender,
-          phoneNumber: patient.phoneNumber,
-          birthDate: patient.birthDate,
-          email: patient.email,
-          maritalState: patient.maritalState,
-          address: patient.address,
-          bloodGroup: patient.bloodGroup,
-          bloodPressure: patient.bloodPressure,
-          condition: patient.condition,
-          img: patient.img,
-          doctorId: patient.doctorId,
-      }
-  }
+
 }

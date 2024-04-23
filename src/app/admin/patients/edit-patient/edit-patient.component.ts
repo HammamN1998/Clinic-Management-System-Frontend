@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {Component} from '@angular/core';
 import { UntypedFormBuilder, UntypedFormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { FileUploadComponent } from '@shared/components/file-upload/file-upload.component';
@@ -8,6 +8,9 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { BreadcrumbComponent } from '@shared/components/breadcrumb/breadcrumb.component';
+import { PatientService } from "@core/service/patient.service";
+import {NgIf} from "@angular/common";
+import {Patient} from "@core/models/patient.model";
 
 @Component({
   selector: 'app-edit-patient',
@@ -25,54 +28,61 @@ import { BreadcrumbComponent } from '@shared/components/breadcrumb/breadcrumb.co
     MatDatepickerModule,
     FileUploadComponent,
     MatButtonModule,
+    NgIf,
   ],
 })
 export class EditPatientComponent {
   patientForm: UntypedFormGroup;
-  formdata = {
-    first: 'Pooja',
-    last: 'Sarma',
-    gender: 'Female',
-    phoneNumber: '123456789',
-    age: '23',
-    email: 'test@example.com',
-    maritalStatus: '1',
-    bloodGroup: 'O+',
-    bloodPressure: '123',
-    sugger: '150',
-    injury: 'Fever',
-    address: '101, Elanxa, New Yourk',
-    dob: '1987-02-17T14:22:18Z',
-    uploadFile: '',
-  };
-  constructor(private fb: UntypedFormBuilder) {
+  constructor(
+    private fb: UntypedFormBuilder,
+    private patientService: PatientService,
+  ) {
     this.patientForm = this.createContactForm();
   }
-  onSubmit() {
-    console.log('Form Value', this.patientForm.value);
-  }
+
   createContactForm(): UntypedFormGroup {
     return this.fb.group({
-      first: [
-        this.formdata.first,
+      id: this.patientService.getDialogData().id,
+      firstName: [
+        this.patientService.getDialogData().firstName,
         [Validators.required, Validators.pattern('[a-zA-Z]+')],
       ],
-      last: [this.formdata.last],
-      gender: [this.formdata.gender, [Validators.required]],
-      phoneNumber: [this.formdata.phoneNumber, [Validators.required]],
-      age: [this.formdata.age],
-      maritalStatus: [this.formdata.maritalStatus],
+      lastName: [this.patientService.getDialogData().lastName],
+      gender: [this.patientService.getDialogData().gender, [Validators.required]],
+      phoneNumber: [this.patientService.getDialogData().phoneNumber, [Validators.required]],
+      maritalState: [this.patientService.getDialogData().maritalState],
       email: [
-        this.formdata.email,
+        this.patientService.getDialogData().email,
         [Validators.required, Validators.email, Validators.minLength(5)],
       ],
-      bloodGroup: [this.formdata.bloodGroup],
-      bloodPressure: [this.formdata.bloodPressure],
-      address: [this.formdata.address],
-      dob: [this.formdata.dob, [Validators.required]],
-      sugger: [this.formdata.sugger],
-      injury: [this.formdata.injury],
-      uploadFile: [this.formdata.uploadFile],
+      bloodGroup: [this.patientService.getDialogData().bloodGroup],
+      bloodPressure: [this.patientService.getDialogData().bloodPressure],
+      address: [this.patientService.getDialogData().address],
+      birthDate: [this.patientService.getDialogData().birthDate, [Validators.required]],
+      condition: [this.patientService.getDialogData().condition],
+      uploadFile: [this.patientService.getDialogData().img],
+      doctorId: [this.patientService.getDialogData().doctorId],
     });
+  }
+
+  onSubmit() {
+    const patientData : Patient = {
+      id: this.patientForm.value.id.toString(),
+      firstName: this.patientForm.value.firstName.toString(),
+      lastName: this.patientForm.value.lastName.toString(),
+      gender: this.patientForm.value.gender.toString(),
+      phoneNumber: this.patientForm.value.phoneNumber.toString(),
+      birthDate: this.patientForm.value.birthDate.toString(),
+      email: this.patientForm.value.email.toString(),
+      maritalState: this.patientForm.value.maritalState.toString(),
+      address: this.patientForm.value.address.toString(),
+      bloodGroup: this.patientForm.value.bloodGroup.toString(),
+      bloodPressure: this.patientForm.value.bloodPressure.toString(),
+      condition: this.patientForm.value.condition.toString(),
+      img: 'assets/images/user/user1.jpg', // Or any other image URL
+      doctorId: this.patientForm.value.doctorId.toString(),
+    };
+
+    this.patientService.updatePatient(patientData)
   }
 }
