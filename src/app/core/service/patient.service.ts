@@ -55,12 +55,13 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
   }
   addPatient(patient: Patient) {
     patient.birthDate = this.dateService.formatDateToISO8601(new Date(patient.birthDate));
+    patient.doctorId  = this.firebaseAuthenticationService.currentUserValue.id;
     this.dialogData = patient;
 
     // Add the patient to the local storage
     this.dataChange.value.unshift(patient);
 
-    // Add the patient to the Firestore and local storage
+    // Add the patient and patient ID to the Firestore, and patient ID to local storage
     const firestorePatient = this.createFirestorePatient(patient);
     from (this.firestore.collection('patients').add(firestorePatient))
       .subscribe( {
@@ -70,7 +71,8 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
             .subscribe( {
               next: () => {
                 // Update patient.id on local storage
-                patient.id = result.id
+                patient.id = result.id;
+                this.dialogData = patient;
                 const foundIndex = this.dataChange.value.findIndex(
                   (x) => x.id === patient.id
                 );
@@ -151,7 +153,7 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
           bloodPressure: patient.bloodPressure,
           condition: patient.condition,
           img: patient.img,
-          doctorId: this.firebaseAuthenticationService.currentUserValue.id,
+          doctorId: patient.doctorId,
       }
   }
 }

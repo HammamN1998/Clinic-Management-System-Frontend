@@ -75,8 +75,7 @@ export class AllpatientsComponent
   dataSource!: ExampleDataSource;
   selection = new SelectionModel<Patient>(true, []);
   index?: number;
-  id?: string;
-  patient?: Patient;
+
   constructor(
     public httpClient: HttpClient,
     public dialog: MatDialog,
@@ -108,7 +107,7 @@ export class AllpatientsComponent
     }
     const dialogRef = this.dialog.open(FormDialogComponent, {
       data: {
-        patient: this.patient,
+        patient: {} as Patient,
         action: 'add',
       },
       direction: tempDirection,
@@ -129,7 +128,7 @@ export class AllpatientsComponent
     });
   }
   editCall(row: Patient) {
-    this.id = row.id;
+    this.exampleDatabase.dialogData = row;
 
     let tempDirection: Direction;
     if (localStorage.getItem('isRtl') === 'true') {
@@ -160,7 +159,6 @@ export class AllpatientsComponent
     });
   }
   deleteItem(row: Patient) {
-    this.id = row.id;
     let tempDirection: Direction;
     if (localStorage.getItem('isRtl') === 'true') {
       tempDirection = 'rtl';

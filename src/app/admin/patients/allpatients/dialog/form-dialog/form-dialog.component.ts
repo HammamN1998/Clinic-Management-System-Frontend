@@ -12,6 +12,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import {NgIf} from "@angular/common";
+import {Router} from "@angular/router";
 
 export interface DialogData {
   id: number;
@@ -49,7 +50,8 @@ export class FormDialogComponent {
     public dialogRef: MatDialogRef<FormDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: DialogData,
     public patientService: PatientService,
-    private fb: UntypedFormBuilder
+    private fb: UntypedFormBuilder,
+    private router: Router,
   ) {
     // Set the defaults
     this.action = data.action;
@@ -95,11 +97,25 @@ export class FormDialogComponent {
   }
   submit() {
     // empty stuff
+    console.log('submit');
   }
   onNoClick(): void {
     this.dialogRef.close();
+    console.log('onNoClick');
   }
   public confirmAdd(): void {
 
   }
+
+  goToFullEditPage(){
+    this.dialogRef.close();
+    this.router.navigate(['/admin/patients/edit-patient']);
+  }
+
+  goToFullAddPage() {
+    this.dialogRef.close();
+    this.router.navigate(['/admin/patients/add-patient']);
+  }
+
+
 }

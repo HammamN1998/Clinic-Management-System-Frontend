@@ -79,6 +79,12 @@
             <button mat-raised-button color="primary" [disabled]="!patientForm.valid" [mat-dialog-close]="1" (click)="confirmAdd()">
               Save
             </button>
+            <button mat-raised-button *ngIf="action==='edit'" color="primary" (click)="goToFullEditPage()">
+              Full Edit
+            </button>
+            <button mat-raised-button *ngIf="action==='add'" color="primary" (click)="goToFullAddPage()">
+              Full Add
+            </button>
             <button mat-raised-button color="warn" (click)="onNoClick()" tabindex="-1">
               Cancel
             </button>
