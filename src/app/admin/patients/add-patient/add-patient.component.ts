@@ -46,7 +46,7 @@ export class AddPatientComponent {
       maritalStatus: [''],
       address: [''],
       bloodGroup: [''],
-      bPresure: [''],
+      bloodPressure: [''],
       sugger: [''],
       injury: [''],
       uploadFile: [''],
@@ -65,7 +65,7 @@ export class AddPatientComponent {
       maritalState: this.patientForm.value.maritalStatus.toString(),
       address: this.patientForm.value.address.toString(),
       bloodGroup: this.patientForm.value.bloodGroup.toString(),
-      bloodPressure: this.patientForm.value.bPresure.toString(),
+      bloodPressure: this.patientForm.value.bloodPressure.toString(),
       condition: this.patientForm.value.injury.toString(),
       img: 'assets/images/user/user1.jpg', // Or any other image URL
       doctorId: ''
