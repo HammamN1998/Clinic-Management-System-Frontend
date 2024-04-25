@@ -27,6 +27,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { BreadcrumbComponent } from '@shared/components/breadcrumb/breadcrumb.component';
 import {NotificationService} from "@core/service/notification.service";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-allpatients',
@@ -71,6 +72,7 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
     private dialog: MatDialog,
     public patientService: PatientService,
     private notificationService: NotificationService,
+    private router: Router,
   ) {
     super();
   }
@@ -247,6 +249,10 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
     TableExportUtil.exportToExcel(exportData, 'excel');
   }
 
+  goToProfilePage(row: Patient) {
+    this.patientService.dialogData = row;
+    this.router.navigate(['/admin/patients/patient-profile']);
+  }
 }
 export class ExampleDataSource extends DataSource<Patient> {
   filterChange = new BehaviorSubject('');
