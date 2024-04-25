@@ -12,6 +12,7 @@ import { PatientService } from "@core/service/patient.service";
 import {NgIf} from "@angular/common";
 import {Patient} from "@core/models/patient.model";
 import {NotificationService} from "@core/service/notification.service";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-edit-patient',
@@ -38,6 +39,7 @@ export class EditPatientComponent {
     private fb: UntypedFormBuilder,
     private patientService: PatientService,
     private notificationService: NotificationService,
+    private router: Router,
   ) {
     this.patientForm = this.createContactForm();
   }
@@ -87,7 +89,8 @@ export class EditPatientComponent {
       doctorId: this.patientForm.value.doctorId.toString(),
     };
 
-    this.patientService.updatePatient(patientData)
+    this.patientService.updatePatient(patientData);
+    this.router.navigate(['/admin/patients/patient-profile']);
     this.notificationService.showNotification(
       'black',
       'Edit Record Successfully...!!!',

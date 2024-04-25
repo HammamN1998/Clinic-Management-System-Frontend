@@ -128,6 +128,10 @@
                 <ng-container matColumnDef="actions">
                   <mat-header-cell class="pr-0" *matHeaderCellDef>Actions</mat-header-cell>
                   <mat-cell *matCellDef="let row; let i=index;" class="pr-0">
+                    <button mat-icon-button (click)="$event.stopPropagation()" (click)="goToProfilePage(row)"
+                            class="tbl-action-btn">
+                      <app-feather-icons [icon]="'user'" [class]="'tbl-fav-edit'"></app-feather-icons>
+                    </button>
                     <button mat-icon-button (click)="$event.stopPropagation()" (click)="editCall(row)"
                       class="tbl-action-btn">
                       <app-feather-icons [icon]="'edit'" [class]="'tbl-fav-edit'"></app-feather-icons>
@@ -139,7 +143,7 @@
                   </mat-cell>
                 </ng-container>
                 <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-                <mat-row *matRowDef="let row; columns: displayedColumns;"  [style.cursor]="'pointer'" matRipple (click)="goToProfilePage(row)">
+                <mat-row *matRowDef="let row; columns: displayedColumns;"  [style.cursor]="'pointer'" matRipple >
                 </mat-row>
               </table>
               <!-- Loading spinner -->
