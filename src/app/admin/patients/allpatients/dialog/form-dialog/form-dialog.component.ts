@@ -60,7 +60,7 @@ export class FormDialogComponent {
       this.patient = data.patient;
     } else {
       this.dialogTitle = 'New Patient';
-      this.patient = {} as Patient;
+      this.patient = new Patient();
     }
     this.patientForm = this.createContactForm();
   }
@@ -81,6 +81,7 @@ export class FormDialogComponent {
       firstName: [this.patient.firstName, [Validators.required]],
       gender: [this.patient.gender, [Validators.required]],
       phoneNumber: [this.patient.phoneNumber, [Validators.required]],
+      address: [this.patient.address, [Validators.required]],
       condition: [this.patient.condition, [Validators.required]],
       // Non Required Fields
       id: [this.patient.id],
@@ -88,7 +89,6 @@ export class FormDialogComponent {
       birthDate: [this.patient.birthDate],
       email: [this.patient.email],
       maritalState: [this.patient.maritalState],
-      address: [this.patient.address],
       bloodGroup: [this.patient.bloodGroup],
       bloodPressure: [this.patient.bloodPressure],
       img: [this.patient.img],

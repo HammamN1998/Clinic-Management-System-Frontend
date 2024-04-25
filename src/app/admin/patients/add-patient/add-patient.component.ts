@@ -42,8 +42,7 @@ export class AddPatientComponent {
       lastName: [''],
       gender: ['', [Validators.required]],
       phoneNumber: ['', [Validators.required]],
-      birthDate: ['', [Validators.required]],
-      age: [''],
+      birthDate: [''],
       email: ['', [Validators.email, Validators.minLength(5)] ],
       maritalState: [''],
       address: [''],
@@ -56,7 +55,6 @@ export class AddPatientComponent {
 
   onSubmit() {
     const patientData : Patient = {
-      id: '',
       firstName: this.patientForm.value.firstName.toString(),
       lastName: this.patientForm.value.lastName.toString(),
       gender: this.patientForm.value.gender.toString(),
@@ -69,8 +67,7 @@ export class AddPatientComponent {
       bloodPressure: this.patientForm.value.bloodPressure.toString(),
       condition: this.patientForm.value.condition.toString(),
       img: 'assets/images/user/user1.jpg', // Or any other image URL
-      doctorId: ''
-    };
+    } as Patient;
 
     this.patientService.addPatient(patientData)
   }

@@ -42,24 +42,26 @@ export class EditPatientComponent {
 
   createContactForm(): UntypedFormGroup {
     return this.fb.group({
-      id: this.patientService.getDialogData().id,
+      // Required Fields
       firstName: [
         this.patientService.getDialogData().firstName,
         [Validators.required, Validators.pattern('[a-zA-Z]+')],
       ],
-      lastName: [this.patientService.getDialogData().lastName],
       gender: [this.patientService.getDialogData().gender, [Validators.required]],
       phoneNumber: [this.patientService.getDialogData().phoneNumber, [Validators.required]],
+      address: [this.patientService.getDialogData().address, [Validators.required]],
+      condition: [this.patientService.getDialogData().condition, [Validators.required]],
+      // Not required Fields
+      id: this.patientService.getDialogData().id,
+      lastName: [this.patientService.getDialogData().lastName],
       maritalState: [this.patientService.getDialogData().maritalState],
       email: [
         this.patientService.getDialogData().email,
-        [Validators.required, Validators.email, Validators.minLength(5)],
+        [Validators.email, Validators.minLength(5)],
       ],
       bloodGroup: [this.patientService.getDialogData().bloodGroup],
       bloodPressure: [this.patientService.getDialogData().bloodPressure],
-      address: [this.patientService.getDialogData().address],
-      birthDate: [this.patientService.getDialogData().birthDate, [Validators.required]],
-      condition: [this.patientService.getDialogData().condition],
+      birthDate: [this.patientService.getDialogData().birthDate],
       uploadFile: [this.patientService.getDialogData().img],
       doctorId: [this.patientService.getDialogData().doctorId],
     });

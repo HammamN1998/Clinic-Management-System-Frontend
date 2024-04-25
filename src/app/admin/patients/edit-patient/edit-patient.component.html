@@ -50,7 +50,10 @@
                 <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-3">
                   <mat-form-field class="example-full-width mb-3" appearance="outline">
                     <mat-label>Mobile</mat-label>
-                    <input matInput formControlName="phoneNumber" type="number">
+                    <input matInput formControlName="phoneNumber" type="number" required>
+                    <mat-error *ngIf="patientForm.get('maritalState')?.hasError('required')">
+                      Phone Number is required
+                    </mat-error>
                   </mat-form-field>
                 </div>
               </div>
@@ -58,8 +61,8 @@
                 <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-3">
                   <mat-form-field class="example-full-width mb-3" appearance="outline">
                     <mat-label>Date Of Birth</mat-label>
-                    <input matInput [matDatepicker]="picker" formControlName="birthDate" required>
-                    <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                    <input matInput [matDatepicker]="picker" formControlName="birthDate">
+                    <mat-datepicker-toggle matSuffix [for]="picker" ></mat-datepicker-toggle>
                     <mat-datepicker #picker></mat-datepicker>
                     <mat-error *ngIf="patientForm.get('birthDate')?.hasError('required')">
                       Please select date
@@ -71,7 +74,7 @@
                 <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-3">
                   <mat-form-field class="example-full-width mb-3" appearance="outline">
                     <mat-label>Email</mat-label>
-                    <input matInput formControlName="email" type="email" required>
+                    <input matInput formControlName="email" type="email">
                     <mat-error *ngIf="patientForm.get('email')?.hasError('email') && patientForm.get('email')?.touched">
                       Please enter a valid email address
                     </mat-error>
@@ -80,7 +83,7 @@
                 <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-3">
                   <mat-form-field class="example-full-width mb-3" appearance="outline">
                     <mat-label>Marital Status</mat-label>
-                    <mat-select formControlName="maritalState" required>
+                    <mat-select formControlName="maritalState">
                       <mat-option [value]="'1'">
                         Single
                       </mat-option>
@@ -98,7 +101,10 @@
                 <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-3">
                   <mat-form-field class="example-full-width mb-3" appearance="outline">
                     <mat-label>Address</mat-label>
-                    <textarea matInput formControlName="address"></textarea>
+                    <textarea matInput formControlName="address" required></textarea>
+                    <mat-error *ngIf="patientForm.get('address')?.hasError('required')">
+                      Address is  required
+                    </mat-error>
                   </mat-form-field>
                 </div>
               </div>
@@ -106,7 +112,7 @@
                 <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-3">
                   <mat-form-field class="example-full-width " appearance="outline">
                     <mat-label>Blood Group</mat-label>
-                    <mat-select formControlName="bloodGroup" required>
+                    <mat-select formControlName="bloodGroup">
                       <mat-option [value]="'A+'">
                         A+
                       </mat-option>
@@ -136,7 +142,10 @@
                 <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-3">
                   <mat-form-field class="example-full-width mb-3" appearance="outline">
                     <mat-label>Injury/Condition</mat-label>
-                    <input matInput formControlName="condition">
+                    <input matInput formControlName="condition" required>
+                    <mat-error *ngIf="patientForm.get('condition')?.hasError('required')">
+                      Injury/Condition is required
+                    </mat-error>
                   </mat-form-field>
                 </div>
               </div>
