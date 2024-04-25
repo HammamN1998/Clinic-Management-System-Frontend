@@ -39,19 +39,27 @@ export class AddPatientComponent {
     private patientService: PatientService,
     private notificationService: NotificationService,
   ) {
-    this.patientForm = this.fb.group({
-      firstName: ['', [Validators.required, Validators.pattern('[a-zA-Z]+')]],
-      lastName: [''],
+    this.patientForm = this.createContactForm();
+  }
+
+  createContactForm(): UntypedFormGroup {
+    return this.fb.group({
+      // Required Fields
+      firstName: [ '', [Validators.required, Validators.pattern('[a-zA-Z]+')], ],
       gender: ['', [Validators.required]],
       phoneNumber: ['', [Validators.required]],
-      birthDate: [''],
-      email: ['', [Validators.email, Validators.minLength(5)] ],
+      address: ['Palestine-', [Validators.required]],
+      condition: ['', [Validators.required]],
+      // Not required Fields
+      id: [''],
+      lastName: [''],
       maritalState: [''],
-      address: [''],
+      email: [ '', [Validators.email, Validators.minLength(5)], ],
       bloodGroup: [''],
       bloodPressure: [''],
-      condition: [''],
+      birthDate: [''],
       uploadFile: [''],
+      doctorId: [''],
     });
   }
 
@@ -72,5 +80,12 @@ export class AddPatientComponent {
     } as Patient;
 
     this.patientService.addPatient(patientData)
+    this.notificationService.showNotification(
+      'snackbar-success',
+      'Add Record Successfully...!!!',
+      'bottom',
+      'center'
+    )
+    this.patientForm = this.createContactForm();
   }
 }

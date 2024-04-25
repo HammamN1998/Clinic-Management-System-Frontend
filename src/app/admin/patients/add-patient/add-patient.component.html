@@ -55,6 +55,26 @@
                 </div>
               </div>
               <div class="row">
+                <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-3">
+                  <mat-form-field class="example-full-width mb-3" appearance="outline">
+                    <mat-label>Address</mat-label>
+                    <textarea matInput formControlName="address" required></textarea>
+                    <mat-error *ngIf="patientForm.get('address')?.hasError('required')">
+                      Address is required
+                    </mat-error>
+                  </mat-form-field>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-3">
+                  <mat-form-field class="example-full-width mb-3" appearance="outline">
+                    <mat-label>Injury/Condition</mat-label>
+                    <input matInput formControlName="condition" required>
+                    <mat-error *ngIf="patientForm.get('condition')?.hasError('required')">
+                      Injury/Condition is required
+                    </mat-error>
+                  </mat-form-field>
+                </div>
                 <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-3">
                   <mat-form-field class="example-full-width mb-3" appearance="outline">
                     <mat-label>Date Of Birth</mat-label>
@@ -95,17 +115,6 @@
                 </div>
               </div>
               <div class="row">
-                <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-3">
-                  <mat-form-field class="example-full-width mb-3" appearance="outline">
-                    <mat-label>Address</mat-label>
-                    <textarea matInput formControlName="address" required></textarea>
-                    <mat-error *ngIf="patientForm.get('address')?.hasError('required')">
-                      Address is required
-                    </mat-error>
-                  </mat-form-field>
-                </div>
-              </div>
-              <div class="row">
                 <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-3">
                   <mat-form-field class="example-full-width " appearance="outline">
                     <mat-label>Blood Group</mat-label>
@@ -132,17 +141,6 @@
                   <mat-form-field class="example-full-width mb-3" appearance="outline">
                     <mat-label>Blood Presure</mat-label>
                     <input matInput formControlName="bloodPressure">
-                  </mat-form-field>
-                </div>
-              </div>
-              <div class="row">
-                <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-3">
-                  <mat-form-field class="example-full-width mb-3" appearance="outline">
-                    <mat-label>Injury/Condition</mat-label>
-                    <input matInput formControlName="condition" required>
-                    <mat-error *ngIf="patientForm.get('condition')?.hasError('required')">
-                      Injury/Condition is required
-                    </mat-error>
                   </mat-form-field>
                 </div>
               </div>
