@@ -11,6 +11,7 @@ import { BreadcrumbComponent } from '@shared/components/breadcrumb/breadcrumb.co
 import { PatientService } from '@core/service/patient.service';
 import {Patient} from "@core/models/patient.model";
 import {NgIf} from "@angular/common";
+import {NotificationService} from "@core/service/notification.service";
 
 @Component({
   selector: 'app-add-patient',
@@ -36,6 +37,7 @@ export class AddPatientComponent {
   constructor(
     private fb: UntypedFormBuilder,
     private patientService: PatientService,
+    private notificationService: NotificationService,
   ) {
     this.patientForm = this.fb.group({
       firstName: ['', [Validators.required, Validators.pattern('[a-zA-Z]+')]],

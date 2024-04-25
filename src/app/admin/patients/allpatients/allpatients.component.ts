@@ -5,11 +5,6 @@ import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { Patient } from '@core/models/patient.model';
 import { DataSource } from '@angular/cdk/collections';
-import {
-  MatSnackBar,
-  MatSnackBarHorizontalPosition,
-  MatSnackBarVerticalPosition,
-} from '@angular/material/snack-bar';
 import { FormDialogComponent } from './dialog/form-dialog/form-dialog.component';
 import {DeleteComponent, DialogData} from './dialog/delete/delete.component';
 import { BehaviorSubject, fromEvent, merge, Observable } from 'rxjs';
@@ -31,6 +26,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { BreadcrumbComponent } from '@shared/components/breadcrumb/breadcrumb.component';
+import {NotificationService} from "@core/service/notification.service";
 
 @Component({
   selector: 'app-allpatients',
@@ -74,7 +70,7 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
   constructor(
     private dialog: MatDialog,
     public patientService: PatientService,
-    private snackBar: MatSnackBar,
+    private notificationService: NotificationService,
   ) {
     super();
   }
@@ -108,7 +104,7 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
         // Add patient to Firestore and local storage
         this.patientService.addPatient(dialogRef.componentInstance.patientForm.value);
         this.refreshTable();
-        this.showNotification(
+        this.notificationService.showNotification(
           'snackbar-success',
           'Add Record Successfully...!!!',
           'bottom',
@@ -139,7 +135,7 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
         this.patientService.updatePatient(dialogRef.componentInstance.patientForm.value);
         // And lastly refresh table
         this.refreshTable();
-        this.showNotification(
+        this.notificationService.showNotification(
           'black',
           'Edit Record Successfully...!!!',
           'bottom',
@@ -173,7 +169,7 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
         this.patientService.deletePatient(row.id);
 
         this.refreshTable();
-        this.showNotification(
+        this.notificationService.showNotification(
           'snackbar-danger',
           'Delete Record Successfully...!!!',
           'bottom',
@@ -212,7 +208,7 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
     this.refreshTable();
     this.selection = new SelectionModel<Patient>(true, []);
 
-    this.showNotification(
+    this.notificationService.showNotification(
       'snackbar-danger',
       totalSelect + ' Record Delete Successfully...!!!',
       'bottom',
@@ -251,19 +247,6 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
     TableExportUtil.exportToExcel(exportData, 'excel');
   }
 
-  showNotification(
-    colorName: string,
-    text: string,
-    placementFrom: MatSnackBarVerticalPosition,
-    placementAlign: MatSnackBarHorizontalPosition
-  ) {
-    this.snackBar.open(text, '', {
-      duration: 2000,
-      verticalPosition: placementFrom,
-      horizontalPosition: placementAlign,
-      panelClass: colorName,
-    });
-  }
 }
 export class ExampleDataSource extends DataSource<Patient> {
   filterChange = new BehaviorSubject('');

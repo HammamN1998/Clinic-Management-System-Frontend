@@ -11,6 +11,7 @@ import { BreadcrumbComponent } from '@shared/components/breadcrumb/breadcrumb.co
 import { PatientService } from "@core/service/patient.service";
 import {NgIf} from "@angular/common";
 import {Patient} from "@core/models/patient.model";
+import {NotificationService} from "@core/service/notification.service";
 
 @Component({
   selector: 'app-edit-patient',
@@ -36,6 +37,7 @@ export class EditPatientComponent {
   constructor(
     private fb: UntypedFormBuilder,
     private patientService: PatientService,
+    private notificationService: NotificationService,
   ) {
     this.patientForm = this.createContactForm();
   }
@@ -86,5 +88,11 @@ export class EditPatientComponent {
     };
 
     this.patientService.updatePatient(patientData)
+    this.notificationService.showNotification(
+      'black',
+      'Edit Record Successfully...!!!',
+      'bottom',
+      'center'
+    )
   }
 }
