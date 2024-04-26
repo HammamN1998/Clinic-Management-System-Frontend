@@ -13,26 +13,36 @@ import {MatDialog} from "@angular/material/dialog";
 import {DeleteComponent, DialogData} from "../allpatients/dialog/delete/delete.component";
 import {Direction} from "@angular/cdk/bidi";
 import {NotificationService} from "@core/service/notification.service";
-import {UnsubscribeOnDestroyAdapter} from "@shared";
+import {SharedModule, UnsubscribeOnDestroyAdapter} from "@shared";
+import {MatDatepickerModule} from "@angular/material/datepicker";
+import { OwlDateTimeModule, OwlNativeDateTimeModule } from '@danielmoncada/angular-datetime-picker';
+import {ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators} from "@angular/forms";
+import {AppointmentModel} from "@core/models/appointment.model";
+import {AppointmentService} from "@core/service/appointment.service";
 
 @Component({
   selector: 'app-patient-profile',
   templateUrl: './patient-profile.component.html',
   styleUrls: ['./patient-profile.component.scss'],
   standalone: true,
-  imports: [BreadcrumbComponent, MatButtonModule, MatCheckboxModule, MatFormFieldModule, MatIconModule, MatInputModule, MatTabsModule],
+  imports: [BreadcrumbComponent, MatButtonModule, MatCheckboxModule, MatFormFieldModule, MatIconModule, MatInputModule, MatTabsModule, MatDatepickerModule, OwlDateTimeModule, OwlNativeDateTimeModule, ReactiveFormsModule, SharedModule,],
 })
 export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
   patient!: Patient;
+  appointmentForm: UntypedFormGroup;
+
   constructor(
     private patientService: PatientService,
     private router: Router,
     private dialog: MatDialog,
     private notificationService: NotificationService,
+    private appointmentService: AppointmentService,
+    private formBuilder: UntypedFormBuilder,
   ) {
     super();
     // constructor code
     this.patient = this.patientService.getDialogData();
+    this.appointmentForm = this.createAppointmentForm();
   }
 
 
@@ -74,5 +84,32 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
       }
     });
 
+  }
+
+  addAppointment() {
+    const newAppointment = new AppointmentModel();
+    newAppointment.date = this.appointmentForm.get('date')?.value;
+    newAppointment.time = this.appointmentForm.get('time')?.value;
+    newAppointment.details = this.appointmentForm.get('details')?.value;
+
+    this.appointmentService.addAppointment(newAppointment);
+    this.appointmentForm = this.createAppointmentForm();
+    // this.appointmentForm.get('date')!.setValue('');
+    // this.appointmentForm.get('time')!.setValue('');
+    // this.appointmentForm.get('details')!.setValue('');
+    this.notificationService.showNotification(
+      'snackbar-success',
+      'Add Appointment Successfully...!!!',
+      'bottom',
+      'center'
+    );
+  }
+
+  private createAppointmentForm(): UntypedFormGroup {
+    return this.formBuilder.group({
+      date: ['', [Validators.required]],
+      time: ['', [Validators.required]],
+      details: [''],
+    })
   }
 }

@@ -1,5 +1,5 @@
 export class Patient {
-  id: string = '';  // Initialize with empty string
+  id: string = '';
   firstName: string = '';
   lastName: string = '';
   gender: string = '';
@@ -7,12 +7,12 @@ export class Patient {
   birthDate: string = '01/01/1910';
   email: string = '';
   maritalState: string = '';
-  address: string = 'Palestine - ';  // Default address
+  address: string = 'Palestine - ';
   bloodGroup: string = '';
   bloodPressure: string = '';
   condition: string = '';
-  img: string = 'assets/images/user/user1.jpg'; // Default image
+  img: string = 'assets/images/user/user1.jpg';
   doctorId: string = '';
 
-  constructor() {} // Empty constructor without parameters
+  constructor() {}
 }
