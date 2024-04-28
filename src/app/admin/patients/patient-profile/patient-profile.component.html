@@ -6,11 +6,13 @@
     </div>
     <div class="row clearfix">
       <div class="col-lg-4 col-md-12">
+        <!--Patient Image-->
         <div class="card">
           <div class="contact-grid profile-image">
             <img src="assets/images/user/usrbig4.jpg" alt="">
           </div>
         </div>
+        <!--About Patient-->
         <div class="card">
           <div class="header">
             <h2>About Patient</h2>
@@ -29,13 +31,14 @@
         </div>
       </div>
       <div class="col-lg-8 col-md-12">
-        <!--Patient Information Card-->
+        <!--Patient Information Section-->
         <div class="card">
           <div class="header">
             <h2>Patient Information Section</h2>
           </div>
           <div class="body">
             <mat-tab-group dynamicHeight>
+              <!--About-->
               <mat-tab>
                 <ng-template mat-tab-label>
                   <mat-icon class="example-tab-icon msr-2">face</mat-icon>
@@ -100,7 +103,7 @@
                   </div>
                 </div>
               </mat-tab>
-
+              <!--Settings-->
               <mat-tab>
                 <ng-template mat-tab-label>
                   <mat-icon class="example-tab-icon msr-2">settings</mat-icon>
@@ -125,77 +128,48 @@
             </mat-tab-group>
           </div>
         </div>
-        <!--Patient Appointments Card-->
+        <!--Patient Appointments Section-->
         <div class="card">
           <div class="header">
             <h2>Patient Appointments Section</h2>
           </div>
           <div class="body">
             <mat-tab-group dynamicHeight>
+              <!--All Appointments-->
               <mat-tab>
                 <ng-template mat-tab-label>
                   <mat-icon class="example-tab-icon msr-2">my_library_books</mat-icon>
-                  All Appointments {{patient.firstName}}
+                  All Appointments
                 </ng-template>
-                <div class="col-lg-12 col-md-12 col-sm-12">
-                  <div class="project_widget">
-                    <div class="body">
+                <div class="body">
+                  <mat-accordion>
+                    <mat-expansion-panel *ngFor="let appointment of this.patientAppointments">
+                      <mat-expansion-panel-header>
+                        <mat-panel-title>
+                          <mat-icon class="example-tab-icon msr-2">date_range</mat-icon>
+                          {{appointment.date}}
+                        </mat-panel-title>
+                        <mat-panel-description>
+                          <mat-icon class="example-tab-icon msr-2">access_time</mat-icon>
+                          {{appointment.time}}
+                        </mat-panel-description>
+                      </mat-expansion-panel-header>
                       <div class="row">
-                        <div class="col-md-3 col-6 b-r">
-                          <strong>Full Name</strong>
-                          <br>
-                          <p class="text-muted">{{patient.firstName}} {{patient.lastName}}</p>
+                        <div class="col-lg-12 col-md-12">
+                          <p>{{appointment.details}}</p>
                         </div>
-                        <div class="col-md-3 col-6 b-r">
-                          <strong>Mobile</strong>
-                          <br>
-                          <p class="text-muted">{{patient.phoneNumber}}</p>
+                        <div class="col-lg-9 col-md-12">
+                          <mat-slide-toggle [checked]=appointment.attended (change)="changeAppointmentAttended($event, appointment)">Attended</mat-slide-toggle>
                         </div>
-                        <div class="col-md-3 col-6 b-r">
-                          <strong>Email</strong>
-                          <br>
-                          <p class="text-muted">{{patient.email}}</p>
-                        </div>
-                        <div class="col-md-3 col-6">
-                          <strong>Location</strong>
-                          <br>
-                          <p class="text-muted">{{patient.address}}</p>
-                        </div>
-                        <div class="col-md-3 col-6">
-                          <strong>Gender</strong>
-                          <br>
-                          <p class="text-muted">{{patient.gender}}</p>
-                        </div>
-                        <div class="col-md-3 col-6">
-                          <strong>Marital Status</strong>
-                          <br>
-                          <p class="text-muted">{{patient.maritalState}}</p>
-                        </div>
-                        <div class="col-md-3 col-6">
-                          <strong>Birth Date</strong>
-                          <br>
-                          <p class="text-muted">{{patient.birthDate}}</p>
-                        </div>
-                        <div class="col-md-3 col-6">
-                          <strong>Blood Group</strong>
-                          <br>
-                          <p class="text-muted">{{patient.bloodGroup}}</p>
-                        </div>
-                        <div class="col-md-3 col-6">
-                          <strong>Blood Pressure</strong>
-                          <br>
-                          <p class="text-muted">{{patient.bloodPressure}}</p>
-                        </div>
-                        <div class="col-md-3 col-6">
-                          <strong>Condition</strong>
-                          <br>
-                          <p class="text-muted">{{patient.condition}}</p>
+                        <div class="col-lg-3 col-md-12">
+                          <button mat-raised-button color="warn" (click)="deleteAppointment(appointment)" >Delete</button>
                         </div>
                       </div>
-                    </div>
-                  </div>
+                    </mat-expansion-panel>
+                  </mat-accordion>
                 </div>
               </mat-tab>
+              <!--Add Appointment-->
               <mat-tab>
                 <ng-template mat-tab-label>
                   <mat-icon class="example-tab-icon msr-2">my_library_add</mat-icon>
@@ -229,7 +203,10 @@
                           <textarea matInput formControlName="details"></textarea>
                         </mat-form-field>
                       </div>
-                      <div class="col-md-12">
+                      <div class="col-lg-12 col-md-12">
+                        <mat-slide-toggle  formControlName="attended" >Attended</mat-slide-toggle>
+                      </div>
+                      <div class="col-lg-12 col-md-12">
                         <button mat-raised-button color="primary" (click)="addAppointment()">Add Appointment</button>
                       </div>
                     </div>

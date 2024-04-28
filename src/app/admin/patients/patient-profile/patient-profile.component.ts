@@ -18,7 +18,8 @@ import {MatDatepickerModule} from "@angular/material/datepicker";
 import { OwlDateTimeModule, OwlNativeDateTimeModule } from '@danielmoncada/angular-datetime-picker';
 import {ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators} from "@angular/forms";
 import {AppointmentModel} from "@core/models/appointment.model";
-import {AppointmentService} from "@core/service/appointment.service";
+import {from} from "rxjs";
+import {MatSlideToggleChange} from "@angular/material/slide-toggle";
 
 @Component({
   selector: 'app-patient-profile',
@@ -29,20 +30,24 @@ import {AppointmentService} from "@core/service/appointment.service";
 })
 export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
   patient!: Patient;
+
+
   appointmentForm: UntypedFormGroup;
+  patientAppointments: AppointmentModel[] = [];
 
   constructor(
     private patientService: PatientService,
     private router: Router,
     private dialog: MatDialog,
     private notificationService: NotificationService,
-    private appointmentService: AppointmentService,
     private formBuilder: UntypedFormBuilder,
   ) {
     super();
     // constructor code
     this.patient = this.patientService.getDialogData();
     this.appointmentForm = this.createAppointmentForm();
+
+    this.getPatientAppointments();
   }
 
 
@@ -91,18 +96,36 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
     newAppointment.date = this.appointmentForm.get('date')?.value;
     newAppointment.time = this.appointmentForm.get('time')?.value;
     newAppointment.details = this.appointmentForm.get('details')?.value;
+    newAppointment.attended = this.appointmentForm.get('attended')?.value ? 'true' : 'false';
 
-    this.appointmentService.addAppointment(newAppointment);
-    this.appointmentForm = this.createAppointmentForm();
-    // this.appointmentForm.get('date')!.setValue('');
-    // this.appointmentForm.get('time')!.setValue('');
-    // this.appointmentForm.get('details')!.setValue('');
-    this.notificationService.showNotification(
-      'snackbar-success',
-      'Add Appointment Successfully...!!!',
-      'bottom',
-      'center'
-    );
+    from(this.patientService.addPatientAppointment(newAppointment))
+    .subscribe({
+      next: () => {
+        this.appointmentForm = this.createAppointmentForm();
+        this.notificationService.showNotification(
+          'snackbar-success',
+          'Add Appointment Successfully...!!!',
+          'bottom',
+          'center'
+        );
+        this.getPatientAppointments();
+      },
+      error: (error) => {
+        console.log('error: ' + error)
+      }
+    })
+  }
+
+  getPatientAppointments() {
+    this.patientAppointments = [];
+    from(this.patientService.getPatientAppointments())
+    .subscribe({
+      next: (appointments) => {
+        appointments.docs.map((appointment) => {
+          this.patientAppointments.push(appointment.data() as AppointmentModel);
+        })
+      }
+    });
   }
 
   private createAppointmentForm(): UntypedFormGroup {
@@ -110,6 +133,23 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
       date: ['', [Validators.required]],
       time: ['', [Validators.required]],
       details: [''],
+      attended: [false]
     })
+  }
+
+  changeAppointmentAttended($event: MatSlideToggleChange, appointment: AppointmentModel) {
+    this.patientService.changeAppointmentAttended(appointment, $event.checked ? 'true': 'false');
+  }
+
+  deleteAppointment(appointment: AppointmentModel) {
+    from(this.patientService.deleteAppointment(appointment.id))
+      .subscribe({
+        next: () => {
+          this.getPatientAppointments();
+        },
+        error: (error) => {
+          console.log('error: ' + error);
+        }
+      })
   }
 }

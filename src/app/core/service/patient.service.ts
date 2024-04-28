@@ -5,6 +5,7 @@ import { UnsubscribeOnDestroyAdapter } from '@shared';
 import {FirebaseAuthenticationService} from "../../authentication/services/firebase-authentication.service";
 import {AngularFirestore} from "@angular/fire/compat/firestore";
 import {DateService} from "@core/service/date.service";
+import {AppointmentModel} from "@core/models/appointment.model";
 
 @Injectable({
   providedIn: 'root',
@@ -29,8 +30,6 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
   getDialogData() {
     return this.dialogData;
   }
-
-
   getAllPatients(): void {
     const tempPatients : Patient[] = [];
     this.dataChange.next(tempPatients);
@@ -140,5 +139,37 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
       })
   }
 
+  addPatientAppointment(appointment: AppointmentModel) {
+    appointment.patientId = this.getDialogData().id;
+    appointment.doctorId = this.getDialogData().doctorId;
+    appointment.date = this.dateService.formatDateToISO8601(new Date(appointment.date));
+    appointment.time = this.dateService.formatTimeToISO8601(new Date(appointment.time));
 
+    const result = this.firestore.collection('appointments').add( {...appointment} );
+    from(result).subscribe({
+        next: (result) => {
+          this.firestore.collection('appointments').doc(result.id).update({id: result.id});
+        },
+        error: (error) => {
+          console.log('error: ' + error)
+        }
+      }
+    )
+    return result;
+  }
+  getPatientAppointments() {
+    return this.firestore.collection('appointments').ref
+    .where('patientId', '==', this.getDialogData().id)
+    .orderBy('date', 'desc')
+    .orderBy('time', 'desc')
+    .get();
+  }
+
+  changeAppointmentAttended(appointment: AppointmentModel, attended: string) {
+    return this.firestore.collection('appointments').doc(appointment.id).update({attended: attended});
+  }
+
+  deleteAppointment(id: string) {
+    return this.firestore.collection('appointments').doc(id).delete();
+  }
 }
