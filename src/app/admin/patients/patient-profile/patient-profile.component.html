@@ -147,11 +147,11 @@
                       <mat-expansion-panel-header>
                         <mat-panel-title>
                           <mat-icon class="example-tab-icon msr-2">date_range</mat-icon>
-                          {{appointment.date}}
+                          {{appointment.date.toDate().toDateString()}}
                         </mat-panel-title>
                         <mat-panel-description>
                           <mat-icon class="example-tab-icon msr-2">access_time</mat-icon>
-                          {{appointment.time}}
+                          {{appointment.time.toDate().toLocaleTimeString()}}
                         </mat-panel-description>
                       </mat-expansion-panel-header>
                       <div class="row">
@@ -178,6 +178,7 @@
                 <div class="body">
                   <form class="register-form m-4" [formGroup]="appointmentForm">
                     <div class="row clearfix">
+                      <!--date-->
                       <div class="col-lg-6 col-md-12">
                         <mat-form-field class="example-full-width">
                           <mat-label>Choose a date</mat-label>
@@ -189,6 +190,7 @@
                           </mat-error>
                         </mat-form-field>
                       </div>
+                      <!--time-->
                       <div class="col-lg-6 col-md-12">
                         <mat-form-field class="example-full-width mb-3">
                           <mat-label>Choose a time</mat-label>
@@ -197,15 +199,40 @@
                           <owl-date-time [pickerType]="'timer'" #time1 [hour12Timer]="true"></owl-date-time>
                         </mat-form-field>
                       </div>
+                      <!--details-->
                       <div class="col-lg-12 col-md-12">
                         <mat-form-field class="example-full-width" appearance="fill">
                           <mat-label>Appointment Details</mat-label>
                           <textarea matInput formControlName="details"></textarea>
                         </mat-form-field>
                       </div>
-                      <div class="col-lg-12 col-md-12">
-                        <mat-slide-toggle  formControlName="attended" >Attended</mat-slide-toggle>
+                      <!--cost and constPaid-->
+                      <div class="col-lg-6 col-md-12">
+                        <mat-form-field class="example-full-width">
+                          <mat-label>Appointment Cost</mat-label>
+                          <input matInput formControlName="cost" type="number">
+                          <mat-slide-toggle  formControlName="costPaid" >
+                            <ng-container *ngIf="this.appointmentForm.get('costPaid')?.value">
+                              Paid
+                            </ng-container>
+                            <ng-container *ngIf="!this.appointmentForm.get('costPaid')?.value">
+                              Unpaid
+                            </ng-container>
+                          </mat-slide-toggle>
+                        </mat-form-field>
                       </div>
+                      <!--attended-->
+                      <div class="col-lg-6 col-md-12">
+                        <mat-slide-toggle  formControlName="attended" >
+                          <ng-container *ngIf="this.appointmentForm.get('attended')?.value">
+                            Patient attended
+                          </ng-container>
+                          <ng-container *ngIf="!this.appointmentForm.get('attended')?.value">
+                            Patient did not attend
+                          </ng-container>
+                        </mat-slide-toggle>
+                      </div>
+                      <!--button-->
                       <div class="col-lg-12 col-md-12">
                         <button mat-raised-button color="primary" (click)="addAppointment()">Add Appointment</button>
                       </div>

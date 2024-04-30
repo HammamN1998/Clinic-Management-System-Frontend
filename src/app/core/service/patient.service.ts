@@ -142,8 +142,6 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
   addPatientAppointment(appointment: AppointmentModel) {
     appointment.patientId = this.getDialogData().id;
     appointment.doctorId = this.getDialogData().doctorId;
-    appointment.date = this.dateService.formatDateToISO8601(new Date(appointment.date));
-    appointment.time = this.dateService.formatTimeToISO8601(new Date(appointment.time));
 
     const result = this.firestore.collection('appointments').add( {...appointment} );
     from(result).subscribe({

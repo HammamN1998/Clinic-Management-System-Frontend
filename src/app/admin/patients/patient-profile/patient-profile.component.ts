@@ -20,13 +20,15 @@ import {ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators} f
 import {AppointmentModel} from "@core/models/appointment.model";
 import {from} from "rxjs";
 import {MatSlideToggleChange} from "@angular/material/slide-toggle";
+import {AdultTeethDiagramComponent} from "@shared/components/dentist/adult-teeth-diagram/adult-teeth-diagram.component";
+import * as firestore from 'firebase/firestore';
 
 @Component({
   selector: 'app-patient-profile',
   templateUrl: './patient-profile.component.html',
   styleUrls: ['./patient-profile.component.scss'],
   standalone: true,
-  imports: [BreadcrumbComponent, MatButtonModule, MatCheckboxModule, MatFormFieldModule, MatIconModule, MatInputModule, MatTabsModule, MatDatepickerModule, OwlDateTimeModule, OwlNativeDateTimeModule, ReactiveFormsModule, SharedModule,],
+  imports: [BreadcrumbComponent, MatButtonModule, MatCheckboxModule, MatFormFieldModule, MatIconModule, MatInputModule, MatTabsModule, MatDatepickerModule, OwlDateTimeModule, OwlNativeDateTimeModule, ReactiveFormsModule, SharedModule, AdultTeethDiagramComponent,],
 })
 export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
   patient!: Patient;
@@ -93,10 +95,12 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
 
   addAppointment() {
     const newAppointment = new AppointmentModel();
-    newAppointment.date = this.appointmentForm.get('date')?.value;
-    newAppointment.time = this.appointmentForm.get('time')?.value;
+    newAppointment.date = firestore.Timestamp.fromDate(this.appointmentForm.get('date')?.value);
+    newAppointment.time = firestore.Timestamp.fromDate(this.appointmentForm.get('time')?.value);
     newAppointment.details = this.appointmentForm.get('details')?.value;
-    newAppointment.attended = this.appointmentForm.get('attended')?.value ? 'true' : 'false';
+    newAppointment.attended = this.appointmentForm.get('attended')?.value;
+    newAppointment.cost = this.appointmentForm.get('cost')?.value;
+    newAppointment.costPaid = this.appointmentForm.get('costPaid')?.value;
 
     from(this.patientService.addPatientAppointment(newAppointment))
     .subscribe({
@@ -133,6 +137,8 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
       date: ['', [Validators.required]],
       time: ['', [Validators.required]],
       details: [''],
+      cost: [0, [Validators.min(0), Validators.max(1000)]],
+      costPaid: [true],
       attended: [false]
     })
   }
