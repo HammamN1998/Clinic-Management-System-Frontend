@@ -31,10 +31,10 @@
         </div>
       </div>
       <div class="col-lg-8 col-md-12">
-        <!--Patient Information Section-->
+        <!--Information Section-->
         <div class="card">
           <div class="header">
-            <h2>Patient Information Section</h2>
+            <h2>Information Section</h2>
           </div>
           <div class="body">
             <mat-tab-group dynamicHeight>
@@ -128,10 +128,10 @@
             </mat-tab-group>
           </div>
         </div>
-        <!--Patient Appointments Section-->
+        <!--Appointments Section-->
         <div class="card">
           <div class="header">
-            <h2>Patient Appointments Section</h2>
+            <h2>Appointments Section</h2>
           </div>
           <div class="body">
             <mat-tab-group dynamicHeight>
@@ -158,8 +158,25 @@
                         <div class="col-lg-12 col-md-12">
                           <p>{{appointment.details}}</p>
                         </div>
-                        <div class="col-lg-9 col-md-12">
-                          <mat-slide-toggle [checked]=appointment.attended (change)="changeAppointmentAttended($event, appointment)">Attended</mat-slide-toggle>
+                        <div class="col-lg-6 col-md-12">
+                          <mat-slide-toggle [checked]=appointment.attended (change)="changeAppointmentAttended($event, appointment)">
+                            <ng-container *ngIf="appointment.attended">
+                              Patient attended
+                            </ng-container>
+                            <ng-container *ngIf="!appointment.attended">
+                              Patient did not attend
+                            </ng-container>
+                          </mat-slide-toggle>
+                        </div>
+                        <div class="col-lg-6 col-md-12">
+                          <mat-slide-toggle [checked]=appointment.costPaid (change)="changeAppointmentCostPaid($event, appointment); ">
+                            <ng-container *ngIf="appointment.costPaid">
+                              {{appointment.cost}} NIS Paid
+                            </ng-container>
+                            <ng-container *ngIf="!appointment.costPaid">
+                              {{appointment.cost}} NIS Unpaid
+                            </ng-container>
+                          </mat-slide-toggle>
                         </div>
                         <div class="col-lg-3 col-md-12">
                           <button mat-raised-button color="warn" (click)="deleteAppointment(appointment)" >Delete</button>
@@ -182,9 +199,9 @@
                       <div class="col-lg-6 col-md-12">
                         <mat-form-field class="example-full-width">
                           <mat-label>Choose a date</mat-label>
-                          <input matInput  [matDatepicker]="picker4" formControlName="date" required>
-                          <mat-datepicker-toggle matSuffix [for]="picker4"></mat-datepicker-toggle>
-                          <mat-datepicker #picker4></mat-datepicker>
+                          <input matInput  [matDatepicker]="picker1" formControlName="date" required>
+                          <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
+                          <mat-datepicker #picker1></mat-datepicker>
                           <mat-error *ngIf="this.appointmentForm.get('date')?.hasError('required')">
                             Date is required
                           </mat-error>
@@ -238,6 +255,196 @@
                       </div>
                     </div>
                   </form>
+                </div>
+              </mat-tab>
+            </mat-tab-group>
+          </div>
+        </div>
+        <!--Payments/Treatments Section-->
+        <div class="card">
+          <div class="header">
+            <h2>Payments/Treatments Section</h2>
+          </div>
+          <div class="body">
+            <mat-tab-group dynamicHeight>
+              <!--All Payments-->
+              <mat-tab>
+                <ng-template mat-tab-label>
+                  <mat-icon class="example-tab-icon msr-2">payment</mat-icon>
+                  All Payments
+                </ng-template>
+                <div class="body">
+                  <mat-accordion>
+                    <mat-expansion-panel *ngFor="let payment of this.patientPayments">
+                      <mat-expansion-panel-header>
+                        <mat-panel-title>
+                          <mat-icon class="example-tab-icon msr-2">date_range</mat-icon>
+                          {{payment.date.toDate().toDateString()}}
+                        </mat-panel-title>
+                        <mat-panel-description>
+                          <mat-icon class="example-tab-icon msr-2">payment</mat-icon>
+                          {{payment.amount}}
+                        </mat-panel-description>
+                      </mat-expansion-panel-header>
+                      <div class="row">
+                        <div class="col-lg-12 col-md-12">
+                          <p>{{payment.details}}</p>
+                        </div>
+                        <div class="col-lg-3 col-md-12">
+                          <button mat-raised-button color="warn" (click)="deletePayment(payment)" >Delete</button>
+                        </div>
+                      </div>
+                    </mat-expansion-panel>
+                  </mat-accordion>
+                </div>
+              </mat-tab>
+              <!--All Treatments-->
+              <mat-tab>
+                <ng-template mat-tab-label>
+                  <mat-icon class="example-tab-icon msr-2">healing</mat-icon>
+                  All Treatments
+                </ng-template>
+                <div class="body">
+                  <mat-accordion>
+                    <mat-expansion-panel *ngFor="let treatment of this.patientTreatments">
+                      <mat-expansion-panel-header>
+                        <mat-panel-title>
+                          <mat-icon class="example-tab-icon msr-2">date_range</mat-icon>
+                          {{treatment.date.toDate().toDateString()}}
+                        </mat-panel-title>
+                        <mat-panel-description>
+                          <mat-icon class="example-tab-icon msr-2">payment</mat-icon>
+                          {{treatment.price}} NIS with {{treatment.discount}} discount
+                        </mat-panel-description>
+                      </mat-expansion-panel-header>
+                      <div class="row">
+                        <div class="col-lg-12 col-md-12">
+                          <p>{{treatment.details}}</p>
+                        </div>
+                        <div class="col-lg-3 col-md-12">
+                          <button mat-raised-button color="warn" (click)="deleteTreatment(treatment)" >Delete</button>
+                        </div>
+                      </div>
+                    </mat-expansion-panel>
+                  </mat-accordion>
+                </div>
+              </mat-tab>
+              <!--Add Payment/Treatment-->
+              <mat-tab>
+                <ng-template mat-tab-label>
+                  <mat-icon class="example-tab-icon msr-2">my_library_add</mat-icon>
+                  Add Payment/Treatment
+                </ng-template>
+                <div class="body">
+                  <mat-accordion>
+                    <!--Add Payment-->
+                    <mat-expansion-panel>
+                      <mat-expansion-panel-header>
+                        <mat-panel-title>
+                          <mat-icon class="example-tab-icon msr-2">payment</mat-icon>
+                          Add Payment
+                        </mat-panel-title>
+                        <mat-panel-description>
+                        </mat-panel-description>
+                      </mat-expansion-panel-header>
+                      <div class="body">
+                        <form class="register-form m-4" [formGroup]="paymentForm">
+                          <div class="row clearfix">
+                            <!--amount-->
+                            <div class="col-lg-6 col-md-12">
+                              <mat-form-field class="example-full-width">
+                                <mat-label>Amount</mat-label>
+                                <input matInput  type="number" formControlName="amount" required>
+                                <mat-error *ngIf="this.paymentForm.get('amount')?.hasError('required')">
+                                  Amount is required
+                                </mat-error>
+                              </mat-form-field>
+                            </div>
+                            <!--date-->
+                            <div class="col-lg-6 col-md-12">
+                              <mat-form-field class="example-full-width">
+                                <mat-label>Choose a date</mat-label>
+                                <input matInput  [matDatepicker]="picker2" formControlName="date" required>
+                                <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
+                                <mat-datepicker #picker2></mat-datepicker>
+                                <mat-error *ngIf="this.paymentForm.get('date')?.hasError('required')">
+                                  Date is required
+                                </mat-error>
+                              </mat-form-field>
+                            </div>
+                            <!--details-->
+                            <div class="col-lg-12 col-md-12">
+                              <mat-form-field class="example-full-width" appearance="fill">
+                                <mat-label>Payment Details</mat-label>
+                                <textarea matInput formControlName="details"></textarea>
+                              </mat-form-field>
+                            </div>
+                            <!--button-->
+                            <div class="col-lg-12 col-md-12">
+                              <button mat-raised-button color="primary" (click)="addPayment()">Add Payment</button>
+                            </div>
+                          </div>
+                        </form>
+                      </div>
+                    </mat-expansion-panel>
+                    <!--Add Treatment-->
+                    <mat-expansion-panel>
+                      <mat-expansion-panel-header>
+                        <mat-panel-title>
+                          <mat-icon class="example-tab-icon msr-2">healing</mat-icon>
+                          Add Treatment
+                        </mat-panel-title>
+                        <mat-panel-description>
+                        </mat-panel-description>
+                      </mat-expansion-panel-header>
+                      <div class="body">
+                        <form class="register-form m-4" [formGroup]="treatmentForm">
+                          <div class="row clearfix">
+                            <!--price-->
+                            <div class="col-lg-6 col-md-12">
+                              <mat-form-field class="example-full-width">
+                                <mat-label>Price</mat-label>
+                                <input matInput formControlName="price" type="number" required>
+                                <mat-error *ngIf="this.treatmentForm.get('price')?.hasError('required')">
+                                  Price is required
+                                </mat-error>
+                              </mat-form-field>
+                            </div>
+                            <!--discount-->
+                            <div class="col-lg-6 col-md-12">
+                              <mat-form-field class="example-full-width">
+                                <mat-label>Discount</mat-label>
+                                <input matInput formControlName="discount" type="number">
+                              </mat-form-field>
+                            </div>
+                            <!--date-->
+                            <div class="col-lg-6 col-md-12">
+                              <mat-form-field class="example-full-width">
+                                <mat-label>Choose a date</mat-label>
+                                <input matInput  [matDatepicker]="picker3" formControlName="date" required>
+                                <mat-datepicker-toggle matSuffix [for]="picker3"></mat-datepicker-toggle>
+                                <mat-datepicker #picker3></mat-datepicker>
+                                <mat-error *ngIf="this.treatmentForm.get('date')?.hasError('required')">
+                                  Date is required
+                                </mat-error>
+                              </mat-form-field>
+                            </div>
+                            <!--details-->
+                            <div class="col-lg-12 col-md-12">
+                              <mat-form-field class="example-full-width" appearance="fill">
+                                <mat-label>Treatment Details</mat-label>
+                                <textarea matInput formControlName="details"></textarea>
+                              </mat-form-field>
+                            </div>
+                            <!--button-->
+                            <div class="col-lg-12 col-md-12">
+                              <button mat-raised-button color="primary" (click)="addTreatment()">Add Trearment</button>
+                            </div>
+                          </div>
+                        </form>
+                      </div>
+                    </mat-expansion-panel>
+                  </mat-accordion>
                 </div>
               </mat-tab>
             </mat-tab-group>

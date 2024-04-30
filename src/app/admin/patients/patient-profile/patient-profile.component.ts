@@ -22,6 +22,8 @@ import {from} from "rxjs";
 import {MatSlideToggleChange} from "@angular/material/slide-toggle";
 import {AdultTeethDiagramComponent} from "@shared/components/dentist/adult-teeth-diagram/adult-teeth-diagram.component";
 import * as firestore from 'firebase/firestore';
+import {PaymentModel} from "@core/models/payment.model";
+import {TreatmentModel} from "@core/models/treatment.model";
 
 @Component({
   selector: 'app-patient-profile',
@@ -35,7 +37,12 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
 
 
   appointmentForm: UntypedFormGroup;
+  paymentForm: UntypedFormGroup;
+  treatmentForm: UntypedFormGroup;
+
   patientAppointments: AppointmentModel[] = [];
+  patientPayments: PaymentModel[] = [];
+  patientTreatments: TreatmentModel[] = [];
 
   constructor(
     private patientService: PatientService,
@@ -48,8 +55,11 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
     // constructor code
     this.patient = this.patientService.getDialogData();
     this.appointmentForm = this.createAppointmentForm();
-
+    this.paymentForm = this.createPaymentForm();
+    this.treatmentForm = this.createTreatmentForm();
     this.getPatientAppointments();
+    this.getPatientPayments();
+    this.getPatientTreatments();
   }
 
 
@@ -120,6 +130,57 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
     })
   }
 
+  addPayment() {
+    const newPayment = new PaymentModel();
+    newPayment.amount = this.paymentForm.get('amount')?.value;
+    newPayment.date = firestore.Timestamp.fromDate(this.paymentForm.get('date')?.value);
+    newPayment.details = this.paymentForm.get('details')?.value;
+
+
+    from(this.patientService.addPatientPayment(newPayment))
+      .subscribe({
+        next: () => {
+          this.paymentForm = this.createPaymentForm();
+          this.notificationService.showNotification(
+            'snackbar-success',
+            'Add Payment Successfully...!!!',
+            'bottom',
+            'center'
+          );
+          this.getPatientPayments();
+        },
+        error: (error) => {
+          console.log('error: ' + error)
+        }
+      })
+  }
+
+  addTreatment() {
+    const newTreatment = new TreatmentModel();
+    newTreatment.price = this.treatmentForm.get('price')?.value;
+    newTreatment.discount = this.treatmentForm.get('discount')?.value;
+    newTreatment.date = firestore.Timestamp.fromDate(this.treatmentForm.get('date')?.value);
+    newTreatment.details = this.treatmentForm.get('details')?.value;
+
+
+    from(this.patientService.addPatientTreatment(newTreatment))
+      .subscribe({
+        next: () => {
+          this.treatmentForm = this.createTreatmentForm();
+          this.notificationService.showNotification(
+            'snackbar-success',
+            'Add Treatment Successfully...!!!',
+            'bottom',
+            'center'
+          );
+          this.getPatientTreatments();
+        },
+        error: (error) => {
+          console.log('error: ' + error)
+        }
+      })
+  }
+
   getPatientAppointments() {
     this.patientAppointments = [];
     from(this.patientService.getPatientAppointments())
@@ -127,6 +188,30 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
       next: (appointments) => {
         appointments.docs.map((appointment) => {
           this.patientAppointments.push(appointment.data() as AppointmentModel);
+        })
+      }
+    });
+  }
+
+  private getPatientPayments() {
+    this.patientPayments = [];
+    from(this.patientService.getPatientPayments())
+    .subscribe({
+      next: (payments) => {
+        payments.docs.map((payment) => {
+          this.patientPayments.push(payment.data() as PaymentModel);
+        })
+      }
+    });
+  }
+
+  private getPatientTreatments() {
+    this.patientTreatments = [];
+    from(this.patientService.getPatientTreatments())
+    .subscribe({
+      next: (treatments) => {
+        treatments.docs.map((treatment) => {
+          this.patientTreatments.push(treatment.data() as TreatmentModel);
         })
       }
     });
@@ -143,19 +228,45 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
     })
   }
 
+  private createPaymentForm(): UntypedFormGroup {
+    return this.formBuilder.group({
+      amount: ['', [Validators.min(0), Validators.max(100000), Validators.required]],
+      date: ['', [Validators.required]],
+      details: [''],
+    })
+  }
+
+  private createTreatmentForm(): UntypedFormGroup {
+    return this.formBuilder.group({
+      price: ['', [Validators.min(0), Validators.max(100000), Validators.required]],
+      discount: ['', [Validators.min(0), Validators.max(100000)]],
+      date: ['', [Validators.required]],
+      details: [''],
+    })
+  }
+
   changeAppointmentAttended($event: MatSlideToggleChange, appointment: AppointmentModel) {
-    this.patientService.changeAppointmentAttended(appointment, $event.checked ? 'true': 'false');
+    appointment.attended = $event.checked;
+    this.patientService.changeAppointmentAttended(appointment, $event.checked);
+  }
+  changeAppointmentCostPaid($event: MatSlideToggleChange, appointment: AppointmentModel) {
+    appointment.costPaid = $event.checked;
+    this.patientService.changeAppointmentCostPaid(appointment, $event.checked);
   }
 
   deleteAppointment(appointment: AppointmentModel) {
-    from(this.patientService.deleteAppointment(appointment.id))
-      .subscribe({
-        next: () => {
-          this.getPatientAppointments();
-        },
-        error: (error) => {
-          console.log('error: ' + error);
-        }
-      })
+    this.patientAppointments.splice(this.patientAppointments.findIndex((foundAppointment) => foundAppointment.id === appointment.id), 1);
+    this.patientService.deleteAppointment(appointment.id);
   }
+
+  deletePayment(payment: PaymentModel) {
+    this.patientPayments.splice(this.patientPayments.findIndex((foundPayment) => foundPayment.id === payment.id), 1);
+    this.patientService.deletePayment(payment.id);
+  }
+
+  deleteTreatment(treatment: TreatmentModel) {
+    this.patientTreatments.splice(this.patientTreatments.findIndex((foundTreatment) => foundTreatment.id === treatment.id), 1);
+    this.patientService.deleteTreatment(treatment.id);
+  }
+
 }

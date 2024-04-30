@@ -6,6 +6,8 @@ import {FirebaseAuthenticationService} from "../../authentication/services/fireb
 import {AngularFirestore} from "@angular/fire/compat/firestore";
 import {DateService} from "@core/service/date.service";
 import {AppointmentModel} from "@core/models/appointment.model";
+import {PaymentModel} from "@core/models/payment.model";
+import {TreatmentModel} from "@core/models/treatment.model";
 
 @Injectable({
   providedIn: 'root',
@@ -155,6 +157,41 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
     )
     return result;
   }
+
+  addPatientPayment(payment: PaymentModel) {
+    payment.patientId = this.getDialogData().id;
+    payment.doctorId = this.getDialogData().doctorId;
+
+    const result = this.firestore.collection('payments').add( {...payment} );
+    from(result).subscribe({
+        next: (result) => {
+          this.firestore.collection('payments').doc(result.id).update({id: result.id});
+        },
+        error: (error) => {
+          console.log('error: ' + error)
+        }
+      }
+    )
+    return result;
+  }
+
+  addPatientTreatment(treatment: TreatmentModel) {
+    treatment.patientId = this.getDialogData().id;
+    treatment.doctorId = this.getDialogData().doctorId;
+
+    const result = this.firestore.collection('treatments').add( {...treatment} );
+    from(result).subscribe({
+        next: (result) => {
+          this.firestore.collection('treatments').doc(result.id).update({id: result.id});
+        },
+        error: (error) => {
+          console.log('error: ' + error)
+        }
+      }
+    )
+    return result;
+  }
+
   getPatientAppointments() {
     return this.firestore.collection('appointments').ref
     .where('patientId', '==', this.getDialogData().id)
@@ -163,11 +200,38 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
     .get();
   }
 
-  changeAppointmentAttended(appointment: AppointmentModel, attended: string) {
+  getPatientPayments() {
+    return this.firestore.collection('payments').ref
+    .where('patientId', '==', this.getDialogData().id)
+    .orderBy('date', 'desc')
+    .get();
+  }
+
+  getPatientTreatments() {
+    return this.firestore.collection('treatments').ref
+    .where('patientId', '==', this.getDialogData().id)
+    .orderBy('date', 'desc')
+    .get();
+  }
+
+  changeAppointmentAttended(appointment: AppointmentModel, attended: boolean) {
     return this.firestore.collection('appointments').doc(appointment.id).update({attended: attended});
+  }
+
+  changeAppointmentCostPaid(appointment: AppointmentModel, costPaid: boolean) {
+    return this.firestore.collection('appointments').doc(appointment.id).update({costPaid: costPaid});
   }
 
   deleteAppointment(id: string) {
     return this.firestore.collection('appointments').doc(id).delete();
   }
+
+  deletePayment(id: string) {
+    return this.firestore.collection('payments').doc(id).delete();
+  }
+
+  deleteTreatment(id: string) {
+    return this.firestore.collection('treatments').doc(id).delete();
+  }
+
 }
