@@ -1,0 +1,54 @@
+<div class="container">
+  <div mat-dialog-title>
+    <div class="row">
+      <div class="col-lg-8 col-md-12">
+        <h1 *ngIf="this.totalBalance >=0">Total Balance is <span style="color: green">{{this.totalBalance}}</span> NIS</h1>
+        <h1 *ngIf="this.totalBalance <0" >Total Balance is <span style="color: red">{{this.totalBalance}}</span> NIS</h1>
+      </div>
+      <div class="col-lg-4 col-md-12">
+        <button  mat-flat-button (click)="createAnInvoice()" ><i class="fas fa-print"></i>Create Invoice</button>
+      </div>
+    </div>
+  </div>
+  <div mat-dialog-content>
+    <div class="table-responsive m-t-40">
+    <table class="table table-hover">
+      <thead>
+      <tr>
+        <th class="text-center">#</th>
+        <th>Treatment</th>
+        <th class="text-end">Discount</th>
+        <th class="text-end">Payment</th>
+        <th class="text-end">Details</th>
+        <th class="text-end">Date</th>
+        <th class="text-end">Total</th>
+      </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let combinedItem of this.combinedList; index as i">
+          <td class="text-center">{{i + 1}}</td>
+          <!--Treatment.price-->
+          <th *ngIf="!isNullOrUndefined(combinedItem.price)" style="color: green">+{{combinedItem.price}} NIS</th>
+          <th *ngIf=" isNullOrUndefined(combinedItem.price)" class="text-center">-</th>
+          <!--Treatment.discount-->
+          <th *ngIf="!isNullOrUndefined(combinedItem.discount)" class="text-end" style="color: red">-{{combinedItem.discount}} NIS</th>
+          <th *ngIf=" isNullOrUndefined(combinedItem.discount)" class="text-center">-</th>
+          <!--Payment.amount-->
+          <th *ngIf="!isNullOrUndefined(combinedItem.amount)" class="text-end" style="color: red">-{{combinedItem.amount}} NIS</th>
+          <th *ngIf=" isNullOrUndefined(combinedItem.amount)" class="text-center">-</th>
+          <!--details-->
+          <th class="text-end">{{combinedItem.details}}</th>
+          <!--date-->
+          <th class="text-end">{{combinedItem.date.toDate().toLocaleDateString()}}</th>
+          <!--total-->
+          <th *ngIf="!isNullOrUndefined(combinedItem.price)" class="text-end" style="color: green">+{{combinedItem.price - combinedItem.discount}} NIS</th>
+          <th *ngIf="!isNullOrUndefined(combinedItem.amount)" class="text-end" style="color: red">-{{combinedItem.amount}} NIS</th>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  </div>
+  <div mat-dialog-actions class="mb-1">
+    <button mat-flat-button (click)="onNoClick()" tabindex="-1">Close</button>
+  </div>
+</div>

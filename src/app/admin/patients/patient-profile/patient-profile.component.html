@@ -12,22 +12,27 @@
             <img src="assets/images/user/usrbig4.jpg" alt="">
           </div>
         </div>
-        <!--About Patient-->
+        <!--Balance Section-->
         <div class="card">
           <div class="header">
-            <h2>About Patient</h2>
+            <h2>Balance</h2>
           </div>
-          <div class="tab-pane body active" id="about">
-            <small class="text-muted">Email address: </small>
-            <p>{{patient.email}}</p>
+          <div class="tab-pane body active" id="balance">
+            <small class="text-muted">Treatments Cost </small>
+            <p style="color: green;" >{{this.getTreatmentsCost()}}</p>
             <hr>
-            <small class="text-muted">Phone: </small>
-            <p>{{patient.phoneNumber}}</p>
+            <small class="text-muted">Payments Amount </small>
+            <p style="color: red;">-{{this.getPaymentsAmount()}}</p>
             <hr>
-            <small class="text-muted">Address: </small>
-            <p>{{patient.address}}</p>
-            <hr>
+            <small class="text-muted">Total Balance</small>
+            <p *ngIf="this.getTreatmentsCost() >= this.getPaymentsAmount()" style="color: green">
+              {{this.getTreatmentsCost() - this.getPaymentsAmount()}}
+            </p>
+            <p *ngIf="this.getTreatmentsCost() < this.getPaymentsAmount()" style="color: red">
+              {{this.getTreatmentsCost() - this.getPaymentsAmount()}}
+            </p>
           </div>
+          <button mat-flat-button (click)="this.getBalanceDetails()" >More Details</button>
         </div>
       </div>
       <div class="col-lg-8 col-md-12">

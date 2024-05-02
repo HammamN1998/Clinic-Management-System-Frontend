@@ -1,0 +1,53 @@
+import { MAT_DIALOG_DATA, MatDialogRef, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose } from '@angular/material/dialog';
+import { Component, Inject } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import {TreatmentModel} from "@core/models/treatment.model";
+import {PaymentModel} from "@core/models/payment.model";
+import {NgForOf, NgIf} from "@angular/common";
+import {isNullOrUndefined} from "@swimlane/ngx-datatable";
+import {ThumbYDirective} from "ngx-scrollbar/lib/scrollbar/thumb/thumb.directive";
+
+export interface DialogData {
+  treatments: TreatmentModel[],
+  payments: PaymentModel[],
+}
+@Component({
+    selector: 'app-balance-details',
+    templateUrl: './balance-details.component.html',
+    styleUrls: ['./balance-details.component.scss'],
+    standalone: true,
+  imports: [
+    MatDialogTitle,
+    MatDialogContent,
+    MatDialogActions,
+    MatButtonModule,
+    MatDialogClose,
+    NgForOf,
+    NgIf,
+    ThumbYDirective,
+  ],
+})
+export class BalanceDetailsComponent {
+  totalBalance = 0;
+  combinedList: any = [];
+  constructor(
+    public dialogRef: MatDialogRef<BalanceDetailsComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: DialogData,
+  ) {
+    this.combinedList = this.data.treatments.concat(this.data.payments as unknown as TreatmentModel[]);
+    this.combinedList.sort((a: TreatmentModel|PaymentModel, b: TreatmentModel|PaymentModel) => b.date.toDate().getTime() - a.date.toDate().getTime());
+
+    this.data.treatments.forEach((treatment) => this.totalBalance+= treatment.price - treatment.discount);
+    this.data.payments.forEach((payment) => this.totalBalance-= payment.amount);
+  }
+  onNoClick(): void {
+    this.dialogRef.close();
+  }
+
+  protected readonly TreatmentModel = TreatmentModel;
+  protected readonly isNullOrUndefined = isNullOrUndefined;
+
+  createAnInvoice() {
+
+  }
+}

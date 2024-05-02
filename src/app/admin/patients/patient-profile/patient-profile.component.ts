@@ -24,6 +24,7 @@ import {AdultTeethDiagramComponent} from "@shared/components/dentist/adult-teeth
 import * as firestore from 'firebase/firestore';
 import {PaymentModel} from "@core/models/payment.model";
 import {TreatmentModel} from "@core/models/treatment.model";
+import {BalanceDetailsComponent} from "../allpatients/dialog/balance-details/balance-details.component";
 
 @Component({
   selector: 'app-patient-profile',
@@ -269,4 +270,28 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
     this.patientService.deleteTreatment(treatment.id);
   }
 
+  getTreatmentsCost(): number {
+    let treatmentsConst: number = 0;
+    this.patientTreatments.forEach( (treatment)=>{
+      treatmentsConst += treatment.price - treatment.discount;
+    })
+    return treatmentsConst;
+  }
+
+  getPaymentsAmount(): number {
+    let paymentsAmount: number = 0;
+    this.patientPayments.forEach( (payment)=>{
+      paymentsAmount += payment.amount;
+    })
+    return paymentsAmount;
+  }
+
+  getBalanceDetails() {
+    this.dialog.open(BalanceDetailsComponent, {
+      data: {
+        treatments: this.patientTreatments,
+        payments: this.patientPayments
+      },
+    });
+  }
 }
