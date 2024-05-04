@@ -48,6 +48,8 @@
     "core-js": "^3.33.3",
     "echarts": "^5.4.3",
     "firebase": "^10.7.1",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^2.5.1",
     "moment": "^2.29.4",
     "ng-apexcharts": "^1.8.0",
     "ng2-charts": "^5.0.3",

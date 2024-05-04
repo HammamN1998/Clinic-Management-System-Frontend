@@ -6,6 +6,7 @@ import {PaymentModel} from "@core/models/payment.model";
 import {NgForOf, NgIf} from "@angular/common";
 import {isNullOrUndefined} from "@swimlane/ngx-datatable";
 import {ThumbYDirective} from "ngx-scrollbar/lib/scrollbar/thumb/thumb.directive";
+import {PdfService} from "@core/service/pdf.service";
 
 export interface DialogData {
   treatments: TreatmentModel[],
@@ -32,6 +33,7 @@ export class BalanceDetailsComponent {
   combinedList: any = [];
   constructor(
     public dialogRef: MatDialogRef<BalanceDetailsComponent>,
+    private pdfService: PdfService,
     @Inject(MAT_DIALOG_DATA) public data: DialogData,
   ) {
     this.combinedList = this.data.treatments.concat(this.data.payments as unknown as TreatmentModel[]);
@@ -48,6 +50,6 @@ export class BalanceDetailsComponent {
   protected readonly isNullOrUndefined = isNullOrUndefined;
 
   createAnInvoice() {
-
+    this.pdfService.generatePatientBalanceInvoice();
   }
 }

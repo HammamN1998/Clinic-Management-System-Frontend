@@ -1,4 +1,4 @@
-<div class="container">
+<div class="container" id="balance-main-container">
   <div mat-dialog-title>
     <div class="row">
       <div class="col-lg-8 col-md-12">
@@ -12,7 +12,7 @@
   </div>
   <div mat-dialog-content>
     <div class="table-responsive m-t-40">
-    <table class="table table-hover">
+    <table class="table table-hover" id="balance-table">
       <thead>
       <tr>
         <th class="text-center">#</th>
@@ -43,6 +43,16 @@
           <!--total-->
           <th *ngIf="!isNullOrUndefined(combinedItem.price)" class="text-end" style="color: green">+{{combinedItem.price - combinedItem.discount}} NIS</th>
           <th *ngIf="!isNullOrUndefined(combinedItem.amount)" class="text-end" style="color: red">-{{combinedItem.amount}} NIS</th>
+        </tr>
+        <tr>
+          <th class="text-center" >-</th>
+          <th class="text-center" >-</th>
+          <th class="text-center" >-</th>
+          <th class="text-center" >-</th>
+          <th class="text-center" >-</th>
+          <th class="text-end" >Total</th>
+          <th *ngIf="this.totalBalance >=0" style="color: green">+{{this.totalBalance}}</th>
+          <th *ngIf="this.totalBalance <0" style="color: red">{{this.totalBalance}}</th>
         </tr>
       </tbody>
     </table>
