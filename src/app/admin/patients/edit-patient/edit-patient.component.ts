@@ -13,6 +13,7 @@ import {NgIf} from "@angular/common";
 import {Patient} from "@core/models/patient.model";
 import {NotificationService} from "@core/service/notification.service";
 import {Router} from "@angular/router";
+import * as firestore from "firebase/firestore";
 
 @Component({
   selector: 'app-edit-patient',
@@ -56,7 +57,6 @@ export class EditPatientComponent {
       address: [this.patientService.getDialogData().address, [Validators.required]],
       condition: [this.patientService.getDialogData().condition, [Validators.required]],
       // Not required Fields
-      id: this.patientService.getDialogData().id,
       lastName: [this.patientService.getDialogData().lastName],
       maritalState: [this.patientService.getDialogData().maritalState],
       email: [
@@ -65,31 +65,27 @@ export class EditPatientComponent {
       ],
       bloodGroup: [this.patientService.getDialogData().bloodGroup],
       bloodPressure: [this.patientService.getDialogData().bloodPressure],
-      birthDate: [this.patientService.getDialogData().birthDate],
+      birthDate: [this.patientService.getDialogData().birthDate.toDate()],
       uploadFile: [this.patientService.getDialogData().img],
-      doctorId: [this.patientService.getDialogData().doctorId],
     });
   }
 
   onSubmit() {
-    const patientData : Patient = {
-      id: this.patientForm.value.id.toString(),
-      firstName: this.patientForm.value.firstName.toString(),
-      lastName: this.patientForm.value.lastName.toString(),
-      gender: this.patientForm.value.gender.toString(),
-      phoneNumber: this.patientForm.value.phoneNumber.toString(),
-      birthDate: this.patientForm.value.birthDate.toString(),
-      email: this.patientForm.value.email.toString(),
-      maritalState: this.patientForm.value.maritalState.toString(),
-      address: this.patientForm.value.address.toString(),
-      bloodGroup: this.patientForm.value.bloodGroup.toString(),
-      bloodPressure: this.patientForm.value.bloodPressure.toString(),
-      condition: this.patientForm.value.condition.toString(),
-      img: 'assets/images/user/user1.jpg', // Or any other image URL
-      doctorId: this.patientForm.value.doctorId.toString(),
-    };
+    const updatePatient: Patient = new Patient();
+    updatePatient.firstName = this.patientForm.value.firstName.toString();
+    updatePatient.lastName = this.patientForm.value.lastName.toString();
+    updatePatient.gender = this.patientForm.value.gender.toString();
+    updatePatient.phoneNumber = this.patientForm.value.phoneNumber.toString();
+    updatePatient.birthDate = firestore.Timestamp.fromDate(this.patientForm.value.birthDate);
+    updatePatient.email = this.patientForm.value.email.toString();
+    updatePatient.maritalState = this.patientForm.value.maritalState.toString();
+    updatePatient.address = this.patientForm.value.address.toString();
+    updatePatient.bloodGroup = this.patientForm.value.bloodGroup.toString();
+    updatePatient.bloodPressure = this.patientForm.value.bloodPressure.toString();
+    updatePatient.condition = this.patientForm.value.condition.toString();
+    updatePatient.img = this.patientForm.value.uploadFile.toString();
 
-    this.patientService.updatePatient(patientData);
+    this.patientService.updatePatient(updatePatient);
     this.router.navigate(['/admin/patients/patient-profile']);
     this.notificationService.showNotification(
       'black',

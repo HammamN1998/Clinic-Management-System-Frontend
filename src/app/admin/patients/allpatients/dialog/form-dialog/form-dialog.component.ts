@@ -84,15 +84,13 @@ export class FormDialogComponent {
       address: [this.patient.address, [Validators.required]],
       condition: [this.patient.condition, [Validators.required]],
       // Non Required Fields
-      id: [this.patient.id],
       lastName: [this.patient.lastName],
-      birthDate: [this.patient.birthDate],
+      birthDate: [this.patient.birthDate.toDate()],
       email: [this.patient.email],
       maritalState: [this.patient.maritalState],
       bloodGroup: [this.patient.bloodGroup],
       bloodPressure: [this.patient.bloodPressure],
       img: [this.patient.img],
-      doctorId: [this.patient.doctorId]
     });
   }
   submit() {

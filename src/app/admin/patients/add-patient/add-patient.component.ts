@@ -12,6 +12,7 @@ import { PatientService } from '@core/service/patient.service';
 import {Patient} from "@core/models/patient.model";
 import {NgIf} from "@angular/common";
 import {NotificationService} from "@core/service/notification.service";
+import * as firestore from 'firebase/firestore';
 
 @Component({
   selector: 'app-add-patient',
@@ -64,22 +65,21 @@ export class AddPatientComponent {
   }
 
   onSubmit() {
-    const patientData : Patient = {
-      firstName: this.patientForm.value.firstName.toString(),
-      lastName: this.patientForm.value.lastName.toString(),
-      gender: this.patientForm.value.gender.toString(),
-      phoneNumber: this.patientForm.value.phoneNumber.toString(),
-      birthDate: this.patientForm.value.birthDate.toString(),
-      email: this.patientForm.value.email.toString(),
-      maritalState: this.patientForm.value.maritalState.toString(),
-      address: this.patientForm.value.address.toString(),
-      bloodGroup: this.patientForm.value.bloodGroup.toString(),
-      bloodPressure: this.patientForm.value.bloodPressure.toString(),
-      condition: this.patientForm.value.condition.toString(),
-      img: 'assets/images/user/user1.jpg', // Or any other image URL
-    } as Patient;
+    const newPatient: Patient = new Patient();
+    newPatient.firstName = this.patientForm.value.firstName.toString();
+    newPatient.lastName = this.patientForm.value.lastName.toString();
+    newPatient.gender = this.patientForm.value.gender.toString();
+    newPatient.phoneNumber = this.patientForm.value.phoneNumber.toString();
+    newPatient.birthDate = firestore.Timestamp.fromDate(this.patientForm.value.birthDate);
+    newPatient.email = this.patientForm.value.email.toString();
+    newPatient.maritalState = this.patientForm.value.maritalState.toString();
+    newPatient.address = this.patientForm.value.address.toString();
+    newPatient.bloodGroup = this.patientForm.value.bloodGroup.toString();
+    newPatient.bloodPressure = this.patientForm.value.bloodPressure.toString();
+    newPatient.condition = this.patientForm.value.condition.toString();
+    newPatient.img = this.patientForm.value.uploadFile.toString();
 
-    this.patientService.addPatient(patientData)
+    this.patientService.addPatient(newPatient)
     this.notificationService.showNotification(
       'snackbar-success',
       'Add Record Successfully...!!!',

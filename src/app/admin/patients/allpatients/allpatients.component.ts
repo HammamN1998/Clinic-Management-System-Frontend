@@ -28,6 +28,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { BreadcrumbComponent } from '@shared/components/breadcrumb/breadcrumb.component';
 import {NotificationService} from "@core/service/notification.service";
 import {Router} from "@angular/router";
+import * as firestore from "firebase/firestore";
 
 @Component({
   selector: 'app-allpatients',
@@ -104,7 +105,20 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
     this.subs.sink = dialogRef.afterClosed().subscribe((result) => {
       if (result === 1) {
         // Add patient to Firestore and local storage
-        this.patientService.addPatient(dialogRef.componentInstance.patientForm.value);
+        const newPatient: Patient = new Patient();
+        newPatient.firstName = dialogRef.componentInstance.patientForm.value.firstName;
+        newPatient.lastName  = dialogRef.componentInstance.patientForm.value.lastName;
+        newPatient.gender = dialogRef.componentInstance.patientForm.value.gender;
+        newPatient.phoneNumber = dialogRef.componentInstance.patientForm.value.phoneNumber;
+        newPatient.address = dialogRef.componentInstance.patientForm.value.address;
+        newPatient.condition = dialogRef.componentInstance.patientForm.value.condition;
+        newPatient.birthDate = firestore.Timestamp.fromDate(dialogRef.componentInstance.patientForm.value.birthDate);
+        newPatient.email = dialogRef.componentInstance.patientForm.value.email;
+        newPatient.maritalState = dialogRef.componentInstance.patientForm.value.maritalState;
+        newPatient.bloodGroup = dialogRef.componentInstance.patientForm.value.bloodGroup;
+        newPatient.bloodPressure = dialogRef.componentInstance.patientForm.value.bloodPressure;
+        newPatient.img = dialogRef.componentInstance.patientForm.value.img;
+        this.patientService.addPatient(newPatient);
         this.refreshTable();
         this.notificationService.showNotification(
           'snackbar-success',
@@ -134,7 +148,20 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
     this.subs.sink = dialogRef.afterClosed().subscribe((result) => {
       if (result === 1) {
         // Edit patient on Firestore and local storage
-        this.patientService.updatePatient(dialogRef.componentInstance.patientForm.value);
+        const updatePatient: Patient = new Patient();
+        updatePatient.firstName = dialogRef.componentInstance.patientForm.value.firstName;
+        updatePatient.lastName  = dialogRef.componentInstance.patientForm.value.lastName;
+        updatePatient.gender = dialogRef.componentInstance.patientForm.value.gender;
+        updatePatient.phoneNumber = dialogRef.componentInstance.patientForm.value.phoneNumber;
+        updatePatient.address = dialogRef.componentInstance.patientForm.value.address;
+        updatePatient.condition = dialogRef.componentInstance.patientForm.value.condition;
+        updatePatient.birthDate = firestore.Timestamp.fromDate(dialogRef.componentInstance.patientForm.value.birthDate);
+        updatePatient.email = dialogRef.componentInstance.patientForm.value.email;
+        updatePatient.maritalState = dialogRef.componentInstance.patientForm.value.maritalState;
+        updatePatient.bloodGroup = dialogRef.componentInstance.patientForm.value.bloodGroup;
+        updatePatient.bloodPressure = dialogRef.componentInstance.patientForm.value.bloodPressure;
+        updatePatient.img = dialogRef.componentInstance.patientForm.value.img;
+        this.patientService.updatePatient(updatePatient);
         // And lastly refresh table
         this.refreshTable();
         this.notificationService.showNotification(
@@ -241,7 +268,7 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
         Name: x.firstName + x.lastName,
         Gender: x.gender,
         Address: x.address,
-        'Birth Date': formatDate(new Date(x.birthDate), 'yyyy-MM-dd', 'en') || '',
+        'Birth Date': formatDate(new Date(x.birthDate.toDate()), 'yyyy-MM-dd', 'en') || '',
         'Blood Group': x.bloodGroup,
         Mobile: x.phoneNumber,
         Treatment: x.condition,
@@ -334,7 +361,7 @@ export class ExampleDataSource extends DataSource<Patient> {
           [propertyA, propertyB] = [a.gender, b.gender];
           break;
         case 'date':
-          [propertyA, propertyB] = [a.birthDate, b.birthDate];
+          [propertyA, propertyB] = [a.birthDate.toDate().toLocaleDateString(), b.birthDate.toDate().toLocaleDateString()];
           break;
         case 'address':
           [propertyA, propertyB] = [a.address, b.address];
