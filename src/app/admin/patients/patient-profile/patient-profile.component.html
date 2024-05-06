@@ -86,7 +86,7 @@
                         <div class="col-md-3 col-6">
                           <strong>Birth Date</strong>
                           <br>
-                          <p class="text-muted">{{patient.birthDate}}</p>
+                          <p class="text-muted">{{patient.birthDate.toDate().toLocaleDateString()}}</p>
                         </div>
                         <div class="col-md-3 col-6">
                           <strong>Blood Group</strong>
@@ -450,6 +450,39 @@
                       </div>
                     </mat-expansion-panel>
                   </mat-accordion>
+                </div>
+              </mat-tab>
+            </mat-tab-group>
+          </div>
+        </div>
+        <!--Specialized Forms Section-->
+        <div class="card">
+          <div class="header">
+            Specialized Forms Section
+          </div>
+          <div class="body">
+            <div class="row">
+              <div class="col-lg-4 col-md-12">
+                <mat-form-field class="example-full-width " appearance="outline">
+                  <mat-label>Available Diagrams</mat-label>
+                  <mat-select [(value)]="this.selectedDiagram">
+                    <mat-option [value]="'adultTeethDiagram'"    [disabled]="this.patient.specialDiagrams.adultTeethDiagram.length > 0" >Adult Teeth Diagram </mat-option>
+                    <mat-option [value]="'childrenTeethDiagram'" [disabled]="this.patient.specialDiagrams.childrenTeethDiagram.length > 0" >Children Teeth Diagram </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+              <div class="col-lg-4 col-md-12">
+                <button mat-raised-button color="primary" (click)="this.addSpecialDiagram()">Create Selected Diagram</button>
+              </div>
+            </div>
+            <mat-tab-group>
+              <mat-tab *ngIf="this.patient.specialDiagrams.adultTeethDiagram.length > 0">
+                <ng-template mat-tab-label>
+                  <mat-icon class="example-tab-icon msr-2">payment</mat-icon>
+                  Adult Teeth Diagram
+                </ng-template>
+                <div class="body" >
+                  <app-adult-teeth-diagram></app-adult-teeth-diagram>
                 </div>
               </mat-tab>
             </mat-tab-group>

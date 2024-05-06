@@ -25,6 +25,7 @@ import * as firestore from 'firebase/firestore';
 import {PaymentModel} from "@core/models/payment.model";
 import {TreatmentModel} from "@core/models/treatment.model";
 import {BalanceDetailsComponent} from "../allpatients/dialog/balance-details/balance-details.component";
+import {isNullOrUndefined} from "@swimlane/ngx-datatable";
 
 @Component({
   selector: 'app-patient-profile',
@@ -44,6 +45,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
   patientAppointments: AppointmentModel[] = [];
   patientPayments: PaymentModel[] = [];
   patientTreatments: TreatmentModel[] = [];
+  selectedDiagram: string ='adultTeethDiagram';
 
   constructor(
     private patientService: PatientService,
@@ -293,5 +295,12 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
         payments: this.patientPayments
       },
     });
+  }
+
+  protected readonly isNullOrUndefined = isNullOrUndefined;
+
+  addSpecialDiagram() {
+    this.patientService.getDialogData().specialDiagrams.adultTeethDiagram.push({activated: 'true'});
+    console.log('selectedDiagram: ' + this.selectedDiagram);
   }
 }

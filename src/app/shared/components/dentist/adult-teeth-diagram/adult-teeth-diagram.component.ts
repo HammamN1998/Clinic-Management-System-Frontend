@@ -9,6 +9,11 @@ import {MatDatepickerModule} from "@angular/material/datepicker";
 import {FileUploadComponent} from "@shared/components/file-upload/file-upload.component";
 import {MatButtonModule} from "@angular/material/button";
 import {NgIf} from "@angular/common";
+import {PatientService} from "@core/service/patient.service";
+import {isNullOrUndefined} from "@swimlane/ngx-datatable";
+import {from} from "rxjs";
+import {NotificationService} from "@core/service/notification.service";
+import {SharedModule} from "@shared";
 
 @Component({
   selector: 'app-adult-teeth-diagram',
@@ -25,24 +30,53 @@ import {NgIf} from "@angular/common";
     FileUploadComponent,
     MatButtonModule,
     NgIf,
+    SharedModule,
   ],
   templateUrl: './adult-teeth-diagram.component.html',
   styleUrl: './adult-teeth-diagram.component.scss'
 })
 export class AdultTeethDiagramComponent {
 
-  selectedTooth: string | null = null;
-  toothNotes: string = '';
+  selectedTooth!: string;
+  toothNote: string = '';
 
+  constructor(
+    private patientService: PatientService,
+    private notificationService: NotificationService,
+  ) {
+  }
   selectTooth(toothId: string) {
-    console.log('id: ', toothId);
     this.selectedTooth = toothId;
-    this.toothNotes = ''; // Clear notes on new selection
+    const foundToothIndex = this.patientService.getDialogData().specialDiagrams.adultTeethDiagram.findIndex((tooth) => !isNullOrUndefined(tooth[toothId]));
+    if (!isNullOrUndefined(foundToothIndex) && foundToothIndex != -1) {
+      this.toothNote = this.patientService.getDialogData().specialDiagrams.adultTeethDiagram[foundToothIndex][toothId];
+    } else {
+      this.toothNote = '';
+    }
   }
 
-  saveNotes() {
-    // Implement logic to save notes for the selected tooth (e.g., backend API call)
-    console.log('Saved notes for tooth:', this.selectedTooth, this.toothNotes);
-    // Optionally, clear notes after saving
+  saveToothNote() {
+    from( this.patientService.updateAdultTeethDiagramToothNote(this.selectedTooth, this.toothNote))
+    .subscribe({
+      next: () => {
+        this.notificationService.showNotification(
+          'black',
+          'Edit Note Successfully...!!!',
+          'bottom',
+          'center'
+        );
+      },
+      error: (error) => {
+        console.log('error: ' + error);
+      }
+    })
+  }
+
+  protected readonly isNullOrUndefined = isNullOrUndefined;
+
+  isToothExist(toothId: string) {
+    const foundToothIndex = this.patientService.getDialogData().specialDiagrams.adultTeethDiagram.findIndex((tooth) => !isNullOrUndefined(tooth[toothId]))
+    if (!isNullOrUndefined(foundToothIndex ) && foundToothIndex != -1) return true;
+    return false;
   }
 }

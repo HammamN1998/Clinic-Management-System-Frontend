@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import {BehaviorSubject, from} from 'rxjs';
-import { Patient } from '@core/models/patient.model';
+import {Patient, SpecialDiagrams} from '@core/models/patient.model';
 import { UnsubscribeOnDestroyAdapter } from '@shared';
 import {FirebaseAuthenticationService} from "../../authentication/services/firebase-authentication.service";
 import {AngularFirestore} from "@angular/fire/compat/firestore";
@@ -8,6 +8,7 @@ import {DateService} from "@core/service/date.service";
 import {AppointmentModel} from "@core/models/appointment.model";
 import {PaymentModel} from "@core/models/payment.model";
 import {TreatmentModel} from "@core/models/treatment.model";
+import {isNullOrUndefined} from "@swimlane/ngx-datatable";
 
 @Injectable({
   providedIn: 'root',
@@ -56,7 +57,6 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
 
   }
   addPatient(patient: Patient) {
-    patient.birthDate = this.dateService.formatDateToISO8601(new Date(patient.birthDate));
     patient.doctorId  = this.firebaseAuthenticationService.currentUserValue.id;
     this.dialogData = patient;
 
@@ -64,7 +64,7 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
     this.dataChange.value.unshift(patient);
 
     // Add the patient and patient ID to the Firestore, and patient ID to local storage
-    from (this.firestore.collection('patients').add(patient))
+    from (this.firestore.collection('patients').add({...patient}))
       .subscribe( {
         next: (result) => {
           // Update patient.id on Firestore
@@ -97,7 +97,8 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
     );
   }
   updatePatient(patient: Patient): void {
-    patient.birthDate = this.dateService.formatDateToISO8601(new Date(patient.birthDate));
+    patient.id = this.getDialogData().id;
+    patient.doctorId = this.getDialogData().doctorId;
     this.dialogData = patient;
 
     // Update patient on local storage
@@ -111,7 +112,7 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
     }
 
     // Update patient on Firestore
-    from (this.firestore.collection('patients').doc(patient.id).ref.update(patient))
+    from (this.firestore.collection('patients').doc(patient.id).ref.update({...patient}))
       .subscribe( {
           error: (error) => {
             console.log('error: ' + JSON.stringify(error))
@@ -234,4 +235,17 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
     return this.firestore.collection('treatments').doc(id).delete();
   }
 
+  updateAdultTeethDiagramToothNote(toothId: string, toothNote: string) {
+
+    // Update note if it added before, if not, add new note.
+    const foundToothIndex = this.getDialogData().specialDiagrams.adultTeethDiagram.findIndex((tooth) => !isNullOrUndefined(tooth[toothId]));
+    if (!isNullOrUndefined(foundToothIndex) && foundToothIndex != -1) {
+      this.getDialogData().specialDiagrams.adultTeethDiagram[foundToothIndex] = {[toothId]: toothNote};
+    } else {
+      this.getDialogData().specialDiagrams.adultTeethDiagram.push({[toothId]: toothNote});
+    }
+
+    const newSpecialDiagrams: SpecialDiagrams = this.getDialogData().specialDiagrams;
+    return this.firestore.collection('patients').doc(this.getDialogData().id).ref.update( {specialDiagrams: newSpecialDiagrams} );
+  }
 }
