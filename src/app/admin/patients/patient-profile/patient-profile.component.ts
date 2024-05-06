@@ -273,11 +273,16 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
   }
 
   getTreatmentsCost(): number {
-    let treatmentsConst: number = 0;
+    let treatmentsCost: number = 0;
+    // Get Treatments Costs
     this.patientTreatments.forEach( (treatment)=>{
-      treatmentsConst += treatment.price - treatment.discount;
+      treatmentsCost += treatment.price - treatment.discount;
     })
-    return treatmentsConst;
+    // Get Appointments Unpaid Fees
+    this.patientAppointments.forEach( (appointment)=>{
+      treatmentsCost += !appointment.costPaid ? appointment.cost : 0;
+    })
+    return treatmentsCost;
   }
 
   getPaymentsAmount(): number {
@@ -292,7 +297,8 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
     this.dialog.open(BalanceDetailsComponent, {
       data: {
         treatments: this.patientTreatments,
-        payments: this.patientPayments
+        payments: this.patientPayments,
+        appointments: this.patientAppointments,
       },
     });
   }

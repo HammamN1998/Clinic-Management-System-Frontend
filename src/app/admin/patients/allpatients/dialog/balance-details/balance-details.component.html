@@ -29,7 +29,8 @@
           <td class="text-center">{{i + 1}}</td>
           <!--Treatment.price-->
           <th *ngIf="!isNullOrUndefined(combinedItem.price)" style="color: green">+{{combinedItem.price}} NIS</th>
-          <th *ngIf=" isNullOrUndefined(combinedItem.price)" class="text-center">-</th>
+          <th *ngIf="!isNullOrUndefined(combinedItem.cost) " style="color: green">+{{combinedItem.cost}} NIS</th>
+          <th *ngIf=" isNullOrUndefined(combinedItem.price) && isNullOrUndefined(combinedItem.cost)" class="text-center">-</th>
           <!--Treatment.discount-->
           <th *ngIf="!isNullOrUndefined(combinedItem.discount)" class="text-end" style="color: red">-{{combinedItem.discount}} NIS</th>
           <th *ngIf=" isNullOrUndefined(combinedItem.discount)" class="text-center">-</th>
@@ -42,6 +43,7 @@
           <th class="text-end">{{combinedItem.date.toDate().toLocaleDateString()}}</th>
           <!--total-->
           <th *ngIf="!isNullOrUndefined(combinedItem.price)" class="text-end" style="color: green">+{{combinedItem.price - combinedItem.discount}} NIS</th>
+          <th *ngIf="!isNullOrUndefined(combinedItem.cost) " class="text-end" style="color: green">+{{combinedItem.cost}} NIS</th>
           <th *ngIf="!isNullOrUndefined(combinedItem.amount)" class="text-end" style="color: red">-{{combinedItem.amount}} NIS</th>
         </tr>
         <tr>
@@ -51,8 +53,8 @@
           <th class="text-center" >-</th>
           <th class="text-center" >-</th>
           <th class="text-end" >Total</th>
-          <th *ngIf="this.totalBalance >=0" style="color: green">+{{this.totalBalance}}</th>
-          <th *ngIf="this.totalBalance <0" style="color: red">{{this.totalBalance}}</th>
+          <th *ngIf="this.totalBalance >=0" style="color: green">+{{this.totalBalance}} NIS</th>
+          <th *ngIf="this.totalBalance <0" style="color: red">{{this.totalBalance}} NIS</th>
         </tr>
       </tbody>
     </table>
