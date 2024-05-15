@@ -9,6 +9,7 @@ import {AppointmentModel} from "@core/models/appointment.model";
 import {PaymentModel} from "@core/models/payment.model";
 import {TreatmentModel} from "@core/models/treatment.model";
 import {isNullOrUndefined} from "@swimlane/ngx-datatable";
+import {AngularFireAuth} from "@angular/fire/compat/auth";
 
 @Injectable({
   providedIn: 'root',
@@ -24,6 +25,7 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
     private dateService: DateService,
     private firebaseAuthenticationService: FirebaseAuthenticationService,
     private firestore: AngularFirestore,
+    private auth: AngularFireAuth
   ) {
     super();
   }

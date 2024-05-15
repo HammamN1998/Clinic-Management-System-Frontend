@@ -4,7 +4,6 @@ import {Role, User} from "@core";
 import {map} from "rxjs/operators";
 import {AngularFireAuth} from "@angular/fire/compat/auth";
 import firebase from "firebase/compat";
-import UserCredential = firebase.auth.UserCredential;
 
 
 @Injectable({
@@ -24,6 +23,8 @@ export class FirebaseAuthenticationService {
     );
     this.currentUser = this.currentUserSubject.asObservable();
 
+    this.traceAuthenticationStatus();
+
   }
   public get currentUserValue(): User {
       return this.currentUserSubject.value;
@@ -37,7 +38,7 @@ export class FirebaseAuthenticationService {
           map((userCredential) => {
               if (userCredential != null) {
                   // Assign userCredential to user:User
-                  user = this.firebaseUserCredentialToUser(userCredential);
+                  user = this.firebaseUserToUser(userCredential.user!);
                   // store user details and jwt token in local storage to keep user logged in between page refreshes
                   localStorage.setItem('currentUser', JSON.stringify(user));
                   this.currentUserSubject.next(user);
@@ -49,16 +50,16 @@ export class FirebaseAuthenticationService {
       );
   }
 
-  signup (userName: string, password: string, displayName: string) {
+  signup (email: string, password: string, displayName: string) {
     let user: User;
     return from (
-      this.auth.createUserWithEmailAndPassword(userName, password)
+      this.auth.createUserWithEmailAndPassword(email, password)
     ).pipe(
       map((userCredential) => {
           if (userCredential != null) {
               userCredential.user!.updateProfile({ displayName: displayName});
               // Assign userCredential to user:User
-              user = this.firebaseUserCredentialToUser(userCredential);
+              user = this.firebaseUserToUser(userCredential.user!);
               // store user details and jwt token in local storage to keep user logged in between page refreshes
               localStorage.setItem('currentUser', JSON.stringify(user));
               this.currentUserSubject.next(user);
@@ -73,23 +74,38 @@ export class FirebaseAuthenticationService {
   }
 
   logout() {
-      // remove user from local storage to log user out
-      localStorage.removeItem('currentUser');
-      this.currentUserSubject.next(this.currentUserValue);
-      return of({ success: false });
+    this.auth.signOut();
+    // remove user from local storage to log user out
+    localStorage.removeItem('currentUser');
+    this.currentUserSubject.next(this.currentUserValue);
+    return of({ success: false });
   }
 
-  firebaseUserCredentialToUser(fireUserCredential: UserCredential) : User {
+  firebaseUserToUser(fireUser: firebase.User) : User {
     return {
-        id: fireUserCredential!.user!.uid!,
-        img: fireUserCredential!.user!.photoURL!,
-        username: fireUserCredential!.user!.email!,
-        firstName: fireUserCredential!.user!.displayName!,
-        lastName: '',
+        id: fireUser!.uid!,
+        img: fireUser!.photoURL!,
+        email: fireUser!.email!,
+        name: fireUser!.displayName!,
         role: Role.Admin,
-        token: fireUserCredential!.user!.refreshToken!,
-        password: ''
+        token: fireUser!.refreshToken!,
     }
+  }
+
+  traceAuthenticationStatus() {
+    // Put this snippet of code on a separate method because constructor code can be run only once
+    this.auth.authState.subscribe(user => {
+      if (user) {
+        const localUser: User = this.firebaseUserToUser(user);
+        // store user details and jwt token in local storage to keep user logged in between page refreshes
+        localStorage.setItem('currentUser', JSON.stringify(localUser));
+        this.currentUserSubject.next(localUser);
+
+        console.log('user logged in', JSON.stringify(localUser))
+      } else {
+        console.log('user not logged in')
+      }
+    });
   }
 
 }

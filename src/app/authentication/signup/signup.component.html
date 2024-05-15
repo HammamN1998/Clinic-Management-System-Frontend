@@ -16,11 +16,9 @@
                   <mat-label>Username</mat-label>
                   <input matInput formControlName="username" required>
                   <mat-icon class="material-icons-two-tone color-icon p-3" matSuffix>face</mat-icon>
-                  @if (authForm.get('username')!.hasError('required')) {
-                  <mat-error>
+                  <mat-error *ngIf="authForm.get('username')!.hasError('required')">
                     Username is required
                   </mat-error>
-                  }
                 </mat-form-field>
               </div>
             </div>
@@ -30,11 +28,9 @@
                   <mat-label>Email</mat-label>
                   <input matInput formControlName="email" required>
                   <mat-icon class="material-icons-two-tone color-icon p-3" matSuffix>mail</mat-icon>
-                  @if (authForm.get('email')!.hasError('required') || authForm.get('email')!.touched) {
-                  <mat-error>
+                  <mat-error *ngIf="authForm.get('email')!.hasError('required') || authForm.get('email')!.touched">
                     Please enter a valid email address
                   </mat-error>
-                  }
                 </mat-form-field>
               </div>
             </div>
@@ -45,11 +41,9 @@
                   <input matInput formControlName="password" [type]="hide ? 'password' : 'text'" required>
                   <mat-icon class="material-icons-two-tone color-icon p-3" matSuffix (click)="hide = !hide">
                     {{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
-                  @if (authForm.get('password')!.hasError('required')) {
-                  <mat-error>
+                  <mat-error *ngIf="authForm.get('password')!.hasError('required')">
                     Password is required
                   </mat-error>
-                  }
                 </mat-form-field>
               </div>
             </div>
@@ -60,11 +54,9 @@
                   <input matInput formControlName="cpassword" [type]="chide ? 'password' : 'text'" required>
                   <mat-icon class="material-icons-two-tone color-icon p-3" matSuffix (click)="chide = !chide">
                     {{chide ? 'visibility_off' : 'visibility'}}</mat-icon>
-                  @if (authForm.get('cpassword')!.hasError('required')) {
-                  <mat-error>
+                  <mat-error *ngIf="authForm.get('cpassword')!.hasError('required')">
                     Confirm Password is required
                   </mat-error>
-                  }
                 </mat-form-field>
               </div>
             </div>

@@ -87,9 +87,7 @@ export class SidebarComponent extends UnsubscribeOnDestroyAdapter implements OnI
     if (this.firebaseAuthenticationService.currentUserValue) {
       const userRole = this.firebaseAuthenticationService.currentUserValue.role;
       this.userFullName =
-        this.firebaseAuthenticationService.currentUserValue.firstName +
-        ' ' +
-        this.firebaseAuthenticationService.currentUserValue.lastName;
+        this.firebaseAuthenticationService.currentUserValue.name
       this.userImg = this.firebaseAuthenticationService.currentUserValue.img;
 
       this.sidebarItems = ROUTES.filter(

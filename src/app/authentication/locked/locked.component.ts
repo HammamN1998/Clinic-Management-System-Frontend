@@ -41,9 +41,7 @@ export class LockedComponent implements OnInit {
     });
     this.userImg = this.firebaseAuthenticationService.currentUserValue.img;
     this.userFullName =
-      this.firebaseAuthenticationService.currentUserValue.firstName +
-      ' ' +
-      this.firebaseAuthenticationService.currentUserValue.lastName;
+      this.firebaseAuthenticationService.currentUserValue.name
   }
   get f() {
     return this.authForm.controls;

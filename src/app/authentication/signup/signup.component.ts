@@ -6,20 +6,22 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import {FirebaseAuthenticationService} from "../services/firebase-authentication.service";
+import {NgIf} from "@angular/common";
 @Component({
     selector: 'app-signup',
     templateUrl: './signup.component.html',
     styleUrls: ['./signup.component.scss'],
     standalone: true,
-    imports: [
-        FormsModule,
-        ReactiveFormsModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatIconModule,
-        RouterLink,
-        MatButtonModule,
-    ],
+  imports: [
+    FormsModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatIconModule,
+    RouterLink,
+    MatButtonModule,
+    NgIf,
+  ],
 })
 export class SignupComponent implements OnInit {
   authForm!: UntypedFormGroup;

@@ -14,7 +14,6 @@ const routes: Routes = [
       { path: '', redirectTo: '/authentication/signin', pathMatch: 'full' },
       {
         path: 'admin',
-        canActivate: [AuthGuard],
         data: {
           role: Role.Admin,
         },
@@ -23,7 +22,6 @@ const routes: Routes = [
       },
       {
         path: 'doctor',
-        canActivate: [AuthGuard],
         data: {
           role: Role.Doctor,
         },
@@ -32,7 +30,6 @@ const routes: Routes = [
       },
       {
         path: 'patient',
-        canActivate: [AuthGuard],
         data: {
           role: Role.Patient,
         },

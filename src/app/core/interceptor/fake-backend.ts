@@ -15,31 +15,25 @@ import { Role } from '../models/role';
 const users: User[] = [
   {
     id: '1',
+    email: 'admin@hospital.org',
     img: 'assets/images/user/admin.jpg',
-    username: 'admin@hospital.org',
-    password: 'admin@123',
-    firstName: 'Sarah',
-    lastName: 'Smith',
+    name: 'admin@hospital.org',
     role: Role.Admin,
     token: 'admin-token',
   },
   {
     id: '2',
+    email: 'doctor@hospital.org',
     img: 'assets/images/user/doctor.jpg',
-    username: 'doctor@hospital.org',
-    password: 'doctor@123',
-    firstName: 'Ashton',
-    lastName: 'Cox',
+    name: 'doctor@hospital.org',
     role: Role.Doctor,
     token: 'doctor-token',
   },
   {
     id: '3',
+    email: 'patient@hospital.org',
     img: 'assets/images/user/patient.jpg',
-    username: 'patient@hospital.org',
-    password: 'patient@123',
-    firstName: 'Cara',
-    lastName: 'Stevens',
+    name: 'patient@hospital.org',
     role: Role.Patient,
     token: 'patient-token',
   },
@@ -68,19 +62,18 @@ export class FakeBackendInterceptor implements HttpInterceptor {
     // route functions
 
     function authenticate() {
-      const { username, password } = body;
+      const { email, password } = body;
       const user = users.find(
-        (x) => x.username === username && x.password === password
+        (x) => x.email === email
       );
       if (!user) {
         return error('Username or password is incorrect');
       }
       return ok({
         id: user.id,
+        email: user.email,
         img: user.img,
-        username: user.username,
-        firstName: user.firstName,
-        lastName: user.lastName,
+        name: user.name,
         role: user.role,
         token: user.token,
       });
@@ -90,10 +83,9 @@ export class FakeBackendInterceptor implements HttpInterceptor {
 
     function ok(body?: {
       id: string;
+      email: string,
       img: string;
-      username: string;
-      firstName: string;
-      lastName: string;
+      name: string;
       role: Role;
       token: string;
     }) {
