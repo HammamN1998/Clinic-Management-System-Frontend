@@ -15,7 +15,7 @@ const routes: Routes = [
       {
         path: 'admin',
         data: {
-          role: Role.Admin,
+          role: Role.admin,
         },
         loadChildren: () =>
           import('./admin/admin.module').then((m) => m.AdminModule),
@@ -23,7 +23,7 @@ const routes: Routes = [
       {
         path: 'doctor',
         data: {
-          role: Role.Doctor,
+          role: Role.doctor,
         },
         loadChildren: () =>
           import('./doctor/doctor.module').then((m) => m.DoctorModule),
@@ -31,7 +31,7 @@ const routes: Routes = [
       {
         path: 'patient',
         data: {
-          role: Role.Patient,
+          role: Role.secretary,
         },
         loadChildren: () =>
           import('./patient/patient.module').then((m) => m.PatientModule),

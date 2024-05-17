@@ -53,11 +53,11 @@ export class LockedComponent implements OnInit {
       return;
     } else {
       const role = this.firebaseAuthenticationService.currentUserValue.role;
-      if (role === Role.All || role === Role.Admin) {
+      if (role === Role.admin) {
         this.router.navigate(['/admin/dashboard/main']);
-      } else if (role === Role.Doctor) {
+      } else if (role === Role.doctor) {
         this.router.navigate(['/doctor/dashboard']);
-      } else if (role === Role.Patient) {
+      } else if (role === Role.secretary) {
         this.router.navigate(['/patient/dashboard']);
       } else {
         this.router.navigate(['/authentication/signin']);

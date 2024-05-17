@@ -4,6 +4,8 @@ import {Role, User} from "@core";
 import {map} from "rxjs/operators";
 import {AngularFireAuth} from "@angular/fire/compat/auth";
 import firebase from "firebase/compat";
+import {AngularFirestore} from "@angular/fire/compat/firestore";
+import {Router} from "@angular/router";
 
 
 @Injectable({
@@ -15,7 +17,9 @@ export class FirebaseAuthenticationService {
   public currentUser: Observable<User>;
 
   constructor(
-    private auth: AngularFireAuth
+    private auth: AngularFireAuth,
+    private firestore: AngularFirestore,
+    private router: Router,
   ) {
 
     this.currentUserSubject = new BehaviorSubject<User>(
@@ -24,85 +28,73 @@ export class FirebaseAuthenticationService {
     this.currentUser = this.currentUserSubject.asObservable();
 
     this.traceAuthenticationStatus();
-
   }
+
   public get currentUserValue(): User {
       return this.currentUserSubject.value;
   }
 
   login(userName: string, password: string) {
-      let user: User;
-      return from (
-          this.auth.signInWithEmailAndPassword( userName, password )
-      ).pipe(
-          map((userCredential) => {
-              if (userCredential != null) {
-                  // Assign userCredential to user:User
-                  user = this.firebaseUserToUser(userCredential.user!);
-                  // store user details and jwt token in local storage to keep user logged in between page refreshes
-                  localStorage.setItem('currentUser', JSON.stringify(user));
-                  this.currentUserSubject.next(user);
-              } else {
-                console.log('userCredential is null of undefined!!')
-              }
-              return user;
-          })
-      );
+      return from ( this.auth.signInWithEmailAndPassword( userName, password ) )
   }
 
-  signup (email: string, password: string, displayName: string) {
-    let user: User;
+  signup (email: string, password: string, name: string, role: Role) {
     return from (
       this.auth.createUserWithEmailAndPassword(email, password)
     ).pipe(
       map((userCredential) => {
           if (userCredential != null) {
-              userCredential.user!.updateProfile({ displayName: displayName});
-              // Assign userCredential to user:User
-              user = this.firebaseUserToUser(userCredential.user!);
-              // store user details and jwt token in local storage to keep user logged in between page refreshes
-              localStorage.setItem('currentUser', JSON.stringify(user));
-              this.currentUserSubject.next(user);
-
+            userCredential.user!.updateProfile({ displayName: name});
+            // Save user role to firestore
+            this.firestore.collection('doctors').doc(userCredential.user!.uid).set({
+              id: userCredential.user!.uid,
+              role: role,
+            });
           } else {
               console.log('userCredential is null of undefined!!')
           }
-
-          return user;
+          return;
       })
     );
   }
 
   logout() {
     this.auth.signOut();
-    // remove user from local storage to log user out
-    localStorage.removeItem('currentUser');
-    this.currentUserSubject.next(this.currentUserValue);
     return of({ success: false });
   }
 
-  firebaseUserToUser(fireUser: firebase.User) : User {
+  firebaseUserToUser(fireUser: firebase.User, role: Role = Role.admin) : User {
     return {
-        id: fireUser!.uid!,
-        img: fireUser!.photoURL!,
-        email: fireUser!.email!,
-        name: fireUser!.displayName!,
-        role: Role.Admin,
-        token: fireUser!.refreshToken!,
+      id: fireUser!.uid!,
+      img: fireUser!.photoURL!,
+      email: fireUser!.email!,
+      name: fireUser!.displayName!,
+      role: role,
+      secretaryDoctorId: '',
     }
   }
 
   traceAuthenticationStatus() {
-    // Put this snippet of code on a separate method because constructor code can be run only once
+    // Put this snippet of code on a separate method because constructor cant handle Observer correctly.
     this.auth.authState.subscribe(user => {
       if (user) {
-        const localUser: User = this.firebaseUserToUser(user);
-        // store user details and jwt token in local storage to keep user logged in between page refreshes
-        localStorage.setItem('currentUser', JSON.stringify(localUser));
-        this.currentUserSubject.next(localUser);
-
-        console.log('user logged in', JSON.stringify(localUser))
+        // store user details local storage to keep user logged in between page refreshes
+        this.firestore.collection('doctors').doc(user.uid).get()
+        .subscribe((firebaseUser) => {
+          const localUser: User = this.firebaseUserToUser(user);
+          localUser.role = (firebaseUser.data()! as User).role;
+          this.currentUserSubject.next(localUser);
+          localStorage.setItem('currentUser', JSON.stringify(localUser));
+          // Redirect the user to dashboard page
+          if (this.router.url === '/authentication/signin') {
+            this.router.navigate(['/admin/dashboard/main']);
+          }
+          console.log('user logged in', JSON.stringify(localUser))
+        })
       } else {
+        // remove user from local storage to log user out
+        localStorage.removeItem('currentUser');
+        this.router.navigate(['/authentication/signin']);
         console.log('user not logged in')
       }
     });

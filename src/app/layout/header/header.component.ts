@@ -133,11 +133,11 @@ export class HeaderComponent
 
     this.docElement = document.documentElement;
 
-    if (userRole === 'Admin') {
+    if (userRole === 'admin') {
       this.homePage = 'admin/dashboard/main';
-    } else if (userRole === 'Patient') {
+    } else if (userRole === 'secretary') {
       this.homePage = 'patient/dashboard';
-    } else if (userRole === 'Doctor') {
+    } else if (userRole === 'doctor') {
       this.homePage = 'doctor/dashboard';
     } else {
       this.homePage = 'admin/dashboard/main';

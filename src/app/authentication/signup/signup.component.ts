@@ -7,6 +7,9 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import {FirebaseAuthenticationService} from "../services/firebase-authentication.service";
 import {NgIf} from "@angular/common";
+import {Role} from "@core";
+import {MatRadioModule} from "@angular/material/radio";
+
 @Component({
     selector: 'app-signup',
     templateUrl: './signup.component.html',
@@ -21,6 +24,7 @@ import {NgIf} from "@angular/common";
     RouterLink,
     MatButtonModule,
     NgIf,
+    MatRadioModule,
   ],
 })
 export class SignupComponent implements OnInit {
@@ -44,6 +48,7 @@ export class SignupComponent implements OnInit {
       ],
       password: ['', Validators.required],
       cpassword: ['', Validators.required],
+      role: [Role.doctor, Validators.required],
     });
     // get return url from route parameters or default to '/'
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
@@ -58,21 +63,17 @@ export class SignupComponent implements OnInit {
       return;
     } else {
         this.firebaseAuthenticationService
-            .signup(this.f['email'].value, this.f['password'].value, this.f['username'].value)
-            .subscribe( {
-                next: (user) => {
-                    if(user) {
-                        console.log("signup user: " + JSON.stringify(user));
-                        this.router.navigate(['authentication/signin']).then(() => {});
-                    } else {
-                        console.log('invalid signup');
-                    }
-                },
-                error: (error) => {
-                    console.log('login failed: '+ JSON.stringify(error));
-                }
-            });
-        // this.router.navigate(['/admin/dashboard/main']);
+        .signup(this.f['email'].value, this.f['password'].value, this.f['username'].value, this.f['role'].value)
+        .subscribe( {
+          next: () => {
+            this.router.navigate(['authentication/signin']).then(() => {});
+          },
+          error: (error) => {
+              console.log('login failed: '+ JSON.stringify(error));
+          }
+        });
     }
   }
+
+  protected readonly Role = Role;
 }

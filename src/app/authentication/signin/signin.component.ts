@@ -70,38 +70,19 @@ export class SigninComponent
       this.error = 'Username and Password not valid !';
       return;
     } else {
-        this.subs.sink = this.firebaseAuthenticationService
-        .login(this.f['username'].value, this.f['password'].value)
-        .subscribe({
-            next: (user) => {
-                if (user != null) {
-                    console.log('login user: ' + JSON.stringify(user));
-                    setTimeout(() => {
-                        // TODO: rout the users according to their roles.
-                        this.router.navigate(['/admin/dashboard/main']);
-                        // const role = this.firebaseAuthenticationService.currentUserValue.role;
-                        // if (role === Role.All || role === Role.Admin) {
-                        //     this.router.navigate(['/admin/dashboard/main']);
-                        // } else if (role === Role.Doctor) {
-                        //     this.router.navigate(['/doctor/dashboard']);
-                        // } else if (role === Role.Patient) {
-                        //     this.router.navigate(['/patient/dashboard']);
-                        // } else {
-                        //     this.router.navigate(['/authentication/signin']);
-                        // }
-                        this.loading = false;
-                    }, 500);
-                } else {
-                    this.error = 'Invalid Login';
-                }
-            },
-            error: (error) => {
-                console.log('login failed: '+ error);
-                this.error = error;
-                this.submitted = false;
-                this.loading = false;
-            },
-        });
+      this.subs.sink = this.firebaseAuthenticationService
+      .login(this.f['username'].value, this.f['password'].value)
+      .subscribe({
+        next: () => {
+
+        },
+        error: (error) => {
+          console.log('login failed: '+ error);
+          this.error = error;
+          this.submitted = false;
+          this.loading = false;
+        },
+      });
     }
   }
 }

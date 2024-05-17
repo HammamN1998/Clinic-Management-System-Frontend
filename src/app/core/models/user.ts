@@ -6,5 +6,5 @@ export class User {
   name!: string;
   img!: string;
   role!: Role;
-  token!: string;
+  secretaryDoctorId!: string;
 }

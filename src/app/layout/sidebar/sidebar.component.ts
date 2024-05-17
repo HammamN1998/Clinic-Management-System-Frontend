@@ -93,14 +93,14 @@ export class SidebarComponent extends UnsubscribeOnDestroyAdapter implements OnI
       this.sidebarItems = ROUTES.filter(
         (x) => x.role.indexOf(userRole) !== -1 || x.role.indexOf('All') !== -1
       );
-      if (userRole === Role.Admin) {
-        this.userType = Role.Admin;
-      } else if (userRole === Role.Patient) {
-        this.userType = Role.Patient;
-      } else if (userRole === Role.Doctor) {
-        this.userType = Role.Doctor;
+      if (userRole === Role.admin) {
+        this.userType = Role.admin;
+      } else if (userRole === Role.secretary) {
+        this.userType = Role.secretary;
+      } else if (userRole === Role.doctor) {
+        this.userType = Role.doctor;
       } else {
-        this.userType = Role.Admin;
+        this.userType = Role.admin;
       }
     }
 
