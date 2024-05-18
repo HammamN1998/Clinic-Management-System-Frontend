@@ -63,9 +63,9 @@ export class HeaderComponent
     public elementRef: ElementRef,
     private rightSidebarService: RightSidebarService,
     private configService: ConfigService,
-    private firebaseAuthenticationService: FirebaseAuthenticationService,
+    public firebaseAuthenticationService: FirebaseAuthenticationService,
     private router: Router,
-    public languageService: LanguageService
+    public languageService: LanguageService,
   ) {
     super();
   }
@@ -199,5 +199,9 @@ export class HeaderComponent
         this.router.navigate(['/authentication/signin']);
       }
     });
+  }
+
+  goToDoctorProfilePage() {
+    this.router.navigate(['/admin/doctors/doctor-profile'])
   }
 }

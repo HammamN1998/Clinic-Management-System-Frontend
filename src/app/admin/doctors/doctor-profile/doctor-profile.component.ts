@@ -164,6 +164,7 @@ export class DoctorProfileComponent {
           'center'
         );
         this.getDoctorSecretaries();
+        this.connectSecretaryEmail ='';
       }
     })
   }
@@ -179,6 +180,7 @@ export class DoctorProfileComponent {
           'center'
         );
         this.getDoctorSecretaries();
+        this.connectSecretaryEmail ='';
       }
     })
   }
