@@ -1,0 +1,16 @@
+<div class="project_widget">
+  <div class="header d-flex justify-content-between align-items-center">
+    <h2><strong>{{headerText}}</strong></h2>
+    <button mat-icon-button  matTooltip="Edit Education" (click)="makeEditable()">
+      <mat-icon>edit</mat-icon>
+    </button>
+  </div>
+  <div class="body">
+    <ul>
+      <li #bodyTxtElement (blur)="handleBlur()">
+        {{ bodyText }}
+      </li>
+    </ul>
+  </div>
+</div>
+

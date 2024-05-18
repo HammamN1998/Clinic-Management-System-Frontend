@@ -49,6 +49,8 @@ export class FirebaseAuthenticationService {
             this.firestore.collection('doctors').doc(userCredential.user!.uid).set({
               id: userCredential.user!.uid,
               role: role,
+              name: name,
+              email: email,
             });
           } else {
               console.log('userCredential is null of undefined!!')
@@ -63,26 +65,39 @@ export class FirebaseAuthenticationService {
     return of({ success: false });
   }
 
-  firebaseUserToUser(fireUser: firebase.User, role: Role = Role.admin) : User {
+  fireAuthUserToUser(fireUser: firebase.User) : User {
     return {
       id: fireUser!.uid!,
       img: fireUser!.photoURL!,
       email: fireUser!.email!,
       name: fireUser!.displayName!,
-      role: role,
       secretaryDoctorId: '',
+      role: Role.admin,
+      education: '',
+      about: '',
+      experience: '',
+      address: '',
+      phoneNumber: '',
     }
   }
 
   traceAuthenticationStatus() {
     // Put this snippet of code on a separate method because constructor cant handle Observer correctly.
-    this.auth.authState.subscribe(user => {
-      if (user) {
+    this.auth.authState.subscribe(fireAuthUser => {
+      // console.log('fireAuthUser: ' + JSON.stringify(fireAuthUser))
+      if (fireAuthUser) {
         // store user details local storage to keep user logged in between page refreshes
-        this.firestore.collection('doctors').doc(user.uid).get()
+        this.firestore.collection('doctors').doc(fireAuthUser.uid).get()
         .subscribe((firebaseUser) => {
-          const localUser: User = this.firebaseUserToUser(user);
-          localUser.role = (firebaseUser.data()! as User).role;
+          const firestoreUser: User = firebaseUser.data() as User;
+          const localUser: User = this.fireAuthUserToUser(fireAuthUser);
+          localUser.role = firestoreUser.role;
+          localUser.phoneNumber = firestoreUser.phoneNumber;
+          localUser.address = firestoreUser.address;
+          localUser.education = firestoreUser.education;
+          localUser.about = firestoreUser.about;
+          localUser.experience = firestoreUser.experience;
+          localUser.secretaryDoctorId = firestoreUser.secretaryDoctorId;
           this.currentUserSubject.next(localUser);
           localStorage.setItem('currentUser', JSON.stringify(localUser));
           // Redirect the user to dashboard page
