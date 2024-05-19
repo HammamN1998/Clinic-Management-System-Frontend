@@ -5,20 +5,25 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import {NgIf} from "@angular/common";
+import {FirebaseAuthenticationService} from "../services/firebase-authentication.service";
+import {from} from "rxjs";
+import {NotificationService} from "@core/service/notification.service";
 @Component({
     selector: 'app-forgot-password',
     templateUrl: './forgot-password.component.html',
     styleUrls: ['./forgot-password.component.scss'],
     standalone: true,
-    imports: [
-        FormsModule,
-        ReactiveFormsModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatIconModule,
-        MatButtonModule,
-        RouterLink,
-    ],
+  imports: [
+    FormsModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatIconModule,
+    MatButtonModule,
+    RouterLink,
+    NgIf,
+  ],
 })
 export class ForgotPasswordComponent implements OnInit {
   authForm!: UntypedFormGroup;
@@ -27,7 +32,9 @@ export class ForgotPasswordComponent implements OnInit {
   constructor(
     private formBuilder: UntypedFormBuilder,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private firebaseAuthenticationService: FirebaseAuthenticationService,
+    private notificationService: NotificationService,
   ) { }
   ngOnInit() {
     this.authForm = this.formBuilder.group({
@@ -48,7 +55,26 @@ export class ForgotPasswordComponent implements OnInit {
     if (this.authForm.invalid) {
       return;
     } else {
-      this.router.navigate(['/dashboard/main']);
+      from(this.firebaseAuthenticationService.sendResetPasswordEmail(this.authForm.value.email!))
+        .subscribe({
+          next: () => {
+            this.notificationService.showNotification(
+              'black',
+              'Reset code sending, please check your inbox.',
+              'bottom',
+              'center'
+            );
+            this.router.navigate(['/authentication/signin']);
+          },
+          error: (error) => {
+            this.notificationService.showNotification(
+              'snackbar-danger',
+              error,
+              'bottom',
+              'center'
+            );
+          }
+        })
     }
   }
 }

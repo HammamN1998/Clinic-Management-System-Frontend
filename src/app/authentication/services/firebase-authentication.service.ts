@@ -81,6 +81,10 @@ export class FirebaseAuthenticationService {
     }
   }
 
+  sendResetPasswordEmail(email: string) {
+    return this.auth.sendPasswordResetEmail(email);
+  }
+
   traceAuthenticationStatus() {
     // Put this snippet of code on a separate method because constructor cant handle Observer correctly.
     this.auth.authState.subscribe(fireAuthUser => {
