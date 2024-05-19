@@ -2,6 +2,9 @@ import { Injectable } from '@angular/core';
 import {FirebaseAuthenticationService} from "../../authentication/services/firebase-authentication.service";
 import {AngularFirestore} from "@angular/fire/compat/firestore";
 import {from} from "rxjs";
+import * as firestore from "firebase/firestore";
+import {AppointmentModel} from "@core/models/appointment.model";
+
 
 
 @Injectable({
@@ -58,4 +61,53 @@ export class DoctorService {
       })
     return result
   }
+
+  getCurrentMonthAppointments() {
+    const now = new Date();
+    const startOfMonth = firestore.Timestamp.fromDate( new Date(now.getFullYear(), now.getMonth(), 1));
+    const endOfMonth = firestore.Timestamp.fromDate(new Date(now.getFullYear(), now.getMonth() + 1, 0));
+    return this.firestore.collection('appointments').ref
+    .where('doctorId', '==', this.firebaseAuthenticationService.currentUserValue.id)
+    .where('date', '>=', startOfMonth)
+    .where('date', '<', endOfMonth)
+    .orderBy('date', 'asc')
+    .get()
+  }
+
+  getCurrentMonthTreatments() {
+    const now = new Date();
+    const startOfMonth = firestore.Timestamp.fromDate( new Date(now.getFullYear(), now.getMonth(), 1));
+    const endOfMonth = firestore.Timestamp.fromDate(new Date(now.getFullYear(), now.getMonth() + 1, 0));
+    return this.firestore.collection('treatments').ref
+    .where('doctorId', '==', this.firebaseAuthenticationService.currentUserValue.id)
+    .where('date', '>=', startOfMonth)
+    .where('date', '<', endOfMonth)
+    .orderBy('date', 'asc')
+    .get()
+  }
+
+  getCurrentMonthNewPatients() {
+    const now = new Date();
+    const startOfMonth = firestore.Timestamp.fromDate( new Date(now.getFullYear(), now.getMonth(), 1));
+    const endOfMonth = firestore.Timestamp.fromDate(new Date(now.getFullYear(), now.getMonth() + 1, 0));
+    return this.firestore.collection('patients').ref
+    .where('doctorId', '==', this.firebaseAuthenticationService.currentUserValue.id)
+    .where('createdAt', '>=', startOfMonth)
+    .where('createdAt', '<', endOfMonth)
+    .orderBy('createdAt', 'asc')
+    .get()
+  }
+
+  getCurrentMonthPayments() {
+    const now = new Date();
+    const startOfMonth = firestore.Timestamp.fromDate( new Date(now.getFullYear(), now.getMonth(), 1));
+    const endOfMonth = firestore.Timestamp.fromDate(new Date(now.getFullYear(), now.getMonth() + 1, 0));
+    return this.firestore.collection('payments').ref
+      .where('doctorId', '==', this.firebaseAuthenticationService.currentUserValue.id)
+      .where('date', '>=', startOfMonth)
+      .where('date', '<', endOfMonth)
+      .orderBy('date', 'asc')
+      .get()
+  }
+
 }

@@ -23,6 +23,8 @@ export class Patient {
     adultTeethDiagram: [],
     childrenTeethDiagram: []
   };
+  createdAt: firestore.Timestamp = new firestore.Timestamp(0, 0);
+
 
   constructor() {}
 }

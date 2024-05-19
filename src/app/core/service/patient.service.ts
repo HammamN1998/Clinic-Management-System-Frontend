@@ -10,6 +10,8 @@ import {PaymentModel} from "@core/models/payment.model";
 import {TreatmentModel} from "@core/models/treatment.model";
 import {isNullOrUndefined} from "@swimlane/ngx-datatable";
 import {AngularFireAuth} from "@angular/fire/compat/auth";
+import * as firestore from "firebase/firestore";
+
 
 @Injectable({
   providedIn: 'root',
@@ -60,6 +62,7 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
   }
   addPatient(patient: Patient) {
     patient.doctorId  = this.firebaseAuthenticationService.currentUserValue.id;
+    patient.createdAt = firestore.Timestamp.now();
     this.dialogData = patient;
 
     // Add the patient to the local storage
