@@ -26,7 +26,7 @@
         "ALL-DOCTOR": "All Doctors",
         "ADD-DOCTOR": "Add Doctor",
         "EDIT-DOCTOR": "Edit Doctor",
-        "PROFILE": "Doctor Profile"
+        "PROFILE": "Profile"
       }
     },
     "STAFF": {
@@ -98,7 +98,7 @@
         "ISSUED-ITEMS": "Issued Items"
       }
     },
-    "DOCTOR": {    
+    "DOCTOR": {
         "DASHBOARD": "Dashboard",
         "APPOINTMENTS": "Appointments",
         "DOCTORS": "Doctors",
@@ -106,7 +106,7 @@
         "SETTINGS": "Settings",
         "CHAT": "Chat"
     },
-    "PATIENT": {    
+    "PATIENT": {
       "TEXT": "Patient",
       "DASHBOARD": "Dashboard",
       "APPOINTMENTS": {

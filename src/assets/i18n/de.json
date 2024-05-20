@@ -6,7 +6,7 @@
     "DASHBOARD": {
       "TEXT": "Dashboard",
       "LIST": {
-        "DASHBOARD1": "Dashboard 1",
+        "DASHBOARD1": "Dashboard",
         "DASHBOARD2": "Dashboard 2",
         "DOCTOR-DASHBOARD": "Doktor Dashboard",
         "PATIENT-DASHBOARD": "Patienten-Dashboard"
@@ -98,7 +98,7 @@
         "ISSUED-ITEMS": "Ausgegebene Artikel"
       }
     },
-    "DOCTOR": {    
+    "DOCTOR": {
         "DASHBOARD": "Dashboard",
         "APPOINTMENTS": "Termine",
         "DOCTORS": "Ärztinnen",
@@ -106,7 +106,7 @@
         "SETTINGS": "die Einstellungen",
         "CHAT": "Plaudern"
     },
-    "PATIENT": {    
+    "PATIENT": {
       "TEXT": "Geduldig",
       "DASHBOARD": "Dashboard",
       "APPOINTMENTS": {
