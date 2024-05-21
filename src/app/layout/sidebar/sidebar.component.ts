@@ -17,6 +17,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { NgScrollbar } from 'ngx-scrollbar';
 import { UnsubscribeOnDestroyAdapter } from '@shared';
 import {FirebaseAuthenticationService} from "../../authentication/services/firebase-authentication.service";
+import {isNullOrUndefined} from "@swimlane/ngx-datatable";
 
 @Component({
   selector: 'app-sidebar',
@@ -47,7 +48,7 @@ export class SidebarComponent extends UnsubscribeOnDestroyAdapter implements OnI
     @Inject(DOCUMENT) private document: Document,
     private renderer: Renderer2,
     public elementRef: ElementRef,
-    private firebaseAuthenticationService: FirebaseAuthenticationService,
+    public firebaseAuthenticationService: FirebaseAuthenticationService,
     private router: Router
   ) {
     super();
@@ -153,4 +154,6 @@ export class SidebarComponent extends UnsubscribeOnDestroyAdapter implements OnI
       }
     });
   }
+
+  protected readonly isNullOrUndefined = isNullOrUndefined;
 }

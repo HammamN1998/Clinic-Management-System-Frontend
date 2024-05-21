@@ -16,6 +16,9 @@ import {NotificationService} from "@core/service/notification.service";
 import {UntypedFormBuilder, UntypedFormGroup, Validators} from "@angular/forms";
 import {SharedModule} from "@shared";
 import {AngularFireAuth} from "@angular/fire/compat/auth";
+import {FileUploadComponent} from "@shared/components/file-upload/file-upload.component";
+import {FirebaseStorageService} from "@core/service/firebase-storage.service";
+import {isNullOrUndefined} from "@swimlane/ngx-datatable";
 
 @Component({
   selector: 'app-doctor-profile',
@@ -33,12 +36,14 @@ import {AngularFireAuth} from "@angular/fire/compat/auth";
     MatTooltipModule,
     EditableTextComponent,
     SharedModule,
+    FileUploadComponent,
   ],
 })
 export class DoctorProfileComponent {
   accountSettingsForm: UntypedFormGroup;
   doctorSecretaries: User[] = [];
   connectSecretaryEmail: string = '';
+  showUploadProfilePicture: boolean = false;
 
   constructor(
     private doctorService: DoctorService,
@@ -46,6 +51,7 @@ export class DoctorProfileComponent {
     private notificationService: NotificationService,
     private fb: UntypedFormBuilder,
     private auth: AngularFireAuth,
+    private firebaseStorageService: FirebaseStorageService,
   ) {
     this.accountSettingsForm = this.createAccountSettingsForm();
     this.getDoctorSecretaries();
@@ -184,4 +190,24 @@ export class DoctorProfileComponent {
       }
     })
   }
+
+  updateDoctorProfilePicture(url: string) {
+    if(!isNullOrUndefined(this.doctor.img)) this.firebaseStorageService.deleteFile(this.doctor.img);
+    this.doctor.img = url;
+    from (this.auth.currentUser)
+    .subscribe({
+      next: (user) => {
+        user!.updateProfile({
+          photoURL: url,
+        })
+        this.doctorService.editDoctor({img: url});
+      },
+      error: (error) => {
+        console.log('error: ' + error)
+      }
+    })
+    this.showUploadProfilePicture = !this.showUploadProfilePicture;
+  }
+
+  protected readonly isNullOrUndefined = isNullOrUndefined;
 }

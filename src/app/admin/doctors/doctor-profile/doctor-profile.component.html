@@ -14,7 +14,14 @@
                 <div class="user-name">DR.{{this.doctor.name}}</div>
                 <!--<div class="name-center">Senior Doctor</div>-->
               </div>
-              <img src="assets/images/user/usrbig3.jpg" class="user-img" alt="">
+              <div class="card">
+                <div class="contact-grid profile-image">
+                <img class="user-img" [src]=" isNullOrUndefined(this.doctor.img) ? 'assets/images/patient/patient-default-profile.png' : this.doctor.img" (click)="this.showUploadProfilePicture = !this.showUploadProfilePicture" alt="">
+                </div>
+                <div class="full-body" *ngIf="this.showUploadProfilePicture">
+                  <app-file-upload rootFolder="doctors/{{this.doctor.email}}/images" accept="image/*" (downloadUrl)="this.updateDoctorProfilePicture($event)"></app-file-upload>
+                </div>
+              </div>
               <p>
                 {{this.doctor.address}}
               </p>

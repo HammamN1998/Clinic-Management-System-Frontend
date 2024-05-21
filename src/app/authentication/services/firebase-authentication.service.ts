@@ -88,7 +88,6 @@ export class FirebaseAuthenticationService {
   traceAuthenticationStatus() {
     // Put this snippet of code on a separate method because constructor cant handle Observer correctly.
     this.auth.authState.subscribe(fireAuthUser => {
-      // console.log('fireAuthUser: ' + JSON.stringify(fireAuthUser))
       if (fireAuthUser) {
         // store user details local storage to keep user logged in between page refreshes
         this.firestore.collection('doctors').doc(fireAuthUser.uid).get()

@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import { BreadcrumbComponent } from '@shared/components/breadcrumb/breadcrumb.component';
 import {PatientService} from "@core/service/patient.service";
-import {Patient} from "@core/models/patient.model";
 import {MatButtonModule} from "@angular/material/button";
 import {MatCheckboxModule} from "@angular/material/checkbox";
 import {MatFormFieldModule} from "@angular/material/form-field";
@@ -26,17 +25,18 @@ import {PaymentModel} from "@core/models/payment.model";
 import {TreatmentModel} from "@core/models/treatment.model";
 import {BalanceDetailsComponent} from "../allpatients/dialog/balance-details/balance-details.component";
 import {isNullOrUndefined} from "@swimlane/ngx-datatable";
+import {FileUploadComponent} from "@shared/components/file-upload/file-upload.component";
+import {FirebaseStorageService} from "@core/service/firebase-storage.service";
+import {Patient} from "@core/models/patient.model";
 
 @Component({
   selector: 'app-patient-profile',
   templateUrl: './patient-profile.component.html',
   styleUrls: ['./patient-profile.component.scss'],
   standalone: true,
-  imports: [BreadcrumbComponent, MatButtonModule, MatCheckboxModule, MatFormFieldModule, MatIconModule, MatInputModule, MatTabsModule, MatDatepickerModule, OwlDateTimeModule, OwlNativeDateTimeModule, ReactiveFormsModule, SharedModule, AdultTeethDiagramComponent,],
+  imports: [BreadcrumbComponent, MatButtonModule, MatCheckboxModule, MatFormFieldModule, MatIconModule, MatInputModule, MatTabsModule, MatDatepickerModule, OwlDateTimeModule, OwlNativeDateTimeModule, ReactiveFormsModule, SharedModule, AdultTeethDiagramComponent, FileUploadComponent,],
 })
 export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
-  patient!: Patient;
-
 
   appointmentForm: UntypedFormGroup;
   paymentForm: UntypedFormGroup;
@@ -47,16 +47,19 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
   patientTreatments: TreatmentModel[] = [];
   selectedDiagram: string ='adultTeethDiagram';
 
+  showUploadProfilePicture: boolean = false;
+
   constructor(
     private patientService: PatientService,
     private router: Router,
     private dialog: MatDialog,
     private notificationService: NotificationService,
     private formBuilder: UntypedFormBuilder,
+    private firebaseStorageService: FirebaseStorageService,
   ) {
     super();
+    if (this.patientService.getDialogData().id === '' ) this.router.navigate(['/admin/patients/all-patients']);
     // constructor code
-    this.patient = this.patientService.getDialogData();
     this.appointmentForm = this.createAppointmentForm();
     this.paymentForm = this.createPaymentForm();
     this.treatmentForm = this.createTreatmentForm();
@@ -66,8 +69,11 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
   }
 
 
+  public get patient() {
+    return this.patientService.getDialogData();
+  }
+
   goToEditPage() {
-    this.patientService.dialogData = this.patient;
     this.router.navigate(['/admin/patients/edit-patient']);
   }
 
@@ -306,7 +312,14 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
   protected readonly isNullOrUndefined = isNullOrUndefined;
 
   addSpecialDiagram() {
-    this.patientService.getDialogData().specialDiagrams.adultTeethDiagram.push({activated: 'true'});
+    this.patient.specialDiagrams.adultTeethDiagram.push({activated: 'true'});
     console.log('selectedDiagram: ' + this.selectedDiagram);
+  }
+
+  updatePatientProfilePicture(url: string) {
+    if (this.patient.img !== '') this.firebaseStorageService.deleteFile(this.patient.img);
+    this.patient.img = url;
+    this.patientService.updatePatient(this.patient);
+    this.showUploadProfilePicture = !this.showUploadProfilePicture;
   }
 }

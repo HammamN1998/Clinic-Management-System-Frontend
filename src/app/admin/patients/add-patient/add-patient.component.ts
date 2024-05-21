@@ -77,7 +77,7 @@ export class AddPatientComponent {
     newPatient.bloodGroup = this.patientForm.value.bloodGroup.toString();
     newPatient.bloodPressure = this.patientForm.value.bloodPressure.toString();
     newPatient.condition = this.patientForm.value.condition.toString();
-    newPatient.img = this.patientForm.value.uploadFile.toString();
+    newPatient.img = '';
 
     this.patientService.addPatient(newPatient)
     this.notificationService.showNotification(

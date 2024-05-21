@@ -13,11 +13,11 @@ export class Patient {
   birthDate: firestore.Timestamp = new firestore.Timestamp(0, 0);
   email: string = '';
   maritalState: string = '';
-  address: string = 'Palestine - ';
+  address: string = '';
   bloodGroup: string = '';
   bloodPressure: string = '';
   condition: string = '';
-  img: string = 'assets/images/user/user1.jpg';
+  img: string = '';
   doctorId: string = '';
   specialDiagrams: SpecialDiagrams = {
     adultTeethDiagram: [],

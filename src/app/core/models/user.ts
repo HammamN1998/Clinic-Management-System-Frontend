@@ -11,5 +11,5 @@ export class User {
   experience: string = '';
   role!: Role;
   secretaryDoctorId!: string;
-  img!: string;
+  img: string = '';
 }

@@ -22,7 +22,7 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
   isTblLoading = true;
   dataChange: BehaviorSubject<Patient[]> = new BehaviorSubject<Patient[]>([]);
   // Temporarily stores data from dialogs
-  dialogData: Patient = {} as Patient;
+  dialogData: Patient = new Patient;
   constructor(
     private dateService: DateService,
     private firebaseAuthenticationService: FirebaseAuthenticationService,
