@@ -33,6 +33,8 @@ export class SignupComponent implements OnInit {
   returnUrl!: string;
   hide = true;
   chide = true;
+  loading = false;
+
   constructor(
     private formBuilder: UntypedFormBuilder,
     private route: ActivatedRoute,
@@ -58,6 +60,7 @@ export class SignupComponent implements OnInit {
   }
   onSubmit() {
     this.submitted = true;
+    this.loading = true;
     // stop here if form is invalid
     if (this.authForm.invalid) {
       return;
@@ -66,9 +69,11 @@ export class SignupComponent implements OnInit {
         .signup(this.f['email'].value, this.f['password'].value, this.f['username'].value, this.f['role'].value)
         .subscribe( {
           next: () => {
+            this.loading = false;
             this.router.navigate(['authentication/signin']).then(() => {});
           },
           error: (error) => {
+            this.loading = false;
               console.log('login failed: '+ JSON.stringify(error));
           }
         });
