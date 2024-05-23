@@ -3,9 +3,6 @@ import {FirebaseAuthenticationService} from "../../authentication/services/fireb
 import {AngularFirestore} from "@angular/fire/compat/firestore";
 import {from} from "rxjs";
 import * as firestore from "firebase/firestore";
-import {AppointmentModel} from "@core/models/appointment.model";
-
-
 
 @Injectable({
   providedIn: 'root'
@@ -27,6 +24,8 @@ export class DoctorService {
     .where('secretaryDoctorId', '==', this.firebaseAuthenticationService.currentUserValue.id)
     .get();
   }
+
+
 
   connectSecretary(secretaryEmail: string) {
     const result = this.firestore.collection('doctors').ref.where('email', '==', secretaryEmail).get();

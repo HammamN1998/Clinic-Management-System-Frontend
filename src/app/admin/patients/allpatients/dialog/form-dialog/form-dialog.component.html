@@ -2,7 +2,11 @@
   <div class="modalHeader">
     <div class="editRowModal">
       <div class="modalHeader clearfix">
-        <img [src]='patient.img' alt="avatar">
+        <div class="user-panel">
+          <div class="image">
+            <img [src]=" patient.img === '' ? 'assets/images/patient/patient-default-profile.png' : patient.img" class="img-circle user-img-circle" alt="User Image" />
+          </div>
+        </div>
         <div class="modal-about">
           {{dialogTitle}}
         </div>

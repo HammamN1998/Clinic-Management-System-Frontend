@@ -279,16 +279,18 @@ export class MainComponent implements OnInit {
     };
   }
 
-  private getAppointmentsData() {
+  private  getAppointmentsData() {
     from(this.doctorService.getCurrentMonthAppointments())
     .subscribe({
       next: (appointments) => {
         this.numberOfAppointments = appointments.docs.length;
         appointments.docs.forEach((appointment) => {
+          const appointmentData = appointment.data() as AppointmentModel;
           const chartDataIndex = this.appointmentsChartData.findIndex((chartData) => chartData.category === (appointment.data() as AppointmentModel).date.toDate().toLocaleDateString() )
+          // Fill appointments chart
           if (chartDataIndex === -1) {
             this.appointmentsChartData.push({
-              category: (appointment.data() as AppointmentModel).date.toDate().toLocaleDateString(),
+              category: appointmentData.date.toDate().toLocaleDateString(),
               data: 1,
             })
           } else {

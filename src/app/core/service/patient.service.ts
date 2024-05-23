@@ -4,12 +4,10 @@ import {Patient, SpecialDiagrams} from '@core/models/patient.model';
 import { UnsubscribeOnDestroyAdapter } from '@shared';
 import {FirebaseAuthenticationService} from "../../authentication/services/firebase-authentication.service";
 import {AngularFirestore} from "@angular/fire/compat/firestore";
-import {DateService} from "@core/service/date.service";
 import {AppointmentModel} from "@core/models/appointment.model";
 import {PaymentModel} from "@core/models/payment.model";
 import {TreatmentModel} from "@core/models/treatment.model";
 import {isNullOrUndefined} from "@swimlane/ngx-datatable";
-import {AngularFireAuth} from "@angular/fire/compat/auth";
 import * as firestore from "firebase/firestore";
 
 
@@ -24,10 +22,8 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
   // Temporarily stores data from dialogs
   dialogData: Patient = new Patient;
   constructor(
-    private dateService: DateService,
     private firebaseAuthenticationService: FirebaseAuthenticationService,
     private firestore: AngularFirestore,
-    private auth: AngularFireAuth
   ) {
     super();
   }
@@ -252,5 +248,9 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
 
     const newSpecialDiagrams: SpecialDiagrams = this.getDialogData().specialDiagrams;
     return this.firestore.collection('patients').doc(this.getDialogData().id).ref.update( {specialDiagrams: newSpecialDiagrams} );
+  }
+
+  getPatientInfo(patientId: string) {
+    return this.firestore.collection('patients').doc(patientId).get();
   }
 }

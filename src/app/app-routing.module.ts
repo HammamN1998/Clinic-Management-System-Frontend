@@ -20,6 +20,11 @@ const routes: Routes = [
         loadChildren: () =>
           import('./admin/admin.module').then((m) => m.AdminModule),
       },
+      {
+        path: 'calendar',
+        loadChildren: () =>
+          import('./calendar/calendar.module').then((m) => m.CalendarsModule),
+      },
     ],
   },
   {

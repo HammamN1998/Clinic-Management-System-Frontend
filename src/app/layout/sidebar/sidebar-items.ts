@@ -13,7 +13,7 @@ export const ROUTES: RouteInfo[] = [
     submenu: [],
   },
 
-  // doctor Modules
+  // Dashboard
   {
     path: '/admin/dashboard/main',
     title: 'MENUITEMS.DASHBOARD.TEXT',
@@ -26,18 +26,20 @@ export const ROUTES: RouteInfo[] = [
     role: ['doctor'],
     submenu: [],
   },
+  // Calendar
   {
-    path: '/admin/doctors/doctor-profile',
-    title: 'MENUITEMS.DOCTORS.LIST.PROFILE',
+    path: 'calendar',
+    title: 'Appointments Calendar',
     iconType: 'material-icons-two-tone',
-    icon: 'supervised_user_circle',
+    icon: 'event_note',
     class: '',
     groupTitle: false,
     badge: '',
     badgeClass: '',
-    role: ['doctor'],
+    role: ['doctor', 'Doctor'],
     submenu: [],
   },
+  // Patients
   {
     path: '',
     title: 'MENUITEMS.PATIENTS.TEXT',
@@ -75,5 +77,17 @@ export const ROUTES: RouteInfo[] = [
       },
     ],
   },
-
+  // Profile
+  {
+    path: '/admin/doctors/doctor-profile',
+    title: 'MENUITEMS.DOCTORS.LIST.PROFILE',
+    iconType: 'material-icons-two-tone',
+    icon: 'supervised_user_circle',
+    class: '',
+    groupTitle: false,
+    badge: '',
+    badgeClass: '',
+    role: ['doctor'],
+    submenu: [],
+  },
 ];

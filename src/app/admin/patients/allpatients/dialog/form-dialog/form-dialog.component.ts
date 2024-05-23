@@ -13,6 +13,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import {NgIf} from "@angular/common";
 import {Router} from "@angular/router";
+import {isNullOrUndefined} from "@swimlane/ngx-datatable";
 
 export interface DialogData {
   id: number;
@@ -115,4 +116,5 @@ export class FormDialogComponent {
   }
 
 
+  protected readonly isNullOrUndefined = isNullOrUndefined;
 }

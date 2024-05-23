@@ -27,7 +27,6 @@ import {BalanceDetailsComponent} from "../allpatients/dialog/balance-details/bal
 import {isNullOrUndefined} from "@swimlane/ngx-datatable";
 import {FileUploadComponent} from "@shared/components/file-upload/file-upload.component";
 import {FirebaseStorageService} from "@core/service/firebase-storage.service";
-import {Patient} from "@core/models/patient.model";
 
 @Component({
   selector: 'app-patient-profile',
@@ -248,7 +247,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
   private createTreatmentForm(): UntypedFormGroup {
     return this.formBuilder.group({
       price: ['', [Validators.min(0), Validators.max(100000), Validators.required]],
-      discount: ['', [Validators.min(0), Validators.max(100000)]],
+      discount: [0, [Validators.min(0), Validators.max(100000)]],
       date: ['', [Validators.required]],
       details: [''],
     })

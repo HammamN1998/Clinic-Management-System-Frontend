@@ -1,0 +1,19 @@
+<section class="content">
+  <div class="content-block">
+    <div class="block-header">
+      <!-- breadcrumb -->
+      <app-breadcrumb [title]="'Calendar'" [items]="[]" [active_item]="'Calendar'"></app-breadcrumb>
+    </div>
+    <div class="card">
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-12 col-sm-12">
+            <div class="panel-body">
+              <full-calendar [options]='calendarOptions'></full-calendar>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
