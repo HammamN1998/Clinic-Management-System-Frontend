@@ -330,7 +330,7 @@ export class CalendarComponent  extends UnsubscribeOnDestroyAdapter  implements 
       dayMaxEvents: true,
       allDaySlot: false,
       slotMinTime: '07:00:00',
-      slotMaxTime: '22:00:00',
+      slotMaxTime: '24:00:00',
       firstDay: 0,
       select: this.handleDateSelect.bind(this),
       eventClick: this.goToProfilePage.bind(this),
