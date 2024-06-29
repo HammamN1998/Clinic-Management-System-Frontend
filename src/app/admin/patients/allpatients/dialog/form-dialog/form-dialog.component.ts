@@ -83,8 +83,8 @@ export class FormDialogComponent {
       gender: [this.patient.gender, [Validators.required]],
       phoneNumber: [this.patient.phoneNumber, [Validators.required]],
       address: [this.patient.address, [Validators.required]],
-      condition: [this.patient.condition, [Validators.required]],
       // Non Required Fields
+      condition: [this.patient.condition],
       lastName: [this.patient.lastName],
       birthDate: [this.patient.birthDate.toDate()],
       email: [this.patient.email],
@@ -116,5 +116,4 @@ export class FormDialogComponent {
   }
 
 
-  protected readonly isNullOrUndefined = isNullOrUndefined;
 }

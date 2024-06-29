@@ -26,14 +26,15 @@ import {TreatmentModel} from "@core/models/treatment.model";
 import {BalanceDetailsComponent} from "../allpatients/dialog/balance-details/balance-details.component";
 import {isNullOrUndefined} from "@swimlane/ngx-datatable";
 import {FileUploadComponent} from "@shared/components/file-upload/file-upload.component";
-import {FirebaseStorageService} from "@core/service/firebase-storage.service";
+import {ImageComponent} from "@shared/components/image/image.component";
+import {FullScreenImageComponent} from "@shared/components/full-screen-image/full-screen-image.component";
 
 @Component({
   selector: 'app-patient-profile',
   templateUrl: './patient-profile.component.html',
   styleUrls: ['./patient-profile.component.scss'],
   standalone: true,
-  imports: [BreadcrumbComponent, MatButtonModule, MatCheckboxModule, MatFormFieldModule, MatIconModule, MatInputModule, MatTabsModule, MatDatepickerModule, OwlDateTimeModule, OwlNativeDateTimeModule, ReactiveFormsModule, SharedModule, AdultTeethDiagramComponent, FileUploadComponent,],
+  imports: [BreadcrumbComponent, MatButtonModule, MatCheckboxModule, MatFormFieldModule, MatIconModule, MatInputModule, MatTabsModule, MatDatepickerModule, OwlDateTimeModule, OwlNativeDateTimeModule, ReactiveFormsModule, SharedModule, AdultTeethDiagramComponent, FileUploadComponent, ImageComponent, FullScreenImageComponent,],
 })
 export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
 
@@ -46,15 +47,12 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
   patientTreatments: TreatmentModel[] = [];
   selectedDiagram: string ='adultTeethDiagram';
 
-  showUploadProfilePicture: boolean = false;
-
   constructor(
     private patientService: PatientService,
     private router: Router,
     private dialog: MatDialog,
     private notificationService: NotificationService,
     private formBuilder: UntypedFormBuilder,
-    private firebaseStorageService: FirebaseStorageService,
   ) {
     super();
     if (this.patientService.getDialogData().id === '' ) this.router.navigate(['/admin/patients/all-patients']);
@@ -315,10 +313,4 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
     console.log('selectedDiagram: ' + this.selectedDiagram);
   }
 
-  updatePatientProfilePicture(url: string) {
-    if (this.patient.img !== '') this.firebaseStorageService.deleteFile(this.patient.img);
-    this.patient.img = url;
-    this.patientService.updatePatient(this.patient);
-    this.showUploadProfilePicture = !this.showUploadProfilePicture;
-  }
 }

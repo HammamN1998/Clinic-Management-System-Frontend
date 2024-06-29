@@ -8,21 +8,23 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
 import { FirebaseAuthenticationService } from "../services/firebase-authentication.service";
+import {NgIf} from "@angular/common";
 
 @Component({
     selector: 'app-signin',
     templateUrl: './signin.component.html',
     styleUrls: ['./signin.component.scss'],
     standalone: true,
-    imports: [
-        RouterLink,
-        MatButtonModule,
-        FormsModule,
-        ReactiveFormsModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatIconModule,
-    ],
+  imports: [
+    RouterLink,
+    MatButtonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatIconModule,
+    NgIf,
+  ],
 })
 export class SigninComponent
   extends UnsubscribeOnDestroyAdapter

@@ -1,0 +1,21 @@
+.image-container {
+  position: relative; /* Make the container relative for absolute positioning */
+}
+
+.icon-fullscreen {
+  position: absolute; /* Position the icon absolutely within the container */
+  bottom: 5px; /* Adjust for desired top position */
+  right: 5px; /* Adjust for desired right position */
+}
+
+.icon-edit {
+  position: absolute; /* Position the icon absolutely within the container */
+  top: 5px; /* Adjust for desired top position */
+  left: 5px; /* Adjust for desired right position */
+}
+
+.icon-delete {
+  position: absolute; /* Position the icon absolutely within the container */
+  top: 5px; /* Adjust for desired top position */
+  right: 5px; /* Adjust for desired right position */
+}

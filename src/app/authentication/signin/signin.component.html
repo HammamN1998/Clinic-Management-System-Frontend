@@ -18,14 +18,12 @@
             <div class="row">
               <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-2">
                 <mat-form-field class="example-full-width" appearance="outline">
-                  <mat-label>Username</mat-label>
+                  <mat-label>Email</mat-label>
                   <input matInput formControlName="username" />
                   <mat-icon class="material-icons-two-tone color-icon p-3" matSuffix>face</mat-icon>
-                  @if (authForm.get('username')!.hasError('required')) {
-                  <mat-error>
-                    Username is required
+                  <mat-error *ngIf="authForm.get('username')!.hasError('required')">
+                    Email is required
                   </mat-error>
-                  }
                 </mat-form-field>
               </div>
             </div>
@@ -60,21 +58,6 @@
               </div>
             </div>
           </form>
-          <h3 class="social-login-title">OR</h3>
-          <ul class="list-unstyled social-icon mb-0 mt-3">
-            <li class="list-inline-item"><a href="javascript:void(0)" class="rounded">
-                <i class="fab fa-google"></i>
-              </a></li>
-            <li class="list-inline-item"><a href="javascript:void(0)" class="rounded flex-c-m">
-                <i class="fab fa-facebook-f"></i>
-              </a></li>
-            <li class="list-inline-item"><a href="javascript:void(0)" class="rounded">
-                <i class="fab fa-twitter"></i>
-              </a></li>
-            <li class="list-inline-item"><a href="javascript:void(0)" class="rounded">
-                <i class="fab fa-linkedin-in"></i>
-              </a></li>
-          </ul>
         </div>
       </div>
     </div>

@@ -67,18 +67,6 @@
       </div>
       <div class="row">
         <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-2">
-          <mat-form-field class="example-full-width" appearance="outline">
-            <mat-label>Treatment</mat-label>
-            <input matInput formControlName="condition" required>
-            <mat-icon class="material-icons-two-tone color-icon p-3" matSuffix>healing</mat-icon>
-            <mat-error *ngIf="patientForm.get('condition')?.hasError('required')">
-              Treatment is required
-            </mat-error>
-          </mat-form-field>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-2">
           <div class="example-button-row">
             <button mat-raised-button color="primary" [disabled]="!patientForm.valid" [mat-dialog-close]="1" (click)="confirmAdd()">
               Save

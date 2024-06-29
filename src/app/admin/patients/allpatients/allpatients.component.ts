@@ -61,7 +61,7 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
     'gender',
     'address',
     'phoneNumber',
-    'condition',
+    //'condition',
     'actions',
   ];
 
@@ -319,7 +319,6 @@ export class ExampleDataSource extends DataSource<Patient> {
             const searchStr = (
               patient.firstName +
               patient.lastName +
-              patient.gender +
               patient.address +
               patient.birthDate +
               patient.bloodGroup +

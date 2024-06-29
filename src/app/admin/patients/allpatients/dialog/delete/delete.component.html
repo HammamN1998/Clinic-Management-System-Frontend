@@ -2,18 +2,21 @@
   <h3 mat-dialog-title>Are you sure?</h3>
   <div mat-dialog-content>
     <ul class="clearfix">
-      <li>
+      <li  *ngIf="isNullOrUndefined(data)">
+        <p><span class="font-weight-bold"> Delete ? </span></p>
+      </li>
+      <li *ngIf="!isNullOrUndefined(data)">
         <p><span class="font-weight-bold"> Patient Name: </span>{{data.name}}</p>
       </li>
-      <li>
+      <li *ngIf="!isNullOrUndefined(data)">
         <p><span class="font-weight-bold"> Gender: </span>{{ data.gender }}</p>
       </li>
-      <li>
+      <li *ngIf="!isNullOrUndefined(data)">
         <p>
           <span class="font-weight-bold">Blood Group: </span>{{data.bloodGroup}}
         </p>
       </li>
-      <li>
+      <li *ngIf="!isNullOrUndefined(data)">
         <p>
           <span class="font-weight-bold">Mobile: </span>{{data.phoneNumber}}
         </p>

@@ -57,13 +57,13 @@
               <table mat-table [dataSource]="dataSource" matSort class="mat-cell advance-table">
                 <!-- Checkbox Column -->
                 <ng-container matColumnDef="select">
-                  <mat-header-cell *matHeaderCellDef [ngClass]="'tbl-col-width-per-6'">
+                  <mat-header-cell *matHeaderCellDef [ngClass]="'tbl-col-width-per-8'">
                     <mat-checkbox (change)="$event ? masterToggle() : null"
                       [checked]="selection.hasValue() && isAllSelected()"
                       [indeterminate]="selection.hasValue() && !isAllSelected()" [ngClass]="'tbl-checkbox'">
                     </mat-checkbox>
                   </mat-header-cell>
-                  <mat-cell *matCellDef="let row" [ngClass]="'tbl-col-width-per-6'">
+                  <mat-cell *matCellDef="let row" [ngClass]="'tbl-col-width-per-8'">
                     <mat-checkbox (click)="$event.stopPropagation()" (change)="$event ? selection.toggle(row) : null"
                       [checked]="selection.isSelected(row)" [ngClass]="'tbl-checkbox'">
                     </mat-checkbox>
@@ -86,8 +86,7 @@
                   <mat-cell *matCellDef="let row"> <span class="phoneNumber-label">Name:</span>{{row.firstName}} {{row.lastName}}</mat-cell>
                 </ng-container>
                 <ng-container matColumnDef="gender">
-                  <mat-header-cell *matHeaderCellDef mat-sort-header> Gender
-                  </mat-header-cell>
+                  <mat-header-cell *matHeaderCellDef mat-sort-header>Gender</mat-header-cell>
                   <mat-cell mat-cell *matCellDef="let row">
                     <span class="phoneNumber-label">Gender:</span>
                     <div *ngIf="row.gender.toLowerCase() === 'male' ">
@@ -100,13 +99,11 @@
                         {{row.gender}}
                       </span>
                     </div>
-
                   </mat-cell>
                 </ng-container>
                 <ng-container matColumnDef="address">
-                  <mat-header-cell *matHeaderCellDef mat-sort-header [ngClass]="'tbl-col-width-per-10'">Address
-                  </mat-header-cell>
-                  <mat-cell *matCellDef="let row" [ngClass]="'tbl-col-width-per-10'"> <span class="truncate-text"><span
+                  <mat-header-cell *matHeaderCellDef mat-sort-header >Address</mat-header-cell>
+                  <mat-cell *matCellDef="let row" > <span class="truncate-text"><span
                         class="phoneNumber-label">Address:</span>{{row.address}}</span>
                   </mat-cell>
                 </ng-container>

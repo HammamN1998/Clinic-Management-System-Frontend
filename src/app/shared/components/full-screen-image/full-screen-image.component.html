@@ -1,0 +1,21 @@
+<div class="image-container">
+  <img [src]="imgUrl" alt="Image description" (mouseenter)="showControl()">
+  <div class="full-body" *ngIf="this.showUploadPictureArea">
+    <app-file-upload rootFolder="patients/{{this.patient.id}}/images" accept="image/*" (downloadUrl)="this.updatePatientProfilePicture($event)"></app-file-upload>
+  </div>
+  <i class="icon-fullscreen" *ngIf="patient.img !== ''">
+    <button mat-icon-button  matTooltip="Full Screeen" (click)="openFullscreen()">
+      <mat-icon>fullscreen</mat-icon>
+    </button>
+  </i>
+  <i class="icon-edit" *ngIf="showEditIcon">
+    <button mat-icon-button  matTooltip="Edit" (click)="editImage()">
+      <mat-icon>edit</mat-icon>
+    </button>
+  </i>
+  <i class="icon-delete" *ngIf="showDeleteIcon && patient.img !== ''">
+    <button mat-icon-button  matTooltip="Delete" (click)="deleteImage()">
+      <mat-icon>delete</mat-icon>
+    </button>
+  </i>
+</div>

@@ -44,23 +44,24 @@ export class AddPatientComponent {
   }
 
   createContactForm(): UntypedFormGroup {
+    const newPatient: Patient = new Patient();
     return this.fb.group({
       // Required Fields
-      firstName: [ '', [Validators.required, Validators.pattern('[a-zA-Z]+')], ],
-      gender: ['', [Validators.required]],
-      phoneNumber: ['', [Validators.required]],
-      address: ['Palestine-', [Validators.required]],
-      condition: ['', [Validators.required]],
+      firstName: [ newPatient.firstName, [Validators.required], ],
+      gender: [newPatient.gender, [Validators.required]],
+      phoneNumber: [newPatient.phoneNumber, [Validators.required]],
+      address: [newPatient.address, [Validators.required]],
       // Not required Fields
-      id: [''],
-      lastName: [''],
-      maritalState: [''],
-      email: [ '', [Validators.email, Validators.minLength(5)], ],
-      bloodGroup: [''],
-      bloodPressure: [''],
-      birthDate: [''],
-      uploadFile: [''],
-      doctorId: [''],
+      condition: [newPatient.condition],
+      id: [newPatient.id],
+      lastName: [newPatient.lastName],
+      maritalState: [newPatient.maritalState],
+      email: [ newPatient.email, [Validators.email, Validators.minLength(5)], ],
+      bloodGroup: [newPatient.bloodGroup],
+      bloodPressure: [newPatient.bloodPressure],
+      birthDate: [newPatient.birthDate.toDate()],
+      uploadFile: [newPatient.img],
+      doctorId: [newPatient.doctorId],
     });
   }
 

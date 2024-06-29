@@ -9,10 +9,7 @@
         <!--Patient Image-->
         <div class="card">
           <div class="contact-grid profile-image">
-            <img [src]="this.patient.img === '' ? 'assets/images/patient/patient-default-profile.png' : this.patient.img" (click)="this.showUploadProfilePicture = !this.showUploadProfilePicture" alt="">
-          </div>
-          <div class="full-body" *ngIf="this.showUploadProfilePicture">
-            <app-file-upload rootFolder="patients/{{this.patient.email}}/images" accept="image/*" (downloadUrl)="this.updatePatientProfilePicture($event)"></app-file-upload>
+            <app-full-screen-image [imgUrl]="this.patient.img === '' ? 'assets/images/patient/patient-default-profile.png' : this.patient.img" ></app-full-screen-image>
           </div>
         </div>
         <!--Balance Section-->
