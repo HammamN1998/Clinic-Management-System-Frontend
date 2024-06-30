@@ -133,15 +133,8 @@ export class HeaderComponent
 
     this.docElement = document.documentElement;
 
-    if (userRole === 'admin') {
-      this.homePage = 'admin/dashboard/main';
-    } else if (userRole === 'secretary') {
-      this.homePage = 'patient/dashboard';
-    } else if (userRole === 'doctor') {
-      this.homePage = 'doctor/dashboard';
-    } else {
-      this.homePage = 'admin/dashboard/main';
-    }
+
+    this.homePage = 'admin/dashboard/main';
 
     this.langStoreValue = localStorage.getItem('lang') as string;
     const val = this.listLang.filter((x) => x.lang === this.langStoreValue);
