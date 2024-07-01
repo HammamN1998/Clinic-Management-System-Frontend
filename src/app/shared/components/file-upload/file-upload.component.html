@@ -2,7 +2,7 @@
   <span>{{file ? file.name : ' Click or drag and drop file here' }}</span>
   <input class="file-input" type="file"  [accept]="accept" (change)="uploadFile($event)">
   <mat-progress-bar *ngIf="this.progressPercentageField > 0 && this.progressPercentageField < 100" mode="determinate" [value]="this.progressPercentageField"></mat-progress-bar>
-  <h4 *ngIf="progressPercentageField === 100" class="m-b-20">
+  <h4 *ngIf="progressPercentageField === 100 && file" class="m-b-20">
     <span class="label label-success">Uploaded</span>
   </h4>
 </div>

@@ -9,6 +9,7 @@ import {MatProgressBarModule} from "@angular/material/progress-bar";
 import {NgIf} from "@angular/common";
 import firebase from "firebase/compat";
 import storage = firebase.storage;
+import {Attachment} from "@core/models/patient.model";
 
 @Component({
     selector: 'app-file-upload',
@@ -31,6 +32,7 @@ export class FileUploadComponent implements ControlValueAccessor {
   @Input() name: string = '';
   @Output() downloadUrl = new EventEmitter<string>();
   @Output() progressPercentage = new EventEmitter<number>();
+  @Output() downloadedAttachment = new EventEmitter<Attachment>();
 
   public file: File | null = null;
   public progressPercentageField: number = 0;
@@ -49,6 +51,13 @@ export class FileUploadComponent implements ControlValueAccessor {
           .subscribe({
             next: (url) => {
               this.downloadUrl.emit(url);
+              this.downloadedAttachment.emit({
+                url: url,
+                name: this.name,
+                type: this.file?.type ?? ''
+              });
+              this.file = null;
+              this.name = '';
             },
             error: (error) => {
               console.log('error: '+ error);

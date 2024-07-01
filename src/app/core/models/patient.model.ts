@@ -2,7 +2,11 @@ import * as firestore from "firebase/firestore";
 
 export interface SpecialDiagrams {
   adultTeethDiagram: {[toothId: string]: string}[],
-  childrenTeethDiagram: {[toothId: string]: string}[],
+}
+export interface Attachment {
+  name: string,
+  type: string,
+  url: string,
 }
 export class Patient {
   id: string = '';
@@ -19,9 +23,9 @@ export class Patient {
   condition: string = '';
   img: string = '';
   doctorId: string = '';
+  attachments: Attachment[] = [];
   specialDiagrams: SpecialDiagrams = {
     adultTeethDiagram: [],
-    childrenTeethDiagram: []
   };
   createdAt: firestore.Timestamp = new firestore.Timestamp(0, 0);
 

@@ -28,6 +28,8 @@ import {isNullOrUndefined} from "@swimlane/ngx-datatable";
 import {FileUploadComponent} from "@shared/components/file-upload/file-upload.component";
 import {ImageComponent} from "@shared/components/image/image.component";
 import {FullScreenImageComponent} from "@shared/components/full-screen-image/full-screen-image.component";
+import {Attachment} from "@core/models/patient.model";
+import {FirebaseStorageService} from "@core/service/firebase-storage.service";
 
 @Component({
   selector: 'app-patient-profile',
@@ -53,6 +55,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
     private dialog: MatDialog,
     private notificationService: NotificationService,
     private formBuilder: UntypedFormBuilder,
+    private firebaseStorageService: FirebaseStorageService,
   ) {
     super();
     if (this.patientService.getDialogData().id === '' ) this.router.navigate(['/admin/patients/all-patients']);
@@ -313,4 +316,32 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
     console.log('selectedDiagram: ' + this.selectedDiagram);
   }
 
+  deleteAttachment(attachment: Attachment) {
+    let tempDirection: Direction;
+    if (localStorage.getItem('isRtl') === 'true') {
+      tempDirection = 'rtl';
+    } else {
+      tempDirection = 'ltr';
+    }
+    const dialogRef = this.dialog.open(DeleteComponent, {
+      direction: tempDirection,
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result === 1) {
+        this.firebaseStorageService.deleteFile(attachment.url);
+        this.patient.attachments = this.patient.attachments.filter(attach => attach !== attachment);
+        this.patientService.updatePatient(this.patient);
+      }
+    });
+  }
+
+  addAttachment(attachment: Attachment) {
+    if(isNullOrUndefined(this.patient.attachments)) this.patient.attachments = [];
+    this.patient.attachments.push(attachment);
+    this.patientService.updatePatient(this.patient);
+  }
+
+  protected readonly console = console;
+  protected readonly window = window;
 }

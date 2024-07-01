@@ -34,6 +34,27 @@
           </div>
           <button mat-button class="basic-btn" (click)="this.getBalanceDetails()" >More Details</button>
         </div>
+        <!--Attachments Section-->
+        <div class="card">
+          <div class="header">
+            <h2>Attachments</h2>
+          </div>
+          <div class="tab-pane body active" id="attachments">
+            <div class="list-group">
+              <div class="list-group-item" *ngFor="let attachment of patient.attachments">
+                <button mat-icon-button  matTooltip="Delete" (click)="deleteAttachment(attachment)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+                <a [href]="attachment.url" target="_blank">
+                  <span>{{attachment.name}}</span>
+                </a>
+              </div>
+            </div>
+            <div *ngIf="isNullOrUndefined(patient.attachments) ? true : patient.attachments.length < 3">
+              <app-file-upload rootFolder="patients/{{this.patient.id}}/attachments" accept="*" (downloadedAttachment)="addAttachment($event)"></app-file-upload>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="col-lg-8 col-md-12">
         <!--Information Section-->
@@ -468,7 +489,6 @@
                   <mat-select [(value)]="this.selectedDiagram">
                     <mat-optgroup [label]="'Dentist'">
                       <mat-option [value]="'adultTeethDiagram'"    [disabled]="this.patient.specialDiagrams.adultTeethDiagram.length > 0" >Universal Teeth Diagram </mat-option>
-                      <!--<mat-option [value]="'childrenTeethDiagram'" [disabled]="this.patient.specialDiagrams.childrenTeethDiagram.length > 0" >Palmer Teeth Diagram </mat-option>-->
                     </mat-optgroup>
                   </mat-select>
                 </mat-form-field>
