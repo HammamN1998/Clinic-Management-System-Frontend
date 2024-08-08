@@ -26,7 +26,10 @@
         "ALL-DOCTOR": "All Doctors",
         "ADD-DOCTOR": "Add Doctor",
         "EDIT-DOCTOR": "Edit Doctor",
-        "PROFILE": "Profile"
+        "MY-ACCOUNT": "My Account",
+        "PROFILE": "Profile",
+        "PLANS": "Plans",
+        "BILLS": "Bills"
       }
     },
     "STAFF": {

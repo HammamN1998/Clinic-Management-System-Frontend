@@ -20,6 +20,8 @@
 `firebase deploy`
 
 # To build angular app
+`ng build`
+
 `npm run build`
 
 # To create a service. SERVICE-PATH root is src/app

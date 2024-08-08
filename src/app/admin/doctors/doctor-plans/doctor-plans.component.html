@@ -1,0 +1,90 @@
+<section class="content">
+  <div class="content-block">
+    <div class="block-header">
+      <!-- breadcrumb -->
+      <app-breadcrumb [title]="'Pricing'" [items]="['Extra']" [active_item]="'Pricing'"></app-breadcrumb>
+    </div>
+    <div class="row clearfix">
+      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div class="card">
+          <div class="header">
+            <h2>
+              <strong>Plans</strong> available
+            </h2>
+          </div>
+          <div class="body">
+            <div class="demo">
+              <div class="container">
+                <div class="row">
+                  <!--Basic Plane-->
+                  <div class="col-md-6 col-lg-4">
+                    <div class="pricingTable">
+                      <div class="pricingTable-header">
+                        <i class="material-icons">brightness_medium</i>
+                        <div class="price-value"> ${{selectedPlane}}
+                          <span *ngIf="selectedPlane=== PaymentType.MonthToMonth || selectedPlane === PaymentType.AnnualMonthly" class="month">per month</span>
+                          <span *ngIf="selectedPlane=== PaymentType.AnnualUpfront" class="month">per year</span>
+                        </div>
+                      </div>
+                      <h3 class="heading">Basic</h3>
+                      <div class="pricing-content">
+                        <ul>
+                          <li>
+                            Up to <b>1000</b> patient
+                          </li>
+                        </ul>
+                      </div>
+                      <div class="body">
+                        <mat-tab-group dynamicHeight >
+                          <!--Annual-->
+                          <mat-tab>
+                            <ng-template mat-tab-label >
+                              Annual
+                            </ng-template>
+                            <ng-container>
+                              <div class="body">
+                                <mat-radio-group class="example-radio-group" [(ngModel)]="selectedPlane">
+                                  <mat-radio-button [value]="PaymentType.AnnualUpfront">
+                                    Annual, pay upfront <b style="color: #ff9624;">(Save up to ${{PaymentType.AnnualMonthly*12 - PaymentType.AnnualUpfront}})</b>
+                                  </mat-radio-button>
+                                  <mat-radio-button [value]="PaymentType.AnnualMonthly">
+                                    Annual, pay monthly
+                                  </mat-radio-button>
+                                </mat-radio-group>
+                              </div>
+                            </ng-container>
+                          </mat-tab>
+                          <!--Month-to-month-->
+                          <mat-tab>
+                            <ng-template mat-tab-label>
+                              Month-to-month
+                            </ng-template>
+                            <ng-container >
+                              <mat-radio-group class="example-radio-group" [(ngModel)]="selectedPlane">
+                                <mat-radio-button [value]="PaymentType.MonthToMonth">
+                                  Monthly, no contract
+                                </mat-radio-button>
+                              </mat-radio-group>
+                            </ng-container>
+                          </mat-tab>
+                        </mat-tab-group>
+                      </div>
+                      <div class="pricingTable-signup">
+                        <div style="text-align:center">
+                          <button (click)="pay()" mat-raised-button [class.auth-spinner]="loading">
+                            Buy Now
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <!--Business Plane-->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
