@@ -71,7 +71,7 @@
                       </div>
                       <div class="pricingTable-signup">
                         <div style="text-align:center">
-                          <button (click)="pay()" mat-raised-button [class.auth-spinner]="loading">
+                          <button (click)="pay()" mat-raised-button [class.auth-spinner]="loading" [disabled]="loading">
                             Buy Now
                           </button>
                         </div>
