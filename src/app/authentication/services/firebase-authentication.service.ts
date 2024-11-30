@@ -6,6 +6,7 @@ import {AngularFireAuth} from "@angular/fire/compat/auth";
 import firebase from "firebase/compat";
 import {AngularFirestore} from "@angular/fire/compat/firestore";
 import {Router} from "@angular/router";
+import {NotificationService} from "@core/service/notification.service";
 
 
 @Injectable({
@@ -20,6 +21,7 @@ export class FirebaseAuthenticationService {
     private auth: AngularFireAuth,
     private firestore: AngularFirestore,
     private router: Router,
+    private notificationService: NotificationService,
   ) {
 
     this.currentUserSubject = new BehaviorSubject<User>(
@@ -52,6 +54,7 @@ export class FirebaseAuthenticationService {
               name: name,
               email: email,
             });
+            this.sendEmailVerificationCode()
           } else {
               console.log('userCredential is null of undefined!!')
           }
@@ -83,6 +86,20 @@ export class FirebaseAuthenticationService {
 
   sendResetPasswordEmail(email: string) {
     return this.auth.sendPasswordResetEmail(email);
+  }
+
+  sendEmailVerificationCode() {
+    from(this.auth.currentUser).subscribe((currentUser) => {
+      if (currentUser) {
+        currentUser.sendEmailVerification()
+        this.notificationService.showNotification(
+          'black',
+          'Verification Link has been sent to your email!!!',
+          'bottom',
+          'center'
+        );
+      }
+    })
   }
 
   traceAuthenticationStatus() {
