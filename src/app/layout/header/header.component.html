@@ -19,6 +19,17 @@
         </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
+        <!-- Email Verification -->
+        <li>
+          <span *ngIf="!isEmailVerified" style="color: red">
+            Your email need verification,
+            <button style="background: none; border: none; color: red">
+              <u (click)="this.sendEmailVerificationCode()">
+                Verify?
+              </u>
+            </button>
+          </span>
+        </li>
         <!-- Full Screen Button -->
         <li class="fullscreen">
           <button mat-button class="nav-notification-icons" (click)="callFullscreen()"> <i
@@ -27,26 +38,7 @@
             </i></button>
         </li>
         <!-- #END# Full Screen Button -->
-        <li class="nav-item">
-          <button mat-button [matMenuTriggerFor]="languagemenu" class="lang-dropdown nav-notification-icons"> @if
-            (flagvalue !== undefined) {
-            <img src="{{flagvalue}}" height="16">
-            }
-            @if (flagvalue === undefined) {
-            <img src="{{defaultFlag}}" height="16">
-            }</button>
-          <mat-menu #languagemenu="matMenu" class="lang-item-menu">
-            @for (item of listLang; track item) {
-            <div class="lang-item">
-              <button mat-menu-item class="dropdown-item lang-item-list"
-                (click)="setLanguage(item.text, item.lang, item.flag)"
-                [ngClass]="{'active': langStoreValue === item.lang}">
-                <img src="{{item.flag}}" class="flag-img" height="12"> <span class="align-middle">{{item.text}}</span>
-              </button>
-            </div>
-            }
-          </mat-menu>
-        </li>
+
         <li class="nav-item user_profile">
           <button mat-button [matMenuTriggerFor]="profilemenu">
             <div class="chip dropdown-toggle" ngbDropdownToggle class="">

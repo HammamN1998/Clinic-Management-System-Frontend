@@ -1,4 +1,4 @@
-import { DOCUMENT, NgClass } from '@angular/common';
+import {DOCUMENT, NgClass, NgIf} from '@angular/common';
 import {
   Component,
   Inject,
@@ -40,6 +40,7 @@ interface Notifications {
     MatMenuModule,
     NgScrollbar,
     FeatherIconsComponent,
+    NgIf,
   ],
 })
 export class HeaderComponent
@@ -56,6 +57,7 @@ export class HeaderComponent
   isOpenSidebar?: boolean;
   docElement?: HTMLElement;
   isFullScreen = false;
+  isEmailVerified: boolean = false;
 
   constructor(
     @Inject(DOCUMENT) private document: Document,
@@ -68,6 +70,7 @@ export class HeaderComponent
     public languageService: LanguageService,
   ) {
     super();
+    this.checkIfEmailVerified()
   }
 
   listLang = [
@@ -196,5 +199,12 @@ export class HeaderComponent
 
   goToDoctorProfilePage() {
     this.router.navigate(['/admin/doctors/doctor-profile'])
+  }
+
+  async checkIfEmailVerified() {
+    this.isEmailVerified = await this.firebaseAuthenticationService.isEmailVerified();
+  }
+  sendEmailVerificationCode() {
+    this.firebaseAuthenticationService.sendEmailVerificationCode();
   }
 }
