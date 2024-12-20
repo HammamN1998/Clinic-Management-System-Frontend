@@ -88,18 +88,31 @@ export class FirebaseAuthenticationService {
     return this.auth.sendPasswordResetEmail(email);
   }
 
-  sendEmailVerificationCode() {
-    from(this.auth.currentUser).subscribe((currentUser) => {
-      if (currentUser) {
-        currentUser.sendEmailVerification()
-        this.notificationService.showNotification(
-          'black',
-          'Verification Link has been sent to your email!!!',
-          'bottom',
-          'center'
-        );
-      }
-    })
+  async sendEmailVerificationCode() {
+    try {
+      const currentUser = await this.auth.currentUser;
+      if (currentUser!.emailVerified) return
+      await currentUser!.sendEmailVerification();
+      this.notificationService.showSwalNotification(
+        'Verification Link has been sent to your email!',
+        'success',
+        'center',
+        true,
+        false
+      );
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  async isEmailVerified(){
+    try {
+      const currentUser = await this.auth.currentUser;
+      return currentUser!.emailVerified
+    } catch (error) {
+      console.log(error)
+      return false
+    }
   }
 
   traceAuthenticationStatus() {

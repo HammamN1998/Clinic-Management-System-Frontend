@@ -87,6 +87,7 @@
                       </div>
                       <div class="col-md-3 col-6 b-r">
                         <strong>Email</strong>
+                        <button *ngIf="!isEmailVerified" (click)="this.sendEmailVerificationCode()" style="background: none; border: none; color: red"><u>verify</u></button>
                         <br>
                         <p class="text-muted">{{this.doctor.email}}</p>
                       </div>

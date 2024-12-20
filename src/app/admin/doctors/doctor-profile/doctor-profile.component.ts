@@ -19,6 +19,7 @@ import {AngularFireAuth} from "@angular/fire/compat/auth";
 import {FileUploadComponent} from "@shared/components/file-upload/file-upload.component";
 import {FirebaseStorageService} from "@core/service/firebase-storage.service";
 import {isNullOrUndefined} from "@swimlane/ngx-datatable";
+import {sendEmailVerification} from "@angular/fire/auth";
 
 @Component({
   selector: 'app-doctor-profile',
@@ -44,6 +45,7 @@ export class DoctorProfileComponent {
   doctorSecretaries: User[] = [];
   connectSecretaryEmail: string = '';
   showUploadProfilePicture: boolean = false;
+  isEmailVerified: boolean = false
 
   constructor(
     private doctorService: DoctorService,
@@ -55,6 +57,7 @@ export class DoctorProfileComponent {
   ) {
     this.accountSettingsForm = this.createAccountSettingsForm();
     this.getDoctorSecretaries();
+    this.checkIfEmailVerified();
   }
 
   get doctor () : User{
@@ -65,7 +68,7 @@ export class DoctorProfileComponent {
     from(this.doctorService.editDoctor({'education': $event}))
     .subscribe({
       next: () => {
-        this.notificationService.showNotification(
+        this.notificationService.showSnackBarNotification(
           'black',
           'Update Education Successfully...!!!',
           'bottom',
@@ -82,7 +85,7 @@ export class DoctorProfileComponent {
     from(this.doctorService.editDoctor({'experience': $event}))
     .subscribe({
       next: () => {
-        this.notificationService.showNotification(
+        this.notificationService.showSnackBarNotification(
           'black',
           'Update Experience Successfully...!!!',
           'bottom',
@@ -99,7 +102,7 @@ export class DoctorProfileComponent {
     from(this.doctorService.editDoctor({'about': $event}))
     .subscribe({
       next: () => {
-        this.notificationService.showNotification(
+        this.notificationService.showSnackBarNotification(
           'black',
           'Update About Section Successfully...!!!',
           'bottom',
@@ -134,7 +137,7 @@ export class DoctorProfileComponent {
         this.doctor.name = this.accountSettingsForm.value.name;
         this.doctor.phoneNumber = this.accountSettingsForm.value.phoneNumber;
         this.doctor.address = this.accountSettingsForm.value.address;
-        this.notificationService.showNotification(
+        this.notificationService.showSnackBarNotification(
           'snackbar-success',
           'Update Settings Successfully...!!!',
           'bottom',
@@ -163,7 +166,7 @@ export class DoctorProfileComponent {
     from(this.doctorService.connectSecretary(this.connectSecretaryEmail))
     .subscribe({
       next: () => {
-        this.notificationService.showNotification(
+        this.notificationService.showSnackBarNotification(
           'snackbar-success',
           'Connect Secretary Successfully...!!!',
           'bottom',
@@ -179,7 +182,7 @@ export class DoctorProfileComponent {
     from(this.doctorService.disconnectSecretary(this.connectSecretaryEmail))
     .subscribe({
       next: () => {
-        this.notificationService.showNotification(
+        this.notificationService.showSnackBarNotification(
           'snackbar-danger',
           'Disconnect Secretary Successfully...!!!',
           'bottom',
@@ -207,6 +210,13 @@ export class DoctorProfileComponent {
       }
     })
     this.showUploadProfilePicture = !this.showUploadProfilePicture;
+  }
+
+  async checkIfEmailVerified() {
+    this.isEmailVerified = await this.firebaseAuthenticationService.isEmailVerified();
+  }
+  sendEmailVerificationCode() {
+    this.firebaseAuthenticationService.sendEmailVerificationCode();
   }
 
   protected readonly isNullOrUndefined = isNullOrUndefined;
