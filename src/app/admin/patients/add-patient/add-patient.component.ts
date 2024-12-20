@@ -81,7 +81,7 @@ export class AddPatientComponent {
     newPatient.img = '';
 
     this.patientService.addPatient(newPatient)
-    this.notificationService.showNotification(
+    this.notificationService.showSnackBarNotification(
       'snackbar-success',
       'Add Record Successfully...!!!',
       'bottom',

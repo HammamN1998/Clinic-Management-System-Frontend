@@ -48,7 +48,7 @@ export class DoctorPlansComponent {
     this.paymentService.initializePayment(this.selectedPlane).subscribe((result)=>{
       const status = result['status'];
       if (!status) {
-        this.notificationService.showNotification(
+        this.notificationService.showSnackBarNotification(
           'snackbar-danger',
           `error: ${result['message']}`,
           'bottom',

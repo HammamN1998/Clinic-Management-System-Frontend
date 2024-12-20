@@ -7,7 +7,7 @@
 - Which Firebase features do you want to set up for this directory? `Hosting: Configure files for Firebase Hosting and (optionally) set up GitHub Action deploys`
 - Please select an option: `Use an existing project`
 - Select a default Firebase project for this directory: `clinic-management-system-12-23 (Clinic Management System)`
-- What do you want to use as your public directory? `dist/firebase-deploy`
+- What do you want to use as your public directory? `dist/Clinic-Management-System-Frontend`
 - Configure as a single-page app (rewrite all urls to /index.html)? `Y`
 - Set up automatic builds and deploys with GitHub? `Y`
 - For which GitHub repository would you like to set up a GitHub workflow? `HammamN1998/Clinic-Management-System-Frontend`

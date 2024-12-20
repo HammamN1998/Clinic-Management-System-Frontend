@@ -87,7 +87,7 @@ export class EditPatientComponent {
 
     this.patientService.updatePatient(updatePatient);
     this.router.navigate(['/admin/patients/patient-profile']);
-    this.notificationService.showNotification(
+    this.notificationService.showSnackBarNotification(
       'black',
       'Edit Record Successfully...!!!',
       'bottom',

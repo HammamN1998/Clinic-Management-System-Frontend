@@ -120,7 +120,7 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
         newPatient.img = dialogRef.componentInstance.patientForm.value.img;
         this.patientService.addPatient(newPatient);
         this.refreshTable();
-        this.notificationService.showNotification(
+        this.notificationService.showSnackBarNotification(
           'snackbar-success',
           'Add Record Successfully...!!!',
           'bottom',
@@ -164,7 +164,7 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
         this.patientService.updatePatient(updatePatient);
         // And lastly refresh table
         this.refreshTable();
-        this.notificationService.showNotification(
+        this.notificationService.showSnackBarNotification(
           'black',
           'Edit Record Successfully...!!!',
           'bottom',
@@ -198,7 +198,7 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
         this.patientService.deletePatient(row.id);
 
         this.refreshTable();
-        this.notificationService.showNotification(
+        this.notificationService.showSnackBarNotification(
           'snackbar-danger',
           'Delete Record Successfully...!!!',
           'bottom',
@@ -237,7 +237,7 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
     this.refreshTable();
     this.selection = new SelectionModel<Patient>(true, []);
 
-    this.notificationService.showNotification(
+    this.notificationService.showSnackBarNotification(
       'snackbar-danger',
       totalSelect + ' Record Delete Successfully...!!!',
       'bottom',

@@ -58,7 +58,7 @@ export class ForgotPasswordComponent implements OnInit {
       from(this.firebaseAuthenticationService.sendResetPasswordEmail(this.authForm.value.email!))
         .subscribe({
           next: () => {
-            this.notificationService.showNotification(
+            this.notificationService.showSnackBarNotification(
               'black',
               'Reset code sending, please check your inbox.',
               'bottom',
@@ -67,7 +67,7 @@ export class ForgotPasswordComponent implements OnInit {
             this.router.navigate(['/authentication/signin']);
           },
           error: (error) => {
-            this.notificationService.showNotification(
+            this.notificationService.showSnackBarNotification(
               'snackbar-danger',
               error,
               'bottom',

@@ -59,7 +59,7 @@ export class AdultTeethDiagramComponent {
     from( this.patientService.updateAdultTeethDiagramToothNote(this.selectedTooth, this.toothNote))
     .subscribe({
       next: () => {
-        this.notificationService.showNotification(
+        this.notificationService.showSnackBarNotification(
           'black',
           'Edit Note Successfully...!!!',
           'bottom',

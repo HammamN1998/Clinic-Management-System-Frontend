@@ -101,7 +101,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
         // Delete patient from Firestore and local storage
         this.patientService.deletePatient(this.patient.id);
         this.router.navigate(['/admin/patients/all-patients']);
-        this.notificationService.showNotification(
+        this.notificationService.showSnackBarNotification(
           'snackbar-danger',
           'Delete Record Successfully...!!!',
           'bottom',
@@ -125,7 +125,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
     .subscribe({
       next: () => {
         this.appointmentForm = this.createAppointmentForm();
-        this.notificationService.showNotification(
+        this.notificationService.showSnackBarNotification(
           'snackbar-success',
           'Add Appointment Successfully...!!!',
           'bottom',
@@ -150,7 +150,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
       .subscribe({
         next: () => {
           this.paymentForm = this.createPaymentForm();
-          this.notificationService.showNotification(
+          this.notificationService.showSnackBarNotification(
             'snackbar-success',
             'Add Payment Successfully...!!!',
             'bottom',
@@ -176,7 +176,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
       .subscribe({
         next: () => {
           this.treatmentForm = this.createTreatmentForm();
-          this.notificationService.showNotification(
+          this.notificationService.showSnackBarNotification(
             'snackbar-success',
             'Add Treatment Successfully...!!!',
             'bottom',
