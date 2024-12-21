@@ -53,6 +53,7 @@ export class FirebaseAuthenticationService {
               role: role,
               name: name,
               email: email,
+              secretaryDoctorId: '',
             });
             this.sendEmailVerificationCode()
           } else {

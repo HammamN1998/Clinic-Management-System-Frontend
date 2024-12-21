@@ -10,6 +10,6 @@ export class User {
   education: string = '';
   experience: string = '';
   role!: Role;
-  secretaryDoctorId!: string;
+  secretaryDoctorId: string = '';
   img: string = '';
 }
