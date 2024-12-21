@@ -162,36 +162,36 @@ export class DoctorProfileComponent {
     });
   }
 
-  connectSecretary() {
-    from(this.doctorService.connectSecretary(this.connectSecretaryEmail))
-    .subscribe({
-      next: () => {
-        this.notificationService.showSnackBarNotification(
-          'snackbar-success',
-          'Connect Secretary Successfully...!!!',
-          'bottom',
-          'center'
-        );
-        this.getDoctorSecretaries();
-        this.connectSecretaryEmail ='';
-      }
-    })
+  async connectSecretary() {
+    try {
+      await this.doctorService.connectSecretary(this.connectSecretaryEmail);
+      this.notificationService.showSnackBarNotification(
+        'snackbar-success',
+        'Connect Secretary Successfully...!!!',
+        'bottom',
+        'center'
+      );
+      this.getDoctorSecretaries();
+      this.connectSecretaryEmail ='';
+    } catch (error) {
+      console.log(error)
+    }
   }
 
-  disconnectSecretary() {
-    from(this.doctorService.disconnectSecretary(this.connectSecretaryEmail))
-    .subscribe({
-      next: () => {
-        this.notificationService.showSnackBarNotification(
-          'snackbar-danger',
-          'Disconnect Secretary Successfully...!!!',
-          'bottom',
-          'center'
-        );
-        this.getDoctorSecretaries();
-        this.connectSecretaryEmail ='';
-      }
-    })
+  async disconnectSecretary() {
+    try {
+      await this.doctorService.disconnectSecretary(this.connectSecretaryEmail);
+      this.notificationService.showSnackBarNotification(
+        'snackbar-danger',
+        'Disconnect Secretary Successfully...!!!',
+        'bottom',
+        'center'
+      );
+      this.getDoctorSecretaries();
+      this.connectSecretaryEmail ='';
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   updateDoctorProfilePicture(url: string) {

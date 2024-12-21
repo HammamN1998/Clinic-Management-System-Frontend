@@ -31,9 +31,9 @@ export class DoctorService {
     const result = this.firestore.collection('doctors').ref.where('email', '==', secretaryEmail).get();
     from(result)
     .subscribe({
-      next: (secretaries) => {
-        if (secretaries.size > 1) console.log('error: multiple doctors with same email!!')
-        secretaries.docs.forEach((secretary) => {
+      next: (secretary) => {
+        if (secretary.size > 1) console.log('error: multiple doctors with same email!!')
+        secretary.docs.forEach((secretary) => {
           secretary.ref.update({secretaryDoctorId: this.firebaseAuthenticationService.currentUserValue.id})
         })
       },
@@ -48,9 +48,9 @@ export class DoctorService {
     const result = this.firestore.collection('doctors').ref.where('email', '==', secretaryEmail).get();
     from(result)
       .subscribe({
-        next: (secretaries) => {
-          if (secretaries.size > 1) console.log('error: multiple doctors with same email!!')
-          secretaries.docs.forEach((secretary) => {
+        next: (secretary) => {
+          if (secretary.size > 1) console.log('error: multiple doctors with same email!!')
+          secretary.docs.forEach((secretary) => {
             secretary.ref.update({secretaryDoctorId: ''})
           })
         },
