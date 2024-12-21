@@ -19,9 +19,15 @@
         </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
+        <!-- Not connected secretary -->
+        <li *ngIf="!isSecretaryConnected">
+          <span style="color: red">
+            You’re still not connected to a doctor.
+          </span>
+        </li>
         <!-- Email Verification -->
-        <li>
-          <span *ngIf="!isEmailVerified" style="color: red">
+        <li *ngIf="!isEmailVerified">
+          <span style="color: red">
             Your email need verification,
             <button style="background: none; border: none; color: red">
               <u (click)="this.sendEmailVerificationCode()">

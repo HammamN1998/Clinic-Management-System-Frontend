@@ -58,6 +58,7 @@ export class HeaderComponent
   docElement?: HTMLElement;
   isFullScreen = false;
   isEmailVerified: boolean = false;
+  isSecretaryConnected: boolean = false;
 
   constructor(
     @Inject(DOCUMENT) private document: Document,
@@ -71,6 +72,7 @@ export class HeaderComponent
   ) {
     super();
     this.checkIfEmailVerified()
+    this.checkIfSecretaryConnected()
   }
 
   listLang = [
@@ -204,6 +206,11 @@ export class HeaderComponent
   async checkIfEmailVerified() {
     this.isEmailVerified = await this.firebaseAuthenticationService.isEmailVerified();
   }
+
+  checkIfSecretaryConnected() {
+    this.isSecretaryConnected = this.firebaseAuthenticationService.currentUserValue.secretaryDoctorId !== ''
+  }
+
   sendEmailVerificationCode() {
     this.firebaseAuthenticationService.sendEmailVerificationCode();
   }

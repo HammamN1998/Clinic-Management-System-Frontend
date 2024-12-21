@@ -1,21 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Router, NavigationEnd, RouterLinkActive, RouterLink } from '@angular/router';
-import { DOCUMENT, NgClass } from '@angular/common';
-import {
-  Component,
-  Inject,
-  ElementRef,
-  OnInit,
-  Renderer2,
-  HostListener,
-  OnDestroy,
-} from '@angular/core';
-import { ROUTES } from './sidebar-items';
-import { RouteInfo } from './sidebar.metadata';
-import { Role } from '@core';
-import { TranslateModule } from '@ngx-translate/core';
-import { NgScrollbar } from 'ngx-scrollbar';
-import { UnsubscribeOnDestroyAdapter } from '@shared';
+import {NavigationEnd, Router, RouterLink, RouterLinkActive} from '@angular/router';
+import {DOCUMENT, NgClass} from '@angular/common';
+import {Component, ElementRef, HostListener, Inject, OnDestroy, OnInit, Renderer2,} from '@angular/core';
+import {ROUTES} from './sidebar-items';
+import {RouteInfo} from './sidebar.metadata';
+import {Role} from '@core';
+import {TranslateModule} from '@ngx-translate/core';
+import {NgScrollbar} from 'ngx-scrollbar';
+import {UnsubscribeOnDestroyAdapter} from '@shared';
 import {FirebaseAuthenticationService} from "../../authentication/services/firebase-authentication.service";
 import {isNullOrUndefined} from "@swimlane/ngx-datatable";
 
@@ -60,6 +52,10 @@ export class SidebarComponent extends UnsubscribeOnDestroyAdapter implements OnI
       }
     });
   }
+
+  get doctor() {
+    return this.firebaseAuthenticationService.currentUserValue
+  }
   @HostListener('window:resize', ['$event'])
   windowResizecall() {
     this.setMenuHeight();
@@ -85,27 +81,21 @@ export class SidebarComponent extends UnsubscribeOnDestroyAdapter implements OnI
     }
   }
   ngOnInit() {
-    if (this.firebaseAuthenticationService.currentUserValue) {
-      const userRole = this.firebaseAuthenticationService.currentUserValue.role;
-      this.userFullName =
-        this.firebaseAuthenticationService.currentUserValue.name
-      this.userImg = this.firebaseAuthenticationService.currentUserValue.img;
+    if (this.doctor) {
+      const userRole = this.doctor.role;
+      this.userFullName = this.doctor.name
+      this.userImg = this.doctor.img;
 
       this.sidebarItems = ROUTES.filter(
         (x) => x.role.indexOf(userRole) !== -1 || x.role.indexOf('All') !== -1
       );
-      if (userRole === Role.admin) {
-        this.userType = Role.admin;
-      } else if (userRole === Role.secretary) {
-        this.userType = Role.secretary;
-      } else if (userRole === Role.doctor) {
-        this.userType = Role.doctor;
-      } else {
-        this.userType = Role.admin;
+      if (this.doctor.role == Role.secretary && this.doctor.secretaryDoctorId === '') {
+        this.sidebarItems = this.sidebarItems.filter(
+          x => ['Appointments Calendar', 'MENUITEMS.PATIENTS.TEXT', 'MENUITEMS.DASHBOARD.TEXT'].indexOf(x.title) === -1
+        )
       }
     }
 
-    // this.sidebarItems = ROUTES.filter((sidebarItem) => sidebarItem);
     this.initLeftSidebar();
     this.bodyTag = this.document.body;
   }
