@@ -42,7 +42,7 @@
           <div class="tab-pane body active" id="attachments">
             <div class="list-group">
               <div class="list-group-item" *ngFor="let attachment of patient.attachments">
-                <button mat-icon-button  matTooltip="Delete" (click)="deleteAttachment(attachment)">
+                <button *ngIf="this.doctor.role !== Role.secretary" mat-icon-button  matTooltip="Delete" (click)="deleteAttachment(attachment)">
                   <mat-icon>delete</mat-icon>
                 </button>
                 <a [href]="attachment.url" target="_blank">
@@ -130,7 +130,7 @@
                 </div>
               </mat-tab>
               <!--Settings-->
-              <mat-tab>
+              <mat-tab *ngIf="this.doctor.role !== Role.secretary">
                 <ng-template mat-tab-label>
                   <mat-icon class="example-tab-icon msr-2">settings</mat-icon>
                   Settings
@@ -204,7 +204,7 @@
                             </ng-container>
                           </mat-slide-toggle>
                         </div>
-                        <div class="col-lg-3 col-md-12">
+                        <div *ngIf="this.doctor.role !== Role.secretary" class="col-lg-3 col-md-12">
                           <button mat-raised-button color="warn" (click)="deleteAppointment(appointment)" >Delete</button>
                         </div>
                       </div>
@@ -213,7 +213,7 @@
                 </div>
               </mat-tab>
               <!--Add Appointment-->
-              <mat-tab>
+              <mat-tab *ngIf="this.doctor.role !== Role.secretary">
                 <ng-template mat-tab-label>
                   <mat-icon class="example-tab-icon msr-2">my_library_add</mat-icon>
                   Add Appointment
@@ -316,7 +316,7 @@
                         <div class="col-lg-12 col-md-12">
                           <p>{{payment.details}}</p>
                         </div>
-                        <div class="col-lg-3 col-md-12">
+                        <div *ngIf="this.doctor.role !== Role.secretary" class="col-lg-3 col-md-12">
                           <button mat-raised-button color="warn" (click)="deletePayment(payment)" >Delete</button>
                         </div>
                       </div>
@@ -347,7 +347,7 @@
                         <div class="col-lg-12 col-md-12">
                           <p>{{treatment.details}}</p>
                         </div>
-                        <div class="col-lg-3 col-md-12">
+                        <div *ngIf="this.doctor.role !== Role.secretary" class="col-lg-3 col-md-12">
                           <button mat-raised-button color="warn" (click)="deleteTreatment(treatment)" >Delete</button>
                         </div>
                       </div>
@@ -356,7 +356,7 @@
                 </div>
               </mat-tab>
               <!--Add Payment/Treatment-->
-              <mat-tab>
+              <mat-tab *ngIf="this.doctor.role !== Role.secretary" >
                 <ng-template mat-tab-label>
                   <mat-icon class="example-tab-icon msr-2">my_library_add</mat-icon>
                   Add Payment/Treatment
@@ -477,7 +477,7 @@
           </div>
         </div>
         <!--Specialized Forms Section-->
-        <div class="card">
+        <div *ngIf="this.doctor.role !== Role.secretary" class="card">
           <div class="header">
             Specialized Forms Section
           </div>

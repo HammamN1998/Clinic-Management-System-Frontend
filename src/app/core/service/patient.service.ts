@@ -1,7 +1,7 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 import {BehaviorSubject, from} from 'rxjs';
 import {Patient, SpecialDiagrams} from '@core/models/patient.model';
-import { UnsubscribeOnDestroyAdapter } from '@shared';
+import {UnsubscribeOnDestroyAdapter} from '@shared';
 import {FirebaseAuthenticationService} from "../../authentication/services/firebase-authentication.service";
 import {AngularFirestore} from "@angular/fire/compat/firestore";
 import {AppointmentModel} from "@core/models/appointment.model";
@@ -9,6 +9,7 @@ import {PaymentModel} from "@core/models/payment.model";
 import {TreatmentModel} from "@core/models/treatment.model";
 import {isNullOrUndefined} from "@swimlane/ngx-datatable";
 import * as firestore from "firebase/firestore";
+import {Role, User} from "@core";
 
 
 @Injectable({
@@ -16,7 +17,6 @@ import * as firestore from "firebase/firestore";
 })
 
 export class PatientService extends UnsubscribeOnDestroyAdapter {
-  private readonly API_URL = 'assets/data/patient.json';
   isTblLoading = true;
   dataChange: BehaviorSubject<Patient[]> = new BehaviorSubject<Patient[]>([]);
   // Temporarily stores data from dialogs
@@ -30,14 +30,18 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
   get data(): Patient[] {
     return this.dataChange.value;
   }
+  get doctor(): User {
+    return this.firebaseAuthenticationService.currentUserValue;
+  }
   getDialogData() {
     return this.dialogData;
   }
   getAllPatients(): void {
     const tempPatients : Patient[] = [];
     this.dataChange.next(tempPatients);
+    const doctorId = this.doctor.role === Role.doctor ? this.doctor.id : this.doctor.secretaryDoctorId;
 
-    this.subs.sink = from (this.firestore.collection('patients').ref.where('doctorId', '==', this.firebaseAuthenticationService.currentUserValue.id).get())
+    this.subs.sink = from (this.firestore.collection('patients').ref.where('doctorId', '==', doctorId).get())
       .subscribe( {
         next: (patients) => {
           patients.docs.map( (patient) => {

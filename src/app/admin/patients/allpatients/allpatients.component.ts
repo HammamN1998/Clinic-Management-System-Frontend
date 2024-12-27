@@ -29,6 +29,8 @@ import { BreadcrumbComponent } from '@shared/components/breadcrumb/breadcrumb.co
 import {NotificationService} from "@core/service/notification.service";
 import {Router} from "@angular/router";
 import * as firestore from "firebase/firestore";
+import {FirebaseAuthenticationService} from "../../../authentication/services/firebase-authentication.service";
+import {Role, User} from "@core";
 
 @Component({
   selector: 'app-allpatients',
@@ -74,6 +76,7 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
     public patientService: PatientService,
     private notificationService: NotificationService,
     private router: Router,
+    private firebaseAuthenticationService: FirebaseAuthenticationService,
   ) {
     super();
   }
@@ -84,6 +87,9 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
   @ViewChild('filter', { static: true }) filter?: ElementRef;
   ngOnInit() {
     this.loadData();
+  }
+  get doctor(): User {
+    return this.firebaseAuthenticationService.currentUserValue;
   }
   refresh() {
     this.loadData();
@@ -280,6 +286,8 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
     this.patientService.dialogData = row;
     this.router.navigate(['/admin/patients/patient-profile']);
   }
+
+  protected readonly Role = Role;
 }
 export class ExampleDataSource extends DataSource<Patient> {
   filterChange = new BehaviorSubject('');

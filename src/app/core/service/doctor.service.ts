@@ -1,8 +1,9 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 import {FirebaseAuthenticationService} from "../../authentication/services/firebase-authentication.service";
 import {AngularFirestore} from "@angular/fire/compat/firestore";
 import {from} from "rxjs";
 import * as firestore from "firebase/firestore";
+import {Role} from "@core";
 
 @Injectable({
   providedIn: 'root'
@@ -14,14 +15,18 @@ export class DoctorService {
     private firestore: AngularFirestore,
   ) { }
 
+  get doctor() {
+    return this.firebaseAuthenticationService.currentUserValue;
+  }
+
   editDoctor (data: {[p:string]: string}) {
-    return this.firestore.collection('doctors').doc(this.firebaseAuthenticationService.currentUserValue.id).update(data);
+    return this.firestore.collection('doctors').doc(this.doctor.id).update(data);
   }
 
   getDoctorSecretaries() {
     return this.firestore.collection('doctors').ref
     .where('role', '==', 'secretary')
-    .where('secretaryDoctorId', '==', this.firebaseAuthenticationService.currentUserValue.id)
+    .where('secretaryDoctorId', '==', this.doctor.id)
     .get();
   }
 
@@ -34,7 +39,7 @@ export class DoctorService {
       next: (secretary) => {
         if (secretary.size > 1) console.log('error: multiple doctors with same email!!')
         secretary.docs.forEach((secretary) => {
-          secretary.ref.update({secretaryDoctorId: this.firebaseAuthenticationService.currentUserValue.id})
+          secretary.ref.update({secretaryDoctorId: this.doctor.id})
         })
       },
       error: (error) => {
@@ -65,8 +70,9 @@ export class DoctorService {
     const now = new Date();
     const startOfMonth = firestore.Timestamp.fromDate( new Date(now.getFullYear(), now.getMonth(), 1));
     const endOfMonth = firestore.Timestamp.fromDate(new Date(now.getFullYear(), now.getMonth() + 1, 0));
+    const doctorId =  this.doctor.role === Role.secretary? this.doctor.secretaryDoctorId: this.doctor.id
     return this.firestore.collection('appointments').ref
-    .where('doctorId', '==', this.firebaseAuthenticationService.currentUserValue.id)
+    .where('doctorId', '==', doctorId)
     .where('date', '>=', startOfMonth)
     .where('date', '<', endOfMonth)
     .orderBy('date', 'asc')
@@ -78,7 +84,7 @@ export class DoctorService {
     const startOfMonth = firestore.Timestamp.fromDate( new Date(now.getFullYear(), now.getMonth(), 1));
     const endOfMonth = firestore.Timestamp.fromDate(new Date(now.getFullYear(), now.getMonth() + 1, 0));
     return this.firestore.collection('treatments').ref
-    .where('doctorId', '==', this.firebaseAuthenticationService.currentUserValue.id)
+    .where('doctorId', '==', this.doctor.id)
     .where('date', '>=', startOfMonth)
     .where('date', '<', endOfMonth)
     .orderBy('date', 'asc')
@@ -90,7 +96,7 @@ export class DoctorService {
     const startOfMonth = firestore.Timestamp.fromDate( new Date(now.getFullYear(), now.getMonth(), 1));
     const endOfMonth = firestore.Timestamp.fromDate(new Date(now.getFullYear(), now.getMonth() + 1, 0));
     return this.firestore.collection('patients').ref
-    .where('doctorId', '==', this.firebaseAuthenticationService.currentUserValue.id)
+    .where('doctorId', '==', this.doctor.id)
     .where('createdAt', '>=', startOfMonth)
     .where('createdAt', '<', endOfMonth)
     .orderBy('createdAt', 'asc')
@@ -102,7 +108,7 @@ export class DoctorService {
     const startOfMonth = firestore.Timestamp.fromDate( new Date(now.getFullYear(), now.getMonth(), 1));
     const endOfMonth = firestore.Timestamp.fromDate(new Date(now.getFullYear(), now.getMonth() + 1, 0));
     return this.firestore.collection('payments').ref
-      .where('doctorId', '==', this.firebaseAuthenticationService.currentUserValue.id)
+      .where('doctorId', '==', this.doctor.id)
       .where('date', '>=', startOfMonth)
       .where('date', '<', endOfMonth)
       .orderBy('date', 'asc')

@@ -30,6 +30,8 @@ import {ImageComponent} from "@shared/components/image/image.component";
 import {FullScreenImageComponent} from "@shared/components/full-screen-image/full-screen-image.component";
 import {Attachment} from "@core/models/patient.model";
 import {FirebaseStorageService} from "@core/service/firebase-storage.service";
+import {FirebaseAuthenticationService} from "../../../authentication/services/firebase-authentication.service";
+import {Role, User} from "@core";
 
 @Component({
   selector: 'app-patient-profile',
@@ -56,6 +58,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
     private notificationService: NotificationService,
     private formBuilder: UntypedFormBuilder,
     private firebaseStorageService: FirebaseStorageService,
+    private firebaseAuthenticationService: FirebaseAuthenticationService,
   ) {
     super();
     if (this.patientService.getDialogData().id === '' ) this.router.navigate(['/admin/patients/all-patients']);
@@ -71,6 +74,9 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
 
   public get patient() {
     return this.patientService.getDialogData();
+  }
+  get doctor(): User {
+    return this.firebaseAuthenticationService.currentUserValue;
   }
 
   goToEditPage() {
@@ -344,4 +350,5 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
 
   protected readonly console = console;
   protected readonly window = window;
+  protected readonly Role = Role;
 }

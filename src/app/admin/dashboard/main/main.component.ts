@@ -1,16 +1,33 @@
-import { Component, OnInit } from '@angular/core';
-import { ApexAxisChartSeries, ApexChart, ApexXAxis, ApexDataLabels, ApexTooltip, ApexYAxis, ApexPlotOptions, ApexStroke, ApexLegend, ApexFill, ApexResponsive, ApexGrid, NgApexchartsModule } from 'ng-apexcharts';
-import { FeatherIconsComponent } from '@shared/components/feather-icons/feather-icons.component';
-import { MatIconModule } from '@angular/material/icon';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatButtonModule } from '@angular/material/button';
-import { BreadcrumbComponent } from '@shared/components/breadcrumb/breadcrumb.component';
+import {Component, OnInit} from '@angular/core';
+import {
+  ApexAxisChartSeries,
+  ApexChart,
+  ApexDataLabels,
+  ApexFill,
+  ApexGrid,
+  ApexLegend,
+  ApexPlotOptions,
+  ApexResponsive,
+  ApexStroke,
+  ApexTooltip,
+  ApexXAxis,
+  ApexYAxis,
+  NgApexchartsModule
+} from 'ng-apexcharts';
+import {FeatherIconsComponent} from '@shared/components/feather-icons/feather-icons.component';
+import {MatIconModule} from '@angular/material/icon';
+import {MatMenuModule} from '@angular/material/menu';
+import {MatButtonModule} from '@angular/material/button';
+import {BreadcrumbComponent} from '@shared/components/breadcrumb/breadcrumb.component';
 import {from} from "rxjs";
 import {DoctorService} from "@core/service/doctor.service";
 import {AppointmentModel} from "@core/models/appointment.model";
 import {TreatmentModel} from "@core/models/treatment.model";
 import {Patient} from "@core/models/patient.model";
 import {PaymentModel} from "@core/models/payment.model";
+import {FirebaseAuthenticationService} from "../../../authentication/services/firebase-authentication.service";
+import {Role} from "@core";
+
 export type ChartOptions = {
   series: ApexAxisChartSeries;
   chart: ApexChart;
@@ -70,6 +87,7 @@ export class MainComponent implements OnInit {
 
   constructor(
     private doctorService: DoctorService,
+    private firebaseAuthenticationService: FirebaseAuthenticationService
   ) {
 
   }
@@ -78,13 +96,14 @@ export class MainComponent implements OnInit {
     this.treatmentsChart();
     this.newPatientsChart();
     this.earningChart();
-
-    setTimeout(() => {
-      this.getAppointmentsData();
-      this.getTreatmentsData();
-      this.getNewPatientsData();
-      this.getEarningData();
-    }, 200);
+    if (this.firebaseAuthenticationService.currentUserValue.role !== Role.secretary) {
+      setTimeout(() => {
+        this.getAppointmentsData();
+        this.getTreatmentsData();
+        this.getNewPatientsData();
+        this.getEarningData();
+      }, 200);
+    }
   }
 
   private appointmentsChart() {
