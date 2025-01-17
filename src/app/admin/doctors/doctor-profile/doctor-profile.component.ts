@@ -10,7 +10,7 @@ import {FirebaseAuthenticationService} from "../../../authentication/services/fi
 import {MatTooltipModule} from "@angular/material/tooltip";
 import {EditableTextComponent} from "@shared/components/editable-text/editable-text.component";
 import {DoctorService} from "@core/service/doctor.service";
-import {User} from "@core";
+import {Role, User} from "@core";
 import {from} from "rxjs";
 import {NotificationService} from "@core/service/notification.service";
 import {UntypedFormBuilder, UntypedFormGroup, Validators} from "@angular/forms";
@@ -220,4 +220,5 @@ export class DoctorProfileComponent {
   }
 
   protected readonly isNullOrUndefined = isNullOrUndefined;
+  protected readonly Role = Role;
 }

@@ -33,7 +33,7 @@
           </div>
         </div>
         <!--Secretaries Section-->
-        <div class="card">
+        <div class="card" *ngIf="this.doctor.role === Role.doctor">
           <div class="header">
             <h2><strong>Secretaries</strong></h2>
           </div>
@@ -165,12 +165,12 @@
                 </form>
               </div>
               <!--Secretaries Settings-->
-              <div class="header">
+              <div class="header" *ngIf="this.doctor.role === Role.doctor" >
                 <h2>
                   <strong>Secretaries</strong> Settings
                 </h2>
               </div>
-              <div class="body">
+              <div class="body" *ngIf="this.doctor.role === Role.doctor" >
                 <div class="d-flex justify-content-between align-items-center">
                   <mat-form-field class="example-full-width" appearance="fill" >
                     <mat-label>Secretary Email</mat-label>
