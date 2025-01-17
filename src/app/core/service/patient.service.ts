@@ -61,7 +61,7 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
 
   }
   addPatient(patient: Patient) {
-    patient.doctorId  = this.firebaseAuthenticationService.currentUserValue.id;
+    patient.doctorId  = this.doctor.role === Role.doctor? this.doctor.id: this.doctor.secretaryDoctorId;
     patient.createdAt = firestore.Timestamp.now();
     this.dialogData = patient;
 
