@@ -70,4 +70,6 @@ node_modules/
 .angular/
 
 # Ignore the .idea folder
+.idea/Clinic-Management-System-Frontend.iml
+.idea/workspace.xml
 .idea/
