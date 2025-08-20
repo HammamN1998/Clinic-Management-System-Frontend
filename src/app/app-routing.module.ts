@@ -25,6 +25,11 @@ const routes: Routes = [
         loadChildren: () =>
           import('./calendar/calendar.module').then((m) => m.CalendarsModule),
       },
+      {
+        path: 'task',
+        loadChildren: () =>
+          import('./task/task.module').then((m) => m.TaskModule),
+      },
     ],
   },
   {

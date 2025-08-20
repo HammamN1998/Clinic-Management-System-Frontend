@@ -77,6 +77,19 @@ export const ROUTES: RouteInfo[] = [
       },
     ],
   },
+  // Task
+  {
+    path: 'task',
+    title: 'Task',
+    iconType: 'material-icons-two-tone',
+    icon: 'event_note',
+    class: '',
+    groupTitle: false,
+    badge: '',
+    badgeClass: '',
+    role: ['doctor', 'secretary'],
+    submenu: [],
+  },
   // Profile
   {
     path: '',
