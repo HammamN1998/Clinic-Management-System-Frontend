@@ -26,7 +26,6 @@ import {TreatmentModel} from "@core/models/treatment.model";
 import {BalanceDetailsComponent} from "../allpatients/dialog/balance-details/balance-details.component";
 import {isNullOrUndefined} from "@swimlane/ngx-datatable";
 import {FileUploadComponent} from "@shared/components/file-upload/file-upload.component";
-import {ImageComponent} from "@shared/components/image/image.component";
 import {FullScreenImageComponent} from "@shared/components/full-screen-image/full-screen-image.component";
 import {Attachment} from "@core/models/patient.model";
 import {FirebaseStorageService} from "@core/service/firebase-storage.service";
@@ -38,7 +37,7 @@ import {Role, User} from "@core";
   templateUrl: './patient-profile.component.html',
   styleUrls: ['./patient-profile.component.scss'],
   standalone: true,
-  imports: [BreadcrumbComponent, MatButtonModule, MatCheckboxModule, MatFormFieldModule, MatIconModule, MatInputModule, MatTabsModule, MatDatepickerModule, OwlDateTimeModule, OwlNativeDateTimeModule, ReactiveFormsModule, SharedModule, AdultTeethDiagramComponent, FileUploadComponent, ImageComponent, FullScreenImageComponent,],
+  imports: [BreadcrumbComponent, MatButtonModule, MatCheckboxModule, MatFormFieldModule, MatIconModule, MatInputModule, MatTabsModule, MatDatepickerModule, OwlDateTimeModule, OwlNativeDateTimeModule, ReactiveFormsModule, SharedModule, AdultTeethDiagramComponent, FileUploadComponent, FullScreenImageComponent,],
 })
 export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
 
@@ -346,6 +345,16 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
     if(isNullOrUndefined(this.patient.attachments)) this.patient.attachments = [];
     this.patient.attachments.push(attachment);
     this.patientService.updatePatient(this.patient);
+  }
+
+  updatePatientNotes() {
+    this.patientService.updatePatientNotes(this.patient.notes);
+    this.notificationService.showSnackBarNotification(
+      'black',
+      'Edit Notes Successfully...!!!',
+      'bottom',
+      'center'
+    );
   }
 
   protected readonly console = console;

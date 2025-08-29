@@ -257,4 +257,17 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
   getPatientInfo(patientId: string) {
     return this.firestore.collection('patients').doc(patientId).get();
   }
+
+  updatePatientNotes(notes: string) {
+    const patientID = this.getDialogData().id;
+
+    // Update patient on Firestore
+    from (this.firestore.collection('patients').doc(patientID).ref.update({'notes': notes}))
+      .subscribe( {
+          error: (error) => {
+            console.log('error: ' + JSON.stringify(error))
+          }
+        }
+      );
+  }
 }
