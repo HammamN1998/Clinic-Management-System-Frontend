@@ -60,5 +60,6 @@ export class BalanceDetailsComponent {
 
   createAnInvoice() {
     this.pdfService.generatePatientBalanceInvoice();
+    this.pdfService.generatePatientPDFInvoice(this.data.payments, this.data.appointments, this.data.treatments);
   }
 }
