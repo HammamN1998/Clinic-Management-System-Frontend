@@ -15,8 +15,8 @@ import {NotificationService} from "@core/service/notification.service";
 import {SharedModule, UnsubscribeOnDestroyAdapter} from "@shared";
 import {MatDatepickerModule} from "@angular/material/datepicker";
 import { OwlDateTimeModule, OwlNativeDateTimeModule } from '@danielmoncada/angular-datetime-picker';
-import {ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators} from "@angular/forms";
-import {AppointmentModel} from "@core/models/appointment.model";
+import {ReactiveFormsModule, UntypedFormArray, UntypedFormBuilder, UntypedFormGroup, Validators} from "@angular/forms";
+import {AppointmentDrug, AppointmentModel} from "@core/models/appointment.model";
 import {from} from "rxjs";
 import {MatSlideToggleChange} from "@angular/material/slide-toggle";
 import {AdultTeethDiagramComponent} from "@shared/components/dentist/adult-teeth-diagram/adult-teeth-diagram.component";
@@ -27,6 +27,7 @@ import {BalanceDetailsComponent} from "../allpatients/dialog/balance-details/bal
 import {isNullOrUndefined} from "@swimlane/ngx-datatable";
 import {FileUploadComponent} from "@shared/components/file-upload/file-upload.component";
 import {FullScreenImageComponent} from "@shared/components/full-screen-image/full-screen-image.component";
+import {EditableTextComponent} from "@shared/components/editable-text/editable-text.component";
 import {Attachment} from "@core/models/patient.model";
 import {FirebaseStorageService} from "@core/service/firebase-storage.service";
 import {FirebaseAuthenticationService} from "../../../authentication/services/firebase-authentication.service";
@@ -37,7 +38,7 @@ import {Role, User} from "@core";
   templateUrl: './patient-profile.component.html',
   styleUrls: ['./patient-profile.component.scss'],
   standalone: true,
-  imports: [BreadcrumbComponent, MatButtonModule, MatCheckboxModule, MatFormFieldModule, MatIconModule, MatInputModule, MatTabsModule, MatDatepickerModule, OwlDateTimeModule, OwlNativeDateTimeModule, ReactiveFormsModule, SharedModule, AdultTeethDiagramComponent, FileUploadComponent, FullScreenImageComponent,],
+  imports: [BreadcrumbComponent, MatButtonModule, MatCheckboxModule, MatFormFieldModule, MatIconModule, MatInputModule, MatTabsModule, MatDatepickerModule, OwlDateTimeModule, OwlNativeDateTimeModule, ReactiveFormsModule, SharedModule, AdultTeethDiagramComponent, FileUploadComponent, FullScreenImageComponent, EditableTextComponent,],
 })
 export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
 
@@ -125,11 +126,22 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
     newAppointment.attended = this.appointmentForm.get('attended')?.value;
     newAppointment.cost = this.appointmentForm.get('cost')?.value;
     newAppointment.costPaid = this.appointmentForm.get('costPaid')?.value;
+    newAppointment.prescriptions = this.appointmentDrugs.value;
 
     from(this.patientService.addPatientAppointment(newAppointment))
     .subscribe({
       next: () => {
-        this.appointmentForm = this.createAppointmentForm();
+        // clear the form
+        this.appointmentForm.reset({
+          date: '',
+          time: '',
+          details: '',
+          cost: 0,
+          costPaid: true,
+          attended: false
+        });
+        this.appointmentDrugs.clear();
+        // show success  message
         this.notificationService.showSnackBarNotification(
           'snackbar-success',
           'Add Appointment Successfully...!!!',
@@ -238,8 +250,30 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
       details: [''],
       cost: [0, [Validators.min(0), Validators.max(1000)]],
       costPaid: [true],
-      attended: [false]
+      attended: [false],
+      drugs: this.formBuilder.array([])
     })
+  }
+
+  get appointmentDrugs(): UntypedFormArray {
+    return this.appointmentForm.get('drugs') as UntypedFormArray;
+  }
+
+  private createDrugForm(): UntypedFormGroup {
+    return this.formBuilder.group({
+      name: ['', [Validators.required]],
+      type: ['', [Validators.required]],
+      duration: [''],
+      notes: ['']
+    });
+  }
+
+  addDrug() {
+    this.appointmentDrugs.push(this.createDrugForm());
+  }
+
+  removeDrug(index: number) {
+    this.appointmentDrugs.removeAt(index);
   }
 
   private createPaymentForm(): UntypedFormGroup {
@@ -266,6 +300,107 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
   changeAppointmentCostPaid($event: MatSlideToggleChange, appointment: AppointmentModel) {
     appointment.costPaid = $event.checked;
     this.patientService.changeAppointmentCostPaid(appointment, $event.checked);
+  }
+
+  updateAppointmentDetails(appointment: AppointmentModel, details: string) {
+    appointment.details = details;
+    this.patientService.updateAppointmentDetails(appointment).subscribe({
+      next: () => {
+        this.notificationService.showSnackBarNotification(
+          'black',
+          'Update Appointment Details Successfully...!!!',
+          'bottom',
+          'center'
+        );
+      },
+      error: (error) => {
+        console.log('error: ' + JSON.stringify(error));
+      }
+    });
+  }
+
+  addAppointmentDrug(appointment: AppointmentModel) {
+    if (!appointment.prescriptions) {
+      appointment.prescriptions = [];
+    }
+    appointment.prescriptions.push(this.createAppointmentDrug());
+    this.patientService.updateAppointmentPrescriptions(appointment).subscribe({
+      error: (error) => {
+        console.log('error: ' + JSON.stringify(error));
+      }
+    });
+  }
+
+  removeAppointmentDrug(appointment: AppointmentModel, index: number) {
+    if (!appointment.prescriptions || !appointment.prescriptions.length) {
+      return;
+    }
+    appointment.prescriptions.splice(index, 1);
+    this.patientService.updateAppointmentPrescriptions(appointment).subscribe({
+      error: (error) => {
+        console.log('error: ' + JSON.stringify(error));
+      }
+    });
+  }
+
+  updateAppointmentDrugField(
+    appointment: AppointmentModel,
+    index: number,
+    field: keyof AppointmentDrug,
+    value: string
+  ) {
+    if (!appointment.prescriptions || !appointment.prescriptions[index]) {
+      return;
+    }
+    appointment.prescriptions[index][field] = value;
+    this.patientService.updateAppointmentPrescriptions(appointment).subscribe({
+      error: (error) => {
+        console.log('error: ' + JSON.stringify(error));
+      }
+    });
+  }
+
+  private createAppointmentDrug(): AppointmentDrug {
+    return {
+      name: '',
+      type: '',
+      duration: '',
+      notes: ''
+    };
+  }
+
+  updatePaymentDetails(payment: PaymentModel, details: string) {
+    payment.details = details;
+    this.patientService.updatePaymentDetails(payment).subscribe({
+      next: () => {
+        this.notificationService.showSnackBarNotification(
+          'black',
+          'Update Payment Details Successfully...!!!',
+          'bottom',
+          'center'
+        );
+      },
+      error: (error) => {
+        console.log('error: ' + JSON.stringify(error));
+      }
+    });
+  }
+
+  updateTreatmentDetails(treatment: TreatmentModel, details: string) {
+    treatment.details = details;
+    this.patientService.updateTreatmentDetails(treatment).subscribe({
+      next: () => {
+        this.notificationService.showSnackBarNotification(
+          'black',
+          'Update Treatment Details Successfully...!!!',
+          'bottom',
+          'center'
+        );
+      },
+      error: (error) => {
+        console.log('error: ' + JSON.stringify(error));
+      }
+    });
   }
 
   deleteAppointment(appointment: AppointmentModel) {

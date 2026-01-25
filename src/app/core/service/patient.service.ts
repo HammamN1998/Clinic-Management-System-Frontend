@@ -228,6 +228,38 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
     return this.firestore.collection('appointments').doc(appointment.id).update({costPaid: costPaid});
   }
 
+  updateAppointmentDetails(appointment: AppointmentModel) {
+    return from(
+      this.firestore.collection('appointments')
+        .doc(appointment.id)
+        .update({details: appointment.details})
+    );
+  }
+
+  updateAppointmentPrescriptions(appointment: AppointmentModel) {
+    return from(
+      this.firestore.collection('appointments')
+        .doc(appointment.id)
+        .update({prescriptions: appointment.prescriptions || []})
+    );
+  }
+
+  updatePaymentDetails(payment: PaymentModel) {
+    return from(
+      this.firestore.collection('payments')
+        .doc(payment.id)
+        .update({details: payment.details})
+    );
+  }
+
+  updateTreatmentDetails(treatment: TreatmentModel) {
+    return from(
+      this.firestore.collection('treatments')
+        .doc(treatment.id)
+        .update({details: treatment.details})
+    );
+  }
+
   deleteAppointment(id: string) {
     return this.firestore.collection('appointments').doc(id).delete();
   }

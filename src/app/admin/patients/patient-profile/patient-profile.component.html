@@ -5,7 +5,7 @@
       <app-breadcrumb [title]="'Profile'" [items]="['Patients']" [active_item]="'Profile'"></app-breadcrumb>
     </div>
     <div class="row clearfix">
-      <div class="col-lg-4 col-md-12">
+      <div class="col-lg-3 col-md-12">
         <!--Patient Image-->
         <div class="card">
           <div class="contact-grid profile-image">
@@ -66,7 +66,7 @@
           <button mat-button class="basic-btn" (click)="this.updatePatientNotes()" >Save Notes</button>
         </div>
       </div>
-      <div class="col-lg-8 col-md-12">
+      <div class="col-lg-9 col-md-12">
         <!--Information Section-->
         <div class="card">
           <div class="header">
@@ -192,7 +192,58 @@
                       </mat-expansion-panel-header>
                       <div class="row">
                         <div class="col-lg-12 col-md-12">
-                          <p>{{appointment.details}}</p>
+                          <app-editable-text
+                            headerText="Appointment Details"
+                            [bodyText]="appointment.details || ''"
+                            (bodyTextEdited)="updateAppointmentDetails(appointment, $event)">
+                          </app-editable-text>
+                        </div>
+                        <div class="col-lg-12 col-md-12">
+                          <div class="d-flex justify-content-between align-items-center mb-1">
+                            <h4 class="mb-0">Prescription</h4>
+                            <button type="button" mat-stroked-button color="primary" (click)="addAppointmentDrug(appointment)">
+                              <mat-icon class="me-1">add</mat-icon>
+                              Add Drug
+                            </button>
+                          </div>
+                        </div>
+                        <div class="col-lg-12 col-md-12">
+                          <div class="card mb-1" *ngFor="let drug of appointment.prescriptions || []; let i = index">
+                            <div class="body py-2">
+                              <div class="d-flex justify-content-between align-items-center mb-1">
+                                <strong>Drug {{ i + 1 }}</strong>
+                                <button type="button" mat-icon-button color="warn" (click)="removeAppointmentDrug(appointment, i)">
+                                  <mat-icon>close</mat-icon>
+                                </button>
+                              </div>
+                              <div class="row clearfix">
+                                <div class="col-lg-3 col-md-6">
+                                  <mat-form-field class="example-full-width" appearance="outline">
+                                    <mat-label>Name</mat-label>
+                                  <input matInput [value]="drug.name" (blur)="updateAppointmentDrugField(appointment, i, 'name', $any($event.target).value)">
+                                  </mat-form-field>
+                                </div>
+                                <div class="col-lg-3 col-md-6">
+                                  <mat-form-field class="example-full-width" appearance="outline">
+                                    <mat-label>Type</mat-label>
+                                  <input matInput [value]="drug.type" (blur)="updateAppointmentDrugField(appointment, i, 'type', $any($event.target).value)">
+                                  </mat-form-field>
+                                </div>
+                                <div class="col-lg-3 col-md-6">
+                                  <mat-form-field class="example-full-width" appearance="outline">
+                                    <mat-label>Duration</mat-label>
+                                  <input matInput [value]="drug.duration" (blur)="updateAppointmentDrugField(appointment, i, 'duration', $any($event.target).value)">
+                                  </mat-form-field>
+                                </div>
+                                <div class="col-lg-3 col-md-6">
+                                  <mat-form-field class="example-full-width" appearance="outline">
+                                    <mat-label>Notes</mat-label>
+                                  <input matInput [value]="drug.notes" (blur)="updateAppointmentDrugField(appointment, i, 'notes', $any($event.target).value)">
+                                  </mat-form-field>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
                         </div>
                         <div class="col-lg-6 col-md-12">
                           <mat-slide-toggle [checked]=appointment.attended (change)="changeAppointmentAttended($event, appointment)">
@@ -235,10 +286,10 @@
                       <div class="col-lg-6 col-md-12">
                         <mat-form-field class="example-full-width">
                           <mat-label>Choose a date</mat-label>
-                          <input matInput  [matDatepicker]="picker1" formControlName="date" required>
+                          <input matInput  [matDatepicker]="picker1" formControlName="date">
                           <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
                           <mat-datepicker #picker1></mat-datepicker>
-                          <mat-error *ngIf="this.appointmentForm.get('date')?.hasError('required')">
+                          <mat-error *ngIf="appointmentForm.get('date')?.hasError('required')">
                             Date is required
                           </mat-error>
                         </mat-form-field>
@@ -250,13 +301,16 @@
                           <input matInput [owlDateTimeTrigger]="time1" [owlDateTime]="time1" formControlName="time">
                           <mat-icon matSuffix [owlDateTimeTrigger]="time1" class="date-icon" >schedule</mat-icon>
                           <owl-date-time [pickerType]="'timer'" #time1 [hour12Timer]="true"></owl-date-time>
+                          <mat-error *ngIf="appointmentForm.get('time')?.hasError('required')">
+                            Time is required
+                          </mat-error>
                         </mat-form-field>
                       </div>
                       <!--details-->
                       <div class="col-lg-12 col-md-12">
                         <mat-form-field class="example-full-width" appearance="fill">
                           <mat-label>Appointment Details</mat-label>
-                          <textarea matInput formControlName="details"></textarea>
+                          <textarea matInput formControlName="details" cdkTextareaAutosize cdkAutosizeMinRows="2" cdkAutosizeMaxRows="8"></textarea>
                         </mat-form-field>
                       </div>
                       <!--cost and constPaid-->
@@ -285,9 +339,57 @@
                           </ng-container>
                         </mat-slide-toggle>
                       </div>
+                      <!--prescriptions-->
+                      <div class="col-lg-12 col-md-12">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                          <h4 class="mb-0">Prescription</h4>
+                          <button type="button" mat-stroked-button color="primary" (click)="addDrug()">
+                            <mat-icon class="me-1">add</mat-icon>
+                            Add Drug
+                          </button>
+                        </div>
+                      </div>
+                      <div class="col-lg-12 col-md-12" formArrayName="drugs">
+                        <div class="card mb-1" *ngFor="let drug of appointmentDrugs.controls; let i = index" [formGroupName]="i">
+                          <div class="body py-2">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                              <strong>Drug {{ i + 1 }}</strong>
+                              <button type="button" mat-icon-button color="warn" (click)="removeDrug(i)">
+                                <mat-icon>close</mat-icon>
+                              </button>
+                            </div>
+                            <div class="row clearfix">
+                              <div class="col-lg-3 col-md-6">
+                                <mat-form-field class="example-full-width" appearance="outline">
+                                  <mat-label>Name</mat-label>
+                                  <input matInput formControlName="name">
+                                </mat-form-field>
+                              </div>
+                              <div class="col-lg-3 col-md-6">
+                                <mat-form-field class="example-full-width" appearance="outline">
+                                  <mat-label>Type</mat-label>
+                                  <input matInput formControlName="type">
+                                </mat-form-field>
+                              </div>
+                              <div class="col-lg-3 col-md-6">
+                                <mat-form-field class="example-full-width" appearance="outline">
+                                  <mat-label>Duration</mat-label>
+                                  <input matInput formControlName="duration">
+                                </mat-form-field>
+                              </div>
+                              <div class="col-lg-3 col-md-6">
+                                <mat-form-field class="example-full-width" appearance="outline">
+                                  <mat-label>Notes</mat-label>
+                                  <input matInput formControlName="notes">
+                                </mat-form-field>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                       <!--button-->
                       <div class="col-lg-12 col-md-12">
-                        <button mat-raised-button color="primary" (click)="addAppointment()">Add Appointment</button>
+                        <button [disabled]="appointmentForm.invalid" type="button" mat-raised-button color="primary" (click)="addAppointment()">Add Appointment</button>
                       </div>
                     </div>
                   </form>
@@ -324,7 +426,11 @@
                       </mat-expansion-panel-header>
                       <div class="row">
                         <div class="col-lg-12 col-md-12">
-                          <p>{{payment.details}}</p>
+                          <app-editable-text
+                            headerText="Payment Details"
+                            [bodyText]="payment.details || ''"
+                            (bodyTextEdited)="updatePaymentDetails(payment, $event)">
+                          </app-editable-text>
                         </div>
                         <div *ngIf="this.doctor.role !== Role.secretary" class="col-lg-3 col-md-12">
                           <button mat-raised-button color="warn" (click)="deletePayment(payment)" >Delete</button>
@@ -355,7 +461,11 @@
                       </mat-expansion-panel-header>
                       <div class="row">
                         <div class="col-lg-12 col-md-12">
-                          <p>{{treatment.details}}</p>
+                          <app-editable-text
+                            headerText="Treatment Details"
+                            [bodyText]="treatment.details || ''"
+                            (bodyTextEdited)="updateTreatmentDetails(treatment, $event)">
+                          </app-editable-text>
                         </div>
                         <div *ngIf="this.doctor.role !== Role.secretary" class="col-lg-3 col-md-12">
                           <button mat-raised-button color="warn" (click)="deleteTreatment(treatment)" >Delete</button>
@@ -412,12 +522,12 @@
                             <div class="col-lg-12 col-md-12">
                               <mat-form-field class="example-full-width" appearance="fill">
                                 <mat-label>Payment Details</mat-label>
-                                <textarea matInput formControlName="details"></textarea>
+                                <textarea matInput formControlName="details" cdkTextareaAutosize cdkAutosizeMinRows="2" cdkAutosizeMaxRows="8"></textarea>
                               </mat-form-field>
                             </div>
                             <!--button-->
                             <div class="col-lg-12 col-md-12">
-                              <button mat-raised-button color="primary" (click)="addPayment()">Add Payment</button>
+                              <button [disabled]="paymentForm.invalid" type="button" mat-raised-button color="primary" (click)="addPayment()">Add Payment</button>
                             </div>
                           </div>
                         </form>
@@ -469,12 +579,12 @@
                             <div class="col-lg-12 col-md-12">
                               <mat-form-field class="example-full-width" appearance="fill">
                                 <mat-label>Treatment Details</mat-label>
-                                <textarea matInput formControlName="details"></textarea>
+                                <textarea matInput formControlName="details" cdkTextareaAutosize cdkAutosizeMinRows="2" cdkAutosizeMaxRows="8"></textarea>
                               </mat-form-field>
                             </div>
                             <!--button-->
                             <div class="col-lg-12 col-md-12">
-                              <button mat-raised-button color="primary" (click)="addTreatment()">Add Trearment</button>
+                              <button [disabled]="treatmentForm.invalid" type="button" mat-raised-button color="primary" (click)="addTreatment()">Add Trearment</button>
                             </div>
                           </div>
                         </form>

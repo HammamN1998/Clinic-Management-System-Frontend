@@ -1,5 +1,12 @@
 import * as firestore from 'firebase/firestore';
 
+export interface AppointmentDrug {
+  name: string;
+  type: string;
+  duration: string;
+  notes: string;
+}
+
 export class AppointmentModel {
   id: string = '';
   date: firestore.Timestamp = new firestore.Timestamp(0, 0);
@@ -8,6 +15,7 @@ export class AppointmentModel {
   cost: number = 0;
   costPaid: boolean = true;
   attended: boolean = false;
+  prescriptions: AppointmentDrug[] = [];
   doctorId: string = '';
   patientId: string = '';
   constructor() {}
