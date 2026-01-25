@@ -4,6 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { Patient } from '@core/models/patient.model';
+import { AppointmentModel } from '@core/models/appointment.model';
 import { DataSource } from '@angular/cdk/collections';
 import { FormDialogComponent } from './dialog/form-dialog/form-dialog.component';
 import {DeleteComponent, DialogData} from './dialog/delete/delete.component';
@@ -266,20 +267,90 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
       }
     );
   }
-  // export table data in excel file
-  exportExcel() {
-    // key name with space add in brackets
-    const exportData: Partial<TableElement>[] =
-      this.dataSource.filteredData.map((x) => ({
-        Name: x.firstName + x.lastName,
-        Gender: x.gender,
-        Address: x.address,
-        'Birth Date': formatDate(new Date(x.birthDate.toDate()), 'yyyy-MM-dd', 'en') || '',
-        'Blood Group': x.bloodGroup,
-        Mobile: x.phoneNumber,
-        Treatment: x.condition,
-      }));
-    TableExportUtil.exportToExcel(exportData, 'excel');
+  private formatTimestamp(value?: firestore.Timestamp, format = 'yyyy-MM-dd'): string {
+    if (!value || !value.toDate) {
+      return '';
+    }
+    return formatDate(value.toDate(), format, 'en');
+  }
+
+  private formatTime(value?: firestore.Timestamp): string {
+    if (!value || !value.toDate) {
+      return '';
+    }
+    return formatDate(value.toDate(), 'HH:mm', 'en');
+  }
+
+  private formatValue(value?: string | number): string {
+    if (value === null || value === undefined) {
+      return '-';
+    }
+    const text = String(value).trim();
+    return text.length ? text : '-';
+  }
+
+  private formatAppointment(appointment: AppointmentModel): string {
+    const date = this.formatTimestamp(appointment.date);
+    const time = this.formatTime(appointment.time);
+    const dateTime = [date, time].filter(Boolean).join(' ');
+    const costValue = appointment.cost ?? 0;
+    const costPaid = appointment.costPaid ? 'Paid' : 'Unpaid';
+    const attended = appointment.attended ? 'Attended' : 'Not Attended';
+    const note = this.formatValue(appointment.details);
+    return [
+      `Date: ${dateTime || '-'}`,
+      `Status: Cost ${costValue}, ${costPaid}, ${attended}`,
+      `Note: ${note}`,
+    ].join('\n');
+  }
+
+  private formatAppointments(appointments: AppointmentModel[]): string {
+    if (!appointments.length) {
+      return '';
+    }
+    return appointments
+      .map((appointment) => this.formatAppointment(appointment))
+      .join('\n-------------------\n');
+  }
+
+  private buildPatientExportRows(
+    patients: Patient[],
+    appointmentsByPatientId: Record<string, AppointmentModel[]>
+  ): Partial<TableElement>[] {
+    return patients.map((patient) => ({
+      'Full Name': this.formatValue(`${patient.firstName} ${patient.lastName}`.replace(/\s+/g, ' ').trim()),
+      Gender: this.formatValue(patient.gender),
+      'Birth Date': this.formatValue(this.formatTimestamp(patient.birthDate)),
+      'Blood Group': this.formatValue(patient.bloodGroup),
+      'Blood Pressure': this.formatValue(patient.bloodPressure),
+      'Phone Number': this.formatValue(patient.phoneNumber),
+      Email: this.formatValue(patient.email),
+      'Marital State': this.formatValue(patient.maritalState),
+      Address: this.formatValue(patient.address),
+      Treatment: this.formatValue(patient.condition),
+      'Created At': this.formatValue(this.formatTimestamp(patient.createdAt, 'yyyy-MM-dd HH:mm')),
+      Notes: this.formatValue(patient.notes),
+      Appointments: this.formatAppointments(appointmentsByPatientId[patient.id] ?? []),
+    }));
+  }
+
+  private async exportPatientsWithAppointments(
+    patients: Patient[],
+    fileName: string
+  ): Promise<void> {
+    const appointmentsByPatientId = await this.patientService.getAppointmentsByPatientIds(
+      patients.map((patient) => patient.id)
+    );
+    const exportData = this.buildPatientExportRows(patients, appointmentsByPatientId);
+    TableExportUtil.exportToExcel(exportData, fileName);
+  }
+
+  exportSelectedPatients() {
+    void this.exportPatientsWithAppointments(this.selection.selected, 'patients-selected');
+  }
+
+  exportAllPatients() {
+    void this.exportPatientsWithAppointments(this.patientService.data, 'patients-all');
   }
 
   goToProfilePage(row: Patient) {

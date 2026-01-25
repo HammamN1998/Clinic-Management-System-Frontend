@@ -206,6 +206,21 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
     .get();
   }
 
+  async getAppointmentsByPatientIds(patientIds: string[]): Promise<Record<string, AppointmentModel[]>> {
+    const uniqueIds = Array.from(new Set(patientIds.filter(Boolean)));
+    const appointmentsByPatientId: Record<string, AppointmentModel[]> = {};
+    for (const patientId of uniqueIds) {
+      const snapshot = await this.firestore
+        .collection('appointments')
+        .ref.where('patientId', '==', patientId)
+        .get();
+      appointmentsByPatientId[patientId] = snapshot.docs.map(
+        (doc) => doc.data() as AppointmentModel
+      );
+    }
+    return appointmentsByPatientId;
+  }
+
   getPatientPayments() {
     return this.firestore.collection('payments').ref
     .where('patientId', '==', this.getDialogData().id)

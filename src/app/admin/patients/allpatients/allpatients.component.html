@@ -44,11 +44,16 @@
                     </button>
                   </div>
                 </li>
-<!--                <li>-->
-<!--                  <div class="export-button m-l-10" matTooltip="XLSX">-->
-<!--                    <img src="assets/images/icons/xlsx.png" alt="" (click)="exportExcel()" />-->
-<!--                  </div>-->
-<!--                </li>-->
+                <li *ngIf="selection.hasValue()">
+                  <div class="export-button m-l-10" matTooltip="XLSX (Selected)">
+                    <img src="assets/images/icons/xlsx.png" alt="" (click)="exportSelectedPatients()" />
+                  </div>
+                </li>
+                <li>
+                  <div class="export-button m-l-10" matTooltip="XLSX (All Patients)">
+                    <img src="assets/images/icons/xlsx.png" alt="" (click)="exportAllPatients()" />
+                  </div>
+                </li>
               </ul>
             </div>
           </div>
