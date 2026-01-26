@@ -221,6 +221,36 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
     return appointmentsByPatientId;
   }
 
+  async getPaymentsByPatientIds(patientIds: string[]): Promise<Record<string, PaymentModel[]>> {
+    const uniqueIds = Array.from(new Set(patientIds.filter(Boolean)));
+    const paymentsByPatientId: Record<string, PaymentModel[]> = {};
+    for (const patientId of uniqueIds) {
+      const snapshot = await this.firestore
+        .collection('payments')
+        .ref.where('patientId', '==', patientId)
+        .get();
+      paymentsByPatientId[patientId] = snapshot.docs.map(
+        (doc) => doc.data() as PaymentModel
+      );
+    }
+    return paymentsByPatientId;
+  }
+
+  async getTreatmentsByPatientIds(patientIds: string[]): Promise<Record<string, TreatmentModel[]>> {
+    const uniqueIds = Array.from(new Set(patientIds.filter(Boolean)));
+    const treatmentsByPatientId: Record<string, TreatmentModel[]> = {};
+    for (const patientId of uniqueIds) {
+      const snapshot = await this.firestore
+        .collection('treatments')
+        .ref.where('patientId', '==', patientId)
+        .get();
+      treatmentsByPatientId[patientId] = snapshot.docs.map(
+        (doc) => doc.data() as TreatmentModel
+      );
+    }
+    return treatmentsByPatientId;
+  }
+
   getPatientPayments() {
     return this.firestore.collection('payments').ref
     .where('patientId', '==', this.getDialogData().id)

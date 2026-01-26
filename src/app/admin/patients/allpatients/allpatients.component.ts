@@ -5,6 +5,8 @@ import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { Patient } from '@core/models/patient.model';
 import { AppointmentModel } from '@core/models/appointment.model';
+import { PaymentModel } from '@core/models/payment.model';
+import { TreatmentModel } from '@core/models/treatment.model';
 import { DataSource } from '@angular/cdk/collections';
 import { FormDialogComponent } from './dialog/form-dialog/form-dialog.component';
 import {DeleteComponent, DialogData} from './dialog/delete/delete.component';
@@ -313,9 +315,53 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
       .join('\n-------------------\n');
   }
 
+  private formatPayment(payment: PaymentModel): string {
+    const date = this.formatTimestamp(payment.date);
+    const amount = payment.amount ?? 0;
+    const details = this.formatValue(payment.details);
+    return [
+      `Date: ${date || '-'}`,
+      `Amount: ${amount}`,
+      `Details: ${details}`,
+    ].join('\n');
+  }
+
+  private formatPayments(payments: PaymentModel[]): string {
+    if (!payments.length) {
+      return '';
+    }
+    return payments
+      .map((payment) => this.formatPayment(payment))
+      .join('\n-------------------\n');
+  }
+
+  private formatTreatment(treatment: TreatmentModel): string {
+    const date = this.formatTimestamp(treatment.date);
+    const price = treatment.price ?? 0;
+    const discount = treatment.discount ?? 0;
+    const details = this.formatValue(treatment.details);
+    return [
+      `Date: ${date || '-'}`,
+      `Price: ${price}`,
+      `Discount: ${discount}`,
+      `Details: ${details}`,
+    ].join('\n');
+  }
+
+  private formatTreatments(treatments: TreatmentModel[]): string {
+    if (!treatments.length) {
+      return '';
+    }
+    return treatments
+      .map((treatment) => this.formatTreatment(treatment))
+      .join('\n-------------------\n');
+  }
+
   private buildPatientExportRows(
     patients: Patient[],
-    appointmentsByPatientId: Record<string, AppointmentModel[]>
+    appointmentsByPatientId: Record<string, AppointmentModel[]>,
+    paymentsByPatientId: Record<string, PaymentModel[]>,
+    treatmentsByPatientId: Record<string, TreatmentModel[]>
   ): Partial<TableElement>[] {
     return patients.map((patient) => ({
       'Full Name': this.formatValue(`${patient.firstName} ${patient.lastName}`.replace(/\s+/g, ' ').trim()),
@@ -331,6 +377,8 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
       'Created At': this.formatValue(this.formatTimestamp(patient.createdAt, 'yyyy-MM-dd HH:mm')),
       Notes: this.formatValue(patient.notes),
       Appointments: this.formatAppointments(appointmentsByPatientId[patient.id] ?? []),
+      Payments: this.formatPayments(paymentsByPatientId[patient.id] ?? []),
+      Treatments: this.formatTreatments(treatmentsByPatientId[patient.id] ?? []),
     }));
   }
 
@@ -338,10 +386,18 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
     patients: Patient[],
     fileName: string
   ): Promise<void> {
-    const appointmentsByPatientId = await this.patientService.getAppointmentsByPatientIds(
-      patients.map((patient) => patient.id)
+    const patientIds = patients.map((patient) => patient.id);
+    const [appointmentsByPatientId, paymentsByPatientId, treatmentsByPatientId] = await Promise.all([
+      this.patientService.getAppointmentsByPatientIds(patientIds),
+      this.patientService.getPaymentsByPatientIds(patientIds),
+      this.patientService.getTreatmentsByPatientIds(patientIds),
+    ]);
+    const exportData = this.buildPatientExportRows(
+      patients,
+      appointmentsByPatientId,
+      paymentsByPatientId,
+      treatmentsByPatientId
     );
-    const exportData = this.buildPatientExportRows(patients, appointmentsByPatientId);
     TableExportUtil.exportToExcel(exportData, fileName);
   }
 
