@@ -1,0 +1,26 @@
+.dashboard-filters {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.filter-button.active {
+  background-color: #e9ecef;
+}
+
+.link-button {
+  padding: 0;
+  min-width: 0;
+  text-transform: none;
+}
+
+.empty-cell {
+  text-align: center;
+}
+
+.loading-text {
+  padding: 12px 0;
+  color: #6c757d;
+}

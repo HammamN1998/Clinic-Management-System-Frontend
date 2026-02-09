@@ -12,6 +12,16 @@ const routes: Routes = [
     path: "main",
     component: MainComponent,
   },
+  {
+    path: "treatments",
+    loadComponent: () =>
+      import("./treatments/treatments.component").then((m) => m.TreatmentsComponent),
+  },
+  {
+    path: "earnings",
+    loadComponent: () =>
+      import("./earnings/earnings.component").then((m) => m.EarningsComponent),
+  },
   { path: "**", component: Page404Component },
 ];
 @NgModule({

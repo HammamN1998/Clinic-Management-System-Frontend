@@ -19,6 +19,10 @@ export class DoctorService {
     return this.firebaseAuthenticationService.currentUserValue;
   }
 
+  private getDoctorId() {
+    return this.doctor.role === Role.secretary ? this.doctor.secretaryDoctorId : this.doctor.id;
+  }
+
   editDoctor (data: {[p:string]: string}) {
     return this.firestore.collection('doctors').doc(this.doctor.id).update(data);
   }
@@ -70,7 +74,7 @@ export class DoctorService {
     const now = new Date();
     const startOfMonth = firestore.Timestamp.fromDate( new Date(now.getFullYear(), now.getMonth(), 1));
     const endOfMonth = firestore.Timestamp.fromDate(new Date(now.getFullYear(), now.getMonth() + 1, 0));
-    const doctorId =  this.doctor.role === Role.secretary? this.doctor.secretaryDoctorId: this.doctor.id
+    const doctorId =  this.getDoctorId();
     return this.firestore.collection('appointments').ref
     .where('doctorId', '==', doctorId)
     .where('date', '>=', startOfMonth)
@@ -113,6 +117,50 @@ export class DoctorService {
       .where('date', '<', endOfMonth)
       .orderBy('date', 'asc')
       .get()
+  }
+
+  getAppointmentsByRange(start: Date, end: Date) {
+    const startTimestamp = firestore.Timestamp.fromDate(start);
+    const endTimestamp = firestore.Timestamp.fromDate(end);
+    return this.firestore.collection('appointments').ref
+      .where('doctorId', '==', this.getDoctorId())
+      .where('date', '>=', startTimestamp)
+      .where('date', '<', endTimestamp)
+      .orderBy('date', 'asc')
+      .get();
+  }
+
+  getTreatmentsByRange(start: Date, end: Date) {
+    const startTimestamp = firestore.Timestamp.fromDate(start);
+    const endTimestamp = firestore.Timestamp.fromDate(end);
+    return this.firestore.collection('treatments').ref
+      .where('doctorId', '==', this.getDoctorId())
+      .where('date', '>=', startTimestamp)
+      .where('date', '<', endTimestamp)
+      .orderBy('date', 'asc')
+      .get();
+  }
+
+  getNewPatientsByRange(start: Date, end: Date) {
+    const startTimestamp = firestore.Timestamp.fromDate(start);
+    const endTimestamp = firestore.Timestamp.fromDate(end);
+    return this.firestore.collection('patients').ref
+      .where('doctorId', '==', this.getDoctorId())
+      .where('createdAt', '>=', startTimestamp)
+      .where('createdAt', '<', endTimestamp)
+      .orderBy('createdAt', 'asc')
+      .get();
+  }
+
+  getPaymentsByRange(start: Date, end: Date) {
+    const startTimestamp = firestore.Timestamp.fromDate(start);
+    const endTimestamp = firestore.Timestamp.fromDate(end);
+    return this.firestore.collection('payments').ref
+      .where('doctorId', '==', this.getDoctorId())
+      .where('date', '>=', startTimestamp)
+      .where('date', '<', endTimestamp)
+      .orderBy('date', 'asc')
+      .get();
   }
 
 }

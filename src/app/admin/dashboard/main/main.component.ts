@@ -1,4 +1,6 @@
 import {Component, OnInit} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {RouterModule} from '@angular/router';
 import {
   ApexAxisChartSeries,
   ApexChart,
@@ -47,6 +49,11 @@ interface chartCategoryData {
   category: string,
   data: number
 }
+type RangePreset = 'today' | 'week' | 'month' | 'year';
+interface RangeOption {
+  id: RangePreset;
+  label: string;
+}
 
 @Component({
   selector: 'app-main',
@@ -54,6 +61,8 @@ interface chartCategoryData {
   styleUrls: ['./main.component.scss'],
   standalone: true,
   imports: [
+    CommonModule,
+    RouterModule,
     BreadcrumbComponent,
     NgApexchartsModule,
     MatButtonModule,
@@ -64,6 +73,13 @@ interface chartCategoryData {
 })
 
 export class MainComponent implements OnInit {
+  rangeOptions: RangeOption[] = [
+    {id: 'today', label: 'Today'},
+    {id: 'week', label: 'Week'},
+    {id: 'month', label: 'Month'},
+    {id: 'year', label: 'Year'},
+  ];
+  selectedRange: RangePreset = 'month';
 
   // Appointments chart properties
   public appointmentsChartOptions!: Partial<ChartOptions>;
@@ -92,18 +108,76 @@ export class MainComponent implements OnInit {
 
   }
   ngOnInit() {
+    this.initializeCharts();
+    this.loadDashboardData();
+  }
+
+  setRange(preset: RangePreset) {
+    if (this.selectedRange === preset) {
+      return;
+    }
+    this.selectedRange = preset;
+    this.loadDashboardData();
+  }
+
+  private loadDashboardData() {
+    if (this.firebaseAuthenticationService.currentUserValue.role === Role.secretary) {
+      return;
+    }
+    const {start, end} = this.getRangeDates(this.selectedRange);
+    this.resetDashboardData();
+    setTimeout(() => {
+      this.getAppointmentsData(start, end);
+      this.getTreatmentsData(start, end);
+      this.getNewPatientsData(start, end);
+      this.getEarningData(start, end);
+    }, 200);
+  }
+
+  private initializeCharts() {
     this.appointmentsChart();
     this.treatmentsChart();
     this.newPatientsChart();
     this.earningChart();
-    if (this.firebaseAuthenticationService.currentUserValue.role !== Role.secretary) {
-      setTimeout(() => {
-        this.getAppointmentsData();
-        this.getTreatmentsData();
-        this.getNewPatientsData();
-        this.getEarningData();
-      }, 200);
+  }
+
+  private resetDashboardData() {
+    this.appointmentsChartData = [];
+    this.treatmentsChartData = [];
+    this.newPatientsChartData = [];
+    this.earningChartData = [];
+    this.numberOfAppointments = 0;
+    this.numberOfTreatments = 0;
+    this.numberOfNewPatients = 0;
+    this.numberOfEarning = 0;
+    this.initializeCharts();
+  }
+
+  private getRangeDates(preset: RangePreset): {start: Date; end: Date} {
+    const now = new Date();
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    if (preset === 'today') {
+      const end = new Date(startOfToday);
+      end.setDate(end.getDate() + 1);
+      return {start: startOfToday, end};
     }
+    if (preset === 'week') {
+      const day = startOfToday.getDay();
+      const diff = day === 0 ? -6 : 1 - day;
+      const start = new Date(startOfToday);
+      start.setDate(start.getDate() + diff);
+      const end = new Date(start);
+      end.setDate(start.getDate() + 7);
+      return {start, end};
+    }
+    if (preset === 'year') {
+      const start = new Date(now.getFullYear(), 0, 1);
+      const end = new Date(now.getFullYear() + 1, 0, 1);
+      return {start, end};
+    }
+    const start = new Date(now.getFullYear(), now.getMonth(), 1);
+    const end = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+    return {start, end};
   }
 
   private appointmentsChart() {
@@ -298,8 +372,8 @@ export class MainComponent implements OnInit {
     };
   }
 
-  private  getAppointmentsData() {
-    from(this.doctorService.getCurrentMonthAppointments())
+  private  getAppointmentsData(start: Date, end: Date) {
+    from(this.doctorService.getAppointmentsByRange(start, end))
     .subscribe({
       next: (appointments) => {
         this.numberOfAppointments = appointments.docs.length;
@@ -324,8 +398,8 @@ export class MainComponent implements OnInit {
     })
   }
 
-  private getTreatmentsData() {
-    from(this.doctorService.getCurrentMonthTreatments())
+  private getTreatmentsData(start: Date, end: Date) {
+    from(this.doctorService.getTreatmentsByRange(start, end))
       .subscribe({
         next: (treatments) => {
           this.numberOfTreatments = treatments.docs.length;
@@ -348,8 +422,8 @@ export class MainComponent implements OnInit {
       })
   }
 
-  private getNewPatientsData() {
-    from(this.doctorService.getCurrentMonthNewPatients())
+  private getNewPatientsData(start: Date, end: Date) {
+    from(this.doctorService.getNewPatientsByRange(start, end))
       .subscribe({
         next: (patients) => {
           this.numberOfNewPatients = patients.docs.length;
@@ -372,9 +446,9 @@ export class MainComponent implements OnInit {
       })
   }
 
-  private getEarningData() {
+  private getEarningData(start: Date, end: Date) {
     // Get paid appointments
-    from(this.doctorService.getCurrentMonthAppointments())
+    from(this.doctorService.getAppointmentsByRange(start, end))
     .subscribe({
       next: (appointments) => {
         appointments.docs.forEach((appointment) => {
@@ -392,7 +466,7 @@ export class MainComponent implements OnInit {
           }
         });
         // Get payments
-        from(this.doctorService.getCurrentMonthPayments())
+        from(this.doctorService.getPaymentsByRange(start, end))
           .subscribe({
             next: (payments) => {
               payments.docs.forEach((payment) => {
