@@ -12,7 +12,7 @@ import {
   FirebaseAuthenticationService,
   InConfiguration,
   LanguageService,
-  RightSidebarService,
+  RightSidebarService, Role,
 } from '@core';
 import { UnsubscribeOnDestroyAdapter } from '@shared';
 import { FeatherIconsComponent } from '@shared/components/feather-icons/feather-icons.component';
@@ -208,7 +208,11 @@ export class HeaderComponent
   }
 
   checkIfSecretaryConnected() {
-    this.isSecretaryConnected = this.firebaseAuthenticationService.currentUserValue.secretaryDoctorId !== ''
+    if (this.firebaseAuthenticationService.currentUserValue.role == Role.doctor) {
+      this.isSecretaryConnected = true;
+    } else {
+      this.isSecretaryConnected = this.firebaseAuthenticationService.currentUserValue.secretaryDoctorId !== ''
+    }
   }
 
   sendEmailVerificationCode() {

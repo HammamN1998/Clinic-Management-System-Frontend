@@ -187,7 +187,7 @@
                         </mat-panel-title>
                         <mat-panel-description>
                           <mat-icon class="example-tab-icon msr-2">access_time</mat-icon>
-                          {{appointment.time.toDate().toLocaleTimeString()}}
+                          {{appointment.time.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}}
                         </mat-panel-description>
                       </mat-expansion-panel-header>
                       <div class="row">
