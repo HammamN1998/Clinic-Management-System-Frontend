@@ -244,13 +244,14 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
   }
 
   private createAppointmentForm(): UntypedFormGroup {
+    const now = new Date();
     return this.formBuilder.group({
-      date: ['', [Validators.required]],
-      time: ['', [Validators.required]],
+      date: [now, [Validators.required]],
+      time: [now, [Validators.required]],
       details: [''],
       cost: [0, [Validators.min(0), Validators.max(1000)]],
       costPaid: [true],
-      attended: [false],
+      attended: [true],
       drugs: this.formBuilder.array([])
     })
   }
@@ -277,18 +278,20 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
   }
 
   private createPaymentForm(): UntypedFormGroup {
+    const now = new Date();
     return this.formBuilder.group({
       amount: ['', [Validators.min(0), Validators.max(100000), Validators.required]],
-      date: ['', [Validators.required]],
+      date: [now, [Validators.required]],
       details: [''],
     })
   }
 
   private createTreatmentForm(): UntypedFormGroup {
+    const now = new Date();
     return this.formBuilder.group({
       price: ['', [Validators.min(0), Validators.max(100000), Validators.required]],
       discount: [0, [Validators.min(0), Validators.max(100000)]],
-      date: ['', [Validators.required]],
+      date: [now, [Validators.required]],
       details: [''],
     })
   }
@@ -445,6 +448,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
         treatments: this.patientTreatments,
         payments: this.patientPayments,
         appointments: this.patientAppointments,
+        patientName: `${this.patient.firstName} ${this.patient.lastName}`.trim(),
       },
     });
   }

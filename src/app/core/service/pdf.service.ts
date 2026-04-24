@@ -1,118 +1,274 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import {from} from "rxjs";
-import html2canvas from "html2canvas";
-import JsPdf from "jspdf";
 import * as pdfMake from 'pdfmake/build/pdfmake';
-import { TDocumentDefinitions } from 'pdfmake/interfaces';
-import {PaymentModel} from "@core/models/payment.model";
-import {AppointmentModel} from "@core/models/appointment.model";
-import {TreatmentModel} from "@core/models/treatment.model";
+import * as pdfFonts from 'pdfmake/build/vfs_fonts';
+import {
+  Content,
+  TDocumentDefinitions,
+  TFontDictionary,
+} from 'pdfmake/interfaces';
+import { firstValueFrom } from 'rxjs';
+import { AppointmentModel } from '@core/models/appointment.model';
+import { PaymentModel } from '@core/models/payment.model';
+import { TreatmentModel } from '@core/models/treatment.model';
+import { pdfTextCell } from '@core/util/pdf-arabic.util';
+import {
+  BalanceLedgerLine,
+  buildBalanceLedger,
+} from '@core/util/balance-ledger.util';
 
-export interface InvoiceItem {
-  number: string;
-  treatment: string;
-  discount: string;
-  payment: string;
-  details: string;
-  date: string;
-  total: string;
+export interface PatientBalancePdfInput {
+  treatments: TreatmentModel[];
+  payments: PaymentModel[];
+  appointments: AppointmentModel[];
+  patientName?: string;
 }
 
-interface Invoice {
-  id: string;                 // e.g., INV-2025-000123
-  patientName: string;
-  patientId?: string;
-  doctorName?: string;
-  date: string;               // ISO or formatted
-  currency: 'USD' | 'ILS' | 'EUR';
-  items: InvoiceItem[];
-  clinic: { name: string; address: string; phone?: string; logoDataUrl?: string };
+const ARABIC_FONT_FILE = 'NotoNaskhArabic-Regular.ttf';
+const ARABIC_FONT_URL = `assets/fonts/noto-naskh-arabic/${ARABIC_FONT_FILE}`;
+
+const ROBOTO_FONTS: TFontDictionary = {
+  Roboto: {
+    normal: 'Roboto-Regular.ttf',
+    bold: 'Roboto-Medium.ttf',
+    italics: 'Roboto-Italic.ttf',
+    bolditalics: 'Roboto-MediumItalic.ttf',
+  },
+};
+
+type PdfMakeInstance = typeof pdfMake & {
+  vfs: Record<string, string>;
+  fonts?: TFontDictionary;
+  addFonts?: (fonts: TFontDictionary) => void;
+  createPdf: (
+    doc: TDocumentDefinitions,
+  ) => { download: (fileName?: string) => void };
+};
+
+function arrayBufferToBase64(buffer: ArrayBuffer): string {
+  const bytes = new Uint8Array(buffer);
+  let binary = '';
+  for (let i = 0; i < bytes.byteLength; i++) {
+    binary += String.fromCharCode(bytes[i]!);
+  }
+  return btoa(binary);
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class PdfService {
+  private pdfMakeReady: Promise<void> | null = null;
+  /** Roboto + Arabic; passed into createPdf so bold/italic Roboto variants always resolve. */
+  private pdfFontDictionary: TFontDictionary | null = null;
+  private pdfVfs: Record<string, string> | null = null;
 
-  constructor() { }
+  constructor(private readonly http: HttpClient) {}
 
-  // TODO: This method mechanism is not convenient for long table because its convert the component to an image then insert it inside th PDF, if the image is huge, only part of it will be shown as the whole generated PDF is one page.
-  generatePatientBalanceInvoice() {
-    const componentElement = document.getElementById('balance-table');
-
-    from(html2canvas(componentElement!))
-    .subscribe((canvas) => {
-      const imgWidth = 208;
-      const imgHeight = canvas.height * imgWidth / canvas.width;
-      const contentDataURL = canvas.toDataURL('image/png')
-      const pdf = new JsPdf('p', 'mm', 'a4');
-      const position = 0;
-      pdf.addImage(contentDataURL, 'PNG', 0, position, imgWidth, imgHeight)
-      pdf.save('skill-set.pdf');
-    });
+  async downloadPdf(
+    definition: TDocumentDefinitions,
+    fileName: string,
+  ): Promise<void> {
+    await this.ensurePdfMakeReady();
+    const name = fileName.toLowerCase().endsWith('.pdf')
+      ? fileName
+      : `${fileName}.pdf`;
+    const maker = pdfMake as PdfMakeInstance;
+    const fonts = this.pdfFontDictionary ?? ROBOTO_FONTS;
+    const vfs = this.pdfVfs ?? (pdfFonts as unknown as Record<string, string>);
+    maker.createPdf(definition, undefined, fonts, vfs).download(name);
   }
 
-  generatePatientPDFInvoice(payments: PaymentModel[], appointments: AppointmentModel[], treatments: TreatmentModel[]) {
-    // Build table body
-    const invItems = [];
-    payments.forEach(payment => {
-      invItems.push([
-        { text: '#', style: 'th' },
-        { text: '-', style: 'th', alignment: 'center' },
-        { text: '-', style: 'th', alignment: 'center' },
-        { text: payment.amount.toString(), style: 'th', alignment: 'center' },
-        { text: payment.details, style: 'th', alignment: 'center' },
-        { text: payment.date, style: 'th', alignment: 'center' },
-        { text: payment.amount.toString(), style: 'th', alignment: 'center' },
-      ])
+  async downloadPatientBalancePdf(
+    input: PatientBalancePdfInput,
+  ): Promise<void> {
+    const { combinedList, totalBalance } = buildBalanceLedger(
+      input.treatments,
+      input.payments,
+      input.appointments,
+    );
+    const doc = this.buildPatientBalanceDocument(
+      combinedList,
+      totalBalance,
+      input.patientName,
+    );
+    const stamp = new Date().toISOString().slice(0, 10);
+    const suffix = input.patientName
+      ? `-${this.safeFileSegment(input.patientName)}`
+      : '';
+    await this.downloadPdf(doc, `balance-summary${suffix}-${stamp}`);
+  }
+
+  private ensurePdfMakeReady(): Promise<void> {
+    if (!this.pdfMakeReady) {
+      this.pdfMakeReady = this.initializePdfMake();
+    }
+    return this.pdfMakeReady;
+  }
+
+  private async initializePdfMake(): Promise<void> {
+    const maker = pdfMake as PdfMakeInstance;
+    const baseVfs: Record<string, string> = {
+      ...(pdfFonts as unknown as Record<string, string>),
+    };
+
+    const fontBuffer = await firstValueFrom(
+      this.http.get(ARABIC_FONT_URL, { responseType: 'arraybuffer' }),
+    );
+    baseVfs[ARABIC_FONT_FILE] = arrayBufferToBase64(fontBuffer);
+
+    this.pdfVfs = baseVfs;
+    maker.vfs = baseVfs;
+
+    const arabicFaces = {
+      normal: ARABIC_FONT_FILE,
+      bold: ARABIC_FONT_FILE,
+      italics: ARABIC_FONT_FILE,
+      bolditalics: ARABIC_FONT_FILE,
+    };
+    const mergedFonts: TFontDictionary = {
+      ...ROBOTO_FONTS,
+      Arabic: arabicFaces,
+    };
+    this.pdfFontDictionary = mergedFonts;
+    maker.fonts = mergedFonts;
+    if (typeof maker.addFonts === 'function') {
+      maker.addFonts(mergedFonts);
+    }
+  }
+
+  private safeFileSegment(name: string): string {
+    const s = name.replace(/[^\w\-]+/g, '_').replace(/_+/g, '_').trim();
+    return s.slice(0, 48) || 'patient';
+  }
+
+  private buildPatientBalanceDocument(
+    lines: BalanceLedgerLine[],
+    totalBalance: number,
+    patientName?: string,
+  ): TDocumentDefinitions {
+    const generated = new Date().toLocaleString('en-US', {
+      dateStyle: 'medium',
+      timeStyle: 'short',
     });
 
-    appointments.forEach(appointment => {
-      if(!appointment.costPaid) {
-        invItems.push([
-          { text: '#', style: 'th' },
-          { text: appointment.cost.toString(), style: 'th', alignment: 'center' },
-          { text: '-', style: 'th', alignment: 'center' },
-          { text: '-', style: 'th', alignment: 'center' },
-          { text: appointment.details, style: 'th', alignment: 'center' },
-          { text: appointment.date, style: 'th', alignment: 'center' },
-          { text: appointment.cost.toString(), style: 'th', alignment: 'center' },
-        ])
-      }
-    });
+    const headerStack: Content[] = [
+      { text: 'Patient balance summary', style: 'title' },
+      { text: `Generated: ${generated}`, style: 'subtle' },
+    ];
+    if (patientName?.trim()) {
+      headerStack.push(pdfTextCell(patientName.trim(), 'h2'));
+    }
 
-    treatments.forEach((treatment) => {
-      invItems.push([
-        { text: '#', style: 'th' },
-        { text: treatment.price.toString(), style: 'th', alignment: 'center' },
-        { text: treatment.discount.toString(), style: 'th', alignment: 'center' },
-        { text: '-', style: 'th', alignment: 'center' },
-        { text: treatment.details, style: 'th', alignment: 'center' },
-        { text: treatment.date, style: 'th', alignment: 'center' },
-        { text: (treatment.price-treatment.discount).toString(), style: 'th', alignment: 'center' },
-      ])
-    });
-
-    const tableBody: any[] = [
-      // First Row (header)
-      [
-        { text: '#', style: 'th' },
-        { text: 'Treatment', style: 'th', alignment: 'center' },
-        { text: 'Discount', style: 'th', alignment: 'center' },
-        { text: 'Payment', style: 'th', alignment: 'center' },
-        { text: 'Description', style: 'th', alignment: 'center' },
-        { text: 'Date', style: 'th', alignment: 'center' },
-        { text: 'Total', style: 'th', alignment: 'center' },
-      ]
+    const headerRow = [
+      { text: '#', style: 'tableHeader' },
+      { text: 'Treatment / charge', style: 'tableHeader' },
+      { text: 'Discount', style: 'tableHeader' },
+      { text: 'Payment', style: 'tableHeader' },
+      { text: 'Details', style: 'tableHeader' },
+      { text: 'Date', style: 'tableHeader' },
+      { text: 'Line total', style: 'tableHeader' },
     ];
 
+    const body: Content[][] = [
+      headerRow,
+      ...lines.map((line, i) => this.ledgerLineToRow(line, i)),
+      this.totalRow(totalBalance),
+    ];
 
-
+    return {
+      pageSize: 'A4',
+      pageMargins: [40, 48, 40, 48],
+      content: [
+        { stack: headerStack, margin: [0, 0, 0, 16] },
+        {
+          table: {
+            headerRows: 1,
+            widths: [26, 62, 52, 52, '*', 72, 62],
+            body,
+          },
+          layout: {
+            fillColor: (rowIndex: number) =>
+              rowIndex === 0 ? '#eeeeee' : null,
+            hLineWidth: () => 0.5,
+            vLineWidth: () => 0.5,
+            hLineColor: () => '#cccccc',
+            vLineColor: () => '#cccccc',
+          },
+        },
+      ],
+      defaultStyle: {
+        font: 'Roboto',
+        fontSize: 9,
+      },
+      styles: {
+        title: { fontSize: 16, bold: true },
+        h2: { fontSize: 11, bold: true, margin: [0, 6, 0, 0] },
+        subtle: { fontSize: 9, color: '#555555' },
+        tableHeader: { bold: true, fontSize: 9 },
+        totalLabel: { bold: true },
+        totalValue: { bold: true },
+      },
+    };
   }
 
-  money(n: number, currency: Invoice['currency']) {
-    const map = { USD: '$', ILS: '₪', EUR: '€' } as const;
-    return `${map[currency]} ${n.toFixed(2)}`;
+  private ledgerLineToRow(line: BalanceLedgerLine, index: number): Content[] {
+    const dateStr = line.date.toDate().toLocaleDateString('en-US');
+    const details = line.details ?? '';
+    const n = index + 1;
+
+    if ('price' in line) {
+      const t = line as TreatmentModel;
+      const net = t.price - t.discount;
+      return [
+        String(n),
+        `+${t.price} NIS`,
+        t.discount ? `-${t.discount} NIS` : '-',
+        '-',
+        pdfTextCell(details),
+        dateStr,
+        `+${net} NIS`,
+      ];
+    }
+
+    if ('costPaid' in line) {
+      const a = line as AppointmentModel;
+      return [
+        String(n),
+        `+${a.cost} NIS`,
+        '-',
+        '-',
+        pdfTextCell(details),
+        dateStr,
+        `+${a.cost} NIS`,
+      ];
+    }
+
+    const p = line as PaymentModel;
+    return [
+      String(n),
+      '-',
+      '-',
+      `-${p.amount} NIS`,
+      pdfTextCell(details),
+      dateStr,
+      `-${p.amount} NIS`,
+    ];
   }
 
+  private totalRow(totalBalance: number): Content[] {
+    const value =
+      totalBalance >= 0
+        ? `+${totalBalance} NIS`
+        : `${totalBalance} NIS`;
+    return [
+      { text: '', style: 'totalLabel' },
+      { text: '', style: 'totalLabel' },
+      { text: '', style: 'totalLabel' },
+      { text: '', style: 'totalLabel' },
+      { text: '', style: 'totalLabel' },
+      { text: 'Balance due', style: 'totalLabel', alignment: 'right' },
+      { text: value, style: 'totalValue', alignment: 'right' },
+    ];
+  }
 }
