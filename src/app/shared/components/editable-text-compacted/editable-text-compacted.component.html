@@ -1,0 +1,29 @@
+<div class="editable-text-compacted project_widget">
+  <div class="editable-text-compacted__stack">
+    <div class="header header--stacked editable-text-compacted__header">
+      <h4 class="mb-0"><strong>{{ headerText }}</strong></h4>
+    </div>
+    <div
+      #bodyTxtElement
+      class="editable-text-compacted__content"
+      [class.editable-text-compacted__content--editing]="isEditing"
+      [class.editable-text-compacted__content--idle]="!isEditing"
+      (click)="onBodyClick()">
+    </div>
+  </div>
+  <div *ngIf="isEditing" class="actions" (click)="$event.stopPropagation()">
+    <button
+      type="button"
+      mat-raised-button
+      color="primary"
+      (click)="onSave($event)">
+      Save
+    </button>
+    <button
+      type="button"
+      mat-stroked-button
+      (click)="onCancel($event)">
+      Cancel
+    </button>
+  </div>
+</div>

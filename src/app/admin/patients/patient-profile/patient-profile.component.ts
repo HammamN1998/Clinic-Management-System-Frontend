@@ -28,6 +28,7 @@ import {isNullOrUndefined} from "@swimlane/ngx-datatable";
 import {FileUploadComponent} from "@shared/components/file-upload/file-upload.component";
 import {FullScreenImageComponent} from "@shared/components/full-screen-image/full-screen-image.component";
 import {EditableTextComponent} from "@shared/components/editable-text/editable-text.component";
+import {EditableTextCompactedComponent} from "@shared/components/editable-text-compacted/editable-text-compacted.component";
 import {Attachment} from "@core/models/patient.model";
 import {FirebaseStorageService} from "@core/service/firebase-storage.service";
 import {FirebaseAuthenticationService} from "../../../authentication/services/firebase-authentication.service";
@@ -38,7 +39,7 @@ import {Role, User} from "@core";
   templateUrl: './patient-profile.component.html',
   styleUrls: ['./patient-profile.component.scss'],
   standalone: true,
-  imports: [BreadcrumbComponent, MatButtonModule, MatCheckboxModule, MatFormFieldModule, MatIconModule, MatInputModule, MatTabsModule, MatDatepickerModule, OwlDateTimeModule, OwlNativeDateTimeModule, ReactiveFormsModule, SharedModule, AdultTeethDiagramComponent, FileUploadComponent, FullScreenImageComponent, EditableTextComponent,],
+  imports: [BreadcrumbComponent, MatButtonModule, MatCheckboxModule, MatFormFieldModule, MatIconModule, MatInputModule, MatTabsModule, MatDatepickerModule, OwlDateTimeModule, OwlNativeDateTimeModule, ReactiveFormsModule, SharedModule, AdultTeethDiagramComponent, FileUploadComponent, FullScreenImageComponent, EditableTextComponent, EditableTextCompactedComponent,],
 })
 export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
 

@@ -1,0 +1,73 @@
+// BEM for content area — global `.label` is a white badge; `.body` matches `.card .body` padding.
+
+:host {
+  display: block;
+  width: 100%;
+  color: inherit;
+}
+
+.editable-text-compacted {
+  width: 100%;
+  color: inherit;
+}
+
+.editable-text-compacted__stack {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.125rem;
+  width: 100%;
+  min-width: 0;
+}
+
+// `.header` picks up `.card .header` theme colors; `header--stacked` keeps a tight two-line layout (title row, body row).
+:host .editable-text-compacted {
+  .header.header--stacked.editable-text-compacted__header {
+    width: 100%;
+    min-width: 0;
+    min-height: 0;
+    padding: 0;
+    margin: 0;
+    line-height: 1.25;
+    display: block;
+  }
+
+  .header h4 {
+    color: inherit;
+  }
+}
+
+.editable-text-compacted__content {
+  width: 100%;
+  min-width: 0;
+  white-space: pre-line;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  padding: 0.25rem 0.35rem;
+  box-sizing: border-box;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+  outline: none;
+  color: inherit;
+}
+
+.editable-text-compacted__content--idle {
+  cursor: pointer;
+}
+
+.editable-text-compacted__content--idle:hover {
+  background-color: color-mix(in srgb, currentColor 6%, transparent);
+}
+
+.editable-text-compacted__content--editing {
+  cursor: text;
+  border: 2px solid var(--mat-sys-primary, #3f51b5);
+  font-weight: 500;
+  background-color: color-mix(in srgb, currentColor 4%, transparent);
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
