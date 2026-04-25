@@ -127,6 +127,10 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
     newAppointment.cost = this.appointmentForm.get('cost')?.value;
     newAppointment.costPaid = this.appointmentForm.get('costPaid')?.value;
     newAppointment.prescriptions = this.appointmentDrugs.value;
+    newAppointment.subjective = this.appointmentForm.get('subjective')?.value ?? '';
+    newAppointment.objective = this.appointmentForm.get('objective')?.value ?? '';
+    newAppointment.assessment = this.appointmentForm.get('assessment')?.value ?? '';
+    newAppointment.plan = this.appointmentForm.get('plan')?.value ?? '';
 
     from(this.patientService.addPatientAppointment(newAppointment))
     .subscribe({
@@ -138,7 +142,11 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
           details: '',
           cost: 0,
           costPaid: true,
-          attended: false
+          attended: false,
+          subjective: '',
+          objective: '',
+          assessment: '',
+          plan: '',
         });
         this.appointmentDrugs.clear();
         // show success  message
@@ -249,6 +257,10 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
       date: [now, [Validators.required]],
       time: [now, [Validators.required]],
       details: [''],
+      subjective: [''],
+      objective: [''],
+      assessment: [''],
+      plan: [''],
       cost: [0, [Validators.min(0), Validators.max(1000)]],
       costPaid: [true],
       attended: [true],
@@ -319,6 +331,28 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
       error: (error) => {
         console.log('error: ' + JSON.stringify(error));
       }
+    });
+  }
+
+  patchAppointmentSoap(
+    appointment: AppointmentModel,
+    patch: Partial<
+      Pick<AppointmentModel, 'subjective' | 'objective' | 'assessment' | 'plan'>
+    >
+  ) {
+    Object.assign(appointment, patch);
+    this.patientService.updateAppointmentSoap(appointment.id, patch).subscribe({
+      next: () => {
+        this.notificationService.showSnackBarNotification(
+          'black',
+          'Update clinical notes successfully...!!!',
+          'bottom',
+          'center'
+        );
+      },
+      error: (error) => {
+        console.log('error: ' + JSON.stringify(error));
+      },
     });
   }
 

@@ -289,6 +289,17 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
     );
   }
 
+  updateAppointmentSoap(
+    appointmentId: string,
+    patch: Partial<
+      Pick<AppointmentModel, 'subjective' | 'objective' | 'assessment' | 'plan'>
+    >
+  ) {
+    return from(
+      this.firestore.collection('appointments').doc(appointmentId).update(patch)
+    );
+  }
+
   updatePaymentDetails(payment: PaymentModel) {
     return from(
       this.firestore.collection('payments')

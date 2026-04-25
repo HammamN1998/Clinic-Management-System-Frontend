@@ -16,6 +16,10 @@ export class AppointmentModel {
   costPaid: boolean = true;
   attended: boolean = false;
   prescriptions: AppointmentDrug[] = [];
+  subjective: string = '';
+  objective: string = '';
+  assessment: string = '';
+  plan: string = '';
   doctorId: string = '';
   patientId: string = '';
   constructor() {}
