@@ -64,6 +64,9 @@ $color_green: #40c952;
     text-transform: uppercase;
     padding-top: 15px;
   }
+  .price{
+    color: #ff9624;
+  }
   &.blue {
     .price-value {
       color: $color_blue;
@@ -79,6 +82,15 @@ $color_green: #40c952;
       &:hover {
         box-shadow: 0 0 10px $color_blue;
       }
+    }
+    .pricingTable-signup button {
+      background-color: $color_blue;
+      &:hover {
+        box-shadow: 0 0 10px $color_blue;
+      }
+    }
+    .price{
+      color: $color_blue;
     }
   }
   &.red {
@@ -96,6 +108,15 @@ $color_green: #40c952;
       &:hover {
         box-shadow: 0 0 10px $color_red;
       }
+    }
+    .pricingTable-signup button {
+      background-color: $color_red;
+      &:hover {
+        box-shadow: 0 0 10px $color_red;
+      }
+    }
+    .price{
+      color: $color_red;
     }
   }
   &.greenColor {
@@ -116,6 +137,15 @@ $color_green: #40c952;
         box-shadow: 0 0 10px $color_green;
       }
     }
+    .pricingTable-signup button {
+      background-color: $color_green;
+      &:hover {
+        box-shadow: 0 0 10px $color_green;
+      }
+    }
+    .price{
+      color: $color_green;
+    }
   }
   &.blueColor {
     &:hover {
@@ -135,6 +165,15 @@ $color_green: #40c952;
     .pricingTable-signup a {
       background: $color_blue;
     }
+    .pricingTable-signup button {
+      background-color: $color_blue;
+      &:hover {
+        box-shadow: 0 0 10px $color_blue;
+      }
+    }
+    .price{
+      color: $color_blue;
+    }
   }
   &.redColor {
     &:hover {
@@ -153,6 +192,15 @@ $color_green: #40c952;
     }
     .pricingTable-signup a {
       background: $color_red;
+    }
+    .pricingTable-signup button {
+      background-color: $color_red;
+      &:hover {
+        box-shadow: 0 0 10px $color_red;
+      }
+    }
+    .price{
+      color: $color_red;
     }
   }
   .pricing-content ul {

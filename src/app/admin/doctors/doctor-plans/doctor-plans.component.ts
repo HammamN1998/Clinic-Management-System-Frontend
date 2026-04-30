@@ -4,9 +4,10 @@ import {MatButtonModule} from "@angular/material/button";
 import {MatIconModule} from "@angular/material/icon";
 import {MatTabsModule} from "@angular/material/tabs";
 import {SharedModule} from "@shared";
-import {PaymentService, PaymentType} from "@core/service/payment.service";
+import {PaymentService} from "@core/service/payment.service";
 import {Router} from "@angular/router";
 import {NotificationService} from "@core/service/notification.service";
+import { PAYMENT_PLANS } from '@core/util/payment-plans';
 
 @Component({
   selector: 'app-doctor-plans',
@@ -34,32 +35,26 @@ export class DoctorPlansComponent {
 
   }
 
-  public get selectedPlane() {
-    return this.paymentService.selectedPlane
-  }
-  public set selectedPlane(plane: PaymentType) {
-    this.paymentService.selectedPlane = plane
+  readonly PAYMENT_PLANS = PAYMENT_PLANS;
+
+  renewablePrices(plan: any) {
+    return plan.prices.filter((price: any) => price.type === 'renewable');
   }
 
-  protected readonly PaymentType = PaymentType;
+  nonRenewablePrices(plan: any) {
+    return plan.prices.filter((price: any) => price.type === 'non-renewable');
+  }
 
-  pay() {
-    this.loading = true
-    this.paymentService.initializePayment(this.selectedPlane).subscribe((result)=>{
-      const status = result['status'];
-      if (!status) {
-        this.notificationService.showSnackBarNotification(
-          'snackbar-danger',
-          `error: ${result['message']}`,
-          'bottom',
-          'center'
-        );
-        this.loading = false
-        return
-      }
-      this.loading = false
-      window.open(result['data']['authorization_url'], '_blank');
-    })
+  //  array of selected prices
+  selectedPrices: any[] = [
+    PAYMENT_PLANS[0].prices[0], // For basic plan
+    PAYMENT_PLANS[1].prices[0], // For pro plan
+  ];
+
+  pay(plane: any, price: any) {
+    // TODO: Implement payment logic
+    console.log('plane:', plane)
+    console.log('price:', price)
   }
 
 }

@@ -16,53 +16,48 @@
             <div class="demo">
               <div class="container">
                 <div class="row">
-                  <!--Basic Plane-->
-                  <div class="col-md-6 col-lg-4">
-                    <div class="pricingTable">
+                  <div *ngFor="let plan of PAYMENT_PLANS; let i = index"class="col-md-6 col-lg-5 col-xl-4">
+                    <div class="pricingTable" [ngClass]="i === 0 ? 'greenColor' : 'redColor'">
                       <div class="pricingTable-header">
                         <i class="material-icons">brightness_medium</i>
-                        <div class="price-value"> ${{selectedPlane}}
-                          <span *ngIf="selectedPlane=== PaymentType.MonthToMonth || selectedPlane === PaymentType.AnnualMonthly" class="month">per month</span>
-                          <span *ngIf="selectedPlane=== PaymentType.AnnualUpfront" class="month">per year</span>
+                        <div class="price-value"> ${{selectedPrices[i].price}}
+                          <span class="month">{{selectedPrices[i].duration}}</span>
                         </div>
                       </div>
-                      <h3 class="heading">Basic</h3>
+                      <h3 class="heading">{{plan.name}}</h3>
                       <div class="pricing-content">
                         <ul>
                           <li>
-                            Up to <b>1000</b> patient
+                            <span style="white-space: pre-line;">{{plan.description}}</span>
                           </li>
                         </ul>
                       </div>
                       <div class="body">
-                        <mat-tab-group dynamicHeight >
-                          <!--Annual-->
+                        <mat-tab-group dynamicHeight>
+                          <!--Renewable Plans-->
                           <mat-tab>
                             <ng-template mat-tab-label >
-                              Annual
+                              Renewable
                             </ng-template>
                             <ng-container>
                               <div class="body">
-                                <mat-radio-group class="example-radio-group" [(ngModel)]="selectedPlane">
-                                  <mat-radio-button [value]="PaymentType.AnnualUpfront">
-                                    Annual, pay upfront <b style="color: #ff9624;">(Save up to ${{PaymentType.AnnualMonthly*12 - PaymentType.AnnualUpfront}})</b>
-                                  </mat-radio-button>
-                                  <mat-radio-button [value]="PaymentType.AnnualMonthly">
-                                    Annual, pay monthly
+                                <mat-radio-group class="example-radio-group" [(ngModel)]="selectedPrices[i]">
+                                  <mat-radio-button *ngFor="let price of renewablePrices(plan)" [value]="price">
+                                    <b class="price">${{price.price}}</b> {{price.duration}}
                                   </mat-radio-button>
                                 </mat-radio-group>
                               </div>
                             </ng-container>
                           </mat-tab>
-                          <!--Month-to-month-->
+                          <!--Non-renewable Plans-->
                           <mat-tab>
                             <ng-template mat-tab-label>
-                              Month-to-month
+                              Non-renewable
                             </ng-template>
                             <ng-container >
-                              <mat-radio-group class="example-radio-group" [(ngModel)]="selectedPlane">
-                                <mat-radio-button [value]="PaymentType.MonthToMonth">
-                                  Monthly, no contract
+                              <mat-radio-group class="example-radio-group" [(ngModel)]="selectedPrices[i]">
+                                <mat-radio-button *ngFor="let price of nonRenewablePrices(plan)" [value]="price">
+                                  <b class="price">${{price.price}}</b> {{price.duration}}
                                 </mat-radio-button>
                               </mat-radio-group>
                             </ng-container>
@@ -71,14 +66,13 @@
                       </div>
                       <div class="pricingTable-signup">
                         <div style="text-align:center">
-                          <button (click)="pay()" mat-raised-button [class.auth-spinner]="loading" [disabled]="loading">
+                          <button (click)="pay(plan, selectedPrices[i])" mat-raised-button [class.auth-spinner]="loading" [disabled]="loading">
                             Buy Now
                           </button>
                         </div>
                       </div>
                     </div>
                   </div>
-                  <!--Business Plane-->
                 </div>
               </div>
             </div>
