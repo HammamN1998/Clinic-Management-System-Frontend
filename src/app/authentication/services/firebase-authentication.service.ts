@@ -1,10 +1,10 @@
 import {Injectable} from '@angular/core';
-import {BehaviorSubject, from, Observable, of} from "rxjs";
+import {BehaviorSubject, firstValueFrom, from, map, Observable, of, throwError} from "rxjs";
 import {Role, User} from "@core";
-import {map} from "rxjs/operators";
 import {AngularFireAuth} from "@angular/fire/compat/auth";
 import firebase from "firebase/compat";
 import {AngularFirestore} from "@angular/fire/compat/firestore";
+import {AngularFireFunctions} from "@angular/fire/compat/functions";
 import {Router} from "@angular/router";
 import {NotificationService} from "@core/service/notification.service";
 
@@ -22,6 +22,7 @@ export class FirebaseAuthenticationService {
     private firestore: AngularFirestore,
     private router: Router,
     private notificationService: NotificationService,
+    private functions: AngularFireFunctions,
   ) {
 
     this.currentUserSubject = new BehaviorSubject<User>(
@@ -40,29 +41,61 @@ export class FirebaseAuthenticationService {
       return from ( this.auth.signInWithEmailAndPassword( userName, password ) )
   }
 
-  signup (email: string, password: string, name: string, role: Role) {
-    return from (
-      this.auth.createUserWithEmailAndPassword(email, password)
-    ).pipe(
-      map((userCredential) => {
-          if (userCredential != null) {
-            userCredential.user!.updateProfile({ displayName: name});
-            // Save user role to firestore
-            this.firestore.collection('doctors').doc(userCredential.user!.uid).set({
-              id: userCredential.user!.uid,
-              role: role,
-              name: name,
-              email: email,
-              secretaryDoctorId: '',
-            });
-            this.sendEmailVerificationCode()
-          } else {
-              console.log('userCredential is null of undefined!!')
-          }
-          return;
-      })
-    );
+  private getOrCreateCustomerForDoctor(doctorId: string): Observable<{ message: string }> {
+    if (typeof doctorId !== 'string' || !doctorId.trim()) {
+      return throwError(() => new Error('Invalid doctor id.'));
+    }
+    const callable = this.functions.httpsCallable<{ doctorId: string }, { message: string }>('getOrCreateCustomer');
+    return callable({ doctorId: doctorId.trim() });
   }
+
+  async signup(email: string, password: string, name: string, role: Role): Promise<void> {
+    const userCredential = await this.auth.createUserWithEmailAndPassword(email, password);
+    if (userCredential?.user == null) {
+      console.log('userCredential is null of undefined!!');
+      return;
+    }
+    const user = userCredential.user;
+    user.updateProfile({ displayName: name });
+    const uid = user.uid;
+    await this.firestore.collection('doctors').doc(uid).set({
+      id: uid,
+      role: role,
+      name: name,
+      email: email,
+      secretaryDoctorId: '',
+    });
+    try {
+      await firstValueFrom(this.getOrCreateCustomerForDoctor(uid));
+    } catch (err) {
+      console.error('getOrCreateCustomer failed', err);
+    }
+    await this.sendEmailVerificationCode();
+  }
+
+  // signup (email: string, password: string, name: string, role: Role) {
+  //   return from (
+  //     this.auth.createUserWithEmailAndPassword(email, password)
+  //   ).pipe(
+  //     map((userCredential) => {
+  //         if (userCredential != null) {
+  //           userCredential.user!.updateProfile({ displayName: name});
+  //           // Save user role to firestore
+  //           this.firestore.collection('doctors').doc(userCredential.user!.uid).set({
+  //             id: userCredential.user!.uid,
+  //             role: role,
+  //             name: name,
+  //             email: email,
+  //             secretaryDoctorId: '',
+  //           });
+  //           this.sendEmailVerificationCode()
+  //         } else {
+  //             console.log('userCredential is null of undefined!!')
+  //         }
+  //         return;
+  //     })
+  //   );
+  // }
 
   logout() {
     this.auth.signOut();
@@ -135,7 +168,7 @@ export class FirebaseAuthenticationService {
           this.currentUserSubject.next(localUser);
           localStorage.setItem('currentUser', JSON.stringify(localUser));
           // Redirect the user to dashboard page
-          if (this.router.url === '/authentication/signin') {
+          if (this.router.url === '/authentication/signup' || this.router.url === '/authentication/signin') {
             this.router.navigate(['/admin/dashboard/main']);
           }
           console.log('user logged in', JSON.stringify(localUser))

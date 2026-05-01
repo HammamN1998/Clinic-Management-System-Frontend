@@ -11,6 +11,17 @@
             <h2>
               <strong>Plans</strong> available
             </h2>
+            <div class="header-dropdown">
+              <button type="button"
+                      mat-raised-button
+                      color="primary"
+                      (click)="openBillingPortal()"
+                      [class.auth-spinner]="billingPortalLoading"
+                      [disabled]="billingPortalLoading">
+                <i class="material-icons align-middle m-r-5" aria-hidden="true">open_in_new</i>
+                Open billing portal
+              </button>
+            </div>
           </div>
           <div class="body">
             <div class="demo">

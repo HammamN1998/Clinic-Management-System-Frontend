@@ -17,6 +17,7 @@ import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { AngularFireModule } from "@angular/fire/compat";
 import { AngularFireAuthModule } from "@angular/fire/compat/auth";
 import { AngularFirestoreModule } from '@angular/fire/compat/firestore';
+import { AngularFireFunctionsModule, REGION } from '@angular/fire/compat/functions';
 
 import {
     HttpClientModule,
@@ -59,9 +60,11 @@ export function createTranslateLoader(http: HttpClient) {
         AngularFireModule.initializeApp(environment.firebase),
         AngularFireAuthModule,
         AngularFirestoreModule ,
+        AngularFireFunctionsModule,
     ],
     providers: [
         { provide: LocationStrategy, useClass: HashLocationStrategy },
+        { provide: REGION, useValue: 'europe-west1' },
     ],
     bootstrap: [AppComponent],
 })

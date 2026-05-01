@@ -58,25 +58,25 @@ export class SignupComponent implements OnInit {
   get f() {
     return this.authForm.controls;
   }
-  onSubmit() {
+  async onSubmit() {
     this.submitted = true;
     this.loading = true;
-    // stop here if form is invalid
     if (this.authForm.invalid) {
+      this.loading = false;
       return;
-    } else {
-        this.firebaseAuthenticationService
-        .signup(this.f['email'].value, this.f['password'].value, this.f['username'].value, this.f['role'].value)
-        .subscribe( {
-          next: () => {
-            this.loading = false;
-            this.router.navigate(['authentication/signin']).then(() => {});
-          },
-          error: (error) => {
-            this.loading = false;
-              console.log('login failed: '+ JSON.stringify(error));
-          }
-        });
+    }
+    try {
+      await this.firebaseAuthenticationService.signup(
+        this.f['email'].value,
+        this.f['password'].value,
+        this.f['username'].value,
+        this.f['role'].value,
+      );
+      // await this.router.navigate(['authentication/signin']);
+    } catch (error) {
+      console.log('signup failed: ' + JSON.stringify(error));
+    } finally {
+      this.loading = false;
     }
   }
 

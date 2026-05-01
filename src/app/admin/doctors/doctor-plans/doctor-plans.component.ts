@@ -5,9 +5,9 @@ import {MatIconModule} from "@angular/material/icon";
 import {MatTabsModule} from "@angular/material/tabs";
 import {SharedModule} from "@shared";
 import {PaymentService} from "@core/service/payment.service";
-import {Router} from "@angular/router";
 import {NotificationService} from "@core/service/notification.service";
 import { PAYMENT_PLANS } from '@core/util/payment-plans';
+import {finalize} from "rxjs/operators";
 
 @Component({
   selector: 'app-doctor-plans',
@@ -26,10 +26,10 @@ import { PAYMENT_PLANS } from '@core/util/payment-plans';
 export class DoctorPlansComponent {
 
   loading = false;
+  billingPortalLoading = false;
 
   constructor(
     private paymentService: PaymentService,
-    private router: Router,
     private notificationService: NotificationService,
   ) {
 
@@ -51,10 +51,46 @@ export class DoctorPlansComponent {
     PAYMENT_PLANS[1].prices[0], // For pro plan
   ];
 
-  pay(plane: any, price: any) {
-    // TODO: Implement payment logic
-    console.log('plane:', plane)
-    console.log('price:', price)
+  pay(_plan: any, price: any) {
+    this.loading = true;
+    this.paymentService.createCheckoutSession(price.priceId).pipe(
+      finalize(() => { this.loading = false; }),
+    ).subscribe({
+      next: (res) => {
+        if (res?.url) {
+          window.open(res.url, '_blank', 'noopener,noreferrer');
+        }
+      },
+      error: (err: { message?: string }) => {
+        this.notificationService.showSnackBarNotification(
+          'snackbar-danger',
+          err?.message ?? 'Unable to start checkout.',
+          'bottom',
+          'center',
+        );
+      },
+    });
+  }
+
+  openBillingPortal() {
+    this.billingPortalLoading = true;
+    this.paymentService.createBillingPortalSession().pipe(
+      finalize(() => { this.billingPortalLoading = false; }),
+    ).subscribe({
+      next: (res) => {
+        if (res?.url) {
+          window.open(res.url, '_blank', 'noopener,noreferrer');
+        }
+      },
+      error: (err: { message?: string }) => {
+        this.notificationService.showSnackBarNotification(
+          'snackbar-danger',
+          err?.message ?? 'Unable to open billing portal.',
+          'bottom',
+          'center',
+        );
+      },
+    });
   }
 
 }
