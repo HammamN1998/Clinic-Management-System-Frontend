@@ -39,4 +39,27 @@ export class NotificationService {
       timer: autoDisappear ? 1500 : undefined,
     });
   }
+
+  showSwalDialogWithFunction(
+    title: string, 
+    text: string, 
+    icon: SweetAlertIcon = 'warning', 
+    showCancelButton: boolean = true, 
+    confirmButtonText: string,
+    onConfirm: () => void
+  ) {
+    Swal.fire({
+      title: title,
+      text: text,
+      icon: icon,
+      showCancelButton: showCancelButton,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: confirmButtonText,
+    }).then((result) => {
+      if (result.isConfirmed) {
+        onConfirm();
+      }
+    });
+  }
 }

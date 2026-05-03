@@ -72,7 +72,6 @@ export class SignupComponent implements OnInit {
         this.f['username'].value,
         this.f['role'].value,
       );
-      // await this.router.navigate(['authentication/signin']);
     } catch (error) {
       console.log('signup failed: ' + JSON.stringify(error));
     } finally {

@@ -12,4 +12,10 @@ export class User {
   role!: Role;
   secretaryDoctorId: string = '';
   img: string = '';
+  plan: string = '';
+  status: string = '';
+  maxPatientsLimit: number = 0;
+  maxStorageLimitBytes: number = 0;
+  patientsCount: number = 0;
+  storageBytesUsed: number = 0;
 }

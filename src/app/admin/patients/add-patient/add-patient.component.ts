@@ -13,6 +13,8 @@ import {Patient} from "@core/models/patient.model";
 import {NgIf} from "@angular/common";
 import {NotificationService} from "@core/service/notification.service";
 import * as firestore from 'firebase/firestore';
+import { User } from '@core/models/user';
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-add-patient',
@@ -39,8 +41,13 @@ export class AddPatientComponent {
     private fb: UntypedFormBuilder,
     private patientService: PatientService,
     private notificationService: NotificationService,
+    private router: Router,
   ) {
     this.patientForm = this.createContactForm();
+  }
+
+  get doctor(): User {
+    return this.patientService.doctor;
   }
 
   createContactForm(): UntypedFormGroup {
@@ -66,6 +73,19 @@ export class AddPatientComponent {
   }
 
   onSubmit() {
+    if (this.doctor.patientsCount >= this.doctor.maxPatientsLimit) {
+      this.notificationService.showSwalDialogWithFunction(
+        'Upgrade your plan to add more patients',
+        `You have reached the maximum number of patients for your plan (${this.doctor.maxPatientsLimit} patients). \nYou can upgrade your plan to add more patients.`,
+        'error',
+        true,
+        'Go to plan page',
+        () => {
+          this.router.navigate(['/admin/doctors/doctor-plans']);
+        }
+      );
+      return;
+    }
     const newPatient: Patient = new Patient();
     newPatient.firstName = this.patientForm.value.firstName.toString();
     newPatient.lastName = this.patientForm.value.lastName.toString();

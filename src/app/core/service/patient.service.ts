@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {BehaviorSubject, from} from 'rxjs';
-import {Patient, SpecialDiagrams} from '@core/models/patient.model';
+import {Attachment, Patient, SpecialDiagrams} from '@core/models/patient.model';
 import {UnsubscribeOnDestroyAdapter} from '@shared';
 import {FirebaseAuthenticationService} from "../../authentication/services/firebase-authentication.service";
 import {AngularFirestore} from "@angular/fire/compat/firestore";
@@ -60,46 +60,31 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
     );
 
   }
-  addPatient(patient: Patient) {
-    patient.doctorId  = this.doctor.role === Role.doctor? this.doctor.id: this.doctor.secretaryDoctorId;
+  async addPatient(patient: Patient): Promise<void> {
+    patient.doctorId = this.doctor.role === Role.doctor ? this.doctor.id : this.doctor.secretaryDoctorId;
     patient.createdAt = firestore.Timestamp.now();
     this.dialogData = patient;
 
     // Add the patient to the local storage
     this.dataChange.value.unshift(patient);
 
-    // Add the patient and patient ID to the Firestore, and patient ID to local storage
-    from (this.firestore.collection('patients').add({...patient}))
-      .subscribe( {
-        next: (result) => {
-          // Update patient.id on Firestore
-          from (this.firestore.collection('patients').doc(result.id).ref.update({id: result.id}))
-            .subscribe( {
-              next: () => {
-                // Update patient.id on local storage
-                patient.id = result.id;
-                this.dialogData = patient;
-                const foundIndex = this.dataChange.value.findIndex(
-                  (x) => x.id === patient.id
-                );
-                if (foundIndex != null) {
-                  this.dataChange.value[foundIndex].id = result.id;
-                } else {
-                  console.log('Error: Patient doesn\'t exist!!');
-                }
-              },
-              error: (error) => {
-                console.log('error: ' + JSON.stringify(error))
-              }
-            }
-          );
-          console.log('patient ID: ' + JSON.stringify(result.id));
-        },
-        error: (error) => {
-          console.log('error: ' + JSON.stringify(error))
-        }
+    try {
+      const result = await this.firestore.collection('patients').add({...patient});
+      await this.firestore.collection('patients').doc(result.id).ref.update({id: result.id});
+      patient.id = result.id;
+      this.dialogData = patient;
+      const foundIndex = this.dataChange.value.findIndex((x) => x.id === patient.id);
+      if (foundIndex != null) {
+        this.dataChange.value[foundIndex].id = result.id;
+      } else {
+        console.log('Error: Patient doesn\'t exist!!');
       }
-    );
+      this.doctor.patientsCount++;
+      await this.firestore.collection('doctors').doc(this.doctor.id).ref.update({patientsCount: firestore.increment(1)});
+      console.log('patient ID: ' + JSON.stringify(result.id));
+    } catch (error) {
+      console.log('error: ' + JSON.stringify(error));
+    }
   }
   updatePatient(patient: Patient): void {
     patient.id = this.getDialogData().id;
@@ -126,12 +111,31 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
     );
 
   }
+
+  updateStorageBytesUsed(size: number, increase: boolean = true) {
+    increase ? this.doctor.storageBytesUsed += size : this.doctor.storageBytesUsed -= size;
+    from(this.firestore.collection('doctors').doc(this.doctor.id).ref.update({storageBytesUsed: increase ? firestore.increment(size) : firestore.increment(-size)}))
+      .subscribe({
+        error: (error) => {
+          console.log('error: ' + JSON.stringify(error))
+        }
+      }
+    );
+  }
+  
   deletePatient(patientId: string): void {
 
     // Delete patient from local storage
     const foundIndex = this.dataChange.value.findIndex(
       (x) => x.id === patientId
     );
+    const foundPatient = this.dataChange.value[foundIndex];
+    // loop throgh attachments and save the sum of their sizes
+    let totalSize = 0;
+    foundPatient.attachments.forEach(attachment => {
+      totalSize += attachment.size;
+    });
+    // Delete patient from local storage
     if (foundIndex != null) {
       this.dataChange.value.splice(foundIndex, 1);
     } else {
@@ -141,6 +145,11 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
     // Delete patient from Firestore
     from(this.firestore.collection('patients').doc(patientId).delete())
       .subscribe({
+        next: (result) => {
+          this.doctor.patientsCount--;
+          this.doctor.storageBytesUsed -= totalSize;
+          this.firestore.collection('doctors').doc(this.doctor.id).ref.update({patientsCount: firestore.increment(-1), storageBytesUsed: firestore.increment(-totalSize)});
+        },
         error: (error) => {
           console.log('Error: ' + JSON.stringify(error))
         }

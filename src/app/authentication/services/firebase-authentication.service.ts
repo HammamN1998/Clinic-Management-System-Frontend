@@ -26,7 +26,7 @@ export class FirebaseAuthenticationService {
   ) {
 
     this.currentUserSubject = new BehaviorSubject<User>(
-        JSON.parse(localStorage.getItem('currentUser') || '{}')
+      JSON.parse(localStorage.getItem('currentUser') || '{}')
     );
     this.currentUser = this.currentUserSubject.asObservable();
 
@@ -34,11 +34,11 @@ export class FirebaseAuthenticationService {
   }
 
   public get currentUserValue(): User {
-      return this.currentUserSubject.value;
+    return this.currentUserSubject.value;
   }
 
   login(userName: string, password: string) {
-      return from ( this.auth.signInWithEmailAndPassword( userName, password ) )
+    return from ( this.auth.signInWithEmailAndPassword( userName, password ) )
   }
 
   private getOrCreateCustomerForDoctor(doctorId: string): Observable<{ message: string }> {
@@ -50,52 +50,41 @@ export class FirebaseAuthenticationService {
   }
 
   async signup(email: string, password: string, name: string, role: Role): Promise<void> {
-    const userCredential = await this.auth.createUserWithEmailAndPassword(email, password);
-    if (userCredential?.user == null) {
-      console.log('userCredential is null of undefined!!');
-      return;
-    }
-    const user = userCredential.user;
-    user.updateProfile({ displayName: name });
-    const uid = user.uid;
-    await this.firestore.collection('doctors').doc(uid).set({
-      id: uid,
-      role: role,
-      name: name,
-      email: email,
-      secretaryDoctorId: '',
-    });
     try {
-      await firstValueFrom(this.getOrCreateCustomerForDoctor(uid));
+      const userCredential = await this.auth.createUserWithEmailAndPassword(email, password);
+      if (userCredential?.user == null) {
+        console.log('userCredential is null of undefined!!');
+        return;
+      }
+      const user = userCredential.user;
+      user.updateProfile({ displayName: name });
+      const uid = user.uid;
+      await this.firestore.collection('doctors').doc(uid).set({
+        id: uid,
+        role: role,
+        name: name,
+        email: email,
+        secretaryDoctorId: '',
+      });
+      let localUser = new User();
+      localUser.id = uid;
+      localUser.role = role;
+      localUser.name = name;
+      localUser.email = email;
+      localUser.plan = 'free';
+      localUser.status = 'active';
+      localUser.maxPatientsLimit = 2000;
+      localUser.maxStorageLimitBytes = 200 * 1024 * 1024; // 200MB
+      localUser.patientsCount = 0;
+      localUser.storageBytesUsed = 0;
+      this.currentUserSubject.next(localUser);
+      this.router.navigate(['/admin/dashboard/main']);
+      firstValueFrom(this.getOrCreateCustomerForDoctor(uid));
+      this.sendEmailVerificationCode(); 
     } catch (err) {
-      console.error('getOrCreateCustomer failed', err);
+      console.error('signup failed', err);
     }
-    await this.sendEmailVerificationCode();
   }
-
-  // signup (email: string, password: string, name: string, role: Role) {
-  //   return from (
-  //     this.auth.createUserWithEmailAndPassword(email, password)
-  //   ).pipe(
-  //     map((userCredential) => {
-  //         if (userCredential != null) {
-  //           userCredential.user!.updateProfile({ displayName: name});
-  //           // Save user role to firestore
-  //           this.firestore.collection('doctors').doc(userCredential.user!.uid).set({
-  //             id: userCredential.user!.uid,
-  //             role: role,
-  //             name: name,
-  //             email: email,
-  //             secretaryDoctorId: '',
-  //           });
-  //           this.sendEmailVerificationCode()
-  //         } else {
-  //             console.log('userCredential is null of undefined!!')
-  //         }
-  //         return;
-  //     })
-  //   );
-  // }
 
   logout() {
     this.auth.signOut();
@@ -115,6 +104,12 @@ export class FirebaseAuthenticationService {
       experience: '',
       address: '',
       phoneNumber: '',
+      plan: '',
+      status: '',
+      maxPatientsLimit: 0,
+      maxStorageLimitBytes: 0,
+      patientsCount: 0,
+      storageBytesUsed: 0,
     }
   }
 
@@ -156,22 +151,30 @@ export class FirebaseAuthenticationService {
         // store user details local storage to keep user logged in between page refreshes
         this.firestore.collection('doctors').doc(fireAuthUser.uid).get()
         .subscribe((firebaseUser) => {
-          const firestoreUser: User = firebaseUser.data() as User;
-          const localUser: User = this.fireAuthUserToUser(fireAuthUser);
-          localUser.role = firestoreUser.role;
-          localUser.phoneNumber = firestoreUser.phoneNumber;
-          localUser.address = firestoreUser.address;
-          localUser.education = firestoreUser.education;
-          localUser.about = firestoreUser.about;
-          localUser.experience = firestoreUser.experience;
-          localUser.secretaryDoctorId = firestoreUser.secretaryDoctorId;
-          this.currentUserSubject.next(localUser);
-          localStorage.setItem('currentUser', JSON.stringify(localUser));
-          // Redirect the user to dashboard page
-          if (this.router.url === '/authentication/signup' || this.router.url === '/authentication/signin') {
-            this.router.navigate(['/admin/dashboard/main']);
+          if (firebaseUser.exists) {
+            const firestoreUser: User = firebaseUser.data() as User;
+            const localUser: User = this.fireAuthUserToUser(fireAuthUser);
+            localUser.role = firestoreUser.role;
+            localUser.phoneNumber = firestoreUser.phoneNumber;
+            localUser.address = firestoreUser.address;
+            localUser.education = firestoreUser.education;
+            localUser.about = firestoreUser.about;
+            localUser.experience = firestoreUser.experience;
+            localUser.secretaryDoctorId = firestoreUser.secretaryDoctorId;
+            localUser.plan = firestoreUser.plan;
+            localUser.status = firestoreUser.status;
+            localUser.maxPatientsLimit = firestoreUser.maxPatientsLimit;
+            localUser.maxStorageLimitBytes = firestoreUser.maxStorageLimitBytes;
+            localUser.patientsCount = firestoreUser.patientsCount;
+            localUser.storageBytesUsed = firestoreUser.storageBytesUsed;
+            this.currentUserSubject.next(localUser);
+            localStorage.setItem('currentUser', JSON.stringify(localUser));
+            // Redirect the user to dashboard page
+            if (this.router.url === '/authentication/signup' || this.router.url === '/authentication/signin') {
+              this.router.navigate(['/admin/dashboard/main']);
+            }
+            console.log('user logged in', JSON.stringify(localUser))
           }
-          console.log('user logged in', JSON.stringify(localUser))
         })
       } else {
         // remove user from local storage to log user out

@@ -98,6 +98,19 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
     this.loadData();
   }
   addNew() {
+    if (this.doctor.patientsCount >= this.doctor.maxPatientsLimit) {
+      this.notificationService.showSwalDialogWithFunction(
+        'Upgrade your plan to add more patients',
+        `You have reached the maximum number of patients for your plan (${this.doctor.maxPatientsLimit} patients). \nYou can upgrade your plan to add more patients.`,
+        'error',
+        true,
+        'Go to plan page',
+        () => {
+          this.router.navigate(['/admin/doctors/doctor-plans']);
+        }
+      );
+      return;
+    }
     let tempDirection: Direction;
     if (localStorage.getItem('isRtl') === 'true') {
       tempDirection = 'rtl';

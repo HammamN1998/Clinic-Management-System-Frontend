@@ -36,7 +36,7 @@ export class FileUploadComponent implements ControlValueAccessor {
 
   public file: File | null = null;
   public progressPercentageField: number = 0;
-
+  public totalFileSize: number = 0; // in bytes
   constructor(
     private firebaseStorageService: FirebaseStorageService,
   ) { }
@@ -54,7 +54,8 @@ export class FileUploadComponent implements ControlValueAccessor {
               this.downloadedAttachment.emit({
                 url: url,
                 name: this.name,
-                type: this.file?.type ?? ''
+                type: this.file?.type ?? '',
+                size: this.totalFileSize ?? 0
               });
               this.file = null;
               this.name = '';
@@ -70,6 +71,7 @@ export class FileUploadComponent implements ControlValueAccessor {
         this.progressPercentageField = result!.bytesTransferred / result!.totalBytes * 100;
         this.progressPercentage.emit( result!.bytesTransferred / result!.totalBytes * 100);
         feedback = result!;
+        this.totalFileSize = result!.totalBytes;
       },
       error: (error) => {
         console.log('error: ' + error);
