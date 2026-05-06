@@ -6,7 +6,6 @@ import {MatInputModule} from "@angular/material/input";
 import {MatSelectModule} from "@angular/material/select";
 import {MatOptionModule} from "@angular/material/core";
 import {MatDatepickerModule} from "@angular/material/datepicker";
-import {FileUploadComponent} from "@shared/components/file-upload/file-upload.component";
 import {MatButtonModule} from "@angular/material/button";
 import {NgIf} from "@angular/common";
 import {PatientService} from "@core/service/patient.service";
@@ -27,7 +26,6 @@ import {SharedModule} from "@shared";
     MatSelectModule,
     MatOptionModule,
     MatDatepickerModule,
-    FileUploadComponent,
     MatButtonModule,
     NgIf,
     SharedModule,

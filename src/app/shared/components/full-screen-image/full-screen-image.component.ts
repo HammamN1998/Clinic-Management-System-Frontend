@@ -33,8 +33,12 @@ export class FullScreenImageComponent {
   ) {
   }
 
-  public get patient() {
+  get patient() {
     return this.patientService.getDialogData();
+  }
+
+  get doctor() {
+    return this.patientService.doctor;
   }
 
   openFullscreen() {
