@@ -106,6 +106,7 @@ export class FirebaseAuthenticationService {
       phoneNumber: '',
       plan: '',
       status: '',
+      imgSize: 0,
       maxPatientsLimit: 0,
       maxStorageLimitBytes: 0,
       patientsCount: 0,
@@ -163,6 +164,7 @@ export class FirebaseAuthenticationService {
             localUser.secretaryDoctorId = firestoreUser.secretaryDoctorId;
             localUser.plan = firestoreUser.plan;
             localUser.status = firestoreUser.status;
+            localUser.imgSize = firestoreUser.imgSize;
             localUser.maxPatientsLimit = firestoreUser.maxPatientsLimit;
             localUser.maxStorageLimitBytes = firestoreUser.maxStorageLimitBytes;
             localUser.patientsCount = firestoreUser.patientsCount;

@@ -36,6 +36,17 @@
             </button>
           </span>
         </li>
+        <!-- Billing Portal -->
+        <li *ngIf="this.doctor.status !== 'active'">
+          <span style="color: red">
+            Your plan is not active.
+            <button type="button" style="background: none; border: none; color: red" (click)="openBillingPortal()" [class.auth-spinner]="billingPortalLoading" [disabled]="billingPortalLoading">
+              <u>
+                Manage?
+              </u>
+            </button>
+          </span>
+        </li>
         <!-- Full Screen Button -->
         <li class="fullscreen">
           <button mat-button class="nav-notification-icons" (click)="callFullscreen()"> <i

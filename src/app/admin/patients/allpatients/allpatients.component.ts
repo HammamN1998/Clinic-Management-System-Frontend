@@ -98,10 +98,14 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
     this.loadData();
   }
   addNew() {
-    if (this.doctor.patientsCount >= this.doctor.maxPatientsLimit) {
+    if (this.doctor.patientsCount >= this.doctor.maxPatientsLimit || this.doctor.status !== 'active') {
       this.notificationService.showSwalDialogWithFunction(
-        'Upgrade your plan to add more patients',
-        `You have reached the maximum number of patients for your plan (${this.doctor.maxPatientsLimit} patients). \nYou can upgrade your plan to add more patients.`,
+        this.doctor.status !== 'active' ? 
+          'Your plan is not active.' :
+          'Upgrade your plan to add more patients',
+        this.doctor.status !== 'active' ? 
+          'Check your billing portal in plans page.' :
+          `You have reached the maximum number of patients for your plan (${this.doctor.maxPatientsLimit} patients). \nYou can upgrade your plan to add more patients.`,
         'error',
         true,
         'Go to plan page',

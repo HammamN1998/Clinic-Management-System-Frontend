@@ -7,6 +7,9 @@ import {PatientService} from "@core/service/patient.service";
 import {FirebaseStorageService} from "@core/service/firebase-storage.service";
 import {Direction} from "@angular/cdk/bidi";
 import {DeleteComponent} from "../../../admin/patients/allpatients/dialog/delete/delete.component";
+import { Attachment } from '@core/models/patient.model';
+import { NotificationService } from '@core/service/notification.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-full-screen-image',
@@ -30,6 +33,8 @@ export class FullScreenImageComponent {
     private dialog: MatDialog,
     private patientService: PatientService,
     private firebaseStorageService: FirebaseStorageService,
+    private notificationService: NotificationService,
+    private router: Router,
   ) {
   }
 
@@ -67,16 +72,45 @@ export class FullScreenImageComponent {
         if (this.patient.img !== '') this.firebaseStorageService.deleteFile(this.patient.img);
         this.patient.img = '';
         this.patientService.updatePatient(this.patient);
+        this.patientService.updateStorageBytesUsed(-this.patient.imgSize);
       }
     });
 
   }
 
-  updatePatientProfilePicture(url: string) {
-    if (this.patient.img !== '') this.firebaseStorageService.deleteFile(this.patient.img);
-    this.patient.img = url;
-    this.patientService.updatePatient(this.patient);
-    this.showUploadPictureArea = !this.showUploadPictureArea;
+  updatePatientProfilePicture(attachment: Attachment) {
+    if (this.doctor.storageBytesUsed + attachment.size > this.doctor.maxStorageLimitBytes || this.doctor.status !== 'active') {
+      this.notificationService.showSwalDialogWithFunction(
+        this.doctor.status !== 'active' ? 
+          'Your plan is not active.' :
+          'Upgrade your plan to add more storage',
+        this.doctor.status !== 'active' ? 
+          'Check your billing portal in plans page.' :
+          `You have reached the maximum storage for your plan (${this.doctor.maxStorageLimitBytes} bytes). \nYou can upgrade your plan to add more storage.`,
+        'error',
+        true,
+        'Go to plan page',
+        () => {
+          this.router.navigate(['/admin/doctors/doctor-plans']);
+        }
+      );
+      return;
+    }
+    if (this.patient.img === '') {
+      this.patient.img = attachment.url;
+      this.patient.imgSize = attachment.size;
+      this.patientService.updatePatient(this.patient);
+      this.patientService.updateStorageBytesUsed(attachment.size);
+      this.showUploadPictureArea = !this.showUploadPictureArea;
+    } else {
+      let oldImgSize = this.patient.imgSize;
+      this.firebaseStorageService.deleteFile(this.patient.img);
+      this.patient.img = attachment.url;
+      this.patient.imgSize = attachment.size;
+      this.patientService.updatePatient(this.patient);
+      this.patientService.updateStorageBytesUsed(attachment.size - oldImgSize);
+      this.showUploadPictureArea = !this.showUploadPictureArea;
+    }
   }
 
   showControl() {

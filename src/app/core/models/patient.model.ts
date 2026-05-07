@@ -23,6 +23,7 @@ export class Patient {
   bloodPressure: string = '';
   condition: string = '';
   img: string = '';
+  imgSize: number = 0;
   doctorId: string = '';
   attachments: Attachment[] = [];
   specialDiagrams: SpecialDiagrams = {

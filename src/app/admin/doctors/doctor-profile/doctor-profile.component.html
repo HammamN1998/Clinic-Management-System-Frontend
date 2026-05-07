@@ -16,10 +16,10 @@
               </div>
               <div class="card">
                 <div class="contact-grid profile-image">
-                <img class="user-img" [src]=" isNullOrUndefined(this.doctor.img) ? 'assets/images/patient/patient-default-profile.png' : this.doctor.img" (click)="this.showUploadProfilePicture = !this.showUploadProfilePicture" alt="">
+                <img class="user-img" [src]=" isNullOrUndefined(this.doctor.img) || this.doctor.img === '' ? 'assets/images/patient/patient-default-profile.png' : this.doctor.img" (click)="this.showUploadProfilePicture = !this.showUploadProfilePicture" alt="">
                 </div>
                 <div class="full-body" *ngIf="this.showUploadProfilePicture">
-                  <app-file-upload rootFolder="doctors/{{this.doctor.email}}/images" accept="image/*" (downloadUrl)="this.updateDoctorProfilePicture($event)"></app-file-upload>
+                  <app-file-upload rootFolder="doctors/{{this.doctor.email}}/images" accept="image/*" (downloadedAttachment)="this.updateDoctorProfilePicture($event)"></app-file-upload>
                 </div>
               </div>
               <p>

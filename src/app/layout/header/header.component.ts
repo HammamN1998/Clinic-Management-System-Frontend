@@ -19,6 +19,8 @@ import { FeatherIconsComponent } from '@shared/components/feather-icons/feather-
 import { NgScrollbar } from 'ngx-scrollbar';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatButtonModule } from '@angular/material/button';
+import { PaymentService } from '@core/service/payment.service';
+import { finalize } from 'rxjs/operators';
 
 interface Notifications {
   message: string;
@@ -59,7 +61,8 @@ export class HeaderComponent
   isFullScreen = false;
   isEmailVerified: boolean = false;
   isSecretaryConnected: boolean = false;
-
+  billingPortalLoading = false;
+  
   constructor(
     @Inject(DOCUMENT) private document: Document,
     private renderer: Renderer2,
@@ -69,6 +72,7 @@ export class HeaderComponent
     public firebaseAuthenticationService: FirebaseAuthenticationService,
     private router: Router,
     public languageService: LanguageService,
+    private paymentService: PaymentService,
   ) {
     super();
     this.checkIfEmailVerified()
@@ -153,6 +157,10 @@ export class HeaderComponent
     }
   }
 
+  get doctor() {
+    return this.firebaseAuthenticationService.currentUserValue;
+  }
+
   callFullscreen() {
     if (!this.isFullScreen) {
       if (this.docElement?.requestFullscreen != null) {
@@ -208,14 +216,30 @@ export class HeaderComponent
   }
 
   checkIfSecretaryConnected() {
-    if (this.firebaseAuthenticationService.currentUserValue.role == Role.doctor) {
+    if (this.doctor.role == Role.doctor) {
       this.isSecretaryConnected = true;
     } else {
-      this.isSecretaryConnected = this.firebaseAuthenticationService.currentUserValue.secretaryDoctorId !== ''
+      this.isSecretaryConnected = this.doctor.secretaryDoctorId !== ''
     }
   }
 
   sendEmailVerificationCode() {
     this.firebaseAuthenticationService.sendEmailVerificationCode();
+  }
+
+  openBillingPortal() {
+    this.billingPortalLoading = true;
+    this.paymentService.createBillingPortalSession().pipe(
+      finalize(() => { this.billingPortalLoading = false; }),
+    ).subscribe({
+      next: (res) => {
+        if (res?.url) {
+          window.open(res.url, '_blank', 'noopener,noreferrer');
+        }
+      },
+      error: (err: { message?: string }) => {
+        console.error(err);
+      },
+    });
   }
 }

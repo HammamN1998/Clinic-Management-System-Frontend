@@ -511,16 +511,20 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
         this.firebaseStorageService.deleteFile(attachment.url);
         this.patient.attachments = this.patient.attachments.filter(attach => attach !== attachment);
         this.patientService.updatePatient(this.patient);
-        this.patientService.updateStorageBytesUsed(attachment.size, false);
+        this.patientService.updateStorageBytesUsed(-attachment.size);
       }
     });
   }
 
   addAttachment(attachment: Attachment) {
-    if (this.doctor.storageBytesUsed + attachment.size > this.doctor.maxStorageLimitBytes) {
+    if (this.doctor.storageBytesUsed + attachment.size > this.doctor.maxStorageLimitBytes || this.doctor.status !== 'active') {
       this.notificationService.showSwalDialogWithFunction(
-        'Upgrade your plan to add more storage',
-        `You have reached the maximum storage for your plan (${this.doctor.maxStorageLimitBytes} bytes). \nYou can upgrade your plan to add more storage.`,
+        this.doctor.status !== 'active' ? 
+          'Your plan is not active.' :
+          'Upgrade your plan to add more storage',
+        this.doctor.status !== 'active' ? 
+          'Check your billing portal in plans page.' :
+          `You have reached the maximum storage for your plan (${this.doctor.maxStorageLimitBytes} bytes). \nYou can upgrade your plan to add more storage.`,
         'error',
         true,
         'Go to plan page',
@@ -533,7 +537,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
     if(isNullOrUndefined(this.patient.attachments)) this.patient.attachments = [];
     this.patient.attachments.push(attachment);
     this.patientService.updatePatient(this.patient);
-    this.patientService.updateStorageBytesUsed(attachment.size, true);
+    this.patientService.updateStorageBytesUsed(attachment.size);
   }
 
   updatePatientNotes() {

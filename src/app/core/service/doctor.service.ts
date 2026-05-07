@@ -23,7 +23,7 @@ export class DoctorService {
     return this.doctor.role === Role.secretary ? this.doctor.secretaryDoctorId : this.doctor.id;
   }
 
-  editDoctor (data: {[p:string]: string}) {
+  editDoctor (data: {[p:string]: string | number}) {
     return this.firestore.collection('doctors').doc(this.doctor.id).update(data);
   }
 

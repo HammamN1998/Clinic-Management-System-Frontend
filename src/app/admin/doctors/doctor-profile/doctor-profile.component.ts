@@ -19,7 +19,9 @@ import {AngularFireAuth} from "@angular/fire/compat/auth";
 import {FileUploadComponent} from "@shared/components/file-upload/file-upload.component";
 import {FirebaseStorageService} from "@core/service/firebase-storage.service";
 import {isNullOrUndefined} from "@swimlane/ngx-datatable";
-import {sendEmailVerification} from "@angular/fire/auth";
+import { Attachment } from '@core/models/patient.model';
+import { Router } from '@angular/router';
+import { PatientService } from '@core/service/patient.service';
 
 @Component({
   selector: 'app-doctor-profile',
@@ -54,6 +56,8 @@ export class DoctorProfileComponent {
     private fb: UntypedFormBuilder,
     private auth: AngularFireAuth,
     private firebaseStorageService: FirebaseStorageService,
+    private router: Router,
+    private patientService: PatientService, 
   ) {
     this.accountSettingsForm = this.createAccountSettingsForm();
     this.getDoctorSecretaries();
@@ -194,21 +198,62 @@ export class DoctorProfileComponent {
     }
   }
 
-  updateDoctorProfilePicture(url: string) {
-    if(!isNullOrUndefined(this.doctor.img)) this.firebaseStorageService.deleteFile(this.doctor.img);
-    this.doctor.img = url;
-    from (this.auth.currentUser)
-    .subscribe({
-      next: (user) => {
-        user!.updateProfile({
-          photoURL: url,
-        })
-        this.doctorService.editDoctor({img: url});
-      },
-      error: (error) => {
-        console.log('error: ' + error)
-      }
-    })
+  updateDoctorProfilePicture(attachment: Attachment) {
+    if (this.doctor.storageBytesUsed + attachment.size > this.doctor.maxStorageLimitBytes || this.doctor.status !== 'active') {
+      this.notificationService.showSwalDialogWithFunction(
+        this.doctor.status !== 'active' ? 
+          'Your plan is not active.' :
+          'Upgrade your plan to add more storage',
+        this.doctor.status !== 'active' ? 
+          'Check your billing portal in plans page.' :
+          `You have reached the maximum storage for your plan (${this.doctor.maxStorageLimitBytes} bytes). \nYou can upgrade your plan to add more storage.`,
+        'error',
+        true,
+        'Go to plan page',
+        () => {
+          this.router.navigate(['/admin/doctors/doctor-plans']);
+        }
+      );
+      return;
+    }
+    if(this.doctor.img === '') {
+      this.doctor.img = attachment.url;
+      this.doctor.imgSize = attachment.size;
+      from (this.auth.currentUser)
+      .subscribe({
+        next: (user) => {
+          user!.updateProfile({
+            photoURL: attachment.url,
+          })
+          this.doctorService.editDoctor({img: attachment.url, imgSize: attachment.size});
+          this.doctor.storageBytesUsed += attachment.size;
+          this.patientService.updateStorageBytesUsed(attachment.size);
+        },
+        error: (error) => {
+          console.log('error: ' + error)
+        }
+      })
+      this.showUploadProfilePicture = !this.showUploadProfilePicture;
+    } else {
+      let oldImgSize = this.doctor.imgSize;
+      this.firebaseStorageService.deleteFile(this.doctor.img);
+      this.doctor.img = attachment.url;
+      this.doctor.imgSize = attachment.size;
+      from (this.auth.currentUser)
+      .subscribe({
+        next: (user) => {
+          user!.updateProfile({
+            photoURL: attachment.url,
+          })
+          this.doctorService.editDoctor({img: attachment.url, imgSize: attachment.size});
+          this.doctor.storageBytesUsed += attachment.size - oldImgSize;
+          this.patientService.updateStorageBytesUsed(attachment.size - oldImgSize);
+        },
+        error: (error) => {
+          console.log('error: ' + error)
+        }
+      })
+    }
     this.showUploadProfilePicture = !this.showUploadProfilePicture;
   }
 

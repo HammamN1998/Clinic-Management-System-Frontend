@@ -112,9 +112,9 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
 
   }
 
-  updateStorageBytesUsed(size: number, increase: boolean = true) {
-    increase ? this.doctor.storageBytesUsed += size : this.doctor.storageBytesUsed -= size;
-    from(this.firestore.collection('doctors').doc(this.doctor.id).ref.update({storageBytesUsed: increase ? firestore.increment(size) : firestore.increment(-size)}))
+  updateStorageBytesUsed(size: number) {
+    this.doctor.storageBytesUsed += size;
+    from(this.firestore.collection('doctors').doc(this.doctor.id).ref.update({storageBytesUsed: firestore.increment(size)}))
       .subscribe({
         error: (error) => {
           console.log('error: ' + JSON.stringify(error))
@@ -125,7 +125,6 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
   
   deletePatient(patientId: string): void {
 
-    // Delete patient from local storage
     const foundIndex = this.dataChange.value.findIndex(
       (x) => x.id === patientId
     );

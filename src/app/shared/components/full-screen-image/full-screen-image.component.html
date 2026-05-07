@@ -1,7 +1,7 @@
 <div class="image-container">
   <img [src]="imgUrl" alt="Image description" (mouseenter)="showControl()">
   <div class="full-body" *ngIf="this.showUploadPictureArea">
-    <app-file-upload rootFolder="doctors/{{this.doctor.email}}/patients/{{this.patient.id}}/images" accept="image/*" (downloadUrl)="this.updatePatientProfilePicture($event)"></app-file-upload>
+    <app-file-upload rootFolder="doctors/{{this.doctor.email}}/patients/{{this.patient.id}}/images" accept="image/*" (downloadedAttachment)="this.updatePatientProfilePicture($event)"></app-file-upload>
   </div>
   <i class="icon-fullscreen" *ngIf="patient.img !== ''">
     <button mat-icon-button  matTooltip="Full Screeen" (click)="openFullscreen()">
