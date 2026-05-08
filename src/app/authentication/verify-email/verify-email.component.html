@@ -1,0 +1,116 @@
+<div class="auth-container">
+  <div class="row auth-main">
+    <div class="col-sm-6 px-0 d-none d-sm-block">
+      <div
+        class="left-img"
+        style="background-image: url(assets/images/login-page/signup-image-1.jpg);"
+      ></div>
+    </div>
+
+    <div class="col-sm-6 auth-form-section">
+      <div class="form-section">
+        <div class="auth-wrapper">
+          <div class="d-flex align-items-center justify-content-between gap-2">
+            <h2 class="welcome-msg mb-0">Verify your email</h2>
+            <button
+              mat-button
+              color="primary"
+              [disabled]="resendLoading"
+              (click)="resendVerificationEmail()"
+            >
+              Resend email
+            </button>
+          </div>
+
+          <p class="auth-signup-text text-muted">
+            We sent a verification link to
+            <strong>{{ email || 'your email address' }}</strong>.
+            Please open your inbox and click the link to continue.
+          </p>
+
+          <div *ngIf="info" class="alert alert-info mt-3 mb-0">{{ info }}</div>
+          <div *ngIf="error" class="alert alert-danger mt-3 mb-0">{{ error }}</div>
+
+          <div class="container-auth-form-btn mt-3">
+            <button
+              mat-raised-button
+              color="primary"
+              class="auth-form-btn"
+              [class.auth-spinner]="loading"
+              [disabled]="loading"
+              (click)="continueIfVerified()"
+            >
+              I verified, continue
+            </button>
+          </div>
+
+          <div class="mt-2">
+            <button
+              mat-button
+              color="primary"
+              class="px-0"
+              type="button"
+              (click)="toggleChangeEmailForm()"
+            >
+              {{ showChangeEmailForm ? 'Cancel email change' : 'Wrong email? Change it' }}
+            </button>
+          </div>
+
+          <div class="mt-4">
+            <div *ngIf="showChangeEmailForm">
+              <h3 class="login-title mt-3">Change email</h3>
+
+              <div class="row">
+                <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-2">
+                  <div class="form-group">
+                    <label class="text-muted">New email</label>
+                    <input
+                      class="form-control"
+                      type="email"
+                      [(ngModel)]="newEmail"
+                      name="newEmail"
+                      placeholder="name@example.com"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-2">
+                  <div class="form-group">
+                    <label class="text-muted">Current password</label>
+                    <input
+                      class="form-control"
+                      type="password"
+                      [(ngModel)]="currentPassword"
+                      name="currentPassword"
+                      placeholder="Enter your password"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div class="container-auth-form-btn mt-2">
+                <button
+                  mat-raised-button
+                  color="primary"
+                  class="auth-form-btn"
+                  [disabled]="changeEmailLoading"
+                  [class.auth-spinner]="changeEmailLoading"
+                  (click)="changeEmail()"
+                >
+                  Update email
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-4" style="text-align: center">
+            <a class="txt1" (click)="logout()">Logout</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

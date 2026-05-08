@@ -2,7 +2,8 @@ import {Injectable} from '@angular/core';
 import {BehaviorSubject, firstValueFrom, from, map, Observable, of, throwError} from "rxjs";
 import {Role, User} from "@core";
 import {AngularFireAuth} from "@angular/fire/compat/auth";
-import firebase from "firebase/compat";
+import firebase from "firebase/compat/app";
+import "firebase/compat/auth";
 import {AngularFirestore} from "@angular/fire/compat/firestore";
 import {AngularFireFunctions} from "@angular/fire/compat/functions";
 import {Router} from "@angular/router";
@@ -78,9 +79,9 @@ export class FirebaseAuthenticationService {
       localUser.patientsCount = 0;
       localUser.storageBytesUsed = 0;
       this.currentUserSubject.next(localUser);
-      this.router.navigate(['/admin/dashboard/main']);
       firstValueFrom(this.getOrCreateCustomerForDoctor(uid));
-      this.sendEmailVerificationCode(); 
+      await this.sendEmailVerificationCode();
+      this.router.navigate(['/authentication/verify-email']);
     } catch (err) {
       console.error('signup failed', err);
     }
@@ -171,9 +172,17 @@ export class FirebaseAuthenticationService {
             localUser.storageBytesUsed = firestoreUser.storageBytesUsed;
             this.currentUserSubject.next(localUser);
             localStorage.setItem('currentUser', JSON.stringify(localUser));
-            // Redirect the user to dashboard page
-            if (this.router.url === '/authentication/signup' || this.router.url === '/authentication/signin') {
-              this.router.navigate(['/admin/dashboard/main']);
+            const isOnAuthPages =
+              this.router.url === '/authentication/signup' ||
+              this.router.url === '/authentication/signin' ||
+              this.router.url === '/authentication/verify-email';
+
+            if (isOnAuthPages) {
+              if (fireAuthUser.emailVerified) {
+                this.router.navigate(['/admin/dashboard/main']);
+              } else {
+                this.router.navigate(['/authentication/verify-email']);
+              }
             }
             console.log('user logged in', JSON.stringify(localUser))
           }

@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
-import {Router, ActivatedRouteSnapshot, RouterStateSnapshot, CanActivate} from '@angular/router';
-import {FirebaseAuthenticationService} from "../../authentication/services/firebase-authentication.service";
-import {AngularFireAuth} from "@angular/fire/compat/auth";
-import {map} from "rxjs/operators";
+import { ActivatedRouteSnapshot, Router, RouterStateSnapshot } from '@angular/router';
+import { AngularFireAuth } from '@angular/fire/compat/auth';
+import { map } from 'rxjs/operators';
 
 
 
@@ -19,12 +18,17 @@ export class AuthGuard {
   canActivate( route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
     return this.auth.authState.pipe(
       map(user => {
-        if (user) {
-          return true;
-        } else {
+        if (!user) {
           this.router.navigate(['/authentication/signin']);
           return false;
         }
+
+        if (!user.emailVerified) {
+          this.router.navigate(['/authentication/verify-email']);
+          return false;
+        }
+
+        return true;
       })
     );
   }
