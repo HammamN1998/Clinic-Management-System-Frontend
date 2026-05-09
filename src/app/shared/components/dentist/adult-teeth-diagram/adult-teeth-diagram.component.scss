@@ -5,13 +5,17 @@ path {
 
 /* Highlight hovered tooth */
 path:hover {
-  fill: #706d6d;
-  fill-opacity:0.5;
+  // fill: #706d6d;
+  // fill-opacity:0.5;
+  stroke: #000;
+  stroke-width: 2;
 }
 
-/* Highlight selected tooth */
+/* Highlight selected tooth (!important beats [ngStyle] fill on the path) */
 path.selected {
-  fill: #e01717;
-  fill-opacity:1;
+  // fill: #706d6d;
+  // fill-opacity:0.5;
+  stroke: #3F51B5;
+  stroke-width: 3;
 }
 

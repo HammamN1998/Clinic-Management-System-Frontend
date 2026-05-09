@@ -73,7 +73,7 @@ export class AdultTeethDiagramComponent {
   protected readonly isNullOrUndefined = isNullOrUndefined;
 
   isToothExist(toothId: string) {
-    const foundToothIndex = this.patientService.getDialogData().specialDiagrams.adultTeethDiagram.findIndex((tooth) => !isNullOrUndefined(tooth[toothId]))
+    const foundToothIndex = this.patientService.getDialogData().specialDiagrams.adultTeethDiagram.findIndex((tooth) => !isNullOrUndefined(tooth[toothId]) && tooth[toothId].trim() !== '')
     if (!isNullOrUndefined(foundToothIndex ) && foundToothIndex != -1) return true;
     return false;
   }
