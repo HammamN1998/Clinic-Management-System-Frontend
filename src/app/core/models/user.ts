@@ -4,12 +4,12 @@ export class User {
   id!: string;
   name!: string;
   phoneNumber: string = '';
-  email!: string;
+  email: string = '';
   address: string = '';
   about: string = '';
   education: string = '';
   experience: string = '';
-  role!: Role;
+  role: Role = Role.admin;
   secretaryDoctorId: string = '';
   img: string = '';
   imgSize: number = 0;

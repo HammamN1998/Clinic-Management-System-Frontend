@@ -50,6 +50,22 @@ export class FirebaseAuthenticationService {
     return callable({ doctorId: doctorId.trim() });
   }
 
+  private updateStripeCustomerEmail(doctorId: string, email: string): Observable<{ message: string }> {
+    if (typeof doctorId !== 'string' || !doctorId.trim()) {
+      return throwError(() => new Error('Invalid doctor id.'));
+    }
+    const callable = this.functions.httpsCallable<{ doctorId: string, email: string }, { message: string }>('updateStripeCustomerEmail');
+    return callable({ doctorId: doctorId.trim(), email: email.trim() });
+  }
+
+  updateStripeCustomerName(doctorId: string, name: string): Observable<{ message: string }> {
+    if (typeof doctorId !== 'string' || !doctorId.trim()) {
+      return throwError(() => new Error('Invalid doctor id.'));
+    }
+    const callable = this.functions.httpsCallable<{ doctorId: string, name: string }, { message: string }>('updateStripeCustomerName');
+    return callable({ doctorId: doctorId.trim(), name: name.trim() });
+  }
+
   async signup(email: string, password: string, name: string, role: Role): Promise<void> {
     try {
       const userCredential = await this.auth.createUserWithEmailAndPassword(email, password);
@@ -60,13 +76,6 @@ export class FirebaseAuthenticationService {
       const user = userCredential.user;
       user.updateProfile({ displayName: name });
       const uid = user.uid;
-      await this.firestore.collection('doctors').doc(uid).set({
-        id: uid,
-        role: role,
-        name: name,
-        email: email,
-        secretaryDoctorId: '',
-      });
       let localUser = new User();
       localUser.id = uid;
       localUser.role = role;
@@ -79,6 +88,7 @@ export class FirebaseAuthenticationService {
       localUser.patientsCount = 0;
       localUser.storageBytesUsed = 0;
       this.currentUserSubject.next(localUser);
+      await this.firestore.collection('doctors').doc(uid).set({...localUser});
       firstValueFrom(this.getOrCreateCustomerForDoctor(uid));
       await this.sendEmailVerificationCode();
       this.router.navigate(['/authentication/verify-email']);
@@ -133,6 +143,7 @@ export class FirebaseAuthenticationService {
       );
     } catch (error) {
       console.log(error)
+      throw error;
     }
   }
 
@@ -179,6 +190,11 @@ export class FirebaseAuthenticationService {
 
             if (isOnAuthPages) {
               if (fireAuthUser.emailVerified) {
+                // Sync Firestore email with Firebase Auth email after verification.
+                if (firestoreUser.email !== fireAuthUser.email) {
+                  this.firestore.collection('doctors').doc(fireAuthUser.uid).update({ email: fireAuthUser.email });
+                  firstValueFrom(this.updateStripeCustomerEmail(fireAuthUser.uid, fireAuthUser.email!));
+                }
                 this.router.navigate(['/admin/dashboard/main']);
               } else {
                 this.router.navigate(['/authentication/verify-email']);

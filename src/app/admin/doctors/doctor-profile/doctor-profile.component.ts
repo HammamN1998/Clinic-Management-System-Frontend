@@ -11,7 +11,7 @@ import {MatTooltipModule} from "@angular/material/tooltip";
 import {EditableTextComponent} from "@shared/components/editable-text/editable-text.component";
 import {DoctorService} from "@core/service/doctor.service";
 import {Role, User} from "@core";
-import {from} from "rxjs";
+import {firstValueFrom, from} from "rxjs";
 import {NotificationService} from "@core/service/notification.service";
 import {UntypedFormBuilder, UntypedFormGroup, Validators} from "@angular/forms";
 import {SharedModule} from "@shared";
@@ -131,22 +131,25 @@ export class DoctorProfileComponent {
     from (this.auth.currentUser)
     .subscribe({
       next: (user) => {
-        user!.updateProfile({
-          displayName: this.accountSettingsForm.value.name,
-        })
-        this.doctorService.editDoctor({phoneNumber: this.accountSettingsForm.value.phoneNumber});
-        this.doctorService.editDoctor({address: this.accountSettingsForm.value.address});
-        this.doctorService.editDoctor({name: this.accountSettingsForm.value.name});
-        // Update local instance
-        this.doctor.name = this.accountSettingsForm.value.name;
-        this.doctor.phoneNumber = this.accountSettingsForm.value.phoneNumber;
-        this.doctor.address = this.accountSettingsForm.value.address;
-        this.notificationService.showSnackBarNotification(
-          'snackbar-success',
-          'Update Settings Successfully...!!!',
-          'bottom',
-          'center'
-        );
+        try {
+          user!.updateProfile({
+            displayName: this.accountSettingsForm.value.name,
+          })
+          this.doctorService.editDoctor({phoneNumber: this.accountSettingsForm.value.phoneNumber, name: this.accountSettingsForm.value.name, address: this.accountSettingsForm.value.address});
+          firstValueFrom(this.firebaseAuthenticationService.updateStripeCustomerName(this.doctor.id, this.accountSettingsForm.value.name));
+          // Update local instance
+          this.doctor.name = this.accountSettingsForm.value.name;
+          this.doctor.phoneNumber = this.accountSettingsForm.value.phoneNumber;
+          this.doctor.address = this.accountSettingsForm.value.address;
+          this.notificationService.showSnackBarNotification(
+            'snackbar-success',
+            'Update Settings Successfully...!!!',
+            'bottom',
+            'center'
+          );
+        } catch (error) {
+          console.log('error: ' + error)
+        }
       },
       error: (error) => {
         console.log('error: ' + error)

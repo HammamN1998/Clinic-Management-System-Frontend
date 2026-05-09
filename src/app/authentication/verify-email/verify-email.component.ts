@@ -38,7 +38,7 @@ export class VerifyEmailComponent {
   }
 
   private async loadEmail() {
-    const user = await this.auth.currentUser;
+    const user = this.firebaseAuthenticationService.currentUserValue;
     this.email = user?.email ?? '';
   }
 
@@ -50,7 +50,7 @@ export class VerifyEmailComponent {
       await this.firebaseAuthenticationService.sendEmailVerificationCode();
       this.info = 'Verification email sent. Please check your inbox.';
     } catch (e) {
-      this.error = 'Failed to resend verification email. Please try again.';
+      this.error = 'Failed to resend verification email. ' + e;
     } finally {
       this.resendLoading = false;
     }
@@ -86,7 +86,7 @@ export class VerifyEmailComponent {
   }
 
   async logout() {
-    await this.firebaseAuthenticationService.logout();
+    this.firebaseAuthenticationService.logout();
   }
 
   async changeEmail() {
