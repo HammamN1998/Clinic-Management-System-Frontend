@@ -46,15 +46,12 @@ export class EditPatientComponent {
   createContactForm(): UntypedFormGroup {
     return this.fb.group({
       // Required Fields
-      firstName: [
-        this.patientService.getDialogData().firstName,
-        [Validators.required, Validators.pattern('[a-zA-Z]+')],
-      ],
+      firstName: [this.patientService.getDialogData().firstName,[Validators.required]],
       gender: [this.patientService.getDialogData().gender, [Validators.required]],
       phoneNumber: [this.patientService.getDialogData().phoneNumber, [Validators.required]],
       address: [this.patientService.getDialogData().address, [Validators.required]],
-      condition: [this.patientService.getDialogData().condition, [Validators.required]],
       // Not required Fields
+      condition: [this.patientService.getDialogData().condition],
       lastName: [this.patientService.getDialogData().lastName],
       maritalState: [this.patientService.getDialogData().maritalState],
       email: [
