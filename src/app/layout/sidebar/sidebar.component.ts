@@ -82,18 +82,13 @@ export class SidebarComponent extends UnsubscribeOnDestroyAdapter implements OnI
   }
   ngOnInit() {
     if (this.doctor) {
-      const userRole = this.doctor.role;
+      const userRole = Role.doctor;
       this.userFullName = this.doctor.name
       this.userImg = this.doctor.img;
 
       this.sidebarItems = ROUTES.filter(
         (x) => x.role.indexOf(userRole) !== -1 || x.role.indexOf('All') !== -1
       );
-      if (this.doctor.role == Role.secretary && this.doctor.secretaryDoctorId === '') {
-        this.sidebarItems = this.sidebarItems.filter(
-          x => ['Appointments Calendar', 'MENUITEMS.PATIENTS.TEXT', 'MENUITEMS.DASHBOARD.TEXT'].indexOf(x.title) === -1
-        )
-      }
     }
 
     this.initLeftSidebar();

@@ -3,8 +3,6 @@ import {FirebaseAuthenticationService} from "../../authentication/services/fireb
 import {AngularFirestore} from "@angular/fire/compat/firestore";
 import {from} from "rxjs";
 import * as firestore from "firebase/firestore";
-import {Role} from "@core";
-
 @Injectable({
   providedIn: 'root'
 })
@@ -20,7 +18,7 @@ export class DoctorService {
   }
 
   private getDoctorId() {
-    return this.doctor.role === Role.secretary ? this.doctor.secretaryDoctorId : this.doctor.id;
+    return this.doctor.id;
   }
 
   editDoctor (data: {[p:string]: string | number}) {

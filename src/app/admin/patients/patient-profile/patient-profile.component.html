@@ -42,7 +42,7 @@
           <div class="tab-pane body active" id="attachments">
             <div class="list-group">
               <div class="list-group-item" *ngFor="let attachment of patient.attachments">
-                <button *ngIf="this.doctor.role !== Role.secretary" mat-icon-button  matTooltip="Delete" (click)="deleteAttachment(attachment)">
+                <button mat-icon-button  matTooltip="Delete" (click)="deleteAttachment(attachment)">
                   <mat-icon>delete</mat-icon>
                 </button>
                 <a [href]="attachment.url" target="_blank">
@@ -144,7 +144,7 @@
                 </div>
               </mat-tab>
               <!--Settings-->
-              <mat-tab *ngIf="this.doctor.role !== Role.secretary">
+              <mat-tab>
                 <ng-template mat-tab-label>
                   <mat-icon class="example-tab-icon msr-2">settings</mat-icon>
                   Settings
@@ -297,7 +297,7 @@
                             </ng-container>
                           </mat-slide-toggle>
                         </div>
-                        <div *ngIf="this.doctor.role !== Role.secretary" class="col-lg-3 col-md-12">
+                        <div class="col-lg-3 col-md-12">
                           <button mat-raised-button color="warn" (click)="deleteAppointment(appointment)" >Delete</button>
                         </div>
                       </div>
@@ -306,7 +306,7 @@
                 </div>
               </mat-tab>
               <!--Add Appointment-->
-              <mat-tab *ngIf="this.doctor.role !== Role.secretary">
+              <mat-tab>
                 <ng-template mat-tab-label>
                   <mat-icon class="example-tab-icon msr-2">my_library_add</mat-icon>
                   Add Appointment
@@ -520,7 +520,7 @@
                             (bodyTextEdited)="updatePaymentDetails(payment, $event)">
                           </app-editable-text>
                         </div>
-                        <div *ngIf="this.doctor.role !== Role.secretary" class="col-lg-3 col-md-12">
+                        <div class="col-lg-3 col-md-12">
                           <button mat-raised-button color="warn" (click)="deletePayment(payment)" >Delete</button>
                         </div>
                       </div>
@@ -555,7 +555,7 @@
                             (bodyTextEdited)="updateTreatmentDetails(treatment, $event)">
                           </app-editable-text>
                         </div>
-                        <div *ngIf="this.doctor.role !== Role.secretary" class="col-lg-3 col-md-12">
+                        <div class="col-lg-3 col-md-12">
                           <button mat-raised-button color="warn" (click)="deleteTreatment(treatment)" >Delete</button>
                         </div>
                       </div>
@@ -564,7 +564,7 @@
                 </div>
               </mat-tab>
               <!--Add Payment/Treatment-->
-              <mat-tab *ngIf="this.doctor.role !== Role.secretary" >
+              <mat-tab >
                 <ng-template mat-tab-label>
                   <mat-icon class="example-tab-icon msr-2">my_library_add</mat-icon>
                   Add Payment/Treatment
@@ -685,7 +685,7 @@
           </div>
         </div>
         <!--Specialized Forms Section-->
-        <div *ngIf="this.doctor.role !== Role.secretary" class="card">
+        <div class="card">
           <div class="header">
             Specialized Forms Section
           </div>

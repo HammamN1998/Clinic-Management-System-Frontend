@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { UntypedFormBuilder, UntypedFormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { Role } from '@core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -52,16 +51,7 @@ export class LockedComponent implements OnInit {
     if (this.authForm.invalid) {
       return;
     } else {
-      const role = this.firebaseAuthenticationService.currentUserValue.role;
-      if (role === Role.admin) {
-        this.router.navigate(['/admin/dashboard/main']);
-      } else if (role === Role.doctor) {
-        this.router.navigate(['/doctor/dashboard']);
-      } else if (role === Role.secretary) {
-        this.router.navigate(['/patient/dashboard']);
-      } else {
-        this.router.navigate(['/authentication/signin']);
-      }
+      this.router.navigate(['/admin/dashboard/main']);
     }
   }
 }

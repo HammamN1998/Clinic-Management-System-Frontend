@@ -33,7 +33,7 @@ import {NotificationService} from "@core/service/notification.service";
 import {Router} from "@angular/router";
 import * as firestore from "firebase/firestore";
 import {FirebaseAuthenticationService} from "../../../authentication/services/firebase-authentication.service";
-import {Role, User} from "@core";
+import {User} from "@core";
 
 @Component({
   selector: 'app-allpatients',
@@ -431,7 +431,6 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
     this.router.navigate(['/admin/patients/patient-profile']);
   }
 
-  protected readonly Role = Role;
 }
 export class ExampleDataSource extends DataSource<Patient> {
   filterChange = new BehaviorSubject('');

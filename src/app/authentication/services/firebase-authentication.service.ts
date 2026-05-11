@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {BehaviorSubject, firstValueFrom, from, map, Observable, of, throwError} from "rxjs";
-import {Role, User} from "@core";
+import {User} from "@core";
 import {AngularFireAuth} from "@angular/fire/compat/auth";
 import firebase from "firebase/compat/app";
 import "firebase/compat/auth";
@@ -66,7 +66,7 @@ export class FirebaseAuthenticationService {
     return callable({ doctorId: doctorId.trim(), name: name.trim() });
   }
 
-  async signup(email: string, password: string, name: string, role: Role): Promise<void> {
+  async signup(email: string, password: string, name: string): Promise<void> {
     try {
       const userCredential = await this.auth.createUserWithEmailAndPassword(email, password);
       if (userCredential?.user == null) {
@@ -78,7 +78,6 @@ export class FirebaseAuthenticationService {
       const uid = user.uid;
       let localUser = new User();
       localUser.id = uid;
-      localUser.role = role;
       localUser.name = name;
       localUser.email = email;
       localUser.plan = 'free';
@@ -109,7 +108,6 @@ export class FirebaseAuthenticationService {
       email: fireUser!.email!,
       name: fireUser!.displayName!,
       secretaryDoctorId: '',
-      role: Role.admin,
       education: '',
       about: '',
       experience: '',
@@ -167,7 +165,6 @@ export class FirebaseAuthenticationService {
           if (firebaseUser.exists) {
             const firestoreUser: User = firebaseUser.data() as User;
             const localUser: User = this.fireAuthUserToUser(fireAuthUser);
-            localUser.role = firestoreUser.role;
             localUser.phoneNumber = firestoreUser.phoneNumber;
             localUser.address = firestoreUser.address;
             localUser.education = firestoreUser.education;

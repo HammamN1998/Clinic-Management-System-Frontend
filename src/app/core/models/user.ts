@@ -1,5 +1,3 @@
-import { Role } from './role';
-
 export class User {
   id!: string;
   name!: string;
@@ -9,7 +7,6 @@ export class User {
   about: string = '';
   education: string = '';
   experience: string = '';
-  role: Role = Role.admin;
   secretaryDoctorId: string = '';
   img: string = '';
   imgSize: number = 0;

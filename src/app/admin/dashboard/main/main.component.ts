@@ -28,7 +28,6 @@ import {TreatmentModel} from "@core/models/treatment.model";
 import {Patient} from "@core/models/patient.model";
 import {PaymentModel} from "@core/models/payment.model";
 import {FirebaseAuthenticationService} from "../../../authentication/services/firebase-authentication.service";
-import {Role} from "@core";
 
 export type ChartOptions = {
   series: ApexAxisChartSeries;
@@ -121,9 +120,6 @@ export class MainComponent implements OnInit {
   }
 
   private loadDashboardData() {
-    if (this.firebaseAuthenticationService.currentUserValue.role === Role.secretary) {
-      return;
-    }
     const {start, end} = this.getRangeDates(this.selectedRange);
     this.resetDashboardData();
     setTimeout(() => {

@@ -9,7 +9,7 @@ import {PaymentModel} from "@core/models/payment.model";
 import {TreatmentModel} from "@core/models/treatment.model";
 import {isNullOrUndefined} from "@swimlane/ngx-datatable";
 import * as firestore from "firebase/firestore";
-import {Role, User} from "@core";
+import {User} from "@core";
 
 
 @Injectable({
@@ -39,7 +39,7 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
   getAllPatients(): void {
     const tempPatients : Patient[] = [];
     this.dataChange.next(tempPatients);
-    const doctorId = this.doctor.role === Role.doctor ? this.doctor.id : this.doctor.secretaryDoctorId;
+    const doctorId = this.doctor.id;
 
     this.subs.sink = from (this.firestore.collection('patients').ref.where('doctorId', '==', doctorId).get())
       .subscribe( {
@@ -61,7 +61,7 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
 
   }
   async addPatient(patient: Patient): Promise<void> {
-    patient.doctorId = this.doctor.role === Role.doctor ? this.doctor.id : this.doctor.secretaryDoctorId;
+    patient.doctorId = this.doctor.id;
     patient.createdAt = firestore.Timestamp.now();
     this.dialogData = patient;
 

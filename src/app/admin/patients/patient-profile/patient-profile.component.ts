@@ -32,7 +32,7 @@ import {EditableTextCompactedComponent} from "@shared/components/editable-text-c
 import {Attachment} from "@core/models/patient.model";
 import {FirebaseStorageService} from "@core/service/firebase-storage.service";
 import {FirebaseAuthenticationService} from "../../../authentication/services/firebase-authentication.service";
-import {Role, User} from "@core";
+import {User} from "@core";
 
 @Component({
   selector: 'app-patient-profile',
@@ -552,5 +552,4 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
 
   protected readonly console = console;
   protected readonly window = window;
-  protected readonly Role = Role;
 }

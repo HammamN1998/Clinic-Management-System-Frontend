@@ -12,7 +12,7 @@ import {
   FirebaseAuthenticationService,
   InConfiguration,
   LanguageService,
-  RightSidebarService, Role,
+  RightSidebarService,
 } from '@core';
 import { UnsubscribeOnDestroyAdapter } from '@shared';
 import { FeatherIconsComponent } from '@shared/components/feather-icons/feather-icons.component';
@@ -137,7 +137,6 @@ export class HeaderComponent
   ];
   ngOnInit() {
     this.config = this.configService.configData;
-    const userRole = this.firebaseAuthenticationService.currentUserValue.role;
     this.userImg = this.firebaseAuthenticationService.currentUserValue.img;
 
     this.docElement = document.documentElement;
@@ -216,11 +215,7 @@ export class HeaderComponent
   }
 
   checkIfSecretaryConnected() {
-    if (this.doctor.role == Role.doctor) {
-      this.isSecretaryConnected = true;
-    } else {
-      this.isSecretaryConnected = this.doctor.secretaryDoctorId !== ''
-    }
+    this.isSecretaryConnected = true;
   }
 
   sendEmailVerificationCode() {
