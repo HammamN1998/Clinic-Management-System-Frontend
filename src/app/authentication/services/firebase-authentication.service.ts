@@ -107,7 +107,6 @@ export class FirebaseAuthenticationService {
       img: fireUser!.photoURL! ?? '',
       email: fireUser!.email!,
       name: fireUser!.displayName!,
-      secretaryDoctorId: '',
       education: '',
       about: '',
       experience: '',
@@ -170,7 +169,6 @@ export class FirebaseAuthenticationService {
             localUser.education = firestoreUser.education;
             localUser.about = firestoreUser.about;
             localUser.experience = firestoreUser.experience;
-            localUser.secretaryDoctorId = firestoreUser.secretaryDoctorId;
             localUser.plan = firestoreUser.plan;
             localUser.status = firestoreUser.status;
             localUser.imgSize = firestoreUser.imgSize;

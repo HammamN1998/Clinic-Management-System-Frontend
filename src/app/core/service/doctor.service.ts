@@ -25,40 +25,6 @@ export class DoctorService {
     return this.firestore.collection('doctors').doc(this.doctor.id).update(data);
   }
 
-  connectSecretary(secretaryEmail: string) {
-    const result = this.firestore.collection('doctors').ref.where('email', '==', secretaryEmail).get();
-    from(result)
-    .subscribe({
-      next: (secretary) => {
-        if (secretary.size > 1) console.log('error: multiple doctors with same email!!')
-        secretary.docs.forEach((secretary) => {
-          secretary.ref.update({secretaryDoctorId: this.doctor.id})
-        })
-      },
-      error: (error) => {
-        console.log('error: ' + error);
-      }
-    })
-    return result
-  }
-
-  disconnectSecretary(secretaryEmail: string) {
-    const result = this.firestore.collection('doctors').ref.where('email', '==', secretaryEmail).get();
-    from(result)
-      .subscribe({
-        next: (secretary) => {
-          if (secretary.size > 1) console.log('error: multiple doctors with same email!!')
-          secretary.docs.forEach((secretary) => {
-            secretary.ref.update({secretaryDoctorId: ''})
-          })
-        },
-        error: (error) => {
-          console.log('error: ' + error);
-        }
-      })
-    return result
-  }
-
   getCurrentMonthAppointments() {
     const now = new Date();
     const startOfMonth = firestore.Timestamp.fromDate( new Date(now.getFullYear(), now.getMonth(), 1));

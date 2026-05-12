@@ -7,7 +7,6 @@ export class User {
   about: string = '';
   education: string = '';
   experience: string = '';
-  secretaryDoctorId: string = '';
   img: string = '';
   imgSize: number = 0;
   plan: string = '';

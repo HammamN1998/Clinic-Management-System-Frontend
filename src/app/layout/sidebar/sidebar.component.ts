@@ -4,7 +4,6 @@ import {DOCUMENT, NgClass} from '@angular/common';
 import {Component, ElementRef, HostListener, Inject, OnDestroy, OnInit, Renderer2,} from '@angular/core';
 import {ROUTES} from './sidebar-items';
 import {RouteInfo} from './sidebar.metadata';
-import {Role} from '@core';
 import {TranslateModule} from '@ngx-translate/core';
 import {NgScrollbar} from 'ngx-scrollbar';
 import {UnsubscribeOnDestroyAdapter} from '@shared';
@@ -82,13 +81,10 @@ export class SidebarComponent extends UnsubscribeOnDestroyAdapter implements OnI
   }
   ngOnInit() {
     if (this.doctor) {
-      const userRole = Role.doctor;
       this.userFullName = this.doctor.name
       this.userImg = this.doctor.img;
 
-      this.sidebarItems = ROUTES.filter(
-        (x) => x.role.indexOf(userRole) !== -1 || x.role.indexOf('All') !== -1
-      );
+      this.sidebarItems = ROUTES;
     }
 
     this.initLeftSidebar();
