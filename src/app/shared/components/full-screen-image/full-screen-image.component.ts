@@ -70,9 +70,10 @@ export class FullScreenImageComponent {
     dialogRef.afterClosed().subscribe((result) => {
       if (result === 1) {
         if (this.patient.img !== '') this.firebaseStorageService.deleteFile(this.patient.img);
-        this.patient.img = '';
-        this.patientService.updatePatient(this.patient);
         this.patientService.updateStorageBytesUsed(-this.patient.imgSize);
+        this.patient.img = '';
+        this.patient.imgSize = 0;
+        this.patientService.updatePatient(this.patient);
       }
     });
 
