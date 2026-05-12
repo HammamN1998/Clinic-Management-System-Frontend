@@ -66,7 +66,7 @@ export class EditPatientComponent {
   }
 
   onSubmit() {
-    const updatePatient: Patient = new Patient();
+    const updatePatient: Patient = this.patientService.getDialogData();
     updatePatient.firstName = this.patientForm.value.firstName.toString();
     updatePatient.lastName = this.patientForm.value.lastName.toString();
     updatePatient.gender = this.patientForm.value.gender.toString();
@@ -78,7 +78,6 @@ export class EditPatientComponent {
     updatePatient.bloodGroup = this.patientForm.value.bloodGroup.toString();
     updatePatient.bloodPressure = this.patientForm.value.bloodPressure.toString();
     updatePatient.condition = this.patientForm.value.condition.toString();
-    updatePatient.img = this.patientService.getDialogData().img;
 
     this.patientService.updatePatient(updatePatient);
     this.router.navigate(['/admin/patients/patient-profile']);

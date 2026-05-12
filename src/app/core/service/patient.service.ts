@@ -208,6 +208,7 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
 
   getPatientAppointments() {
     return this.firestore.collection('appointments').ref
+    .where('doctorId', '==', this.doctor.id)
     .where('patientId', '==', this.getDialogData().id)
     .orderBy('date', 'desc')
     .orderBy('time', 'desc')
@@ -220,7 +221,9 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
     for (const patientId of uniqueIds) {
       const snapshot = await this.firestore
         .collection('appointments')
-        .ref.where('patientId', '==', patientId)
+        .ref
+        .where('doctorId', '==', this.doctor.id)
+        .where('patientId', '==', patientId)
         .get();
       appointmentsByPatientId[patientId] = snapshot.docs.map(
         (doc) => doc.data() as AppointmentModel
@@ -235,7 +238,9 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
     for (const patientId of uniqueIds) {
       const snapshot = await this.firestore
         .collection('payments')
-        .ref.where('patientId', '==', patientId)
+        .ref
+        .where('doctorId', '==', this.doctor.id)
+        .where('patientId', '==', patientId)
         .get();
       paymentsByPatientId[patientId] = snapshot.docs.map(
         (doc) => doc.data() as PaymentModel
@@ -250,7 +255,9 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
     for (const patientId of uniqueIds) {
       const snapshot = await this.firestore
         .collection('treatments')
-        .ref.where('patientId', '==', patientId)
+        .ref
+        .where('doctorId', '==', this.doctor.id)
+        .where('patientId', '==', patientId)
         .get();
       treatmentsByPatientId[patientId] = snapshot.docs.map(
         (doc) => doc.data() as TreatmentModel
@@ -261,6 +268,7 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
 
   getPatientPayments() {
     return this.firestore.collection('payments').ref
+    .where('doctorId', '==', this.doctor.id)
     .where('patientId', '==', this.getDialogData().id)
     .orderBy('date', 'desc')
     .get();
@@ -268,6 +276,7 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
 
   getPatientTreatments() {
     return this.firestore.collection('treatments').ref
+    .where('doctorId', '==', this.doctor.id)
     .where('patientId', '==', this.getDialogData().id)
     .orderBy('date', 'desc')
     .get();
