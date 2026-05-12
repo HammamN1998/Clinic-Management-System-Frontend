@@ -19,12 +19,6 @@
         </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
-        <!-- Not connected secretary -->
-        <li *ngIf="!isSecretaryConnected">
-          <span style="color: red">
-            You’re still not connected to a doctor.
-          </span>
-        </li>
         <!-- Email Verification -->
         <li *ngIf="!isEmailVerified">
           <span style="color: red">

@@ -44,8 +44,6 @@ import { PatientService } from '@core/service/patient.service';
 })
 export class DoctorProfileComponent {
   accountSettingsForm: UntypedFormGroup;
-  doctorSecretaries: User[] = [];
-  connectSecretaryEmail: string = '';
   showUploadProfilePicture: boolean = false;
   isEmailVerified: boolean = false
 
@@ -60,7 +58,6 @@ export class DoctorProfileComponent {
     private patientService: PatientService, 
   ) {
     this.accountSettingsForm = this.createAccountSettingsForm();
-    this.getDoctorSecretaries();
     this.checkIfEmailVerified();
   }
 
@@ -155,50 +152,6 @@ export class DoctorProfileComponent {
         console.log('error: ' + error)
       }
     })
-  }
-
-  getDoctorSecretaries() {
-    this.doctorSecretaries = [];
-    from(this.doctorService.getDoctorSecretaries())
-    .subscribe({
-      next: (secretaries) => {
-        secretaries.docs.map((secretary) => {
-          this.doctorSecretaries.push(secretary.data() as User);
-        })
-      }
-    });
-  }
-
-  async connectSecretary() {
-    try {
-      await this.doctorService.connectSecretary(this.connectSecretaryEmail);
-      this.notificationService.showSnackBarNotification(
-        'snackbar-success',
-        'Connect Secretary Successfully...!!!',
-        'bottom',
-        'center'
-      );
-      this.getDoctorSecretaries();
-      this.connectSecretaryEmail ='';
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
-  async disconnectSecretary() {
-    try {
-      await this.doctorService.disconnectSecretary(this.connectSecretaryEmail);
-      this.notificationService.showSnackBarNotification(
-        'snackbar-danger',
-        'Disconnect Secretary Successfully...!!!',
-        'bottom',
-        'center'
-      );
-      this.getDoctorSecretaries();
-      this.connectSecretaryEmail ='';
-    } catch (error) {
-      console.log(error)
-    }
   }
 
   updateDoctorProfilePicture(attachment: Attachment) {

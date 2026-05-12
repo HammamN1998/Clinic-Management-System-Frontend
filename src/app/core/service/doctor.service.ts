@@ -25,15 +25,6 @@ export class DoctorService {
     return this.firestore.collection('doctors').doc(this.doctor.id).update(data);
   }
 
-  getDoctorSecretaries() {
-    return this.firestore.collection('doctors').ref
-    .where('role', '==', 'secretary')
-    .where('secretaryDoctorId', '==', this.doctor.id)
-    .get();
-  }
-
-
-
   connectSecretary(secretaryEmail: string) {
     const result = this.firestore.collection('doctors').ref.where('email', '==', secretaryEmail).get();
     from(result)
