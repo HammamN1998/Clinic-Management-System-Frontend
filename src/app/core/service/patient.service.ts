@@ -134,6 +134,8 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
     foundPatient.attachments.forEach(attachment => {
       totalSize += attachment.size;
     });
+    // Add the patient's image size to the total size
+    totalSize += foundPatient.imgSize;
     // Delete patient from local storage
     if (foundIndex != null) {
       this.dataChange.value.splice(foundIndex, 1);
