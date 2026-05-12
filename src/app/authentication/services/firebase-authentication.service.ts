@@ -104,7 +104,7 @@ export class FirebaseAuthenticationService {
   fireAuthUserToUser(fireUser: firebase.User) : User {
     return {
       id: fireUser!.uid!,
-      img: fireUser!.photoURL!,
+      img: fireUser!.photoURL! ?? '',
       email: fireUser!.email!,
       name: fireUser!.displayName!,
       secretaryDoctorId: '',

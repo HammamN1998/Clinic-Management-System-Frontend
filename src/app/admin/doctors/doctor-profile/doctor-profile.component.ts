@@ -172,7 +172,7 @@ export class DoctorProfileComponent {
       );
       return;
     }
-    if(this.doctor.img === '') {
+    if(isNullOrUndefined(this.doctor.img) || this.doctor.img === '') {
       this.doctor.img = attachment.url;
       this.doctor.imgSize = attachment.size;
       from (this.auth.currentUser)
