@@ -55,7 +55,7 @@ export class DoctorProfileComponent {
     private auth: AngularFireAuth,
     private firebaseStorageService: FirebaseStorageService,
     private router: Router,
-    private patientService: PatientService, 
+    private patientService: PatientService,
   ) {
     this.accountSettingsForm = this.createAccountSettingsForm();
     this.checkIfEmailVerified();
@@ -157,10 +157,10 @@ export class DoctorProfileComponent {
   updateDoctorProfilePicture(attachment: Attachment) {
     if (this.doctor.storageBytesUsed + attachment.size > this.doctor.maxStorageLimitBytes || this.doctor.status !== 'active') {
       this.notificationService.showSwalDialogWithFunction(
-        this.doctor.status !== 'active' ? 
+        this.doctor.status !== 'active' ?
           'Your plan is not active.' :
           'Upgrade your plan to add more storage',
-        this.doctor.status !== 'active' ? 
+        this.doctor.status !== 'active' ?
           'Check your billing portal in plans page.' :
           `You have reached the maximum storage for your plan (${this.doctor.maxStorageLimitBytes} bytes). \nYou can upgrade your plan to add more storage.`,
         'error',
@@ -183,7 +183,6 @@ export class DoctorProfileComponent {
           })
           this.doctorService.editDoctor({img: attachment.url, imgSize: attachment.size});
           this.doctor.storageBytesUsed += attachment.size;
-          this.patientService.updateStorageBytesUsed(attachment.size);
         },
         error: (error) => {
           console.log('error: ' + error)
@@ -191,7 +190,7 @@ export class DoctorProfileComponent {
       })
       this.showUploadProfilePicture = !this.showUploadProfilePicture;
     } else {
-      let oldImgSize = this.doctor.imgSize;
+      const oldImgSize = this.doctor.imgSize;
       this.firebaseStorageService.deleteFile(this.doctor.img);
       this.doctor.img = attachment.url;
       this.doctor.imgSize = attachment.size;
@@ -203,7 +202,6 @@ export class DoctorProfileComponent {
           })
           this.doctorService.editDoctor({img: attachment.url, imgSize: attachment.size});
           this.doctor.storageBytesUsed += attachment.size - oldImgSize;
-          this.patientService.updateStorageBytesUsed(attachment.size - oldImgSize);
         },
         error: (error) => {
           console.log('error: ' + error)

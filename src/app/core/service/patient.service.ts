@@ -80,12 +80,12 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
         console.log('Error: Patient doesn\'t exist!!');
       }
       this.doctor.patientsCount++;
-      await this.firestore.collection('doctors').doc(this.doctor.id).ref.update({patientsCount: firestore.increment(1)});
       console.log('patient ID: ' + JSON.stringify(result.id));
     } catch (error) {
       console.log('error: ' + JSON.stringify(error));
     }
   }
+
   updatePatient(patient: Patient): void {
     patient.id = this.getDialogData().id;
     patient.doctorId = this.getDialogData().doctorId;
@@ -111,17 +111,6 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
     );
 
   }
-
-  updateStorageBytesUsed(size: number) {
-    this.doctor.storageBytesUsed += size;
-    from(this.firestore.collection('doctors').doc(this.doctor.id).ref.update({storageBytesUsed: firestore.increment(size)}))
-      .subscribe({
-        error: (error) => {
-          console.log('error: ' + JSON.stringify(error))
-        }
-      }
-    );
-  }
   
   deletePatient(patientId: string): void {
 
@@ -136,6 +125,9 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
     });
     // Add the patient's image size to the total size
     totalSize += foundPatient.imgSize;
+    this.doctor.storageBytesUsed -= totalSize;
+    this.doctor.patientsCount--;
+
     // Delete patient from local storage
     if (foundIndex != null) {
       this.dataChange.value.splice(foundIndex, 1);
@@ -144,17 +136,7 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
     }
 
     // Delete patient from Firestore
-    from(this.firestore.collection('patients').doc(patientId).delete())
-      .subscribe({
-        next: (result) => {
-          this.doctor.patientsCount--;
-          this.doctor.storageBytesUsed -= totalSize;
-          this.firestore.collection('doctors').doc(this.doctor.id).ref.update({patientsCount: firestore.increment(-1), storageBytesUsed: firestore.increment(-totalSize)});
-        },
-        error: (error) => {
-          console.log('Error: ' + JSON.stringify(error))
-        }
-      })
+    this.firestore.collection('patients').doc(patientId).delete()
   }
 
   addPatientAppointment(appointment: AppointmentModel) {

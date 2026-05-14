@@ -70,7 +70,6 @@ export class FullScreenImageComponent {
     dialogRef.afterClosed().subscribe((result) => {
       if (result === 1) {
         if (this.patient.img !== '') this.firebaseStorageService.deleteFile(this.patient.img);
-        this.patientService.updateStorageBytesUsed(-this.patient.imgSize);
         this.patient.img = '';
         this.patient.imgSize = 0;
         this.patientService.updatePatient(this.patient);
@@ -82,10 +81,10 @@ export class FullScreenImageComponent {
   updatePatientProfilePicture(attachment: Attachment) {
     if (this.doctor.storageBytesUsed + attachment.size > this.doctor.maxStorageLimitBytes || this.doctor.status !== 'active') {
       this.notificationService.showSwalDialogWithFunction(
-        this.doctor.status !== 'active' ? 
+        this.doctor.status !== 'active' ?
           'Your plan is not active.' :
           'Upgrade your plan to add more storage',
-        this.doctor.status !== 'active' ? 
+        this.doctor.status !== 'active' ?
           'Check your billing portal in plans page.' :
           `You have reached the maximum storage for your plan (${this.doctor.maxStorageLimitBytes} bytes). \nYou can upgrade your plan to add more storage.`,
         'error',
@@ -101,16 +100,16 @@ export class FullScreenImageComponent {
       this.patient.img = attachment.url;
       this.patient.imgSize = attachment.size;
       this.patientService.updatePatient(this.patient);
-      this.patientService.updateStorageBytesUsed(attachment.size);
       this.showUploadPictureArea = !this.showUploadPictureArea;
+      this.doctor.storageBytesUsed += attachment.size;
     } else {
-      let oldImgSize = this.patient.imgSize;
+      const oldImgSize = this.patient.imgSize;
       this.firebaseStorageService.deleteFile(this.patient.img);
       this.patient.img = attachment.url;
       this.patient.imgSize = attachment.size;
       this.patientService.updatePatient(this.patient);
-      this.patientService.updateStorageBytesUsed(attachment.size - oldImgSize);
       this.showUploadPictureArea = !this.showUploadPictureArea;
+      this.doctor.storageBytesUsed += attachment.size - oldImgSize;
     }
   }
 
