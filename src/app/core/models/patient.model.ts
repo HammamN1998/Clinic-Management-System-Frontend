@@ -15,7 +15,7 @@ export class Patient {
   lastName: string = '';
   gender: string = '';
   phoneNumber: string = '';
-  birthDate: firestore.Timestamp = new firestore.Timestamp(0, 0);
+  birthDate: firestore.Timestamp = firestore.Timestamp.now();
   email: string = '';
   maritalState: string = '';
   address: string = '';
@@ -29,7 +29,7 @@ export class Patient {
   specialDiagrams: SpecialDiagrams = {
     adultTeethDiagram: [],
   };
-  createdAt: firestore.Timestamp = new firestore.Timestamp(0, 0);
+  createdAt: firestore.Timestamp = firestore.Timestamp.now();
   notes: string = '';
 
   constructor() {}

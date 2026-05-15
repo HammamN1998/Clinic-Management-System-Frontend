@@ -1,3 +1,12 @@
+export interface UserSubscription {
+  plan: string;
+  status: string;
+  storageBytesUsed: number;
+  patientsCount: number;
+  maxPatientsLimit: number;
+  maxStorageLimitBytes: number;
+}
+
 export class User {
   id!: string;
   name!: string;
@@ -9,10 +18,5 @@ export class User {
   experience: string = '';
   img: string = '';
   imgSize: number = 0;
-  plan: string = '';
-  status: string = '';
-  maxPatientsLimit: number = 0;
-  maxStorageLimitBytes: number = 0;
-  patientsCount: number = 0;
-  storageBytesUsed: number = 0;
+  subscription: UserSubscription = {} as UserSubscription;
 }

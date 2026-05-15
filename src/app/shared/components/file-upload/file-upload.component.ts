@@ -59,14 +59,14 @@ export class FileUploadComponent implements ControlValueAccessor {
       );
       return;
     }
-    if (this.doctorService.doctor.storageBytesUsed + this.file!.size > this.doctorService.doctor.maxStorageLimitBytes || this.doctorService.doctor.status !== 'active') {
+    if (this.doctorService.doctor.subscription.storageBytesUsed + this.file!.size > this.doctorService.doctor.subscription.maxStorageLimitBytes || this.doctorService.doctor.subscription.status !== 'active') {
       this.notificationService.showSwalDialogWithFunction(
-        this.doctorService.doctor.status !== 'active' ? 
+        this.doctorService.doctor.subscription.status !== 'active' ? 
           'Your plan is not active.' :
           'Upgrade your plan to add more storage',
-        this.doctorService.doctor.status !== 'active' ? 
+        this.doctorService.doctor.subscription.status !== 'active' ? 
           'Check your billing portal in plans page.' :
-          `You have reached the maximum storage for your plan (${this.doctorService.doctor.maxStorageLimitBytes} bytes). \nYou can upgrade your plan to add more storage.`,
+          `You have reached the maximum storage for your plan (${this.doctorService.doctor.subscription.maxStorageLimitBytes} bytes). \nYou can upgrade your plan to add more storage.`,
         'error',
         true,
         'Go to plan page',

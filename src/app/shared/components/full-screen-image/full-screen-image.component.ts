@@ -79,14 +79,14 @@ export class FullScreenImageComponent {
   }
 
   updatePatientProfilePicture(attachment: Attachment) {
-    if (this.doctor.storageBytesUsed + attachment.size > this.doctor.maxStorageLimitBytes || this.doctor.status !== 'active') {
+    if (this.doctor.subscription.storageBytesUsed + attachment.size > this.doctor.subscription.maxStorageLimitBytes || this.doctor.subscription.status !== 'active') {
       this.notificationService.showSwalDialogWithFunction(
-        this.doctor.status !== 'active' ?
+        this.doctor.subscription.status !== 'active' ?
           'Your plan is not active.' :
           'Upgrade your plan to add more storage',
-        this.doctor.status !== 'active' ?
+        this.doctor.subscription.status !== 'active' ?
           'Check your billing portal in plans page.' :
-          `You have reached the maximum storage for your plan (${this.doctor.maxStorageLimitBytes} bytes). \nYou can upgrade your plan to add more storage.`,
+          `You have reached the maximum storage for your plan (${this.doctor.subscription.maxStorageLimitBytes} bytes). \nYou can upgrade your plan to add more storage.`,
         'error',
         true,
         'Go to plan page',
@@ -101,7 +101,7 @@ export class FullScreenImageComponent {
       this.patient.imgSize = attachment.size;
       this.patientService.updatePatient(this.patient);
       this.showUploadPictureArea = !this.showUploadPictureArea;
-      this.doctor.storageBytesUsed += attachment.size;
+      this.doctor.subscription.storageBytesUsed += attachment.size;
     } else {
       const oldImgSize = this.patient.imgSize;
       this.firebaseStorageService.deleteFile(this.patient.img);
@@ -109,7 +109,7 @@ export class FullScreenImageComponent {
       this.patient.imgSize = attachment.size;
       this.patientService.updatePatient(this.patient);
       this.showUploadPictureArea = !this.showUploadPictureArea;
-      this.doctor.storageBytesUsed += attachment.size - oldImgSize;
+      this.doctor.subscription.storageBytesUsed += attachment.size - oldImgSize;
     }
   }
 

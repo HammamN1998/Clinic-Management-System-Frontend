@@ -1,6 +1,7 @@
 import {Injectable} from '@angular/core';
 import {BehaviorSubject, firstValueFrom, from, map, Observable, of, throwError} from "rxjs";
 import {User} from "@core";
+import { UserSubscription } from '@core/models/user';
 import {AngularFireAuth} from "@angular/fire/compat/auth";
 import firebase from "firebase/compat/app";
 import "firebase/compat/auth";
@@ -8,7 +9,6 @@ import {AngularFirestore} from "@angular/fire/compat/firestore";
 import {AngularFireFunctions} from "@angular/fire/compat/functions";
 import {Router} from "@angular/router";
 import {NotificationService} from "@core/service/notification.service";
-
 
 @Injectable({
   providedIn: 'root'
@@ -42,14 +42,6 @@ export class FirebaseAuthenticationService {
     return from ( this.auth.signInWithEmailAndPassword( userName, password ) )
   }
 
-  private getOrCreateCustomerForDoctor(doctorId: string): Observable<{ message: string }> {
-    if (typeof doctorId !== 'string' || !doctorId.trim()) {
-      return throwError(() => new Error('Invalid doctor id.'));
-    }
-    const callable = this.functions.httpsCallable<{ doctorId: string }, { message: string }>('getOrCreateCustomer');
-    return callable({ doctorId: doctorId.trim() });
-  }
-
   private updateStripeCustomerEmail(doctorId: string, email: string): Observable<{ message: string }> {
     if (typeof doctorId !== 'string' || !doctorId.trim()) {
       return throwError(() => new Error('Invalid doctor id.'));
@@ -80,15 +72,8 @@ export class FirebaseAuthenticationService {
       localUser.id = uid;
       localUser.name = name;
       localUser.email = email;
-      localUser.plan = 'free';
-      localUser.status = 'active';
-      localUser.maxPatientsLimit = 2000;
-      localUser.maxStorageLimitBytes = 200 * 1024 * 1024; // 200MB
-      localUser.patientsCount = 0;
-      localUser.storageBytesUsed = 0;
       this.currentUserSubject.next(localUser);
       await this.firestore.collection('doctors').doc(uid).set({...localUser});
-      firstValueFrom(this.getOrCreateCustomerForDoctor(uid));
       await this.sendEmailVerificationCode();
       this.router.navigate(['/authentication/verify-email']);
     } catch (err) {
@@ -102,24 +87,12 @@ export class FirebaseAuthenticationService {
   }
 
   fireAuthUserToUser(fireUser: firebase.User) : User {
-    return {
-      id: fireUser!.uid!,
-      img: fireUser!.photoURL! ?? '',
-      email: fireUser!.email!,
-      name: fireUser!.displayName!,
-      education: '',
-      about: '',
-      experience: '',
-      address: '',
-      phoneNumber: '',
-      plan: '',
-      status: '',
-      imgSize: 0,
-      maxPatientsLimit: 0,
-      maxStorageLimitBytes: 0,
-      patientsCount: 0,
-      storageBytesUsed: 0,
-    }
+    const doctor = new User();
+    doctor.id = fireUser!.uid!;
+    doctor.img = fireUser!.photoURL! ?? '';
+    doctor.email = fireUser!.email!;
+    doctor.name = fireUser!.displayName!;
+    return doctor
   }
 
   sendResetPasswordEmail(email: string) {
@@ -156,11 +129,16 @@ export class FirebaseAuthenticationService {
 
   traceAuthenticationStatus() {
     // Put this snippet of code on a separate method because constructor cant handle Observer correctly.
-    this.auth.authState.subscribe(fireAuthUser => {
+    this.auth.authState.subscribe(async (fireAuthUser) => {
       if (fireAuthUser) {
-        // store user details local storage to keep user logged in between page refreshes
-        this.firestore.collection('doctors').doc(fireAuthUser.uid).get()
-        .subscribe((firebaseUser) => {
+        try {
+          // store user details local storage to keep user logged in between page refreshes
+          const firebaseUser = await firstValueFrom(
+            this.firestore.collection('doctors').doc(fireAuthUser.uid).get()
+          );
+          const userSubscription = await firstValueFrom(
+            this.firestore.collection('doctorSubscriptions').doc(fireAuthUser.uid).get()
+          );
           if (firebaseUser.exists) {
             const firestoreUser: User = firebaseUser.data() as User;
             const localUser: User = this.fireAuthUserToUser(fireAuthUser);
@@ -169,13 +147,11 @@ export class FirebaseAuthenticationService {
             localUser.education = firestoreUser.education;
             localUser.about = firestoreUser.about;
             localUser.experience = firestoreUser.experience;
-            localUser.plan = firestoreUser.plan;
-            localUser.status = firestoreUser.status;
             localUser.imgSize = firestoreUser.imgSize;
-            localUser.maxPatientsLimit = firestoreUser.maxPatientsLimit;
-            localUser.maxStorageLimitBytes = firestoreUser.maxStorageLimitBytes;
-            localUser.patientsCount = firestoreUser.patientsCount;
-            localUser.storageBytesUsed = firestoreUser.storageBytesUsed;
+            if (userSubscription.exists) {
+              const userSubscriptionData: UserSubscription = userSubscription.data() as UserSubscription;
+              localUser.subscription = userSubscriptionData;
+            }
             this.currentUserSubject.next(localUser);
             localStorage.setItem('currentUser', JSON.stringify(localUser));
             const isOnAuthPages =
@@ -195,14 +171,16 @@ export class FirebaseAuthenticationService {
                 this.router.navigate(['/authentication/verify-email']);
               }
             }
-            console.log('user logged in', JSON.stringify(localUser))
+            console.log('user logged in', JSON.stringify(localUser));
           }
-        })
+        } catch (err) {
+          console.error('Failed to load doctor profile', err);
+        }
       } else {
         // remove user from local storage to log user out
         localStorage.removeItem('currentUser');
         this.router.navigate(['/authentication/signin']);
-        console.log('user not logged in')
+        console.log('user not logged in');
       }
     });
   }

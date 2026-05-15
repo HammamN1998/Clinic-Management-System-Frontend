@@ -79,7 +79,7 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
       } else {
         console.log('Error: Patient doesn\'t exist!!');
       }
-      this.doctor.patientsCount++;
+      this.doctor.subscription.patientsCount++;
       console.log('patient ID: ' + JSON.stringify(result.id));
     } catch (error) {
       console.log('error: ' + JSON.stringify(error));
@@ -125,8 +125,8 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
     });
     // Add the patient's image size to the total size
     totalSize += foundPatient.imgSize;
-    this.doctor.storageBytesUsed -= totalSize;
-    this.doctor.patientsCount--;
+    this.doctor.subscription.storageBytesUsed -= totalSize;
+    this.doctor.subscription.patientsCount--;
 
     // Delete patient from local storage
     if (foundIndex != null) {

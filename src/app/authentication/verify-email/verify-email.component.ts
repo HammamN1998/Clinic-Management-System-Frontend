@@ -74,7 +74,9 @@ export class VerifyEmailComponent {
           await this.firestore.collection('doctors').doc(user.uid).update({ email: user.email });
           this.email = user.email;
         }
-        await this.router.navigate(['/admin/dashboard/main']);
+        
+        // refresh the page
+        window.location.reload();
       } else {
         this.info = 'Still not verified. Please check your inbox and click the verification link.';
       }

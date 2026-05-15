@@ -31,7 +31,7 @@
           </span>
         </li>
         <!-- Billing Portal -->
-        <li *ngIf="this.doctor.status !== 'active'">
+        <li *ngIf="this.doctor.subscription.status !== 'active'">
           <span style="color: red">
             Your plan is not active.
             <button type="button" style="background: none; border: none; color: red" (click)="openBillingPortal()" [class.auth-spinner]="billingPortalLoading" [disabled]="billingPortalLoading">

@@ -71,14 +71,14 @@ export class AddPatientComponent {
   }
 
   onSubmit() {
-    if (this.doctor.patientsCount >= this.doctor.maxPatientsLimit || this.doctor.status !== 'active') {
+    if (this.doctor.subscription.patientsCount >= this.doctor.subscription.maxPatientsLimit || this.doctor.subscription.status !== 'active') {
       this.notificationService.showSwalDialogWithFunction(
-        this.doctor.status !== 'active' ? 
+        this.doctor.subscription.status !== 'active' ? 
           'Your plan is not active.' :
           'Upgrade your plan to add more patients',
-        this.doctor.status !== 'active' ? 
+        this.doctor.subscription.status !== 'active' ? 
           'Check your billing portal in plans page.' :
-          `You have reached the maximum number of patients for your plan (${this.doctor.maxPatientsLimit} patients). \nYou can upgrade your plan to add more patients.`,
+          `You have reached the maximum number of patients for your plan (${this.doctor.subscription.maxPatientsLimit} patients). \nYou can upgrade your plan to add more patients.`,
         'error',
         true,
         'Go to plan page',

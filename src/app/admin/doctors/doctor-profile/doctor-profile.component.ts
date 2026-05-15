@@ -155,14 +155,14 @@ export class DoctorProfileComponent {
   }
 
   updateDoctorProfilePicture(attachment: Attachment) {
-    if (this.doctor.storageBytesUsed + attachment.size > this.doctor.maxStorageLimitBytes || this.doctor.status !== 'active') {
+    if (this.doctor.subscription.storageBytesUsed + attachment.size > this.doctor.subscription.maxStorageLimitBytes || this.doctor.subscription.status !== 'active') {
       this.notificationService.showSwalDialogWithFunction(
-        this.doctor.status !== 'active' ?
+        this.doctor.subscription.status !== 'active' ?
           'Your plan is not active.' :
           'Upgrade your plan to add more storage',
-        this.doctor.status !== 'active' ?
+        this.doctor.subscription.status !== 'active' ?
           'Check your billing portal in plans page.' :
-          `You have reached the maximum storage for your plan (${this.doctor.maxStorageLimitBytes} bytes). \nYou can upgrade your plan to add more storage.`,
+          `You have reached the maximum storage for your plan (${this.doctor.subscription.maxStorageLimitBytes} bytes). \nYou can upgrade your plan to add more storage.`,
         'error',
         true,
         'Go to plan page',
@@ -182,7 +182,7 @@ export class DoctorProfileComponent {
             photoURL: attachment.url,
           })
           this.doctorService.editDoctor({img: attachment.url, imgSize: attachment.size});
-          this.doctor.storageBytesUsed += attachment.size;
+          this.doctor.subscription.storageBytesUsed += attachment.size;
         },
         error: (error) => {
           console.log('error: ' + error)
@@ -201,7 +201,7 @@ export class DoctorProfileComponent {
             photoURL: attachment.url,
           })
           this.doctorService.editDoctor({img: attachment.url, imgSize: attachment.size});
-          this.doctor.storageBytesUsed += attachment.size - oldImgSize;
+          this.doctor.subscription.storageBytesUsed += attachment.size - oldImgSize;
         },
         error: (error) => {
           console.log('error: ' + error)
