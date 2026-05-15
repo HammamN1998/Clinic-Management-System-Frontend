@@ -10,7 +10,7 @@
           <div class="doctor-plans-subscription card m-l-20 m-r-20 m-t-15 m-b-0">
             <div class="header doctor-plans-subscription__header">
               <div class="doctor-plans-subscription__plan-block">
-                <span class="doctor-plans-subscription__plan-name">{{ doctor.subscription.plan || '—' }} Plan</span>
+                <span class="doctor-plans-subscription__plan-name">{{ (doctor.subscription.plan || '—') | uppercase }} Plan</span>
               </div>
               <div class="header-dropdown">
                 <button type="button"

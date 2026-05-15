@@ -137,18 +137,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
     .subscribe({
       next: () => {
         // clear the form
-        this.appointmentForm.reset({
-          date: '',
-          time: '',
-          details: '',
-          cost: 0,
-          costPaid: true,
-          attended: false,
-          subjective: '',
-          objective: '',
-          assessment: '',
-          plan: '',
-        });
+        this.appointmentForm = this.createAppointmentForm();
         this.appointmentDrugs.clear();
         // show success  message
         this.notificationService.showSnackBarNotification(
