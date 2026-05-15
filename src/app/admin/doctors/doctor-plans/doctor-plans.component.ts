@@ -8,6 +8,7 @@ import {PaymentService} from "@core/service/payment.service";
 import {NotificationService} from "@core/service/notification.service";
 import { PAYMENT_PLANS } from '@core/util/payment-plans';
 import {finalize} from "rxjs/operators";
+import {DoctorService} from "@core/service/doctor.service";
 
 @Component({
   selector: 'app-doctor-plans',
@@ -31,8 +32,14 @@ export class DoctorPlansComponent {
   constructor(
     private paymentService: PaymentService,
     private notificationService: NotificationService,
+    private doctorService: DoctorService,
   ) {
 
+  }
+
+  /** In-memory doctor from session (not re-fetched from Firestore on this page). */
+  get doctor() {
+    return this.doctorService.doctor;
   }
 
   readonly PAYMENT_PLANS = PAYMENT_PLANS;

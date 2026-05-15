@@ -7,21 +7,56 @@
     <div class="row clearfix">
       <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
         <div class="card">
+          <div class="doctor-plans-subscription card m-l-20 m-r-20 m-t-15 m-b-0">
+            <div class="header doctor-plans-subscription__header">
+              <div class="doctor-plans-subscription__plan-block">
+                <span class="doctor-plans-subscription__plan-name">{{ doctor.subscription.plan || '—' }} Plan</span>
+              </div>
+              <div class="header-dropdown">
+                <button type="button"
+                        mat-raised-button
+                        color="primary"
+                        (click)="openBillingPortal()"
+                        [class.auth-spinner]="billingPortalLoading"
+                        [disabled]="billingPortalLoading">
+                  <i class="material-icons align-middle m-r-5" aria-hidden="true">open_in_new</i>
+                  Open billing portal
+                </button>
+              </div>
+            </div>
+            <div class="body">
+              <div class="doctor-plans-subscription__stats">
+                <div class="doctor-plans-subscription__line">
+                  <span class="doctor-plans-subscription__label">Status</span>
+                  <span class="doctor-plans-subscription__value">{{ doctor.subscription.status }}</span>
+                </div>
+                <div class="doctor-plans-subscription__line">
+                  <span class="doctor-plans-subscription__label">Patients</span>
+                  <span class="doctor-plans-subscription__value">
+                    {{ doctor.subscription.patientsCount }} / {{ doctor.subscription.maxPatientsLimit }}
+                  </span>
+                </div>
+                <div class="doctor-plans-subscription__line">
+                  <span class="doctor-plans-subscription__label">Storage</span>
+                  <span class="doctor-plans-subscription__value doctor-plans-subscription__value--storage">
+                    <span *ngIf="(doctor.subscription.storageBytesUsed || 0) < 1024">({{ doctor.subscription.storageBytesUsed || 0 }} bytes)</span>
+                    <span *ngIf="(doctor.subscription.storageBytesUsed || 0) >= 1024 && (doctor.subscription.storageBytesUsed || 0) < 1024 * 1024">({{ (doctor.subscription.storageBytesUsed || 0) / 1024.0 | number : '1.0-1' }} KB)</span>
+                    <span *ngIf="(doctor.subscription.storageBytesUsed || 0) >= 1024 * 1024 && (doctor.subscription.storageBytesUsed || 0) < 1024 * 1024 * 1024">({{ (doctor.subscription.storageBytesUsed || 0) / (1024 * 1024.0) | number : '1.0-1' }} MB)</span>
+                    <span *ngIf="(doctor.subscription.storageBytesUsed || 0) >= 1024 * 1024 * 1024">({{ (doctor.subscription.storageBytesUsed || 0) / (1024 * 1024 * 1024.0) | number : '1.0-1' }} GB)</span>
+                    <span> / </span>
+                    <span *ngIf="(doctor.subscription.maxStorageLimitBytes || 0) < 1024">({{ doctor.subscription.maxStorageLimitBytes || 0 }} bytes)</span>
+                    <span *ngIf="(doctor.subscription.maxStorageLimitBytes || 0) >= 1024 && (doctor.subscription.maxStorageLimitBytes || 0) < 1024 * 1024">({{ (doctor.subscription.maxStorageLimitBytes || 0) / 1024.0 | number : '1.0-1' }} KB)</span>
+                    <span *ngIf="(doctor.subscription.maxStorageLimitBytes || 0) >= 1024 * 1024 && (doctor.subscription.maxStorageLimitBytes || 0) < 1024 * 1024 * 1024">({{ (doctor.subscription.maxStorageLimitBytes || 0) / (1024 * 1024.0) | number : '1.0-1' }} MB)</span>
+                    <span *ngIf="(doctor.subscription.maxStorageLimitBytes || 0) >= 1024 * 1024 * 1024">({{ (doctor.subscription.maxStorageLimitBytes || 0) / (1024 * 1024 * 1024.0) | number : '1.0-1' }} GB)</span>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
           <div class="header">
             <h2>
               <strong>Plans</strong> available
             </h2>
-            <div class="header-dropdown">
-              <button type="button"
-                      mat-raised-button
-                      color="primary"
-                      (click)="openBillingPortal()"
-                      [class.auth-spinner]="billingPortalLoading"
-                      [disabled]="billingPortalLoading">
-                <i class="material-icons align-middle m-r-5" aria-hidden="true">open_in_new</i>
-                Open billing portal
-              </button>
-            </div>
           </div>
           <div class="body">
             <div class="demo">
