@@ -67,6 +67,22 @@ $color_green: #40c952;
   .price{
     color: #ff9624;
   }
+  .price-encourage {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 3px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.35;
+    letter-spacing: 0.02em;
+    color: #c96f00;
+    background: rgba(255, 150, 36, 0.14);
+    border: 1px solid rgba(255, 150, 36, 0.35);
+    border-radius: 999px;
+    vertical-align: middle;
+    white-space: nowrap;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+  }
   &.blue {
     .price-value {
       color: $color_blue;
@@ -91,6 +107,11 @@ $color_green: #40c952;
     }
     .price{
       color: $color_blue;
+    }
+    .price-encourage {
+      color: #3548b8;
+      background: rgba(75, 100, 255, 0.12);
+      border-color: rgba(75, 100, 255, 0.38);
     }
   }
   &.red {
@@ -117,6 +138,11 @@ $color_green: #40c952;
     }
     .price{
       color: $color_red;
+    }
+    .price-encourage {
+      color: #c93a3a;
+      background: rgba(255, 75, 75, 0.12);
+      border-color: rgba(255, 75, 75, 0.38);
     }
   }
   &.greenColor {
@@ -146,6 +172,11 @@ $color_green: #40c952;
     .price{
       color: $color_green;
     }
+    .price-encourage {
+      color: #2d8a3a;
+      background: rgba(64, 201, 82, 0.12);
+      border-color: rgba(64, 201, 82, 0.38);
+    }
   }
   &.blueColor {
     &:hover {
@@ -173,6 +204,11 @@ $color_green: #40c952;
     }
     .price{
       color: $color_blue;
+    }
+    .price-encourage {
+      color: #3548b8;
+      background: rgba(75, 100, 255, 0.12);
+      border-color: rgba(75, 100, 255, 0.38);
     }
   }
   &.redColor {
@@ -202,6 +238,11 @@ $color_green: #40c952;
     .price{
       color: $color_red;
     }
+    .price-encourage {
+      color: #c93a3a;
+      background: rgba(255, 75, 75, 0.12);
+      border-color: rgba(255, 75, 75, 0.38);
+    }
   }
   .pricing-content ul {
     list-style: none;
@@ -225,8 +266,15 @@ $color_green: #40c952;
       box-shadow: 0 0 10px $color_orange;
     }
   }
-  &.green .heading {
-    color: $color_green;
+  &.green {
+    .heading {
+      color: $color_green;
+    }
+    .price-encourage {
+      color: #2d8a3a;
+      background: rgba(64, 201, 82, 0.12);
+      border-color: rgba(64, 201, 82, 0.38);
+    }
   }
 }
 @media screen and (max-width: 990px) {
