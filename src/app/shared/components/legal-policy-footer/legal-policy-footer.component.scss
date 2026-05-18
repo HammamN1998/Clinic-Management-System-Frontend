@@ -1,0 +1,21 @@
+.legal-policy-footer {
+  margin-top: 24px;
+  padding-top: 16px;
+  text-align: center;
+  font-size: 13px;
+  line-height: 1.5;
+  color: rgba(0, 0, 0, 0.55);
+
+  &__link {
+    color: #3699ff;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  &__separator {
+    color: rgba(0, 0, 0, 0.45);
+  }
+}

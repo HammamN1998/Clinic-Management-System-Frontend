@@ -9,6 +9,7 @@ import {NotificationService} from "@core/service/notification.service";
 import { PAYMENT_PLANS } from '@core/util/payment-plans';
 import {finalize} from "rxjs/operators";
 import {DoctorService} from "@core/service/doctor.service";
+import { LegalPolicyFooterComponent } from '@shared/components/legal-policy-footer/legal-policy-footer.component';
 
 @Component({
   selector: 'app-doctor-plans',
@@ -18,7 +19,8 @@ import {DoctorService} from "@core/service/doctor.service";
     MatButtonModule,
     MatIconModule,
     MatTabsModule,
-    SharedModule
+    SharedModule,
+    LegalPolicyFooterComponent,
   ],
   templateUrl: './doctor-plans.component.html',
   styleUrl: './doctor-plans.component.scss'

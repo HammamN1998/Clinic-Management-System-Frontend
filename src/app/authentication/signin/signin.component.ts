@@ -8,6 +8,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
 import { FirebaseAuthenticationService } from "../services/firebase-authentication.service";
 import {NgIf} from "@angular/common";
+import { LegalPolicyFooterComponent } from '@shared/components/legal-policy-footer/legal-policy-footer.component';
 
 @Component({
     selector: 'app-signin',
@@ -23,6 +24,7 @@ import {NgIf} from "@angular/common";
     MatInputModule,
     MatIconModule,
     NgIf,
+    LegalPolicyFooterComponent,
   ],
 })
 export class SigninComponent

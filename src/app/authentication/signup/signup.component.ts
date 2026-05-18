@@ -7,6 +7,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import {FirebaseAuthenticationService} from "../services/firebase-authentication.service";
 import {NgIf} from "@angular/common";
+import { LegalPolicyFooterComponent } from '@shared/components/legal-policy-footer/legal-policy-footer.component';
+
 @Component({
     selector: 'app-signup',
     templateUrl: './signup.component.html',
@@ -21,6 +23,7 @@ import {NgIf} from "@angular/common";
     RouterLink,
     MatButtonModule,
     NgIf,
+    LegalPolicyFooterComponent,
   ],
 })
 export class SignupComponent implements OnInit {
