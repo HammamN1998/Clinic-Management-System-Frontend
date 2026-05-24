@@ -3,6 +3,7 @@ import * as firestore from "firebase/firestore";
 export interface SpecialDiagrams {
   universalTeethDiagram: {[toothId: string]: string}[],
   fdiTeethDiagram: {[toothId: string]: string}[],
+  palmerTeethDiagram: {[toothId: string]: string}[],
 }
 export interface Attachment {
   name: string,
@@ -30,6 +31,7 @@ export class Patient {
   specialDiagrams: SpecialDiagrams = {
     universalTeethDiagram: [],
     fdiTeethDiagram: [],
+    palmerTeethDiagram: [],
   };
   createdAt: firestore.Timestamp = firestore.Timestamp.now();
   notes: string = '';

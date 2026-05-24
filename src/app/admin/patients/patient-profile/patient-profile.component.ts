@@ -21,6 +21,7 @@ import {from} from "rxjs";
 import {MatSlideToggleChange} from "@angular/material/slide-toggle";
 import {UniversalTeethDiagramComponent} from "@shared/components/dentist/universal-teeth-diagram/universal-teeth-diagram.component";
 import {FdiTeethDiagramComponent} from "@shared/components/dentist/fdi-teeth-diagram/fdi-teeth-diagram.component";
+import {PalmerTeethDiagramComponent} from "@shared/components/dentist/palmer-teeth-diagram/palmer-teeth-diagram.component";
 import * as firestore from 'firebase/firestore';
 import {PaymentModel} from "@core/models/payment.model";
 import {TreatmentModel} from "@core/models/treatment.model";
@@ -40,7 +41,7 @@ import {User} from "@core";
   templateUrl: './patient-profile.component.html',
   styleUrls: ['./patient-profile.component.scss'],
   standalone: true,
-  imports: [BreadcrumbComponent, MatButtonModule, MatCheckboxModule, MatFormFieldModule, MatIconModule, MatInputModule, MatTabsModule, MatDatepickerModule, OwlDateTimeModule, OwlNativeDateTimeModule, ReactiveFormsModule, SharedModule, UniversalTeethDiagramComponent, FdiTeethDiagramComponent, FileUploadComponent, FullScreenImageComponent, EditableTextComponent, EditableTextCompactedComponent,],
+  imports: [BreadcrumbComponent, MatButtonModule, MatCheckboxModule, MatFormFieldModule, MatIconModule, MatInputModule, MatTabsModule, MatDatepickerModule, OwlDateTimeModule, OwlNativeDateTimeModule, ReactiveFormsModule, SharedModule, UniversalTeethDiagramComponent, FdiTeethDiagramComponent, FileUploadComponent, FullScreenImageComponent, EditableTextComponent, EditableTextCompactedComponent, PalmerTeethDiagramComponent],
 })
 export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
 
@@ -481,10 +482,19 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
   protected readonly isNullOrUndefined = isNullOrUndefined;
 
   addSpecialDiagram() {
-    if (this.selectedDiagram === 'universalTeethDiagram') {
-      this.patient.specialDiagrams.universalTeethDiagram.push({activated: 'true'});
-    } else if (this.selectedDiagram === 'fdiTeethDiagram') {
-      this.patient.specialDiagrams.fdiTeethDiagram.push({activated: 'true'});
+    switch (this.selectedDiagram) {
+      case 'universalTeethDiagram':
+        this.patient.specialDiagrams.universalTeethDiagram = [];
+        this.patient.specialDiagrams.universalTeethDiagram.push({activated: 'true'});
+        break;
+      case 'fdiTeethDiagram':
+        this.patient.specialDiagrams.fdiTeethDiagram = [];
+        this.patient.specialDiagrams.fdiTeethDiagram.push({activated: 'true'});
+        break;
+      case 'palmerTeethDiagram':
+        this.patient.specialDiagrams.palmerTeethDiagram = [];
+        this.patient.specialDiagrams.palmerTeethDiagram.push({activated: 'true'});
+        break;
     }
   }
 
