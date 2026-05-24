@@ -343,6 +343,17 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
     return this.firestore.collection('patients').doc(this.getDialogData().id).ref.update( {specialDiagrams: newSpecialDiagrams} );
   }
 
+  updateFdiTeethDiagramToothNote(toothId: string, toothNote: string) {
+    const foundToothIndex = this.getDialogData().specialDiagrams.fdiTeethDiagram.findIndex((tooth) => !isNullOrUndefined(tooth[toothId]));
+    if (!isNullOrUndefined(foundToothIndex) && foundToothIndex != -1) {
+      this.getDialogData().specialDiagrams.fdiTeethDiagram[foundToothIndex] = {[toothId]: toothNote};
+    } else {
+      this.getDialogData().specialDiagrams.fdiTeethDiagram.push({[toothId]: toothNote});
+    }
+    const newSpecialDiagrams: SpecialDiagrams = this.getDialogData().specialDiagrams;
+    return this.firestore.collection('patients').doc(this.getDialogData().id).ref.update( {specialDiagrams: newSpecialDiagrams} );
+  }
+
   getPatientInfo(patientId: string) {
     return this.firestore.collection('patients').doc(patientId).get();
   }

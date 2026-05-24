@@ -20,6 +20,7 @@ import {AppointmentDrug, AppointmentModel} from "@core/models/appointment.model"
 import {from} from "rxjs";
 import {MatSlideToggleChange} from "@angular/material/slide-toggle";
 import {UniversalTeethDiagramComponent} from "@shared/components/dentist/universal-teeth-diagram/universal-teeth-diagram.component";
+import {FdiTeethDiagramComponent} from "@shared/components/dentist/fdi-teeth-diagram/fdi-teeth-diagram.component";
 import * as firestore from 'firebase/firestore';
 import {PaymentModel} from "@core/models/payment.model";
 import {TreatmentModel} from "@core/models/treatment.model";
@@ -39,7 +40,7 @@ import {User} from "@core";
   templateUrl: './patient-profile.component.html',
   styleUrls: ['./patient-profile.component.scss'],
   standalone: true,
-  imports: [BreadcrumbComponent, MatButtonModule, MatCheckboxModule, MatFormFieldModule, MatIconModule, MatInputModule, MatTabsModule, MatDatepickerModule, OwlDateTimeModule, OwlNativeDateTimeModule, ReactiveFormsModule, SharedModule, UniversalTeethDiagramComponent, FileUploadComponent, FullScreenImageComponent, EditableTextComponent, EditableTextCompactedComponent,],
+  imports: [BreadcrumbComponent, MatButtonModule, MatCheckboxModule, MatFormFieldModule, MatIconModule, MatInputModule, MatTabsModule, MatDatepickerModule, OwlDateTimeModule, OwlNativeDateTimeModule, ReactiveFormsModule, SharedModule, UniversalTeethDiagramComponent, FdiTeethDiagramComponent, FileUploadComponent, FullScreenImageComponent, EditableTextComponent, EditableTextCompactedComponent,],
 })
 export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
 
@@ -480,8 +481,11 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
   protected readonly isNullOrUndefined = isNullOrUndefined;
 
   addSpecialDiagram() {
-    this.patient.specialDiagrams.universalTeethDiagram.push({activated: 'true'});
-    console.log('selectedDiagram: ' + this.selectedDiagram);
+    if (this.selectedDiagram === 'universalTeethDiagram') {
+      this.patient.specialDiagrams.universalTeethDiagram.push({activated: 'true'});
+    } else if (this.selectedDiagram === 'fdiTeethDiagram') {
+      this.patient.specialDiagrams.fdiTeethDiagram.push({activated: 'true'});
+    }
   }
 
   deleteAttachment(attachment: Attachment) {
