@@ -15,7 +15,7 @@ import {NotificationService} from "@core/service/notification.service";
 import {SharedModule} from "@shared";
 
 @Component({
-  selector: 'app-adult-teeth-diagram',
+  selector: 'app-universal-teeth-diagram',
   standalone: true,
   imports: [
     BreadcrumbComponent,
@@ -30,10 +30,10 @@ import {SharedModule} from "@shared";
     NgIf,
     SharedModule,
   ],
-  templateUrl: './adult-teeth-diagram.component.html',
-  styleUrl: './adult-teeth-diagram.component.scss'
+  templateUrl: './universal-teeth-diagram.component.html',
+  styleUrl: './universal-teeth-diagram.component.scss'
 })
-export class AdultTeethDiagramComponent {
+export class UniversalTeethDiagramComponent {
 
   selectedTooth!: string;
   toothNote: string = '';
@@ -45,16 +45,16 @@ export class AdultTeethDiagramComponent {
   }
   selectTooth(toothId: string) {
     this.selectedTooth = toothId;
-    const foundToothIndex = this.patientService.getDialogData().specialDiagrams.adultTeethDiagram.findIndex((tooth) => !isNullOrUndefined(tooth[toothId]));
+    const foundToothIndex = this.patientService.getDialogData().specialDiagrams.universalTeethDiagram.findIndex((tooth) => !isNullOrUndefined(tooth[toothId]));
     if (!isNullOrUndefined(foundToothIndex) && foundToothIndex != -1) {
-      this.toothNote = this.patientService.getDialogData().specialDiagrams.adultTeethDiagram[foundToothIndex][toothId];
+      this.toothNote = this.patientService.getDialogData().specialDiagrams.universalTeethDiagram[foundToothIndex][toothId];
     } else {
       this.toothNote = '';
     }
   }
 
   saveToothNote() {
-    from( this.patientService.updateAdultTeethDiagramToothNote(this.selectedTooth, this.toothNote))
+    from( this.patientService.updateUniversalTeethDiagramToothNote(this.selectedTooth, this.toothNote))
     .subscribe({
       next: () => {
         this.notificationService.showSnackBarNotification(
@@ -73,7 +73,7 @@ export class AdultTeethDiagramComponent {
   protected readonly isNullOrUndefined = isNullOrUndefined;
 
   isToothExist(toothId: string) {
-    const foundToothIndex = this.patientService.getDialogData().specialDiagrams.adultTeethDiagram.findIndex((tooth) => !isNullOrUndefined(tooth[toothId]) && tooth[toothId].trim() !== '')
+    const foundToothIndex = this.patientService.getDialogData().specialDiagrams.universalTeethDiagram.findIndex((tooth) => !isNullOrUndefined(tooth[toothId]) && tooth[toothId].trim() !== '')
     if (!isNullOrUndefined(foundToothIndex ) && foundToothIndex != -1) return true;
     return false;
   }

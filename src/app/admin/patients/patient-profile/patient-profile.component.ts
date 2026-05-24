@@ -19,7 +19,7 @@ import {ReactiveFormsModule, UntypedFormArray, UntypedFormBuilder, UntypedFormGr
 import {AppointmentDrug, AppointmentModel} from "@core/models/appointment.model";
 import {from} from "rxjs";
 import {MatSlideToggleChange} from "@angular/material/slide-toggle";
-import {AdultTeethDiagramComponent} from "@shared/components/dentist/adult-teeth-diagram/adult-teeth-diagram.component";
+import {UniversalTeethDiagramComponent} from "@shared/components/dentist/universal-teeth-diagram/universal-teeth-diagram.component";
 import * as firestore from 'firebase/firestore';
 import {PaymentModel} from "@core/models/payment.model";
 import {TreatmentModel} from "@core/models/treatment.model";
@@ -39,7 +39,7 @@ import {User} from "@core";
   templateUrl: './patient-profile.component.html',
   styleUrls: ['./patient-profile.component.scss'],
   standalone: true,
-  imports: [BreadcrumbComponent, MatButtonModule, MatCheckboxModule, MatFormFieldModule, MatIconModule, MatInputModule, MatTabsModule, MatDatepickerModule, OwlDateTimeModule, OwlNativeDateTimeModule, ReactiveFormsModule, SharedModule, AdultTeethDiagramComponent, FileUploadComponent, FullScreenImageComponent, EditableTextComponent, EditableTextCompactedComponent,],
+  imports: [BreadcrumbComponent, MatButtonModule, MatCheckboxModule, MatFormFieldModule, MatIconModule, MatInputModule, MatTabsModule, MatDatepickerModule, OwlDateTimeModule, OwlNativeDateTimeModule, ReactiveFormsModule, SharedModule, UniversalTeethDiagramComponent, FileUploadComponent, FullScreenImageComponent, EditableTextComponent, EditableTextCompactedComponent,],
 })
 export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
 
@@ -50,7 +50,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
   patientAppointments: AppointmentModel[] = [];
   patientPayments: PaymentModel[] = [];
   patientTreatments: TreatmentModel[] = [];
-  selectedDiagram: string ='adultTeethDiagram';
+  selectedDiagram: string ='universalTeethDiagram';
 
   constructor(
     private patientService: PatientService,
@@ -480,7 +480,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
   protected readonly isNullOrUndefined = isNullOrUndefined;
 
   addSpecialDiagram() {
-    this.patient.specialDiagrams.adultTeethDiagram.push({activated: 'true'});
+    this.patient.specialDiagrams.universalTeethDiagram.push({activated: 'true'});
     console.log('selectedDiagram: ' + this.selectedDiagram);
   }
 

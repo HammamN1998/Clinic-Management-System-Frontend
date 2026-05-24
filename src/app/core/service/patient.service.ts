@@ -329,14 +329,14 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
     return this.firestore.collection('treatments').doc(id).delete();
   }
 
-  updateAdultTeethDiagramToothNote(toothId: string, toothNote: string) {
+  updateUniversalTeethDiagramToothNote(toothId: string, toothNote: string) {
 
     // Update note if it added before, if not, add new note.
-    const foundToothIndex = this.getDialogData().specialDiagrams.adultTeethDiagram.findIndex((tooth) => !isNullOrUndefined(tooth[toothId]));
+    const foundToothIndex = this.getDialogData().specialDiagrams.universalTeethDiagram.findIndex((tooth) => !isNullOrUndefined(tooth[toothId]));
     if (!isNullOrUndefined(foundToothIndex) && foundToothIndex != -1) {
-      this.getDialogData().specialDiagrams.adultTeethDiagram[foundToothIndex] = {[toothId]: toothNote};
+      this.getDialogData().specialDiagrams.universalTeethDiagram[foundToothIndex] = {[toothId]: toothNote};
     } else {
-      this.getDialogData().specialDiagrams.adultTeethDiagram.push({[toothId]: toothNote});
+      this.getDialogData().specialDiagrams.universalTeethDiagram.push({[toothId]: toothNote});
     }
 
     const newSpecialDiagrams: SpecialDiagrams = this.getDialogData().specialDiagrams;
