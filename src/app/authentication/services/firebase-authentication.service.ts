@@ -105,7 +105,7 @@ export class FirebaseAuthenticationService {
       if (currentUser!.emailVerified) return
       await currentUser!.sendEmailVerification();
       this.notificationService.showSwalNotification(
-        'Verification Link has been sent to your email!',
+        'Verification Link has been sent to your email!\n Check your spam folder if you don\'t see it in your inbox.',
         'success',
         'center',
         true,

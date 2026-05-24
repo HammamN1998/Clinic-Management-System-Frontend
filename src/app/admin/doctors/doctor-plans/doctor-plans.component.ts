@@ -57,7 +57,7 @@ export class DoctorPlansComponent {
   //  array of selected prices
   selectedPrices: any[] = [
     PAYMENT_PLANS[0].prices[0], // For basic plan
-    PAYMENT_PLANS[1].prices[0], // For pro plan
+    PAYMENT_PLANS[1]?.prices[0], // For pro plan
   ];
 
   pay(_plan: any, price: any) {
