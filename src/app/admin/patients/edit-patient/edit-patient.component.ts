@@ -60,6 +60,7 @@ export class EditPatientComponent {
       ],
       bloodGroup: [this.patientService.getDialogData().bloodGroup],
       bloodPressure: [this.patientService.getDialogData().bloodPressure],
+      weight: [this.patientService.getDialogData().weight],
       birthDate: [this.patientService.getDialogData().birthDate.toDate()],
       uploadFile: [this.patientService.getDialogData().img],
     });
@@ -77,6 +78,7 @@ export class EditPatientComponent {
     updatePatient.address = this.patientForm.value.address.toString();
     updatePatient.bloodGroup = this.patientForm.value.bloodGroup.toString();
     updatePatient.bloodPressure = this.patientForm.value.bloodPressure.toString();
+    updatePatient.weight = this.patientForm.value.weight.toString();
     updatePatient.condition = this.patientForm.value.condition.toString();
 
     this.patientService.updatePatient(updatePatient);

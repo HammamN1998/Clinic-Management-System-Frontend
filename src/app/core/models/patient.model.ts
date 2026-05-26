@@ -35,6 +35,7 @@ export class Patient {
   };
   createdAt: firestore.Timestamp = firestore.Timestamp.now();
   notes: string = '';
+  weight: string = '0';
 
   constructor() {}
 }

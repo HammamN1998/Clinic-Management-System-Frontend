@@ -91,6 +91,7 @@ export class FormDialogComponent {
       maritalState: [this.patient.maritalState],
       bloodGroup: [this.patient.bloodGroup],
       bloodPressure: [this.patient.bloodPressure],
+      weight: [this.patient.weight],
       img: [this.patient.img],
     });
   }

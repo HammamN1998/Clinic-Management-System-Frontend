@@ -22,5 +22,8 @@
 # To build angular app
 `npm run build`
 
+# To start angular in local
+`npm start`
+
 # To create a service. SERVICE-PATH root is src/app
 `ng g service SERVICE-PATH` 

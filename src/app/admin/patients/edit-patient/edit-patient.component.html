@@ -144,6 +144,14 @@
                 </div>
               </div>
               <div class="row">
+                <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-3">
+                  <mat-form-field class="example-full-width mb-3" appearance="outline">
+                    <mat-label>Weight (kg)</mat-label>
+                    <input matInput formControlName="weight" type="number">
+                  </mat-form-field>
+                </div>
+              </div>
+              <div class="row">
                 <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-3">
                   <button class="btn-space" [disabled]="!patientForm.valid " mat-raised-button
                     color="primary">Submit</button>

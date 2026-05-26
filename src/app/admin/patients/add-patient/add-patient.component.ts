@@ -64,6 +64,7 @@ export class AddPatientComponent {
       email: [ newPatient.email, [Validators.email, Validators.minLength(5)], ],
       bloodGroup: [newPatient.bloodGroup],
       bloodPressure: [newPatient.bloodPressure],
+      weight: [newPatient.weight],
       birthDate: [newPatient.birthDate.toDate()],
       uploadFile: [newPatient.img],
       doctorId: [newPatient.doctorId],
@@ -99,6 +100,7 @@ export class AddPatientComponent {
     newPatient.address = this.patientForm.value.address.toString();
     newPatient.bloodGroup = this.patientForm.value.bloodGroup.toString();
     newPatient.bloodPressure = this.patientForm.value.bloodPressure.toString();
+    newPatient.weight = this.patientForm.value.weight.toString();
     newPatient.condition = this.patientForm.value.condition.toString();
     newPatient.img = '';
 

@@ -143,6 +143,7 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
         newPatient.maritalState = dialogRef.componentInstance.patientForm.value.maritalState;
         newPatient.bloodGroup = dialogRef.componentInstance.patientForm.value.bloodGroup;
         newPatient.bloodPressure = dialogRef.componentInstance.patientForm.value.bloodPressure;
+        newPatient.weight = dialogRef.componentInstance.patientForm.value.weight;
         newPatient.img = dialogRef.componentInstance.patientForm.value.img;
         this.patientService.addPatient(newPatient);
         this.refreshTable();
@@ -186,6 +187,7 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
         updatePatient.maritalState = dialogRef.componentInstance.patientForm.value.maritalState;
         updatePatient.bloodGroup = dialogRef.componentInstance.patientForm.value.bloodGroup;
         updatePatient.bloodPressure = dialogRef.componentInstance.patientForm.value.bloodPressure;
+        updatePatient.weight = dialogRef.componentInstance.patientForm.value.weight;
         updatePatient.img = dialogRef.componentInstance.patientForm.value.img;
         this.patientService.updatePatient(updatePatient);
         // And lastly refresh table
@@ -386,6 +388,7 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
       'Birth Date': this.formatValue(this.formatTimestamp(patient.birthDate)),
       'Blood Group': this.formatValue(patient.bloodGroup),
       'Blood Pressure': this.formatValue(patient.bloodPressure),
+      'Weight (kg)': this.formatValue(patient.weight),
       'Phone Number': this.formatValue(patient.phoneNumber),
       Email: this.formatValue(patient.email),
       'Marital State': this.formatValue(patient.maritalState),
@@ -471,9 +474,6 @@ export class ExampleDataSource extends DataSource<Patient> {
               patient.firstName +
               patient.lastName +
               patient.address +
-              patient.birthDate +
-              patient.bloodGroup +
-              patient.condition +
               patient.phoneNumber
             ).toLowerCase();
             return searchStr.indexOf(this.filter.toLowerCase()) !== -1;
