@@ -55,7 +55,16 @@
               </div>
             </div>
             <div *ngIf="isNullOrUndefined(patient.attachments) ? true : patient.attachments.length < 3">
-              <app-file-upload rootFolder="doctors/{{this.doctor.id}}/patients/{{this.patient.id}}/attachments" accept="*" (downloadedAttachment)="addAttachment($event)"></app-file-upload>
+              <mat-checkbox [(ngModel)]="compressAttachments" class="compress-attachments-option">
+                Optimize images before upload (recommended for smaller file size)
+              </mat-checkbox>
+              <app-file-upload
+                rootFolder="doctors/{{this.doctor.id}}/patients/{{this.patient.id}}/attachments"
+                accept="*"
+                uploadMode="attachments"
+                [compressImages]="compressAttachments"
+                (downloadedAttachment)="addAttachment($event)"
+              ></app-file-upload>
             </div>
           </div>
         </div>

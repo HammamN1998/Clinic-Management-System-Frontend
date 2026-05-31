@@ -1,8 +1,39 @@
-<div class="file-drop-area">
-  <span>{{file ? file.name : ' Click or drag and drop file here' }}</span>
-  <input class="file-input" type="file"  [accept]="accept" (change)="uploadFile($event)">
-  <mat-progress-bar *ngIf="this.progressPercentageField > 0 && this.progressPercentageField < 100" mode="determinate" [value]="this.progressPercentageField"></mat-progress-bar>
-  <h4 *ngIf="progressPercentageField === 100 && file" class="m-b-20">
-    <span class="label label-success">Uploaded</span>
-  </h4>
+<div class="file-drop-area" [class.file-drop-area--busy]="isBusy">
+  <span>{{ file ? file.name : ' Click or drag and drop file here' }}</span>
+  <input
+    class="file-input"
+    type="file"
+    [accept]="accept"
+    [disabled]="isBusy"
+    (change)="uploadFile($event)"
+  />
+  <p *ngIf="showOptimizationHint" class="upload-hint">
+    Max 10 MB per file. Photos are automatically optimized.
+  </p>
+  <p *ngIf="!showOptimizationHint" class="upload-hint">
+    Max 10 MB per file. Original image quality is preserved.
+  </p>
+
+  <div *ngIf="isPreparing" class="upload-preparing">
+    <mat-spinner diameter="28"></mat-spinner>
+    <span>Optimizing image…</span>
+  </div>
+
+  <mat-progress-bar
+    *ngIf="!isPreparing && progressPercentageField > 0 && progressPercentageField < 100"
+    mode="determinate"
+    [value]="progressPercentageField"
+  ></mat-progress-bar>
+
+  <ng-container *ngIf="progressPercentageField === 100 && file">
+    <h4 class="m-b-20">
+      <span class="label label-success">Uploaded</span>
+    </h4>
+    <p *ngIf="preparationSummary?.compressed" class="upload-summary">
+      Optimized:
+      {{ formatBytes(preparationSummary!.originalSize) }}
+      →
+      {{ formatBytes(preparationSummary!.finalSize) }}
+    </p>
+  </ng-container>
 </div>

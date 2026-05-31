@@ -191,22 +191,36 @@ export class DoctorProfileComponent {
       this.showUploadProfilePicture = !this.showUploadProfilePicture;
     } else {
       const oldImgSize = this.doctor.imgSize;
-      this.firebaseStorageService.deleteFile(this.doctor.img);
-      this.doctor.img = attachment.url;
-      this.doctor.imgSize = attachment.size;
-      from (this.auth.currentUser)
-      .subscribe({
-        next: (user) => {
-          user!.updateProfile({
-            photoURL: attachment.url,
-          })
-          this.doctorService.editDoctor({img: attachment.url, imgSize: attachment.size});
-          this.doctor.subscription.storageBytesUsed += attachment.size - oldImgSize;
+      const oldImgUrl = this.doctor.img;
+      this.firebaseStorageService.deleteFile(oldImgUrl).subscribe({
+        next: () => {
+          this.doctor.img = attachment.url;
+          this.doctor.imgSize = attachment.size;
+          from(this.auth.currentUser).subscribe({
+            next: (user) => {
+              user!.updateProfile({
+                photoURL: attachment.url,
+              });
+              this.doctorService.editDoctor({
+                img: attachment.url,
+                imgSize: attachment.size,
+              });
+              this.doctor.subscription.storageBytesUsed +=
+                attachment.size - oldImgSize;
+            },
+            error: (error) => {
+              console.log('error: ' + error);
+            },
+          });
         },
         error: (error) => {
-          console.log('error: ' + error)
-        }
-      })
+          console.log('error: ' + error);
+          this.notificationService.showSwalOkDialog(
+            'Could not replace the profile image. Please try again.',
+            'error',
+          );
+        },
+      });
     }
     this.showUploadProfilePicture = !this.showUploadProfilePicture;
   }

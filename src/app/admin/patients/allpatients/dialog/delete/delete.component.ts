@@ -14,6 +14,7 @@ export interface PatientDeleteSummary {
 
 export interface DialogData extends Partial<PatientDeleteSummary> {
   patients?: PatientDeleteSummary[];
+  attachmentName?: string;
 }
 
 @Component({

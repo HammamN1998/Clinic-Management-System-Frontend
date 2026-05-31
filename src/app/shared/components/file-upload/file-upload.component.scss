@@ -6,6 +6,10 @@
   margin-top: 5px;
   padding: 26px 20px 30px;
   transition: 0.2s;
+
+  &--busy {
+    opacity: 0.85;
+  }
 }
 
 .file-input {
@@ -16,7 +20,33 @@
   width: 100%;
   cursor: pointer;
   opacity: 0;
+
+  &:disabled {
+    cursor: not-allowed;
+  }
 }
+
+.upload-hint {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: #6c757d;
+}
+
+.upload-preparing {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+  font-size: 13px;
+  color: #5b5bff;
+}
+
+.upload-summary {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: #28a745;
+}
+
 .file-msg {
   display: inline-block;
   margin-left: 5px;

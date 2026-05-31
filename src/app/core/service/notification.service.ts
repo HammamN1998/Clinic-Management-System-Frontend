@@ -40,6 +40,21 @@ export class NotificationService {
     });
   }
 
+  showSwalOkDialog(
+    title: string,
+    icon: SweetAlertIcon = 'info',
+    position: SweetAlertPosition = 'center',
+    confirmButtonText: string = 'OK',
+  ) {
+    Swal.fire({
+      position,
+      icon,
+      title,
+      showConfirmButton: true,
+      confirmButtonText,
+    });
+  }
+
   showSwalDialogWithFunction(
     title: string, 
     text: string, 

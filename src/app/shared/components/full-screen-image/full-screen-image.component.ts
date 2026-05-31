@@ -68,12 +68,33 @@ export class FullScreenImageComponent {
     });
 
     dialogRef.afterClosed().subscribe((result) => {
-      if (result === 1) {
-        if (this.patient.img !== '') this.firebaseStorageService.deleteFile(this.patient.img);
+      if (result !== 1) {
+        return;
+      }
+      const finalizeDelete = () => {
+        const removedSize = this.patient.imgSize ?? 0;
         this.patient.img = '';
         this.patient.imgSize = 0;
         this.patientService.updatePatient(this.patient);
+        this.doctor.subscription.storageBytesUsed = Math.max(
+          0,
+          this.doctor.subscription.storageBytesUsed - removedSize,
+        );
+      };
+      if (this.patient.img === '') {
+        finalizeDelete();
+        return;
       }
+      this.firebaseStorageService.deleteFile(this.patient.img).subscribe({
+        next: () => finalizeDelete(),
+        error: (error) => {
+          console.log('error: ' + error);
+          this.notificationService.showSwalOkDialog(
+            'Could not delete the image from storage. Please try again.',
+            'error',
+          );
+        },
+      });
     });
 
   }
@@ -104,12 +125,23 @@ export class FullScreenImageComponent {
       this.doctor.subscription.storageBytesUsed += attachment.size;
     } else {
       const oldImgSize = this.patient.imgSize;
-      this.firebaseStorageService.deleteFile(this.patient.img);
-      this.patient.img = attachment.url;
-      this.patient.imgSize = attachment.size;
-      this.patientService.updatePatient(this.patient);
+      const oldImgUrl = this.patient.img;
+      this.firebaseStorageService.deleteFile(oldImgUrl).subscribe({
+        next: () => {
+          this.patient.img = attachment.url;
+          this.patient.imgSize = attachment.size;
+          this.patientService.updatePatient(this.patient);
+          this.doctor.subscription.storageBytesUsed += attachment.size - oldImgSize;
+        },
+        error: (error) => {
+          console.log('error: ' + error);
+          this.notificationService.showSwalOkDialog(
+            'Could not replace the profile image. Please try again.',
+            'error',
+          );
+        },
+      });
       this.showUploadPictureArea = !this.showUploadPictureArea;
-      this.doctor.subscription.storageBytesUsed += attachment.size - oldImgSize;
     }
   }
 

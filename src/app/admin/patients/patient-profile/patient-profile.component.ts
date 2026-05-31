@@ -53,6 +53,8 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
   patientPayments: PaymentModel[] = [];
   patientTreatments: TreatmentModel[] = [];
   selectedDiagram: string ='universalTeethDiagram';
+  /** Default on: smaller uploads; uncheck to keep full quality for medical images. */
+  compressAttachments = true;
 
   constructor(
     private patientService: PatientService,
@@ -507,14 +509,41 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
     }
     const dialogRef = this.dialog.open(DeleteComponent, {
       direction: tempDirection,
+      data: { attachmentName: attachment.name } as DialogData,
     });
 
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result === 1) {
-        this.firebaseStorageService.deleteFile(attachment.url);
-        this.patient.attachments = this.patient.attachments.filter(attach => attach !== attachment);
-        this.patientService.updatePatient(this.patient);
+    this.subs.sink = dialogRef.afterClosed().subscribe((result) => {
+      if (result !== 1) {
+        return;
       }
+      this.subs.sink = this.firebaseStorageService
+        .deleteFile(attachment.url)
+        .subscribe({
+          next: () => {
+            const removedSize = attachment.size ?? 0;
+            this.patient.attachments = (this.patient.attachments ?? []).filter(
+              (a) => a.url !== attachment.url,
+            );
+            this.doctor.subscription.storageBytesUsed = Math.max(
+              0,
+              this.doctor.subscription.storageBytesUsed - removedSize,
+            );
+            this.patientService.updatePatient(this.patient);
+            this.notificationService.showSnackBarNotification(
+              'snackbar-success',
+              'Attachment deleted successfully',
+              'bottom',
+              'center',
+            );
+          },
+          error: (error) => {
+            console.log('error: ' + error);
+            this.notificationService.showSwalOkDialog(
+              'Could not delete the file from storage. Please try again.',
+              'error',
+            );
+          },
+        });
     });
   }
 
@@ -541,6 +570,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
     this.patient.attachments.push(attachment);
     this.patientService.updatePatient(this.patient);
     this.doctor.subscription.storageBytesUsed += attachment.size;
+    this.compressAttachments = true;
   }
 
   updatePatientNotes() {

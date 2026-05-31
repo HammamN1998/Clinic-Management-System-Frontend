@@ -40,7 +40,8 @@
               "@ckeditor/ckeditor5-build-classic",
               "fast-deep-equal",
               "rfdc",
-              "bezier-easing"
+              "bezier-easing",
+              "browser-image-compression"
             ],
             "inlineStyleLanguage": "scss",
             "assets": [
