@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {BehaviorSubject, from} from 'rxjs';
+import {from, Observable} from 'rxjs';
 import {Attachment, Patient, SpecialDiagrams} from '@core/models/patient.model';
 import {UnsubscribeOnDestroyAdapter} from '@shared';
 import {FirebaseAuthenticationService} from "../../authentication/services/firebase-authentication.service";
@@ -10,15 +10,20 @@ import {TreatmentModel} from "@core/models/treatment.model";
 import {isNullOrUndefined} from "@swimlane/ngx-datatable";
 import * as firestore from "firebase/firestore";
 import {User} from "@core";
+import firebase from 'firebase/compat/app';
+import 'firebase/compat/firestore';
 
+export interface PatientsPageResult {
+  patients: Patient[];
+  lastDoc: firebase.firestore.QueryDocumentSnapshot | null;
+}
 
 @Injectable({
   providedIn: 'root',
 })
 
 export class PatientService extends UnsubscribeOnDestroyAdapter {
-  isTblLoading = true;
-  dataChange: BehaviorSubject<Patient[]> = new BehaviorSubject<Patient[]>([]);
+  private patientsPageCursors = new Map<number, firebase.firestore.QueryDocumentSnapshot>();
   // Temporarily stores data from dialogs
   dialogData: Patient = new Patient;
   constructor(
@@ -27,58 +32,101 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
   ) {
     super();
   }
-  get data(): Patient[] {
-    return this.dataChange.value;
-  }
   get doctor(): User {
     return this.firebaseAuthenticationService.currentUserValue;
   }
   getDialogData() {
     return this.dialogData;
   }
-  getAllPatients(): void {
-    const tempPatients : Patient[] = [];
-    this.dataChange.next(tempPatients);
-    const doctorId = this.doctor.id;
 
-    this.subs.sink = from (this.firestore.collection('patients').ref.where('doctorId', '==', doctorId).get())
-      .subscribe( {
-        next: (patients) => {
-          patients.docs.map( (patient) => {
-              const tempPatient : Patient = patient.data() as Patient;
-              tempPatients.push(tempPatient);
-            }
-          )
-          this.isTblLoading = false;
-          this.dataChange.next(tempPatients);
-        },
-        error: (error) => {
-          this.isTblLoading = false;
-          console.log('error: ' + JSON.stringify(error))
-        }
-      }
-    );
-
+  clearPatientsPageCursors(): void {
+    this.patientsPageCursors.clear();
   }
+
+  getPatientsPage(
+    pageIndex: number,
+    pageSize: number
+  ): Observable<PatientsPageResult> {
+    return from(this.fetchPatientsPage(pageIndex, pageSize));
+  }
+
+  async getAllPatientsForExport(): Promise<Patient[]> {
+    const snapshot = await this.firestore.collection('patients').ref
+      .where('doctorId', '==', this.doctor.id)
+      .get();
+    return snapshot.docs.map((doc) => doc.data() as Patient);
+  }
+
+  private async fetchPatientsPageRaw(
+    pageSize: number,
+    startAfterDoc?: firebase.firestore.QueryDocumentSnapshot
+  ): Promise<PatientsPageResult> {
+    const safePageSize = Math.max(1, pageSize || 10);
+    let query = this.firestore.collection('patients').ref
+      .where('doctorId', '==', this.doctor.id)
+      .orderBy('createdAt', 'desc')
+      .limit(safePageSize);
+    if (startAfterDoc) {
+      query = query.startAfter(startAfterDoc);
+    }
+    const snapshot = await query.get();
+    const patients = snapshot.docs.map((doc) => doc.data() as Patient);
+    const lastDoc = snapshot.docs.length > 0
+      ? snapshot.docs[snapshot.docs.length - 1] as firebase.firestore.QueryDocumentSnapshot
+      : null;
+    return { patients, lastDoc };
+  }
+
+  private async ensureCursorsUpTo(
+    targetPageIndex: number,
+    pageSize: number
+  ): Promise<void> {
+    if (targetPageIndex === 0 || this.patientsPageCursors.has(targetPageIndex)) {
+      return;
+    }
+
+    let startFromPage = 0;
+    for (let page = targetPageIndex; page >= 1; page--) {
+      if (this.patientsPageCursors.has(page)) {
+        startFromPage = page;
+        break;
+      }
+    }
+
+    for (let page = startFromPage; page < targetPageIndex; page++) {
+      const cursor = page > 0 ? this.patientsPageCursors.get(page) : undefined;
+      const result = await this.fetchPatientsPageRaw(pageSize, cursor);
+      if (result.lastDoc) {
+        this.patientsPageCursors.set(page + 1, result.lastDoc);
+      } else {
+        break;
+      }
+    }
+  }
+
+  private async fetchPatientsPage(
+    pageIndex: number,
+    pageSize: number
+  ): Promise<PatientsPageResult> {
+    await this.ensureCursorsUpTo(pageIndex, pageSize);
+    const cursor = pageIndex > 0 ? this.patientsPageCursors.get(pageIndex) : undefined;
+    const result = await this.fetchPatientsPageRaw(pageSize, cursor);
+    if (result.lastDoc) {
+      this.patientsPageCursors.set(pageIndex + 1, result.lastDoc);
+    }
+    return result;
+  }
+
   async addPatient(patient: Patient): Promise<void> {
     patient.doctorId = this.doctor.id;
     patient.createdAt = firestore.Timestamp.now();
     this.dialogData = patient;
-
-    // Add the patient to the local storage
-    this.dataChange.value.unshift(patient);
 
     try {
       const result = await this.firestore.collection('patients').add({...patient});
       await this.firestore.collection('patients').doc(result.id).ref.update({id: result.id});
       patient.id = result.id;
       this.dialogData = patient;
-      const foundIndex = this.dataChange.value.findIndex((x) => x.id === patient.id);
-      if (foundIndex != null) {
-        this.dataChange.value[foundIndex].id = result.id;
-      } else {
-        console.log('Error: Patient doesn\'t exist!!');
-      }
       this.doctor.subscription.patientsCount++;
       console.log('patient ID: ' + JSON.stringify(result.id));
     } catch (error) {
@@ -91,52 +139,31 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
     patient.doctorId = this.getDialogData().doctorId;
     this.dialogData = patient;
 
-    // Update patient on local storage
-    const foundIndex = this.dataChange.value.findIndex(
-      (x) => x.id === patient.id
-    );
-    if (foundIndex != null) {
-      this.dataChange.value[foundIndex] = patient;
-    } else {
+    from(this.firestore.collection('patients').doc(patient.id).ref.update({...patient}))
+      .subscribe({
+        error: (error) => {
+          console.log('error: ' + JSON.stringify(error));
+        },
+      });
+  }
+
+  async deletePatient(patientId: string): Promise<void> {
+    const doc = await this.firestore.collection('patients').doc(patientId).ref.get();
+    if (!doc.exists) {
       console.log('Error: Patient doesn\'t exist!!');
+      return;
     }
 
-    // Update patient on Firestore
-    from (this.firestore.collection('patients').doc(patient.id).ref.update({...patient}))
-      .subscribe( {
-          error: (error) => {
-            console.log('error: ' + JSON.stringify(error))
-          }
-      }
-    );
-
-  }
-  
-  deletePatient(patientId: string): void {
-
-    const foundIndex = this.dataChange.value.findIndex(
-      (x) => x.id === patientId
-    );
-    const foundPatient = this.dataChange.value[foundIndex];
-    // loop throgh attachments and save the sum of their sizes
+    const foundPatient = doc.data() as Patient;
     let totalSize = 0;
-    foundPatient.attachments.forEach(attachment => {
+    (foundPatient.attachments ?? []).forEach((attachment: Attachment) => {
       totalSize += attachment.size;
     });
-    // Add the patient's image size to the total size
-    totalSize += foundPatient.imgSize;
+    totalSize += foundPatient.imgSize ?? 0;
     this.doctor.subscription.storageBytesUsed -= totalSize;
     this.doctor.subscription.patientsCount--;
 
-    // Delete patient from local storage
-    if (foundIndex != null) {
-      this.dataChange.value.splice(foundIndex, 1);
-    } else {
-      console.log('Error: Patient doesn\'t exist!!');
-    }
-
-    // Delete patient from Firestore
-    this.firestore.collection('patients').doc(patientId).delete()
+    await this.firestore.collection('patients').doc(patientId).delete();
   }
 
   addPatientAppointment(appointment: AppointmentModel) {

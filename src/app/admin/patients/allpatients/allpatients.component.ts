@@ -1,18 +1,16 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, AfterViewInit, ViewChild } from '@angular/core';
 import { PatientService } from '@core/service/patient.service';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
-import { MatSort, MatSortModule } from '@angular/material/sort';
+import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { Patient } from '@core/models/patient.model';
 import { AppointmentModel } from '@core/models/appointment.model';
 import { PaymentModel } from '@core/models/payment.model';
 import { TreatmentModel } from '@core/models/treatment.model';
-import { DataSource } from '@angular/cdk/collections';
 import { FormDialogComponent } from './dialog/form-dialog/form-dialog.component';
-import {DeleteComponent, DialogData} from './dialog/delete/delete.component';
-import { BehaviorSubject, fromEvent, merge, Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import {DeleteComponent, DialogData, PatientDeleteSummary} from './dialog/delete/delete.component';
 import { SelectionModel } from '@angular/cdk/collections';
+import { startWith, take } from 'rxjs/operators';
 import { Direction } from '@angular/cdk/bidi';
 import {
   TableExportUtil,
@@ -24,7 +22,6 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatRippleModule } from '@angular/material/core';
 import { FeatherIconsComponent } from '@shared/components/feather-icons/feather-icons.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatTableModule } from '@angular/material/table';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -46,7 +43,6 @@ import {User} from "@core";
     MatButtonModule,
     MatIconModule,
     MatTableModule,
-    MatSortModule,
     NgClass,
     MatCheckboxModule,
     FeatherIconsComponent,
@@ -57,7 +53,9 @@ import {User} from "@core";
     NgIf,
   ],
 })
-export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements OnInit {
+export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements AfterViewInit {
+
+  readonly defaultPageSize = 10;
 
   displayedColumns = [
     'select',
@@ -70,9 +68,10 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
     'actions',
   ];
 
-  dataSource!: ExampleDataSource;
+  dataSource = new MatTableDataSource<Patient>([]);
   selection = new SelectionModel<Patient>(true, []);
-  index?: number;
+  isLoading = false;
+  private lastPageSize = this.defaultPageSize;
 
   constructor(
     private dialog: MatDialog,
@@ -85,25 +84,32 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
   }
   @ViewChild(MatPaginator, { static: true })
   paginator!: MatPaginator;
-  @ViewChild(MatSort, { static: true })
-  sort!: MatSort;
-  @ViewChild('filter', { static: true }) filter?: ElementRef;
-  ngOnInit() {
-    this.loadData();
+
+  ngAfterViewInit() {
+    setTimeout(() => {
+      this.patientService.clearPatientsPageCursors();
+      this.loadData();
+    });
   }
   get doctor(): User {
     return this.firebaseAuthenticationService.currentUserValue;
   }
   refresh() {
-    this.loadData();
+    this.patientService.clearPatientsPageCursors();
+    this.selection.clear();
+    if (this.paginator.pageIndex !== 0) {
+      this.paginator.pageIndex = 0;
+    } else {
+      this.loadPage();
+    }
   }
   addNew() {
     if (this.doctor.subscription.patientsCount >= this.doctor.subscription.maxPatientsLimit || this.doctor.subscription.status !== 'active') {
       this.notificationService.showSwalDialogWithFunction(
-        this.doctor.subscription.status !== 'active' ? 
+        this.doctor.subscription.status !== 'active' ?
           'Your plan is not active.' :
           'Upgrade your plan to add more patients',
-        this.doctor.subscription.status !== 'active' ? 
+        this.doctor.subscription.status !== 'active' ?
           'Check your billing portal in plans page.' :
           `You have reached the maximum number of patients for your plan (${this.doctor.subscription.maxPatientsLimit} patients). \nYou can upgrade your plan to add more patients.`,
         'error',
@@ -130,7 +136,6 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
     });
     this.subs.sink = dialogRef.afterClosed().subscribe((result) => {
       if (result === 1) {
-        // Add patient to Firestore and local storage
         const newPatient: Patient = new Patient();
         newPatient.firstName = dialogRef.componentInstance.patientForm.value.firstName;
         newPatient.lastName  = dialogRef.componentInstance.patientForm.value.lastName;
@@ -145,8 +150,14 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
         newPatient.bloodPressure = dialogRef.componentInstance.patientForm.value.bloodPressure;
         newPatient.weight = dialogRef.componentInstance.patientForm.value.weight;
         newPatient.img = dialogRef.componentInstance.patientForm.value.img;
-        this.patientService.addPatient(newPatient);
-        this.refreshTable();
+        void this.patientService.addPatient(newPatient).then(() => {
+          this.patientService.clearPatientsPageCursors();
+          if (this.paginator.pageIndex !== 0) {
+            this.paginator.pageIndex = 0;
+          } else {
+            this.loadPage();
+          }
+        });
         this.notificationService.showSnackBarNotification(
           'snackbar-success',
           'Add Record Successfully...!!!',
@@ -174,7 +185,6 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
     });
     this.subs.sink = dialogRef.afterClosed().subscribe((result) => {
       if (result === 1) {
-        // Edit patient on Firestore and local storage
         const updatePatient: Patient = new Patient();
         updatePatient.firstName = dialogRef.componentInstance.patientForm.value.firstName;
         updatePatient.lastName  = dialogRef.componentInstance.patientForm.value.lastName;
@@ -190,8 +200,7 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
         updatePatient.weight = dialogRef.componentInstance.patientForm.value.weight;
         updatePatient.img = dialogRef.componentInstance.patientForm.value.img;
         this.patientService.updatePatient(updatePatient);
-        // And lastly refresh table
-        this.refreshTable();
+        this.loadPage();
         this.notificationService.showSnackBarNotification(
           'black',
           'Edit Record Successfully...!!!',
@@ -221,11 +230,10 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
 
     this.subs.sink = dialogRef.afterClosed().subscribe((result) => {
       if (result === 1) {
-
-        // Delete patient from Firestore and local storage
-        this.patientService.deletePatient(row.id);
-
-        this.refreshTable();
+        void this.patientService.deletePatient(row.id).then(() => {
+          this.patientService.clearPatientsPageCursors();
+          this.loadPage();
+        });
         this.notificationService.showSnackBarNotification(
           'snackbar-danger',
           'Delete Record Successfully...!!!',
@@ -235,59 +243,111 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
       }
     });
   }
-  private refreshTable() {
-    this.paginator._changePageSize(this.paginator.pageSize);
-  }
+
   /** Whether the number of selected elements matches the total number of rows. */
   isAllSelected() {
     const numSelected = this.selection.selected.length;
-    const numRows = this.dataSource.renderedData.length;
-    return numSelected === numRows;
+    const numRows = this.dataSource.data.length;
+    return numSelected === numRows && numRows > 0;
   }
 
   /** Selects all rows if they are not all selected; otherwise clear selection. */
   masterToggle() {
     this.isAllSelected()
       ? this.selection.clear()
-      : this.dataSource.renderedData.forEach((row) =>
+      : this.dataSource.data.forEach((row) =>
         this.selection.select(row)
       );
   }
   removeSelectedRows() {
-    const totalSelect = this.selection.selected.length;
-    this.selection.selected.forEach((item) => {
+    if (!this.selection.hasValue()) {
+      return;
+    }
 
-      // Delete the patient from Firestore and local storage.
-      this.patientService.deletePatient(item.id);
+    const selectedPatients: PatientDeleteSummary[] = this.selection.selected.map((row) => ({
+      id: row.id,
+      gender: row.gender,
+      phoneNumber: row.phoneNumber,
+      bloodGroup: row.bloodGroup,
+      name: row.firstName + ' ' + row.lastName,
+    }));
 
+    let tempDirection: Direction;
+    if (localStorage.getItem('isRtl') === 'true') {
+      tempDirection = 'rtl';
+    } else {
+      tempDirection = 'ltr';
+    }
+
+    const dialogRef = this.dialog.open(DeleteComponent, {
+      data: {
+        patients: selectedPatients,
+      } as DialogData,
+      direction: tempDirection,
     });
 
-    this.refreshTable();
-    this.selection = new SelectionModel<Patient>(true, []);
+    this.subs.sink = dialogRef.afterClosed().subscribe((result) => {
+      if (result === 1) {
+        const totalSelect = selectedPatients.length;
+        const deletePromises = selectedPatients.map((item) =>
+          this.patientService.deletePatient(item.id)
+        );
 
-    this.notificationService.showSnackBarNotification(
-      'snackbar-danger',
-      totalSelect + ' Record Delete Successfully...!!!',
-      'bottom',
-      'center'
-    );
-  }
-  public loadData() {
-    //this.patientService = new PatientService(this.dateService, this.firebaseAuthenticationService, this.firestore);
-    this.dataSource = new ExampleDataSource(
-      this.patientService,
-      this.paginator,
-      this.sort
-    );
-    this.subs.sink = fromEvent(this.filter?.nativeElement, 'keyup').subscribe(
-      () => {
-        if (!this.dataSource) {
-          return;
-        }
-        this.dataSource.filter = this.filter?.nativeElement.value;
+        void Promise.all(deletePromises).then(() => {
+          this.patientService.clearPatientsPageCursors();
+          this.selection.clear();
+          this.loadPage();
+        });
+
+        this.notificationService.showSnackBarNotification(
+          'snackbar-danger',
+          totalSelect + ' Record Delete Successfully...!!!',
+          'bottom',
+          'center'
+        );
       }
-    );
+    });
   }
+
+  public loadData() {
+    this.lastPageSize = this.getEffectivePageSize();
+    this.subs.sink = this.paginator.page.pipe(startWith(null)).subscribe(() => {
+      if (this.paginator.pageSize !== this.lastPageSize) {
+        this.patientService.clearPatientsPageCursors();
+        this.paginator.pageIndex = 0;
+        this.lastPageSize = this.getEffectivePageSize();
+      }
+      this.selection.clear();
+      this.loadPage();
+    });
+  }
+
+  private getEffectivePageSize(): number {
+    const pageSize = this.paginator?.pageSize;
+    return pageSize && pageSize > 0 ? pageSize : this.defaultPageSize;
+  }
+
+  private loadPage() {
+    this.isLoading = true;
+    const pageSize = this.getEffectivePageSize();
+    this.subs.sink = this.patientService
+      .getPatientsPage(
+        this.paginator.pageIndex,
+        pageSize
+      )
+      .pipe(take(1))
+      .subscribe({
+        next: (result) => {
+          this.dataSource.data = result.patients;
+          this.isLoading = false;
+        },
+        error: (error) => {
+          this.isLoading = false;
+          console.log('error: ' + JSON.stringify(error));
+        },
+      });
+  }
+
   private formatTimestamp(value?: firestore.Timestamp, format = 'yyyy-MM-dd'): string {
     if (!value || !value.toDate) {
       return '';
@@ -426,7 +486,9 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
   }
 
   exportAllPatients() {
-    void this.exportPatientsWithAppointments(this.patientService.data, 'patients-all');
+    void this.patientService.getAllPatientsForExport().then((patients) =>
+      this.exportPatientsWithAppointments(patients, 'patients-all')
+    );
   }
 
   goToProfilePage(row: Patient) {
@@ -434,97 +496,4 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
     this.router.navigate(['/admin/patients/patient-profile']);
   }
 
-}
-export class ExampleDataSource extends DataSource<Patient> {
-  filterChange = new BehaviorSubject('');
-  get filter(): string {
-    return this.filterChange.value;
-  }
-  set filter(filter: string) {
-    this.filterChange.next(filter);
-  }
-  filteredData: Patient[] = [];
-  renderedData: Patient[] = [];
-  constructor(
-    public patientService: PatientService,
-    public paginator: MatPaginator,
-    public _sort: MatSort
-  ) {
-    super();
-    // Reset to the first page when the user changes the filter.
-    this.filterChange.subscribe(() => (this.paginator.pageIndex = 0));
-  }
-  /** Connect function called by the table to retrieve one stream containing the data to render. */
-  connect(): Observable<Patient[]> {
-    // Listen for any changes in the base data, sorting, filtering, or pagination
-    const displayDataChanges = [
-      this.patientService.dataChange,
-      this._sort.sortChange,
-      this.filterChange,
-      this.paginator.page,
-    ];
-    this.patientService.getAllPatients();
-    return merge(...displayDataChanges).pipe(
-      map(() => {
-        // Filter data
-        this.filteredData = this.patientService.data
-          .slice()
-          .filter((patient: Patient) => {
-            const searchStr = (
-              patient.firstName +
-              patient.lastName +
-              patient.address +
-              patient.phoneNumber
-            ).toLowerCase();
-            return searchStr.indexOf(this.filter.toLowerCase()) !== -1;
-          });
-        // Sort filtered data
-        const sortedData = this.sortData(this.filteredData.slice());
-        // Grab the page's slice of the filtered sorted data.
-        const startIndex = this.paginator.pageIndex * this.paginator.pageSize;
-        this.renderedData = sortedData.splice(
-          startIndex,
-          this.paginator.pageSize
-        );
-        return this.renderedData;
-      })
-    );
-  }
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  disconnect() { }
-  /** Returns a sorted copy of the database data. */
-  sortData(data: Patient[]): Patient[] {
-    if (!this._sort.active || this._sort.direction === '') {
-      return data;
-    }
-    return data.sort((a, b) => {
-      let propertyA: number | string = '';
-      let propertyB: number | string = '';
-      switch (this._sort.active) {
-        case 'id':
-          [propertyA, propertyB] = [a.id, b.id];
-          break;
-        case 'name':
-          [propertyA, propertyB] = [a.firstName, b.firstName];
-          break;
-        case 'gender':
-          [propertyA, propertyB] = [a.gender, b.gender];
-          break;
-        case 'date':
-          [propertyA, propertyB] = [a.birthDate.toDate().toLocaleDateString(), b.birthDate.toDate().toLocaleDateString()];
-          break;
-        case 'address':
-          [propertyA, propertyB] = [a.address, b.address];
-          break;
-        case 'phoneNumber':
-          [propertyA, propertyB] = [a.phoneNumber, b.phoneNumber];
-          break;
-      }
-      const valueA = isNaN(+propertyA) ? propertyA : +propertyA;
-      const valueB = isNaN(+propertyB) ? propertyB : +propertyB;
-      return (
-        (valueA < valueB ? -1 : 1) * (this._sort.direction === 'asc' ? 1 : -1)
-      );
-    });
-  }
 }

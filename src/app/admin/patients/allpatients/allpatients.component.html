@@ -59,7 +59,7 @@
           </div>
           <div class="body overflow-auto">
             <div class="responsive_table">
-              <table mat-table [dataSource]="dataSource" matSort class="mat-cell advance-table">
+              <table mat-table [dataSource]="dataSource" class="mat-cell advance-table">
                 <!-- Checkbox Column -->
                 <ng-container matColumnDef="select">
                   <mat-header-cell *matHeaderCellDef [ngClass]="'tbl-col-width-per-8'">
@@ -76,7 +76,7 @@
                 </ng-container>
                 <!-- ID Column -->
                 <ng-container matColumnDef="id">
-                  <mat-header-cell *matHeaderCellDef mat-sort-header>Id</mat-header-cell>
+                  <mat-header-cell *matHeaderCellDef>Id</mat-header-cell>
                   <mat-cell *matCellDef="let row">{{row.id}}</mat-cell>
                 </ng-container>
                 <ng-container matColumnDef="img">
@@ -87,11 +87,11 @@
                   </mat-cell>
                 </ng-container>
                 <ng-container matColumnDef="name">
-                  <mat-header-cell *matHeaderCellDef mat-sort-header>Name</mat-header-cell>
+                  <mat-header-cell *matHeaderCellDef>Name</mat-header-cell>
                   <mat-cell *matCellDef="let row"> <span class="phoneNumber-label">Name:</span>{{row.firstName}} {{row.lastName}}</mat-cell>
                 </ng-container>
                 <ng-container matColumnDef="gender">
-                  <mat-header-cell *matHeaderCellDef mat-sort-header>Gender</mat-header-cell>
+                  <mat-header-cell *matHeaderCellDef>Gender</mat-header-cell>
                   <mat-cell mat-cell *matCellDef="let row">
                     <span class="phoneNumber-label">Gender:</span>
                     <div *ngIf="row.gender.toLowerCase() === 'male' ">
@@ -107,22 +107,22 @@
                   </mat-cell>
                 </ng-container>
                 <ng-container matColumnDef="address">
-                  <mat-header-cell *matHeaderCellDef mat-sort-header >Address</mat-header-cell>
+                  <mat-header-cell *matHeaderCellDef>Address</mat-header-cell>
                   <mat-cell *matCellDef="let row" > <span class="truncate-text"><span
                         class="phoneNumber-label">Address:</span>{{row.address}}</span>
                   </mat-cell>
                 </ng-container>
                 <ng-container matColumnDef="phoneNumber">
-                  <mat-header-cell *matHeaderCellDef mat-sort-header>Mobile</mat-header-cell>
+                  <mat-header-cell *matHeaderCellDef>Mobile</mat-header-cell>
                   <mat-cell *matCellDef="let row"> <span class="phoneNumber-label">Mobile:</span>{{row.phoneNumber}}</mat-cell>
                 </ng-container>
                 <ng-container matColumnDef="bloodGroup">
-                  <mat-header-cell *matHeaderCellDef mat-sort-header>Blood Group</mat-header-cell>
+                  <mat-header-cell *matHeaderCellDef>Blood Group</mat-header-cell>
                   <mat-cell *matCellDef="let row"> <span class="phoneNumber-label">Blood Group:</span>{{row.bloodGroup}}
                   </mat-cell>
                 </ng-container>
                 <ng-container matColumnDef="condition">
-                  <mat-header-cell *matHeaderCellDef mat-sort-header>Treatment</mat-header-cell>
+                  <mat-header-cell *matHeaderCellDef>Treatment</mat-header-cell>
                   <mat-cell *matCellDef="let row"><span class="phoneNumber-label">Treatment:</span> {{row.condition}}
                   </mat-cell>
                 </ng-container>
@@ -146,15 +146,15 @@
                 </mat-row>
               </table>
               <!-- Loading spinner -->
-              <div class="tbl-spinner" *ngIf="patientService?.isTblLoading">
+              <div class="tbl-spinner" *ngIf="isLoading">
                 <mat-progress-spinner color="primary" [diameter]="40" mode="indeterminate">
                 </mat-progress-spinner>
               </div>
-              <div class="no-results" *ngIf="!patientService?.isTblLoading" [style.display]="dataSource.renderedData.length === 0 ? '' : 'none'">
+              <div class="no-results" *ngIf="!isLoading" [style.display]="dataSource.data.length === 0 ? '' : 'none'">
                 No results
               </div>
 
-              <mat-paginator #paginator [length]="dataSource.filteredData.length" [pageIndex]="0" [pageSize]="10"
+              <mat-paginator #paginator [length]="doctor.subscription.patientsCount" [pageIndex]="0" [pageSize]="defaultPageSize"
                 [pageSizeOptions]="[5, 10, 25, 100]">
               </mat-paginator>
             </div>

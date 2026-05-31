@@ -67,7 +67,7 @@ export class DoctorPlansComponent {
     ).subscribe({
       next: (res) => {
         if (res?.url) {
-          window.open(res.url, '_blank', 'noopener,noreferrer');
+          window.location.href = res.url;
         }
       },
       error: (err: { message?: string }) => {

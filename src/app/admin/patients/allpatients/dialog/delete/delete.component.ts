@@ -1,15 +1,19 @@
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose } from '@angular/material/dialog';
 import { Component, Inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import {NgIf} from "@angular/common";
+import {NgFor, NgIf} from "@angular/common";
 import {isNullOrUndefined} from "@swimlane/ngx-datatable";
 
-export interface DialogData {
+export interface PatientDeleteSummary {
   id: string;
   name: string;
   gender: string;
   bloodGroup: string;
   phoneNumber: string;
+}
+
+export interface DialogData extends Partial<PatientDeleteSummary> {
+  patients?: PatientDeleteSummary[];
 }
 
 @Component({
@@ -24,6 +28,7 @@ export interface DialogData {
     MatButtonModule,
     MatDialogClose,
     NgIf,
+    NgFor,
   ],
 })
 export class DeleteComponent {
