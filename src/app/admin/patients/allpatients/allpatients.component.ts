@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, ViewChild } from '@angular/core';
+import { Component, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
 import { PatientService } from '@core/service/patient.service';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
@@ -10,7 +10,8 @@ import { TreatmentModel } from '@core/models/treatment.model';
 import { FormDialogComponent } from './dialog/form-dialog/form-dialog.component';
 import {DeleteComponent, DialogData, PatientDeleteSummary} from './dialog/delete/delete.component';
 import { SelectionModel } from '@angular/cdk/collections';
-import { startWith, take } from 'rxjs/operators';
+import { fromEvent } from 'rxjs';
+import { debounceTime, distinctUntilChanged, map, startWith, take } from 'rxjs/operators';
 import { Direction } from '@angular/cdk/bidi';
 import {
   TableExportUtil,
@@ -71,6 +72,12 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
   dataSource = new MatTableDataSource<Patient>([]);
   selection = new SelectionModel<Patient>(true, []);
   isLoading = false;
+  isExportingSelected = false;
+  isExportingAll = false;
+  isSearchMode = false;
+  paginatorLength = 0;
+  private searchTerm = '';
+  private searchPatientsCache: Patient[] | null = null;
   private lastPageSize = this.defaultPageSize;
 
   constructor(
@@ -85,22 +92,34 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
   @ViewChild(MatPaginator, { static: true })
   paginator!: MatPaginator;
 
+  @ViewChild('filter')
+  filterInput!: ElementRef<HTMLInputElement>;
+
   ngAfterViewInit() {
     setTimeout(() => {
+      this.paginatorLength = this.doctor.subscription.patientsCount;
       this.patientService.clearPatientsPageCursors();
       this.loadData();
+      this.subs.sink = fromEvent(this.filterInput.nativeElement, 'keyup').pipe(
+        map((event: Event) => (event.target as HTMLInputElement).value.trim()),
+        debounceTime(300),
+        distinctUntilChanged()
+      ).subscribe((term) => this.onSearchChange(term));
     });
   }
   get doctor(): User {
     return this.firebaseAuthenticationService.currentUserValue;
   }
   refresh() {
-    this.patientService.clearPatientsPageCursors();
+    this.invalidateSearchCache();
+    if (!this.isSearchMode) {
+      this.patientService.clearPatientsPageCursors();
+    }
     this.selection.clear();
     if (this.paginator.pageIndex !== 0) {
       this.paginator.pageIndex = 0;
     } else {
-      this.loadPage();
+      this.loadCurrentPage();
     }
   }
   addNew() {
@@ -151,11 +170,12 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
         newPatient.weight = dialogRef.componentInstance.patientForm.value.weight;
         newPatient.img = dialogRef.componentInstance.patientForm.value.img;
         void this.patientService.addPatient(newPatient).then(() => {
+          this.invalidateSearchCache();
           this.patientService.clearPatientsPageCursors();
           if (this.paginator.pageIndex !== 0) {
             this.paginator.pageIndex = 0;
           } else {
-            this.loadPage();
+            this.loadCurrentPage();
           }
         });
         this.notificationService.showSnackBarNotification(
@@ -200,7 +220,8 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
         updatePatient.weight = dialogRef.componentInstance.patientForm.value.weight;
         updatePatient.img = dialogRef.componentInstance.patientForm.value.img;
         this.patientService.updatePatient(updatePatient);
-        this.loadPage();
+        this.invalidateSearchCache();
+        this.loadCurrentPage();
         this.notificationService.showSnackBarNotification(
           'black',
           'Edit Record Successfully...!!!',
@@ -231,8 +252,11 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
     this.subs.sink = dialogRef.afterClosed().subscribe((result) => {
       if (result === 1) {
         void this.patientService.deletePatient(row.id).then(() => {
-          this.patientService.clearPatientsPageCursors();
-          this.loadPage();
+          this.invalidateSearchCache();
+          if (!this.isSearchMode) {
+            this.patientService.clearPatientsPageCursors();
+          }
+          this.loadCurrentPage();
         });
         this.notificationService.showSnackBarNotification(
           'snackbar-danger',
@@ -294,9 +318,12 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
         );
 
         void Promise.all(deletePromises).then(() => {
-          this.patientService.clearPatientsPageCursors();
+          this.invalidateSearchCache();
+          if (!this.isSearchMode) {
+            this.patientService.clearPatientsPageCursors();
+          }
           this.selection.clear();
-          this.loadPage();
+          this.loadCurrentPage();
         });
 
         this.notificationService.showSnackBarNotification(
@@ -313,13 +340,99 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
     this.lastPageSize = this.getEffectivePageSize();
     this.subs.sink = this.paginator.page.pipe(startWith(null)).subscribe(() => {
       if (this.paginator.pageSize !== this.lastPageSize) {
-        this.patientService.clearPatientsPageCursors();
+        if (!this.isSearchMode) {
+          this.patientService.clearPatientsPageCursors();
+        }
         this.paginator.pageIndex = 0;
         this.lastPageSize = this.getEffectivePageSize();
       }
       this.selection.clear();
-      this.loadPage();
+      this.loadCurrentPage();
     });
+  }
+
+  private onSearchChange(term: string): void {
+    this.searchTerm = term;
+    this.selection.clear();
+    this.paginator.pageIndex = 0;
+
+    if (!term) {
+      this.isSearchMode = false;
+      this.searchPatientsCache = null;
+      this.patientService.clearPatientsPageCursors();
+      this.loadCurrentPage();
+      return;
+    }
+
+    this.isSearchMode = true;
+    this.loadCurrentPage();
+  }
+
+  private loadCurrentPage(): void {
+    if (this.isSearchMode) {
+      this.loadSearchPage();
+      return;
+    }
+    this.loadPage();
+  }
+
+  private invalidateSearchCache(): void {
+    this.searchPatientsCache = null;
+  }
+
+  private filterPatient(patient: Patient, term: string): boolean {
+    const normalizedTerm = term.toLowerCase();
+    const haystack = [
+      patient.firstName,
+      patient.lastName,
+      patient.phoneNumber,
+      patient.email,
+      patient.address,
+      patient.gender,
+    ]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase();
+    return haystack.includes(normalizedTerm);
+  }
+
+  private loadSearchPage(): void {
+    this.isLoading = true;
+    const pageSize = this.getEffectivePageSize();
+
+    const applyResults = (allPatients: Patient[]) => {
+      const sorted = [...allPatients].sort((a, b) => {
+        const aTime = a.createdAt?.toMillis?.() ?? 0;
+        const bTime = b.createdAt?.toMillis?.() ?? 0;
+        return bTime - aTime;
+      });
+      const filtered = sorted.filter((patient) => this.filterPatient(patient, this.searchTerm));
+      this.paginatorLength = filtered.length;
+
+      const maxPageIndex = Math.max(0, Math.ceil(filtered.length / pageSize) - 1);
+      if (this.paginator.pageIndex > maxPageIndex) {
+        this.paginator.pageIndex = maxPageIndex;
+      }
+
+      const start = this.paginator.pageIndex * pageSize;
+      this.dataSource.data = filtered.slice(start, start + pageSize);
+      this.isLoading = false;
+    };
+
+    if (this.searchPatientsCache) {
+      applyResults(this.searchPatientsCache);
+      return;
+    }
+
+    void this.patientService.getAllPatientsForExport()
+      .then((patients) => {
+        this.searchPatientsCache = patients;
+        applyResults(patients);
+      })
+      .catch((error) => {
+        this.isLoading = false;
+        console.log('error: ' + JSON.stringify(error));
+      });
   }
 
   private getEffectivePageSize(): number {
@@ -339,6 +452,7 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
       .subscribe({
         next: (result) => {
           this.dataSource.data = result.patients;
+          this.paginatorLength = this.doctor.subscription.patientsCount;
           this.isLoading = false;
         },
         error: (error) => {
@@ -482,13 +596,32 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
   }
 
   exportSelectedPatients() {
-    void this.exportPatientsWithAppointments(this.selection.selected, 'patients-selected');
+    if (this.isExportingSelected || this.isExportingAll || !this.selection.hasValue()) {
+      return;
+    }
+    this.isExportingSelected = true;
+    void this.exportPatientsWithAppointments(this.selection.selected, 'patients-selected')
+      .catch((error) => {
+        console.log('error: ' + JSON.stringify(error));
+      })
+      .finally(() => {
+        this.isExportingSelected = false;
+      });
   }
 
   exportAllPatients() {
-    void this.patientService.getAllPatientsForExport().then((patients) =>
-      this.exportPatientsWithAppointments(patients, 'patients-all')
-    );
+    if (this.isExportingSelected || this.isExportingAll) {
+      return;
+    }
+    this.isExportingAll = true;
+    void this.patientService.getAllPatientsForExport()
+      .then((patients) => this.exportPatientsWithAppointments(patients, 'patients-all'))
+      .catch((error) => {
+        console.log('error: ' + JSON.stringify(error));
+      })
+      .finally(() => {
+        this.isExportingAll = false;
+      });
   }
 
   goToProfilePage(row: Patient) {

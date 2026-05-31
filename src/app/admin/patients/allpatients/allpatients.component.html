@@ -45,13 +45,25 @@
                   </div>
                 </li>
                 <li *ngIf="selection.hasValue()">
-                  <div class="export-button m-l-10" matTooltip="XLSX (Selected)">
-                    <img src="assets/images/icons/xlsx.png" alt="" (click)="exportSelectedPatients()" />
+                  <div class="export-button m-l-10"
+                    [class.export-button--disabled]="isExportingSelected || isExportingAll"
+                    [matTooltip]="isExportingSelected ? 'Exporting...' : 'XLSX (Selected)'">
+                    <img *ngIf="!isExportingSelected" src="assets/images/icons/xlsx.png" alt=""
+                      (click)="exportSelectedPatients()" />
+                    <mat-progress-spinner *ngIf="isExportingSelected" color="primary" [diameter]="32"
+                      mode="indeterminate">
+                    </mat-progress-spinner>
                   </div>
                 </li>
                 <li>
-                  <div class="export-button m-l-10" matTooltip="XLSX (All Patients)">
-                    <img src="assets/images/icons/xlsx.png" alt="" (click)="exportAllPatients()" />
+                  <div class="export-button m-l-10"
+                    [class.export-button--disabled]="isExportingSelected || isExportingAll"
+                    [matTooltip]="isExportingAll ? 'Exporting...' : 'XLSX (All Patients)'">
+                    <img *ngIf="!isExportingAll" src="assets/images/icons/xlsx.png" alt=""
+                      (click)="exportAllPatients()" />
+                    <mat-progress-spinner *ngIf="isExportingAll" color="primary" [diameter]="32"
+                      mode="indeterminate">
+                    </mat-progress-spinner>
                   </div>
                 </li>
               </ul>
@@ -151,10 +163,10 @@
                 </mat-progress-spinner>
               </div>
               <div class="no-results" *ngIf="!isLoading" [style.display]="dataSource.data.length === 0 ? '' : 'none'">
-                No results
+                {{ isSearchMode ? 'No patients match your search' : 'No patients' }}
               </div>
 
-              <mat-paginator #paginator [length]="doctor.subscription.patientsCount" [pageIndex]="0" [pageSize]="defaultPageSize"
+              <mat-paginator #paginator [length]="paginatorLength" [pageIndex]="0" [pageSize]="defaultPageSize"
                 [pageSizeOptions]="[5, 10, 25, 100]">
               </mat-paginator>
             </div>
