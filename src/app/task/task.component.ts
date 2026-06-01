@@ -16,6 +16,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatButtonModule } from '@angular/material/button';
 import { BreadcrumbComponent } from '@shared/components/breadcrumb/breadcrumb.component';
 import {TaskService} from "@core/service/task.service";
+import { DeleteConfirmDialogService } from '@shared/components/delete-confirm-dialog/delete-confirm-dialog.service';
 
 @Component({
   selector: 'app-task',
@@ -58,6 +59,7 @@ export class TaskComponent {
   constructor(
     private fb: UntypedFormBuilder,
     private taskService: TaskService,
+    private deleteConfirmDialog: DeleteConfirmDialogService,
   ){
 
     this.taskForm = this.createFormGroup(new Task());
@@ -109,9 +111,17 @@ export class TaskComponent {
     const task: Task = new Task({...this.taskForm.value});
     await this.taskService.editTask(task);
   }
-  async deleteTask(nav: MatSidenav) {
+  deleteTask(nav: MatSidenav) {
     const task: Task = new Task({...this.taskForm.value});
-    await this.taskService.deleteTask(task);
-    nav.close();
+    const title = task.title || 'this task';
+    const message = `Delete task "${title}"?`;
+    const dialogRef = this.deleteConfirmDialog.open(message);
+    dialogRef.afterClosed().subscribe(async (result) => {
+      if (result !== 1) {
+        return;
+      }
+      await this.taskService.deleteTask(task);
+      nav.close();
+    });
   }
 }

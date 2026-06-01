@@ -10,6 +10,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { DeleteConfirmDialogService } from '@shared/components/delete-confirm-dialog/delete-confirm-dialog.service';
 
 export interface DialogData {
   id: number;
@@ -45,7 +46,8 @@ export class FormDialogComponent {
     public dialogRef: MatDialogRef<FormDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: DialogData,
     public calendarService: CalendarService,
-    private fb: UntypedFormBuilder
+    private fb: UntypedFormBuilder,
+    private deleteConfirmDialog: DeleteConfirmDialogService,
   ) {
     // Set the defaults
     this.action = data.action;
@@ -89,8 +91,16 @@ export class FormDialogComponent {
     // emppty stuff
   }
   deleteEvent() {
-    this.calendarService.deleteCalendar(this.calendarForm.getRawValue());
-    this.dialogRef.close('delete');
+    const title = this.calendarForm.get('title')?.value ?? '';
+    const message = `Delete calendar event "${title}"?`;
+    const confirmRef = this.deleteConfirmDialog.open(message);
+    confirmRef.afterClosed().subscribe((result) => {
+      if (result !== 1) {
+        return;
+      }
+      this.calendarService.deleteCalendar(this.calendarForm.getRawValue());
+      this.dialogRef.close('delete');
+    });
   }
   onNoClick(): void {
     this.dialogRef.close();

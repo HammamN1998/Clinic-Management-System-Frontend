@@ -8,7 +8,7 @@ import { AppointmentModel } from '@core/models/appointment.model';
 import { PaymentModel } from '@core/models/payment.model';
 import { TreatmentModel } from '@core/models/treatment.model';
 import { FormDialogComponent } from './dialog/form-dialog/form-dialog.component';
-import {DeleteComponent, DialogData, PatientDeleteSummary} from './dialog/delete/delete.component';
+import { DeleteConfirmDialogService } from '@shared/components/delete-confirm-dialog/delete-confirm-dialog.service';
 import { SelectionModel } from '@angular/cdk/collections';
 import { fromEvent } from 'rxjs';
 import { debounceTime, distinctUntilChanged, map, startWith, take } from 'rxjs/operators';
@@ -82,6 +82,7 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
 
   constructor(
     private dialog: MatDialog,
+    private deleteConfirmDialog: DeleteConfirmDialogService,
     public patientService: PatientService,
     private notificationService: NotificationService,
     private router: Router,
@@ -232,22 +233,9 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
     });
   }
   deleteItem(row: Patient) {
-    let tempDirection: Direction;
-    if (localStorage.getItem('isRtl') === 'true') {
-      tempDirection = 'rtl';
-    } else {
-      tempDirection = 'ltr';
-    }
-    const dialogRef = this.dialog.open(DeleteComponent, {
-      data: {
-        id: row.id,
-        gender: row.gender,
-        phoneNumber: row.phoneNumber,
-        bloodGroup: row.bloodGroup,
-        name: row.firstName + ' ' + row.lastName,
-      } as DialogData,
-      direction: tempDirection,
-    });
+    const name = `${row.firstName} ${row.lastName}`.trim();
+    const message = `Delete patient ${name}?`;
+    const dialogRef = this.deleteConfirmDialog.open(message);
 
     this.subs.sink = dialogRef.afterClosed().subscribe((result) => {
       if (result === 1) {
@@ -288,33 +276,16 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
       return;
     }
 
-    const selectedPatients: PatientDeleteSummary[] = this.selection.selected.map((row) => ({
-      id: row.id,
-      gender: row.gender,
-      phoneNumber: row.phoneNumber,
-      bloodGroup: row.bloodGroup,
-      name: row.firstName + ' ' + row.lastName,
-    }));
-
-    let tempDirection: Direction;
-    if (localStorage.getItem('isRtl') === 'true') {
-      tempDirection = 'rtl';
-    } else {
-      tempDirection = 'ltr';
-    }
-
-    const dialogRef = this.dialog.open(DeleteComponent, {
-      data: {
-        patients: selectedPatients,
-      } as DialogData,
-      direction: tempDirection,
-    });
+    const selected = this.selection.selected;
+    const n = selected.length;
+    const message = `Delete ${n} patient(s)?`;
+    const dialogRef = this.deleteConfirmDialog.open(message);
 
     this.subs.sink = dialogRef.afterClosed().subscribe((result) => {
       if (result === 1) {
-        const totalSelect = selectedPatients.length;
-        const deletePromises = selectedPatients.map((item) =>
-          this.patientService.deletePatient(item.id)
+        const totalSelect = n;
+        const deletePromises = selected.map((row) =>
+          this.patientService.deletePatient(row.id)
         );
 
         void Promise.all(deletePromises).then(() => {

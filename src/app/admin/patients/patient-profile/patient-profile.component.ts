@@ -9,8 +9,7 @@ import {MatInputModule} from "@angular/material/input";
 import {MatTabsModule} from "@angular/material/tabs";
 import {Router} from "@angular/router";
 import {MatDialog} from "@angular/material/dialog";
-import {DeleteComponent, DialogData} from "../allpatients/dialog/delete/delete.component";
-import {Direction} from "@angular/cdk/bidi";
+import { DeleteConfirmDialogService } from '@shared/components/delete-confirm-dialog/delete-confirm-dialog.service';
 import {NotificationService} from "@core/service/notification.service";
 import {SharedModule, UnsubscribeOnDestroyAdapter} from "@shared";
 import {MatDatepickerModule} from "@angular/material/datepicker";
@@ -60,6 +59,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
     private patientService: PatientService,
     private router: Router,
     private dialog: MatDialog,
+    private deleteConfirmDialog: DeleteConfirmDialogService,
     private notificationService: NotificationService,
     private formBuilder: UntypedFormBuilder,
     private firebaseStorageService: FirebaseStorageService,
@@ -89,22 +89,13 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
   }
 
   deletePatient() {
-    let tempDirection: Direction;
-    if (localStorage.getItem('isRtl') === 'true') {
-      tempDirection = 'rtl';
-    } else {
-      tempDirection = 'ltr';
-    }
-    const dialogRef = this.dialog.open(DeleteComponent, {
-      data: {
-        id: this.patient.id,
-        gender: this.patient.gender,
-        phoneNumber: this.patient.phoneNumber,
-        bloodGroup: this.patient.bloodGroup,
-        name: this.patient.firstName + ' ' + this.patient.lastName,
-      } as DialogData,
-      direction: tempDirection,
-    });
+    const name = `${this.patient.firstName} ${this.patient.lastName}`.trim();
+    const message =
+      `Delete patient ${name}?\n` +
+      `Gender: ${this.patient.gender}\n` +
+      `Blood Group: ${this.patient.bloodGroup}\n` +
+      `Mobile: ${this.patient.phoneNumber}`;
+    const dialogRef = this.deleteConfirmDialog.open(message);
 
     this.subs.sink = dialogRef.afterClosed().subscribe((result) => {
       if (result === 1) {
@@ -137,12 +128,13 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
     newAppointment.assessment = this.appointmentForm.get('assessment')?.value ?? '';
     newAppointment.plan = this.appointmentForm.get('plan')?.value ?? '';
 
+    // clear the form
+    this.appointmentForm = this.createAppointmentForm();
+    this.appointmentDrugs.clear();
+    
     from(this.patientService.addPatientAppointment(newAppointment))
     .subscribe({
       next: () => {
-        // clear the form
-        this.appointmentForm = this.createAppointmentForm();
-        this.appointmentDrugs.clear();
         // show success  message
         this.notificationService.showSnackBarNotification(
           'snackbar-success',
@@ -164,11 +156,11 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
     newPayment.date = firestore.Timestamp.fromDate(this.paymentForm.get('date')?.value);
     newPayment.details = this.paymentForm.get('details')?.value;
 
+    this.paymentForm = this.createPaymentForm();
 
     from(this.patientService.addPatientPayment(newPayment))
       .subscribe({
         next: () => {
-          this.paymentForm = this.createPaymentForm();
           this.notificationService.showSnackBarNotification(
             'snackbar-success',
             'Add Payment Successfully...!!!',
@@ -190,11 +182,11 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
     newTreatment.date = firestore.Timestamp.fromDate(this.treatmentForm.get('date')?.value);
     newTreatment.details = this.treatmentForm.get('details')?.value;
 
+    this.treatmentForm = this.createTreatmentForm();
 
     from(this.patientService.addPatientTreatment(newTreatment))
       .subscribe({
         next: () => {
-          this.treatmentForm = this.createTreatmentForm();
           this.notificationService.showSnackBarNotification(
             'snackbar-success',
             'Add Treatment Successfully...!!!',
@@ -268,8 +260,8 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
 
   private createDrugForm(): UntypedFormGroup {
     return this.formBuilder.group({
-      name: ['', [Validators.required]],
-      type: ['', [Validators.required]],
+      name: [''],
+      type: [''],
       duration: [''],
       notes: ['']
     });
@@ -435,18 +427,52 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
   }
 
   deleteAppointment(appointment: AppointmentModel) {
-    this.patientAppointments.splice(this.patientAppointments.findIndex((foundAppointment) => foundAppointment.id === appointment.id), 1);
-    this.patientService.deleteAppointment(appointment.id);
+    const date = appointment.date.toDate().toDateString();
+    const message = `Delete appointment on ${date}?`;
+    const dialogRef = this.deleteConfirmDialog.open(message);
+    this.subs.sink = dialogRef.afterClosed().subscribe((result) => {
+      if (result !== 1) {
+        return;
+      }
+      this.patientAppointments.splice(
+        this.patientAppointments.findIndex(
+          (foundAppointment) => foundAppointment.id === appointment.id,
+        ),
+        1,
+      );
+      this.patientService.deleteAppointment(appointment.id);
+    });
   }
 
   deletePayment(payment: PaymentModel) {
-    this.patientPayments.splice(this.patientPayments.findIndex((foundPayment) => foundPayment.id === payment.id), 1);
-    this.patientService.deletePayment(payment.id);
+    const message = `Delete payment of ${payment.amount} NIS?`;
+    const dialogRef = this.deleteConfirmDialog.open(message);
+    this.subs.sink = dialogRef.afterClosed().subscribe((result) => {
+      if (result !== 1) {
+        return;
+      }
+      this.patientPayments.splice(
+        this.patientPayments.findIndex((foundPayment) => foundPayment.id === payment.id),
+        1,
+      );
+      this.patientService.deletePayment(payment.id);
+    });
   }
 
   deleteTreatment(treatment: TreatmentModel) {
-    this.patientTreatments.splice(this.patientTreatments.findIndex((foundTreatment) => foundTreatment.id === treatment.id), 1);
-    this.patientService.deleteTreatment(treatment.id);
+    const date = treatment.date.toDate().toDateString();
+    const message = `Delete treatment on ${date}?`;
+    const dialogRef = this.deleteConfirmDialog.open(message);
+    this.subs.sink = dialogRef.afterClosed().subscribe((result) => {
+      if (result !== 1) {
+        return;
+      }
+      this.patientTreatments.splice(
+        this.patientTreatments.findIndex((foundTreatment) => foundTreatment.id === treatment.id),
+        1,
+      );
+      this.patientService.deleteTreatment(treatment.id);
+    });
   }
 
   getTreatmentsCost(): number {
@@ -501,16 +527,8 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
   }
 
   deleteAttachment(attachment: Attachment) {
-    let tempDirection: Direction;
-    if (localStorage.getItem('isRtl') === 'true') {
-      tempDirection = 'rtl';
-    } else {
-      tempDirection = 'ltr';
-    }
-    const dialogRef = this.dialog.open(DeleteComponent, {
-      direction: tempDirection,
-      data: { attachmentName: attachment.name } as DialogData,
-    });
+    const message = `Delete attachment: ${attachment.name}`;
+    const dialogRef = this.deleteConfirmDialog.open(message);
 
     this.subs.sink = dialogRef.afterClosed().subscribe((result) => {
       if (result !== 1) {

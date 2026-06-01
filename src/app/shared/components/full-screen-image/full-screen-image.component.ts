@@ -5,8 +5,7 @@ import {SharedModule} from "@shared";
 import {FileUploadComponent} from "@shared/components/file-upload/file-upload.component";
 import {PatientService} from "@core/service/patient.service";
 import {FirebaseStorageService} from "@core/service/firebase-storage.service";
-import {Direction} from "@angular/cdk/bidi";
-import {DeleteComponent} from "../../../admin/patients/allpatients/dialog/delete/delete.component";
+import { DeleteConfirmDialogService } from '@shared/components/delete-confirm-dialog/delete-confirm-dialog.service';
 import { Attachment } from '@core/models/patient.model';
 import { NotificationService } from '@core/service/notification.service';
 import { Router } from '@angular/router';
@@ -31,6 +30,7 @@ export class FullScreenImageComponent {
 
   constructor(
     private dialog: MatDialog,
+    private deleteConfirmDialog: DeleteConfirmDialogService,
     private patientService: PatientService,
     private firebaseStorageService: FirebaseStorageService,
     private notificationService: NotificationService,
@@ -57,15 +57,7 @@ export class FullScreenImageComponent {
   }
 
   deleteImage() {
-    let tempDirection: Direction;
-    if (localStorage.getItem('isRtl') === 'true') {
-      tempDirection = 'rtl';
-    } else {
-      tempDirection = 'ltr';
-    }
-    const dialogRef = this.dialog.open(DeleteComponent, {
-      direction: tempDirection,
-    });
+    const dialogRef = this.deleteConfirmDialog.open('Delete profile image?');
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result !== 1) {
