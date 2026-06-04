@@ -9,6 +9,7 @@ import {AngularFirestore} from "@angular/fire/compat/firestore";
 import {AngularFireFunctions} from "@angular/fire/compat/functions";
 import {Router} from "@angular/router";
 import {NotificationService} from "@core/service/notification.service";
+import {TranslateService} from "@ngx-translate/core";
 
 @Injectable({
   providedIn: 'root'
@@ -24,6 +25,7 @@ export class FirebaseAuthenticationService {
     private router: Router,
     private notificationService: NotificationService,
     private functions: AngularFireFunctions,
+    private translate: TranslateService,
   ) {
 
     this.currentUserSubject = new BehaviorSubject<User>(
@@ -105,7 +107,7 @@ export class FirebaseAuthenticationService {
       if (currentUser!.emailVerified) return
       await currentUser!.sendEmailVerification();
       this.notificationService.showSwalNotification(
-        'Verification Link has been sent to your email!\n Check your spam folder if you don\'t see it in your inbox.',
+        this.translate.instant('AUTH.VERIFY.LINK_SENT'),
         'success',
         'center',
         true,

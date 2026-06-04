@@ -65,7 +65,21 @@
       "MAX_PRESERVED": "Max 10 MB per file. Original image quality is preserved.",
       "OPTIMIZING": "Optimizing image…",
       "UPLOADED": "Uploaded",
-      "OPTIMIZED": "Optimized:"
+      "OPTIMIZED": "Optimized:",
+      "UPLOAD_FAILED": "Upload failed. Please try again.",
+      "PREPARE_FAILED": "Could not prepare file for upload.",
+      "ERRORS": {
+        "FILE_TOO_LARGE": "File exceeds the {{limit}} limit.",
+        "TOO_LARGE_AFTER_COMPRESSION": "Image is too large even after optimization (max {{limit}}). Try a smaller photo.",
+        "COMPRESSION_FAILED": "Could not optimize the image. Try another file or a smaller photo.",
+        "UNSUPPORTED_TYPE_IMAGE": "Could not detect file type. Use a .jpg, .jpeg, .png, .webp, .gif, or .bmp image.",
+        "UNSUPPORTED_TYPE_ATTACHMENT": "Could not detect file type. Use .jpg, .png, .webp, .gif, .bmp, .pdf, .doc, .docx, .xls, or .xlsx."
+      }
+    },
+    "IMAGE": {
+      "DELETE_CONFIRM": "Delete profile image?",
+      "DELETE_ERROR": "Could not delete the image from storage. Please try again.",
+      "REPLACE_ERROR": "Could not replace the profile image. Please try again."
     },
     "EDIT_TOOLTIP": "Edit {{name}}",
     "INVOICE": {
@@ -120,7 +134,23 @@
       "NEW_EMAIL_PLACEHOLDER": "name@example.com",
       "CURRENT_PASSWORD": "Current password",
       "CURRENT_PASSWORD_PLACEHOLDER": "Enter your password",
-      "UPDATE_EMAIL": "Update email"
+      "UPDATE_EMAIL": "Update email",
+      "LINK_SENT": "Verification Link has been sent to your email!\n Check your spam folder if you don't see it in your inbox.",
+      "MESSAGES": {
+        "RESEND_SUCCESS": "Verification email sent. Please check your inbox.",
+        "RESEND_ERROR": "Failed to resend verification email. {{error}}",
+        "STILL_NOT_VERIFIED": "Still not verified. Please check your inbox and click the verification link.",
+        "CONFIRM_ERROR": "Could not confirm verification status. Please try again.",
+        "ENTER_NEW_EMAIL": "Please enter a new email address.",
+        "ENTER_PASSWORD": "Please enter your current password.",
+        "CHANGE_EMAIL_SENT": "We sent a verification link to your new email address. Click it to finish updating your email.",
+        "WRONG_PASSWORD": "Incorrect password.",
+        "REQUIRES_RECENT_LOGIN": "Please sign in again and retry updating your email.",
+        "EMAIL_IN_USE": "This email is already in use.",
+        "INVALID_EMAIL": "Invalid email address.",
+        "OPERATION_NOT_ALLOWED": "Email update is not allowed until the new email is verified. Please use the verification link sent to your new email.",
+        "UPDATE_EMAIL_ERROR": "Failed to update email. {{error}}"
+      }
     },
     "LOCKED": {
       "LOCKED": "Locked",

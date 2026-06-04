@@ -1,16 +1,4 @@
-// remove the arrows from the number input
-/* Chrome, Safari, Edge (Chromium) */
-input[type='number']::-webkit-inner-spin-button,
-input[type='number']::-webkit-outer-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-/* Firefox */
-input[type='number'] {
-  -moz-appearance: textfield;
-}
 .compress-attachments-option {
   display: block;
   margin: 12px 0 8px;
 }
-//-----------------------------------------

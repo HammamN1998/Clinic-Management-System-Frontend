@@ -9,6 +9,7 @@ import { DeleteConfirmDialogService } from '@shared/components/delete-confirm-di
 import { Attachment } from '@core/models/patient.model';
 import { NotificationService } from '@core/service/notification.service';
 import { Router } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-full-screen-image',
@@ -35,6 +36,7 @@ export class FullScreenImageComponent {
     private firebaseStorageService: FirebaseStorageService,
     private notificationService: NotificationService,
     private router: Router,
+    private translate: TranslateService,
   ) {
   }
 
@@ -57,7 +59,7 @@ export class FullScreenImageComponent {
   }
 
   deleteImage() {
-    const dialogRef = this.deleteConfirmDialog.open('Delete profile image?');
+    const dialogRef = this.deleteConfirmDialog.open(this.translate.instant('SHARED.IMAGE.DELETE_CONFIRM'));
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result !== 1) {
@@ -82,7 +84,7 @@ export class FullScreenImageComponent {
         error: (error) => {
           console.log('error: ' + error);
           this.notificationService.showSwalOkDialog(
-            'Could not delete the image from storage. Please try again.',
+            this.translate.instant('SHARED.IMAGE.DELETE_ERROR'),
             'error',
           );
         },
@@ -95,14 +97,14 @@ export class FullScreenImageComponent {
     if (this.doctor.subscription.storageBytesUsed + attachment.size > this.doctor.subscription.maxStorageLimitBytes || this.doctor.subscription.status !== 'active') {
       this.notificationService.showSwalDialogWithFunction(
         this.doctor.subscription.status !== 'active' ?
-          'Your plan is not active.' :
-          'Upgrade your plan to add more storage',
+          this.translate.instant('PATIENTS.MESSAGES.PLAN_INACTIVE_TITLE') :
+          this.translate.instant('PATIENTS.PROFILE.MESSAGES.UPGRADE_STORAGE_TITLE'),
         this.doctor.subscription.status !== 'active' ?
-          'Check your billing portal in plans page.' :
-          `You have reached the maximum storage for your plan (${this.doctor.subscription.maxStorageLimitBytes} bytes). \nYou can upgrade your plan to add more storage.`,
+          this.translate.instant('PATIENTS.MESSAGES.PLAN_INACTIVE_TEXT') :
+          this.translate.instant('PATIENTS.PROFILE.MESSAGES.UPGRADE_STORAGE_TEXT', { bytes: this.doctor.subscription.maxStorageLimitBytes }),
         'error',
         true,
-        'Go to plan page',
+        this.translate.instant('PATIENTS.MESSAGES.GO_TO_PLAN'),
         () => {
           this.router.navigate(['/admin/doctors/doctor-plans']);
         }
@@ -128,7 +130,7 @@ export class FullScreenImageComponent {
         error: (error) => {
           console.log('error: ' + error);
           this.notificationService.showSwalOkDialog(
-            'Could not replace the profile image. Please try again.',
+            this.translate.instant('SHARED.IMAGE.REPLACE_ERROR'),
             'error',
           );
         },

@@ -9,7 +9,7 @@ import { FormsModule } from '@angular/forms';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-verify-email',
@@ -33,7 +33,8 @@ export class VerifyEmailComponent {
     private auth: AngularFireAuth,
     private firebaseAuthenticationService: FirebaseAuthenticationService,
     private firestore: AngularFirestore,
-    private router: Router
+    private router: Router,
+    private translate: TranslateService
   ) {
     void this.loadEmail();
   }
@@ -49,9 +50,9 @@ export class VerifyEmailComponent {
     this.info = '';
     try {
       await this.firebaseAuthenticationService.sendEmailVerificationCode();
-      this.info = 'Verification email sent. Please check your inbox.';
+      this.info = this.translate.instant('AUTH.VERIFY.MESSAGES.RESEND_SUCCESS');
     } catch (e) {
-      this.error = 'Failed to resend verification email. ' + e;
+      this.error = this.translate.instant('AUTH.VERIFY.MESSAGES.RESEND_ERROR', { error: e });
     } finally {
       this.resendLoading = false;
     }
@@ -79,10 +80,10 @@ export class VerifyEmailComponent {
         // refresh the page
         window.location.reload();
       } else {
-        this.info = 'Still not verified. Please check your inbox and click the verification link.';
+        this.info = this.translate.instant('AUTH.VERIFY.MESSAGES.STILL_NOT_VERIFIED');
       }
     } catch (e) {
-      this.error = 'Could not confirm verification status. Please try again.';
+      this.error = this.translate.instant('AUTH.VERIFY.MESSAGES.CONFIRM_ERROR');
     } finally {
       this.loading = false;
     }
@@ -101,12 +102,12 @@ export class VerifyEmailComponent {
     const password = this.currentPassword;
 
     if (!newEmail) {
-      this.error = 'Please enter a new email address.';
+      this.error = this.translate.instant('AUTH.VERIFY.MESSAGES.ENTER_NEW_EMAIL');
       this.changeEmailLoading = false;
       return;
     }
     if (!password) {
-      this.error = 'Please enter your current password.';
+      this.error = this.translate.instant('AUTH.VERIFY.MESSAGES.ENTER_PASSWORD');
       this.changeEmailLoading = false;
       return;
     }
@@ -125,7 +126,7 @@ export class VerifyEmailComponent {
       }
 
       await (user as any).verifyBeforeUpdateEmail(newEmail);
-      this.info = 'We sent a verification link to your new email address. Click it to finish updating your email.';
+      this.info = this.translate.instant('AUTH.VERIFY.MESSAGES.CHANGE_EMAIL_SENT');
 
       this.newEmail = '';
       this.currentPassword = '';
@@ -151,17 +152,17 @@ export class VerifyEmailComponent {
     const code = error?.code as string | undefined;
     switch (code) {
       case 'auth/wrong-password':
-        return 'Incorrect password.';
+        return this.translate.instant('AUTH.VERIFY.MESSAGES.WRONG_PASSWORD');
       case 'auth/requires-recent-login':
-        return 'Please sign in again and retry updating your email.';
+        return this.translate.instant('AUTH.VERIFY.MESSAGES.REQUIRES_RECENT_LOGIN');
       case 'auth/email-already-in-use':
-        return 'This email is already in use.';
+        return this.translate.instant('AUTH.VERIFY.MESSAGES.EMAIL_IN_USE');
       case 'auth/invalid-email':
-        return 'Invalid email address.';
+        return this.translate.instant('AUTH.VERIFY.MESSAGES.INVALID_EMAIL');
       case 'auth/operation-not-allowed':
-        return 'Email update is not allowed until the new email is verified. Please use the verification link sent to your new email.';
+        return this.translate.instant('AUTH.VERIFY.MESSAGES.OPERATION_NOT_ALLOWED');
       default:
-        return `Failed to update email. ${error?.message ?? ''}`.trim();
+        return this.translate.instant('AUTH.VERIFY.MESSAGES.UPDATE_EMAIL_ERROR', { error: error?.message ?? '' }).trim();
     }
   }
 }

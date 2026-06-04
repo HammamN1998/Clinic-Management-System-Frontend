@@ -8,7 +8,7 @@ import { finalize, from } from 'rxjs';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { NgIf } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import firebase from 'firebase/compat';
 import storage = firebase.storage;
 import { Attachment } from '@core/models/patient.model';
@@ -70,6 +70,7 @@ export class FileUploadComponent implements ControlValueAccessor, OnInit {
     private doctorService: DoctorService,
     private router: Router,
     private fileUploadPreprocessor: FileUploadPreprocessorService,
+    private translate: TranslateService,
   ) {}
 
   ngOnInit(): void {
@@ -135,14 +136,14 @@ export class FileUploadComponent implements ControlValueAccessor, OnInit {
     ) {
       this.notificationService.showSwalDialogWithFunction(
         this.doctorService.doctor.subscription.status !== 'active'
-          ? 'Your plan is not active.'
-          : 'Upgrade your plan to add more storage',
+          ? this.translate.instant('PATIENTS.MESSAGES.PLAN_INACTIVE_TITLE')
+          : this.translate.instant('PATIENTS.PROFILE.MESSAGES.UPGRADE_STORAGE_TITLE'),
         this.doctorService.doctor.subscription.status !== 'active'
-          ? 'Check your billing portal in plans page.'
-          : `You have reached the maximum storage for your plan (${this.doctorService.doctor.subscription.maxStorageLimitBytes} bytes). \nYou can upgrade your plan to add more storage.`,
+          ? this.translate.instant('PATIENTS.MESSAGES.PLAN_INACTIVE_TEXT')
+          : this.translate.instant('PATIENTS.PROFILE.MESSAGES.UPGRADE_STORAGE_TEXT', { bytes: this.doctorService.doctor.subscription.maxStorageLimitBytes }),
         'error',
         true,
-        'Go to plan page',
+        this.translate.instant('PATIENTS.MESSAGES.GO_TO_PLAN'),
         () => {
           this.router.navigate(['/admin/doctors/doctor-plans']);
         },
@@ -186,7 +187,7 @@ export class FileUploadComponent implements ControlValueAccessor, OnInit {
               this.isUploading = false;
               this.resetSelection(input);
               this.notificationService.showSwalOkDialog(
-                'Upload failed. Please try again.',
+                this.translate.instant('SHARED.FILE_UPLOAD.UPLOAD_FAILED'),
                 'error',
               );
             },
@@ -206,7 +207,7 @@ export class FileUploadComponent implements ControlValueAccessor, OnInit {
           this.isUploading = false;
           this.resetSelection(input);
           this.notificationService.showSwalOkDialog(
-            'Upload failed. Please try again.',
+            this.translate.instant('SHARED.FILE_UPLOAD.UPLOAD_FAILED'),
             'error',
           );
         },
@@ -239,7 +240,7 @@ export class FileUploadComponent implements ControlValueAccessor, OnInit {
       return;
     }
     this.notificationService.showSwalOkDialog(
-      'Could not prepare file for upload.',
+      this.translate.instant('SHARED.FILE_UPLOAD.PREPARE_FAILED'),
       'error',
     );
   }

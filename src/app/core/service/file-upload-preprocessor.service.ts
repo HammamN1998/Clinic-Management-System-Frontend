@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import imageCompression from 'browser-image-compression';
+import { TranslateService } from '@ngx-translate/core';
 
 export const DEFAULT_MAX_FILE_BYTES = 10 * 1024 * 1024;
 export const SKIP_COMPRESS_BELOW_BYTES = 200 * 1024;
@@ -75,6 +76,8 @@ export interface PrepareUploadResult {
   providedIn: 'root',
 })
 export class FileUploadPreprocessorService {
+  constructor(private translate: TranslateService) {}
+
   resolveContentTypeForUpload(file: File, mode: UploadPrepareMode): string {
     return this.resolveContentType(file, mode);
   }
@@ -93,7 +96,7 @@ export class FileUploadPreprocessorService {
       if (file.size > maxBytes) {
         throw new UploadPrepareError(
           'FILE_TOO_LARGE',
-          `File exceeds the ${this.formatBytes(maxBytes)} limit.`,
+          this.translate.instant('SHARED.FILE_UPLOAD.ERRORS.FILE_TOO_LARGE', { limit: this.formatBytes(maxBytes) }),
         );
       }
       return {
@@ -111,7 +114,7 @@ export class FileUploadPreprocessorService {
       if (file.size > maxBytes) {
         throw new UploadPrepareError(
           'FILE_TOO_LARGE',
-          `File exceeds the ${this.formatBytes(maxBytes)} limit.`,
+          this.translate.instant('SHARED.FILE_UPLOAD.ERRORS.FILE_TOO_LARGE', { limit: this.formatBytes(maxBytes) }),
         );
       }
       return {
@@ -127,7 +130,7 @@ export class FileUploadPreprocessorService {
       if (file.size > maxBytes) {
         throw new UploadPrepareError(
           'FILE_TOO_LARGE',
-          `File exceeds the ${this.formatBytes(maxBytes)} limit.`,
+          this.translate.instant('SHARED.FILE_UPLOAD.ERRORS.FILE_TOO_LARGE', { limit: this.formatBytes(maxBytes) }),
         );
       }
       return {
@@ -150,7 +153,7 @@ export class FileUploadPreprocessorService {
       if (compressedFile.size > maxBytes) {
         throw new UploadPrepareError(
           'FILE_TOO_LARGE_AFTER_COMPRESSION',
-          `Image is too large even after optimization (max ${this.formatBytes(maxBytes)}). Try a smaller photo.`,
+          this.translate.instant('SHARED.FILE_UPLOAD.ERRORS.TOO_LARGE_AFTER_COMPRESSION', { limit: this.formatBytes(maxBytes) }),
         );
       }
 
@@ -167,7 +170,7 @@ export class FileUploadPreprocessorService {
       }
       throw new UploadPrepareError(
         'COMPRESSION_FAILED',
-        'Could not optimize the image. Try another file or a smaller photo.',
+        this.translate.instant('SHARED.FILE_UPLOAD.ERRORS.COMPRESSION_FAILED'),
       );
     }
   }
@@ -212,8 +215,8 @@ export class FileUploadPreprocessorService {
     throw new UploadPrepareError(
       'UNSUPPORTED_TYPE',
       mode === 'imageOnly'
-        ? 'Could not detect file type. Use a .jpg, .jpeg, .png, .webp, .gif, or .bmp image.'
-        : 'Could not detect file type. Use .jpg, .png, .webp, .gif, .bmp, .pdf, .doc, .docx, .xls, or .xlsx.',
+        ? this.translate.instant('SHARED.FILE_UPLOAD.ERRORS.UNSUPPORTED_TYPE_IMAGE')
+        : this.translate.instant('SHARED.FILE_UPLOAD.ERRORS.UNSUPPORTED_TYPE_ATTACHMENT'),
     );
   }
 
