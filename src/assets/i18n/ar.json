@@ -1,0 +1,24 @@
+{
+  "MENUITEMS": {
+    "MAIN": {
+      "TEXT": "الرئيسية"
+    },
+    "DASHBOARD": {
+      "TEXT": "لوحة التحكم"
+    },
+    "PATIENTS": {
+      "TEXT": "المرضى",
+      "LIST": {
+        "ALL-PATIENT": "كل المرضى",
+        "ADD-PATIENT": "إضافة مريض"
+      }
+    },
+    "DOCTORS": {
+      "LIST": {
+        "MY-ACCOUNT": "حسابي",
+        "PROFILE": "الملف الشخصي",
+        "PLANS": "الخطط"
+      }
+    }
+  }
+}

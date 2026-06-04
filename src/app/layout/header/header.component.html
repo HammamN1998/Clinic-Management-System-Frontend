@@ -49,7 +49,23 @@
             </i></button>
         </li>
         <!-- #END# Full Screen Button -->
-
+        <!-- Language Selection -->
+        <li class="nav-item">
+          <button mat-button [matMenuTriggerFor]="languagemenu" class="lang-dropdown nav-notification-icons">
+            <img *ngIf="flagvalue" src="{{flagvalue}}" height="16">
+            <img *ngIf="!flagvalue" src="{{defaultFlag}}" height="16">
+          </button>
+          <mat-menu #languagemenu="matMenu" class="lang-item-menu">
+            <div *ngFor="let item of listLang" class="lang-item">
+              <button mat-menu-item class="dropdown-item lang-item-list"
+                (click)="setLanguage(item.text, item.lang, item.flag)"
+                [ngClass]="{'active': langStoreValue === item.lang}">
+                <img src="{{item.flag}}" class="flag-img" height="12"> <span class="align-middle">{{item.text}}</span>
+              </button>
+            </div>
+          </mat-menu>
+        </li>
+        <!-- #END# Language Selection -->
         <li class="nav-item user_profile">
           <button mat-button [matMenuTriggerFor]="profilemenu">
             <div class="chip dropdown-toggle" ngbDropdownToggle class="">

@@ -1,4 +1,4 @@
-import {DOCUMENT, NgClass, NgIf} from '@angular/common';
+import {DOCUMENT, NgClass, NgIf, NgFor} from '@angular/common';
 import {
   Component,
   Inject,
@@ -43,6 +43,7 @@ interface Notifications {
     NgScrollbar,
     FeatherIconsComponent,
     NgIf,
+    NgFor,
   ],
 })
 export class HeaderComponent
@@ -79,8 +80,7 @@ export class HeaderComponent
 
   listLang = [
     { text: 'English', flag: 'assets/images/flags/us.svg', lang: 'en' },
-    { text: 'Spanish', flag: 'assets/images/flags/spain.svg', lang: 'es' },
-    { text: 'German', flag: 'assets/images/flags/germany.svg', lang: 'de' },
+    { text: 'Arabic', flag: 'assets/images/flags/saudi-arabia.svg', lang: 'ar' },
   ];
   notifications: Notifications[] = [
     {

@@ -8,9 +8,8 @@ import {
   Renderer2,
   ChangeDetectionStrategy,
 } from '@angular/core';
-import { MatSlideToggleChange, MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { ConfigService } from '@config';
-import { DirectionService, InConfiguration, RightSidebarService } from '@core';
+import { InConfiguration, RightSidebarService } from '@core';
 import { UnsubscribeOnDestroyAdapter } from '@shared';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { NgScrollbar } from 'ngx-scrollbar';
@@ -27,7 +26,6 @@ import { FeatherIconsComponent } from '@shared/components/feather-icons/feather-
     FeatherIconsComponent,
     NgScrollbar,
     MatButtonToggleModule,
-    MatSlideToggleModule,
   ],
 })
 export class RightSidebarComponent
@@ -42,7 +40,6 @@ export class RightSidebarComponent
   isDarTheme = false;
   public innerHeight?: number;
   headerHeight = 60;
-  isRtl = false;
   public config!: InConfiguration;
 
   constructor(
@@ -50,8 +47,7 @@ export class RightSidebarComponent
     private renderer: Renderer2,
     public elementRef: ElementRef,
     private rightSidebarService: RightSidebarService,
-    private configService: ConfigService,
-    private directionService: DirectionService
+    private configService: ConfigService
   ) {
     super();
   }
@@ -81,14 +77,6 @@ export class RightSidebarComponent
         this.isDarTheme = true;
       } else if (localStorage.getItem('theme') === 'light') {
         this.isDarTheme = false;
-      }
-    }
-
-    if (localStorage.getItem('isRtl')) {
-      if (localStorage.getItem('isRtl') === 'true') {
-        this.isRtl = true;
-      } else if (localStorage.getItem('isRtl') === 'false') {
-        this.isRtl = false;
       }
     }
   }
@@ -200,37 +188,5 @@ export class RightSidebarComponent
     this.rightSidebarService.setRightSidebar(
       (this.isOpenSidebar = !this.isOpenSidebar)
     );
-  }
-  switchDirection(event: MatSlideToggleChange) {
-    const isrtl = String(event.checked);
-    if (
-      isrtl === 'false' &&
-      document.getElementsByTagName('html')[0].hasAttribute('dir')
-    ) {
-      document.getElementsByTagName('html')[0].removeAttribute('dir');
-      this.renderer.removeClass(this.document.body, 'rtl');
-      this.directionService.updateDirection('ltr');
-    } else if (
-      isrtl === 'true' &&
-      !document.getElementsByTagName('html')[0].hasAttribute('dir')
-    ) {
-      document.getElementsByTagName('html')[0].setAttribute('dir', 'rtl');
-      this.renderer.addClass(this.document.body, 'rtl');
-      this.directionService.updateDirection('rtl');
-    }
-    localStorage.setItem('isRtl', isrtl);
-    this.isRtl = event.checked;
-  }
-  setRTLSettings() {
-    document.getElementsByTagName('html')[0].setAttribute('dir', 'rtl');
-    this.renderer.addClass(this.document.body, 'rtl');
-    this.isRtl = true;
-    localStorage.setItem('isRtl', 'true');
-  }
-  setLTRSettings() {
-    document.getElementsByTagName('html')[0].removeAttribute('dir');
-    this.renderer.removeClass(this.document.body, 'rtl');
-    this.isRtl = false;
-    localStorage.setItem('isRtl', 'false');
   }
 }
