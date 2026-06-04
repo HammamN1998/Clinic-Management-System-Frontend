@@ -9,6 +9,7 @@ import {NgIf} from "@angular/common";
 import {FirebaseAuthenticationService} from "../services/firebase-authentication.service";
 import {from} from "rxjs";
 import {NotificationService} from "@core/service/notification.service";
+import { TranslateModule } from '@ngx-translate/core';
 @Component({
     selector: 'app-forgot-password',
     templateUrl: './forgot-password.component.html',
@@ -23,6 +24,7 @@ import {NotificationService} from "@core/service/notification.service";
     MatButtonModule,
     RouterLink,
     NgIf,
+    TranslateModule,
   ],
 })
 export class ForgotPasswordComponent implements OnInit {

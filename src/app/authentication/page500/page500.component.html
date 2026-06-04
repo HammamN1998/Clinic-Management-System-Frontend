@@ -12,17 +12,17 @@
               500
             </span>
             <span class="error-subheader2 p-b-5">
-              Oops, Something went wrong. Please try after some times.
+              {{ 'AUTH.ERROR_PAGE.SERVER_ERROR' | translate }}
             </span>
             <div class="container-auth-form-btn mt-5">
               <button mat-raised-button color="primary" class="auth-form-btn" type="submit">
-                Go To Home Page
+                {{ 'AUTH.ERROR_PAGE.GO_HOME' | translate }}
               </button>
             </div>
             <div class="w-full p-t-15 p-b-15 text-center">
               <div>
                 <a routerLink="/authentication/signin" class="txt1">
-                  Need Help?
+                  {{ 'AUTH.ERROR_PAGE.NEED_HELP' | translate }}
                 </a>
               </div>
             </div>

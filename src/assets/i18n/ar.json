@@ -1,4 +1,424 @@
 {
+  "RIGHT_SIDEBAR": {
+    "SETTING_PANEL": "لوحة الإعدادات",
+    "SELECT_LAYOUT": "اختر التخطيط",
+    "LIGHT": "فاتح",
+    "DARK": "داكن",
+    "SIDEBAR_MENU_COLOR": "لون قائمة الشريط الجانبي",
+    "COLOR_THEME": "سمة اللون"
+  },
+  "COMMON": {
+    "SUBMIT": "إرسال",
+    "CANCEL": "إلغاء",
+    "SAVE": "حفظ",
+    "DELETE": "حذف",
+    "EDIT": "تعديل",
+    "ADD": "إضافة",
+    "CLOSE": "إغلاق",
+    "CREATE": "إنشاء",
+    "SEARCH": "بحث",
+    "YES": "نعم",
+    "NO": "لا",
+    "OK": "موافق",
+    "LOADING": "جارٍ التحميل...",
+    "ACTIONS": "إجراءات",
+    "BACK": "رجوع",
+    "CONFIRM": "تأكيد",
+    "PRINT": "طباعة",
+    "DOWNLOAD": "تنزيل",
+    "UPLOAD": "رفع",
+    "EMAIL": "البريد الإلكتروني",
+    "PASSWORD": "كلمة المرور",
+    "USERNAME": "اسم المستخدم",
+    "CONFIRM_PASSWORD": "تأكيد كلمة المرور",
+    "LOGIN": "تسجيل الدخول"
+  },
+  "VALIDATION": {
+    "REQUIRED": "{{field}} مطلوب",
+    "EMAIL_INVALID": "يرجى إدخال بريد إلكتروني صالح",
+    "SELECT_ANY": "اختر واحداً",
+    "SELECT_DATE": "يرجى اختيار التاريخ",
+    "MIN_LENGTH": "يجب أن يحتوي {{field}} على {{min}} أحرف على الأقل",
+    "PASSWORD_MISMATCH": "كلمتا المرور غير متطابقتين"
+  },
+  "HEADER": {
+    "LOGOUT": "تسجيل الخروج",
+    "ACCOUNT": "الحساب",
+    "EMAIL_VERIFY_TEXT": "بريدك الإلكتروني يحتاج إلى التحقق،",
+    "EMAIL_VERIFY_ACTION": "تحقق؟",
+    "PLAN_INACTIVE_TEXT": "إشتراكك غير مفعّل.",
+    "PLAN_MANAGE_ACTION": "إدارة؟"
+  },
+  "SHARED": {
+    "DELETE_DIALOG": {
+      "TITLE": "هل أنت متأكد؟",
+      "DEFAULT_MESSAGE": "هل أنت متأكد أنك تريد حذف هذا العنصر؟"
+    },
+    "FOOTER": {
+      "TERMS": "شروط الخدمة",
+      "PRIVACY": "سياسة الخصوصية",
+      "REFUND": "سياسة الاسترداد"
+    },
+    "FILE_UPLOAD": {
+      "DROP_HINT": "انقر أو اسحب وأفلت الملف هنا",
+      "MAX_OPTIMIZED": "بحد أقصى 10 ميجابايت لكل ملف. يتم تحسين الصور تلقائياً.",
+      "MAX_PRESERVED": "بحد أقصى 10 ميجابايت لكل ملف. يتم الحفاظ على جودة الصورة الأصلية.",
+      "OPTIMIZING": "جارٍ تحسين الصورة…",
+      "UPLOADED": "تم الرفع",
+      "OPTIMIZED": "تم التحسين:"
+    },
+    "EDIT_TOOLTIP": "تعديل {{name}}",
+    "INVOICE": {
+      "TITLE": "فاتورة",
+      "HEADING": "فاتورة",
+      "BILL_FROM": "من :",
+      "BILL_TO": "إلى :",
+      "INVOICE_DATE": "تاريخ الفاتورة :",
+      "STATUS": "الحالة :",
+      "STATUS_SUCCESS": "ناجحة",
+      "DESCRIPTION": "الوصف",
+      "QUANTITY": "الكمية",
+      "UNIT_COST": "سعر الوحدة",
+      "TOTAL": "الإجمالي",
+      "SUBTOTAL": "المجموع الفرعي",
+      "DISCOUNT": "الخصم",
+      "TAX": "الضريبة (10%)"
+    }
+  },
+  "AUTH": {
+    "SIGNIN": {
+      "WELCOME": "مرحباً بك في ClinicWell",
+      "NEED_ACCOUNT": "ليس لديك حساب؟",
+      "SIGN_UP": "إنشاء حساب",
+      "TITLE": "تسجيل الدخول",
+      "FORGOT_PASSWORD": "نسيت كلمة المرور؟"
+    },
+    "SIGNUP": {
+      "TITLE": "إنشاء حساب",
+      "SUBTITLE": "أدخل البيانات لإنشاء حسابك",
+      "ALREADY_REGISTERED": "مسجّل بالفعل؟",
+      "REGISTER": "تسجيل"
+    },
+    "FORGOT": {
+      "TITLE": "إعادة تعيين كلمة المرور",
+      "SUBTITLE": "دعنا نساعدك",
+      "HINT": "أدخل عنوان بريدك الإلكتروني المسجّل.",
+      "RESET": "إعادة تعيين كلمة المرور",
+      "LOGIN_LINK": "تسجيل الدخول؟"
+    },
+    "VERIFY": {
+      "TITLE": "تحقق من بريدك الإلكتروني",
+      "RESEND": "إعادة إرسال البريد",
+      "SENT_BEFORE": "لقد أرسلنا رابط تحقق إلى",
+      "SENT_AFTER": ". يرجى فتح بريدك الوارد والنقر على الرابط للمتابعة.",
+      "DEFAULT_EMAIL": "عنوان بريدك الإلكتروني",
+      "I_VERIFIED": "لقد تحققت، متابعة",
+      "CHANGE_TOGGLE_OPEN": "بريد خاطئ؟ غيّره",
+      "CHANGE_TOGGLE_CANCEL": "إلغاء تغيير البريد",
+      "CHANGE_TITLE": "تغيير البريد الإلكتروني",
+      "NEW_EMAIL": "البريد الإلكتروني الجديد",
+      "NEW_EMAIL_PLACEHOLDER": "name@example.com",
+      "CURRENT_PASSWORD": "كلمة المرور الحالية",
+      "CURRENT_PASSWORD_PLACEHOLDER": "أدخل كلمة المرور",
+      "UPDATE_EMAIL": "تحديث البريد الإلكتروني"
+    },
+    "LOCKED": {
+      "LOCKED": "مقفل",
+      "PASSWORD_HINT": "أدخل كلمة المرور هنا.",
+      "RESET": "إعادة تعيين كلمة المرور",
+      "NEED_HELP": "تحتاج مساعدة؟"
+    },
+    "ERROR_PAGE": {
+      "LOST": "يبدو أنك قد ضللت الطريق",
+      "NOT_AVAILABLE": "الصفحة التي تبحث عنها غير متوفرة!",
+      "SERVER_ERROR": "عذراً، حدث خطأ ما. يرجى المحاولة بعد قليل.",
+      "GO_HOME": "الذهاب إلى الصفحة الرئيسية",
+      "NEED_HELP": "تحتاج مساعدة؟"
+    }
+  },
+  "PATIENTS": {
+    "INFO": "معلومات المريض",
+    "FIELDS": {
+      "FIRST_NAME": "الاسم الأول",
+      "LAST_NAME": "اسم العائلة",
+      "GENDER": "الجنس",
+      "MOBILE": "الجوال",
+      "ADDRESS": "العنوان",
+      "CONDITION": "الإصابة/الحالة",
+      "DOB": "تاريخ الميلاد",
+      "MARITAL": "الحالة الاجتماعية",
+      "BLOOD_GROUP": "فصيلة الدم",
+      "BLOOD_PRESSURE": "ضغط الدم",
+      "WEIGHT": "الوزن (كجم)"
+    },
+    "OPTIONS": {
+      "MALE": "ذكر",
+      "FEMALE": "أنثى",
+      "SINGLE": "أعزب",
+      "MARRIED": "متزوج"
+    },
+    "ADD": {
+      "TITLE": "إضافة مريض"
+    },
+    "EDIT": {
+      "TITLE": "تعديل مريض"
+    },
+    "LIST": {
+      "TITLE": "جميع المرضى",
+      "HEADING": "المرضى",
+      "ID": "المعرّف",
+      "IMAGE": "الصورة",
+      "NAME": "الاسم",
+      "TREATMENT": "العلاج",
+      "NO_PATIENTS": "لا يوجد مرضى",
+      "NO_MATCH": "لا يوجد مرضى يطابقون بحثك",
+      "TOOLTIP_ADD": "إضافة",
+      "TOOLTIP_REFRESH": "تحديث",
+      "TOOLTIP_DELETE": "حذف",
+      "EXPORTING": "جارٍ التصدير...",
+      "XLSX_SELECTED": "إكسل (المحدد)",
+      "XLSX_ALL": "إكسل (جميع المرضى)"
+    },
+    "MESSAGES": {
+      "PLAN_INACTIVE_TITLE": "إشتراكك غير مفعّل.",
+      "PLAN_INACTIVE_BODY": "تحقق من بوابة إدارة الإشتراكات في صفحة الإشتراكات.",
+      "PLAN_INACTIVE_TEXT": "تحقق من بوابة إدارة الإشتراكات في صفحة الإشتراكات.",
+      "UPGRADE_TITLE": "قم بترقية إشتراكك لإضافة المزيد من المرضى",
+      "UPGRADE_BODY": "لقد وصلت إلى الحد الأقصى لعدد المرضى في إشتراكك ({{count}} مريض). \nيمكنك ترقية إشتراكك لإضافة المزيد من المرضى.",
+      "GO_TO_PLAN": "الذهاب إلى صفحة الإشتراكات",
+      "ADD_SUCCESS": "تمت إضافة السجل بنجاح...!!!",
+      "UPDATE_SUCCESS": "تم تعديل السجل بنجاح...!!!",
+      "DELETE_SUCCESS": "تم حذف السجل بنجاح...!!!",
+      "DELETE_MANY_SUCCESS": "تم حذف {{count}} سجل بنجاح...!!!",
+      "DELETE_CONFIRM": "حذف المريض {{name}}؟",
+      "DELETE_MANY_CONFIRM": "حذف {{count}} مريض؟"
+    },
+    "DIALOG": {
+      "SELECT_GENDER": "اختر الجنس",
+      "FULL_EDIT": "تعديل كامل",
+      "FULL_ADD": "إضافة كاملة",
+      "NEW_TITLE": "مريض جديد"
+    },
+    "BALANCE": {
+      "TITLE": "إجمالي الرصيد هو",
+      "CURRENCY": "شيكل",
+      "CREATE_INVOICE": "إنشاء فاتورة",
+      "DISCOUNT": "الخصم",
+      "PAYMENT": "الدفعة",
+      "DETAILS": "التفاصيل",
+      "DATE": "التاريخ",
+      "TOTAL": "الإجمالي"
+    },
+    "PROFILE": {
+      "BALANCE": "الرصيد",
+      "TREATMENTS_COST": "تكلفة العلاجات",
+      "PAYMENTS_AMOUNT": "مبلغ المدفوعات",
+      "TOTAL_BALANCE": "إجمالي الرصيد",
+      "MORE_DETAILS": "مزيد من التفاصيل",
+      "ATTACHMENTS": "المرفقات",
+      "OPTIMIZE_HINT": "تحسين الصور قبل الرفع (موصى به لتقليل حجم الملف)",
+      "NOTES": "الملاحظات",
+      "SAVE_NOTES": "حفظ الملاحظات",
+      "INFORMATION": "قسم المعلومات",
+      "ABOUT": "عن {{name}}",
+      "FULL_NAME": "الاسم الكامل",
+      "LOCATION": "الموقع",
+      "BIRTH_DATE": "تاريخ الميلاد",
+      "CONDITION": "الحالة",
+      "SETTINGS": "الإعدادات",
+      "ACCOUNT": "الحساب",
+      "DELETE_PATIENT": "حذف المريض",
+      "APPOINTMENTS_SECTION": "قسم المواعيد",
+      "ALL_APPOINTMENTS": "جميع المواعيد",
+      "APPOINTMENT_DETAILS": "تفاصيل الموعد",
+      "SUBJECTIVE": "الشكوى",
+      "OBJECTIVE": "الفحص",
+      "ASSESSMENT": "التقييم",
+      "PLAN": "الإشتراك",
+      "PRESCRIPTION": "الوصفة الطبية",
+      "ADD_DRUG": "إضافة دواء",
+      "DRUG": "دواء {{num}}",
+      "NAME": "الاسم",
+      "TYPE": "النوع",
+      "DURATION": "المدة",
+      "PATIENT_ATTENDED": "حضر المريض",
+      "PATIENT_NOT_ATTENDED": "لم يحضر المريض",
+      "PAID": "مدفوع",
+      "UNPAID": "غير مدفوع",
+      "COST_PAID": "{{cost}} شيكل مدفوع",
+      "COST_UNPAID": "{{cost}} شيكل غير مدفوع",
+      "ADD_APPOINTMENT": "إضافة موعد",
+      "CHOOSE_DATE": "اختر تاريخاً",
+      "CHOOSE_TIME": "اختر وقتاً",
+      "APPOINTMENT_COST": "تكلفة الموعد",
+      "CLINICAL_NOTES": "الملاحظات السريرية والتشخيص",
+      "SUBJECTIVE_LABEL": "الشكوى (الشكوى الرئيسية / التاريخ)",
+      "OBJECTIVE_LABEL": "الفحص (نتائج الفحص)",
+      "PAYMENTS_TREATMENTS_SECTION": "قسم المدفوعات/العلاجات",
+      "ALL_PAYMENTS": "جميع المدفوعات",
+      "PAYMENT_DETAILS": "تفاصيل الدفعة",
+      "ALL_TREATMENTS": "جميع العلاجات",
+      "TREATMENT_DETAILS": "تفاصيل العلاج",
+      "TREATMENT_SUMMARY": "{{price}} شيكل بخصم {{discount}}",
+      "ADD_PAYMENT_TREATMENT": "إضافة دفعة/علاج",
+      "ADD_PAYMENT": "إضافة دفعة",
+      "AMOUNT": "المبلغ",
+      "ADD_TREATMENT": "إضافة علاج",
+      "PRICE": "السعر",
+      "DISCOUNT": "الخصم",
+      "SPECIALIZED_FORMS_SECTION": "قسم النماذج المتخصصة",
+      "AVAILABLE_DIAGRAMS": "المخططات المتاحة",
+      "DENTIST": "طب الأسنان",
+      "UNIVERSAL_TEETH_DIAGRAM": "Universal Teeth Diagram",
+      "FDI_TEETH_DIAGRAM": "FDI Teeth Diagram",
+      "PALMER_TEETH_DIAGRAM": "Palmer Teeth Diagram",
+      "DATE_LABEL": "التاريخ",
+      "TIME_LABEL": "الوقت",
+      "DELETE_PATIENT_CONFIRM": "حذف المريض {{name}}؟\nالجنس: {{gender}}\nفصيلة الدم: {{bloodGroup}}\nالجوال: {{mobile}}",
+      "MESSAGES": {
+        "ADD_APPOINTMENT_SUCCESS": "تمت إضافة الموعد بنجاح...!!!",
+        "ADD_PAYMENT_SUCCESS": "تمت إضافة الدفعة بنجاح...!!!",
+        "ADD_TREATMENT_SUCCESS": "تمت إضافة العلاج بنجاح...!!!",
+        "UPDATE_APPOINTMENT_DETAILS_SUCCESS": "تم تحديث تفاصيل الموعد بنجاح...!!!",
+        "UPDATE_CLINICAL_NOTES_SUCCESS": "تم تحديث الملاحظات السريرية بنجاح...!!!",
+        "UPDATE_PAYMENT_DETAILS_SUCCESS": "تم تحديث تفاصيل الدفعة بنجاح...!!!",
+        "UPDATE_TREATMENT_DETAILS_SUCCESS": "تم تحديث تفاصيل العلاج بنجاح...!!!",
+        "DELETE_APPOINTMENT_CONFIRM": "حذف الموعد بتاريخ {{date}}؟",
+        "DELETE_PAYMENT_CONFIRM": "حذف دفعة بقيمة {{amount}} شيكل؟",
+        "DELETE_TREATMENT_CONFIRM": "حذف العلاج بتاريخ {{date}}؟",
+        "DELETE_ATTACHMENT_CONFIRM": "حذف المرفق: {{name}}",
+        "ATTACHMENT_DELETED_SUCCESS": "تم حذف المرفق بنجاح",
+        "ATTACHMENT_DELETE_ERROR": "تعذّر حذف الملف من التخزين. يرجى المحاولة مرة أخرى.",
+        "UPGRADE_STORAGE_TITLE": "قم بترقية إشتراكك لإضافة المزيد من التخزين",
+        "UPGRADE_STORAGE_TEXT": "لقد وصلت إلى الحد الأقصى للتخزين في إشتراكك ({{bytes}} بايت). \nيمكنك ترقية إشتراكك لإضافة المزيد من التخزين.",
+        "EDIT_NOTES_SUCCESS": "تم تعديل الملاحظات بنجاح...!!!"
+      }
+    }
+  },
+  "DOCTORS": {
+    "BREADCRUMB": "الأطباء",
+    "PROFILE": {
+      "ABOUT_ME": "نبذة عني",
+      "ABOUT": "نبذة",
+      "FULL_NAME": "الاسم الكامل",
+      "VERIFY": "تحقق",
+      "LOCATION": "الموقع",
+      "EDUCATION": "التعليم",
+      "EXPERIENCE": "الخبرة",
+      "SETTINGS": "الإعدادات",
+      "ACCOUNT": "الحساب",
+      "NAME_MIN_ERROR": "لا يمكن أن يقل الاسم عن 6 أحرف",
+      "PHONE_NUMBER": "رقم الهاتف",
+      "SAVE_CHANGES": "حفظ التغييرات",
+      "MESSAGES": {
+        "UPDATE_EDUCATION_SUCCESS": "تم تحديث التعليم بنجاح...!!!",
+        "UPDATE_EXPERIENCE_SUCCESS": "تم تحديث الخبرة بنجاح...!!!",
+        "UPDATE_ABOUT_SUCCESS": "تم تحديث النبذة بنجاح...!!!",
+        "UPDATE_SETTINGS_SUCCESS": "تم تحديث الإعدادات بنجاح...!!!",
+        "REPLACE_IMAGE_ERROR": "تعذّر استبدال صورة الملف الشخصي. يرجى المحاولة مرة أخرى."
+      }
+    },
+    "PLANS": {
+      "PRICING": "الأسعار",
+      "EXTRA": "إضافي",
+      "PLAN_NAME": "إشتراك {{plan}}",
+      "OPEN_BILLING_PORTAL": "فتح بوابة إدارة الإشتراكات",
+      "STATUS": "الحالة",
+      "STORAGE": "التخزين",
+      "PLANS": "الإشتراكات",
+      "AVAILABLE": "المتاحة",
+      "RENEWABLE": "متجددة",
+      "NON_RENEWABLE": "غير متجددة",
+      "BUY_NOW": "اشترِ الآن",
+      "MESSAGES": {
+        "CHECKOUT_ERROR": "تعذّر بدء عملية الدفع.",
+        "BILLING_PORTAL_ERROR": "تعذّر فتح بوابة إدارة الإشتراكات."
+      }
+    }
+  },
+  "DASHBOARD": {
+    "NEW_PATIENTS": "مرضى جدد",
+    "APPOINTMENTS": "المواعيد",
+    "TREATMENTS": "العلاجات",
+    "OPERATIONS": "العمليات",
+    "EARNING": "الأرباح",
+    "EARNING_VALUE": "{{value}} شيكل",
+    "RANGE": {
+      "TODAY": "اليوم",
+      "WEEK": "الأسبوع",
+      "MONTH": "الشهر",
+      "YEAR": "السنة"
+    },
+    "EARNINGS": {
+      "TITLE": "الأرباح",
+      "ALL": "جميع الأرباح",
+      "DATE": "التاريخ",
+      "PATIENT": "المريض",
+      "TYPE": "النوع",
+      "AMOUNT": "المبلغ",
+      "DETAILS": "التفاصيل",
+      "EMPTY": "لا توجد أرباح في هذه الفترة.",
+      "UNKNOWN": "غير معروف",
+      "PATIENT_FALLBACK": "مريض",
+      "TYPE_APPOINTMENT": "موعد",
+      "TYPE_PAYMENT": "دفعة"
+    },
+    "TREATMENTS_PAGE": {
+      "TITLE": "العلاجات",
+      "ALL": "جميع العلاجات",
+      "DATE": "التاريخ",
+      "PATIENT": "المريض",
+      "PRICE": "السعر",
+      "DISCOUNT": "الخصم",
+      "DETAILS": "التفاصيل",
+      "EMPTY": "لا توجد علاجات في هذه الفترة."
+    }
+  },
+  "CALENDAR": {
+    "ADD_NEW_EVENT": "إضافة حدث جديد",
+    "NEW_EVENT": "حدث جديد",
+    "FORM": {
+      "TITLE": "العنوان",
+      "CATEGORY": "الفئة",
+      "START_DATE": "تاريخ البدء",
+      "END_DATE": "تاريخ الانتهاء",
+      "EVENT_DETAILS": "تفاصيل الحدث",
+      "REQUIRED_FIELD": "حقل مطلوب",
+      "INVALID_EMAIL": "بريد إلكتروني غير صالح"
+    },
+    "CATEGORIES": {
+      "WORK": "عمل",
+      "PERSONAL": "شخصي",
+      "IMPORTANT": "مهم",
+      "TRAVEL": "سفر",
+      "FRIENDS": "أصدقاء"
+    },
+    "MESSAGES": {
+      "ADD_SUCCESS": "تمت إضافة السجل بنجاح...!!!",
+      "EDIT_SUCCESS": "تم تعديل السجل بنجاح...!!!",
+      "DELETE_SUCCESS": "تم حذف السجل بنجاح...!!!",
+      "DELETE_CONFIRM": "حذف حدث التقويم \"{{title}}\"؟"
+    }
+  },
+  "TASK": {
+    "TASKS": "المهام",
+    "TOTAL_TASK": "{{count}} إجمالي المهام",
+    "ADD_TASK": "إضافة مهمة",
+    "NEW_TASK": "مهمة جديدة",
+    "EDIT_TASK": "تعديل المهمة",
+    "DELETE_TASK": "حذف المهمة",
+    "SAVE_TASK": "حفظ المهمة",
+    "MARK_COMPLETE": "وضع علامة كمكتملة",
+    "PRIORITY": "الأولوية",
+    "PRIORITY_LOW": "منخفضة",
+    "PRIORITY_NORMAL": "عادية",
+    "PRIORITY_HIGH": "عالية",
+    "DUE_DATE": "تاريخ المهمة",
+    "THIS_TASK": "هذه المهمة",
+    "MESSAGES": {
+      "DELETE_CONFIRM": "حذف المهمة \"{{title}}\"؟"
+    }
+  },
   "MENUITEMS": {
     "MAIN": {
       "TEXT": "الرئيسية"
@@ -9,7 +429,7 @@
     "PATIENTS": {
       "TEXT": "المرضى",
       "LIST": {
-        "ALL-PATIENT": "كل المرضى",
+        "ALL-PATIENT": "جميع المرضى",
         "ADD-PATIENT": "إضافة مريض"
       }
     },
@@ -17,8 +437,14 @@
       "LIST": {
         "MY-ACCOUNT": "حسابي",
         "PROFILE": "الملف الشخصي",
-        "PLANS": "الخطط"
+        "PLANS": "الإشتراكات"
       }
+    },
+    "CALENDAR": {
+      "TEXT": "تقويم المواعيد"
+    },
+    "TASK": {
+      "TEXT": "المهام"
     }
   }
 }

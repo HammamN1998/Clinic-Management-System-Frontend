@@ -1,143 +1,450 @@
 {
+  "RIGHT_SIDEBAR": {
+    "SETTING_PANEL": "Setting Panel",
+    "SELECT_LAYOUT": "Select Layout",
+    "LIGHT": "Light",
+    "DARK": "Dark",
+    "SIDEBAR_MENU_COLOR": "Sidebar Menu Color",
+    "COLOR_THEME": "Color Theme"
+  },
+  "COMMON": {
+    "SUBMIT": "Submit",
+    "CANCEL": "Cancel",
+    "SAVE": "Save",
+    "DELETE": "Delete",
+    "EDIT": "Edit",
+    "ADD": "Add",
+    "CLOSE": "Close",
+    "CREATE": "Create",
+    "SEARCH": "Search",
+    "YES": "Yes",
+    "NO": "No",
+    "OK": "OK",
+    "LOADING": "Loading...",
+    "ACTIONS": "Actions",
+    "BACK": "Back",
+    "CONFIRM": "Confirm",
+    "PRINT": "Print",
+    "DOWNLOAD": "Download",
+    "UPLOAD": "Upload",
+    "EMAIL": "Email",
+    "PASSWORD": "Password",
+    "USERNAME": "Username",
+    "CONFIRM_PASSWORD": "Confirm Password",
+    "LOGIN": "Login"
+  },
+  "VALIDATION": {
+    "REQUIRED": "{{field}} is required",
+    "EMAIL_INVALID": "Please enter a valid email address",
+    "SELECT_ANY": "Select Any",
+    "SELECT_DATE": "Please select date",
+    "MIN_LENGTH": "{{field}} must be at least {{min}} characters",
+    "PASSWORD_MISMATCH": "Passwords do not match"
+  },
+  "HEADER": {
+    "LOGOUT": "Logout",
+    "ACCOUNT": "Account",
+    "EMAIL_VERIFY_TEXT": "Your email need verification,",
+    "EMAIL_VERIFY_ACTION": "Verify?",
+    "PLAN_INACTIVE_TEXT": "Your plan is not active.",
+    "PLAN_MANAGE_ACTION": "Manage?"
+  },
+  "SHARED": {
+    "DELETE_DIALOG": {
+      "TITLE": "Are you sure?",
+      "DEFAULT_MESSAGE": "Are you sure you want to delete this item?"
+    },
+    "FOOTER": {
+      "TERMS": "Terms Of Service",
+      "PRIVACY": "Privacy Policy",
+      "REFUND": "Refund Policy"
+    },
+    "FILE_UPLOAD": {
+      "DROP_HINT": "Click or drag and drop file here",
+      "MAX_OPTIMIZED": "Max 10 MB per file. Photos are automatically optimized.",
+      "MAX_PRESERVED": "Max 10 MB per file. Original image quality is preserved.",
+      "OPTIMIZING": "Optimizing image…",
+      "UPLOADED": "Uploaded",
+      "OPTIMIZED": "Optimized:"
+    },
+    "EDIT_TOOLTIP": "Edit {{name}}",
+    "INVOICE": {
+      "TITLE": "Invoice",
+      "HEADING": "INVOICE",
+      "BILL_FROM": "BILL FROM :",
+      "BILL_TO": "BILL TO :",
+      "INVOICE_DATE": "Invoice Date :",
+      "STATUS": "Status :",
+      "STATUS_SUCCESS": "Success",
+      "DESCRIPTION": "Description",
+      "QUANTITY": "Quantity",
+      "UNIT_COST": "Unit Cost",
+      "TOTAL": "Total",
+      "SUBTOTAL": "Sub - Total amount",
+      "DISCOUNT": "Discount",
+      "TAX": "Tax (10%)"
+    }
+  },
+  "AUTH": {
+    "SIGNIN": {
+      "WELCOME": "Welcome to ClinicWell",
+      "NEED_ACCOUNT": "Need an account?",
+      "SIGN_UP": "Sign Up",
+      "TITLE": "Sign in",
+      "FORGOT_PASSWORD": "Forgot Password?"
+    },
+    "SIGNUP": {
+      "TITLE": "Sign Up",
+      "SUBTITLE": "Enter details to create your account",
+      "ALREADY_REGISTERED": "Already Registered?",
+      "REGISTER": "Register"
+    },
+    "FORGOT": {
+      "TITLE": "Reset Password",
+      "SUBTITLE": "Let Us Help You",
+      "HINT": "Enter your registered email address.",
+      "RESET": "Reset My Password",
+      "LOGIN_LINK": "Login?"
+    },
+    "VERIFY": {
+      "TITLE": "Verify your email",
+      "RESEND": "Resend email",
+      "SENT_BEFORE": "We sent a verification link to",
+      "SENT_AFTER": ". Please open your inbox and click the link to continue.",
+      "DEFAULT_EMAIL": "your email address",
+      "I_VERIFIED": "I verified, continue",
+      "CHANGE_TOGGLE_OPEN": "Wrong email? Change it",
+      "CHANGE_TOGGLE_CANCEL": "Cancel email change",
+      "CHANGE_TITLE": "Change email",
+      "NEW_EMAIL": "New email",
+      "NEW_EMAIL_PLACEHOLDER": "name@example.com",
+      "CURRENT_PASSWORD": "Current password",
+      "CURRENT_PASSWORD_PLACEHOLDER": "Enter your password",
+      "UPDATE_EMAIL": "Update email"
+    },
+    "LOCKED": {
+      "LOCKED": "Locked",
+      "PASSWORD_HINT": "Enter your password here.",
+      "RESET": "Reset My Password",
+      "NEED_HELP": "Need Help?"
+    },
+    "ERROR_PAGE": {
+      "LOST": "Looks Like You're Lost",
+      "NOT_AVAILABLE": "The Page You Are Looking For Not Available!",
+      "SERVER_ERROR": "Oops, Something went wrong. Please try after some times.",
+      "GO_HOME": "Go To Home Page",
+      "NEED_HELP": "Need Help?"
+    }
+  },
+  "PATIENTS": {
+    "INFO": "Patient Information",
+    "FIELDS": {
+      "FIRST_NAME": "First name",
+      "LAST_NAME": "Last name",
+      "GENDER": "Gender",
+      "MOBILE": "Mobile",
+      "ADDRESS": "Address",
+      "CONDITION": "Injury/Condition",
+      "DOB": "Date Of Birth",
+      "MARITAL": "Marital Status",
+      "BLOOD_GROUP": "Blood Group",
+      "BLOOD_PRESSURE": "Blood Presure",
+      "WEIGHT": "Weight (kg)"
+    },
+    "OPTIONS": {
+      "MALE": "Male",
+      "FEMALE": "Female",
+      "SINGLE": "Single",
+      "MARRIED": "Married"
+    },
+    "ADD": {
+      "TITLE": "Add Patient"
+    },
+    "EDIT": {
+      "TITLE": "Edit Patient"
+    },
+    "LIST": {
+      "TITLE": "All Patient",
+      "HEADING": "Patients",
+      "ID": "Id",
+      "IMAGE": "Image",
+      "NAME": "Name",
+      "TREATMENT": "Treatment",
+      "NO_PATIENTS": "No patients",
+      "NO_MATCH": "No patients match your search",
+      "TOOLTIP_ADD": "ADD",
+      "TOOLTIP_REFRESH": "REFRESH",
+      "TOOLTIP_DELETE": "DELETE",
+      "EXPORTING": "Exporting...",
+      "XLSX_SELECTED": "XLSX (Selected)",
+      "XLSX_ALL": "XLSX (All Patients)"
+    },
+    "MESSAGES": {
+      "PLAN_INACTIVE_TITLE": "Your plan is not active.",
+      "PLAN_INACTIVE_BODY": "Check your billing portal in plans page.",
+      "PLAN_INACTIVE_TEXT": "Check your billing portal in plans page.",
+      "UPGRADE_TITLE": "Upgrade your plan to add more patients",
+      "UPGRADE_BODY": "You have reached the maximum number of patients for your plan ({{count}} patients). \nYou can upgrade your plan to add more patients.",
+      "GO_TO_PLAN": "Go to plan page",
+      "ADD_SUCCESS": "Add Record Successfully...!!!",
+      "UPDATE_SUCCESS": "Edit Record Successfully...!!!",
+      "DELETE_SUCCESS": "Delete Record Successfully...!!!",
+      "DELETE_MANY_SUCCESS": "{{count}} Record Delete Successfully...!!!",
+      "DELETE_CONFIRM": "Delete patient {{name}}?",
+      "DELETE_MANY_CONFIRM": "Delete {{count}} patient(s)?"
+    },
+    "DIALOG": {
+      "SELECT_GENDER": "Select gender",
+      "FULL_EDIT": "Full Edit",
+      "FULL_ADD": "Full Add",
+      "NEW_TITLE": "New Patient"
+    },
+    "BALANCE": {
+      "TITLE": "Total Balance is",
+      "CURRENCY": "NIS",
+      "CREATE_INVOICE": "Create Invoice",
+      "DISCOUNT": "Discount",
+      "PAYMENT": "Payment",
+      "DETAILS": "Details",
+      "DATE": "Date",
+      "TOTAL": "Total"
+    },
+    "PROFILE": {
+      "BALANCE": "Balance",
+      "TREATMENTS_COST": "Treatments Cost",
+      "PAYMENTS_AMOUNT": "Payments Amount",
+      "TOTAL_BALANCE": "Total Balance",
+      "MORE_DETAILS": "More Details",
+      "ATTACHMENTS": "Attachments",
+      "OPTIMIZE_HINT": "Optimize images before upload (recommended for smaller file size)",
+      "NOTES": "Notes",
+      "SAVE_NOTES": "Save Notes",
+      "INFORMATION": "Information Section",
+      "ABOUT": "About {{name}}",
+      "FULL_NAME": "Full Name",
+      "LOCATION": "Location",
+      "BIRTH_DATE": "Birth Date",
+      "CONDITION": "Condition",
+      "SETTINGS": "Settings",
+      "ACCOUNT": "Account",
+      "DELETE_PATIENT": "Delete Patient",
+      "APPOINTMENTS_SECTION": "Appointments Section",
+      "ALL_APPOINTMENTS": "All Appointments",
+      "APPOINTMENT_DETAILS": "Appointment Details",
+      "SUBJECTIVE": "Subjective",
+      "OBJECTIVE": "Objective",
+      "ASSESSMENT": "Assessment",
+      "PLAN": "Plan",
+      "PRESCRIPTION": "Prescription",
+      "ADD_DRUG": "Add Drug",
+      "DRUG": "Drug {{num}}",
+      "NAME": "Name",
+      "TYPE": "Type",
+      "DURATION": "Duration",
+      "PATIENT_ATTENDED": "Patient attended",
+      "PATIENT_NOT_ATTENDED": "Patient did not attend",
+      "PAID": "Paid",
+      "UNPAID": "Unpaid",
+      "COST_PAID": "{{cost}} NIS Paid",
+      "COST_UNPAID": "{{cost}} NIS Unpaid",
+      "ADD_APPOINTMENT": "Add Appointment",
+      "CHOOSE_DATE": "Choose a date",
+      "CHOOSE_TIME": "Choose a time",
+      "APPOINTMENT_COST": "Appointment Cost",
+      "CLINICAL_NOTES": "Clinical Notes and Diagnosis",
+      "SUBJECTIVE_LABEL": "Subjective (chief complaint / history)",
+      "OBJECTIVE_LABEL": "Objective (exam findings)",
+      "PAYMENTS_TREATMENTS_SECTION": "Payments/Treatments Section",
+      "ALL_PAYMENTS": "All Payments",
+      "PAYMENT_DETAILS": "Payment Details",
+      "ALL_TREATMENTS": "All Treatments",
+      "TREATMENT_DETAILS": "Treatment Details",
+      "TREATMENT_SUMMARY": "{{price}} NIS with {{discount}} discount",
+      "ADD_PAYMENT_TREATMENT": "Add Payment/Treatment",
+      "ADD_PAYMENT": "Add Payment",
+      "AMOUNT": "Amount",
+      "ADD_TREATMENT": "Add Treatment",
+      "PRICE": "Price",
+      "DISCOUNT": "Discount",
+      "SPECIALIZED_FORMS_SECTION": "Specialized Forms Section",
+      "AVAILABLE_DIAGRAMS": "Available Diagrams",
+      "DENTIST": "Dentist",
+      "UNIVERSAL_TEETH_DIAGRAM": "Universal Teeth Diagram",
+      "FDI_TEETH_DIAGRAM": "FDI Teeth Diagram",
+      "PALMER_TEETH_DIAGRAM": "Palmer Teeth Diagram",
+      "DATE_LABEL": "Date",
+      "TIME_LABEL": "Time",
+      "DELETE_PATIENT_CONFIRM": "Delete patient {{name}}?\nGender: {{gender}}\nBlood Group: {{bloodGroup}}\nMobile: {{mobile}}",
+      "MESSAGES": {
+        "ADD_APPOINTMENT_SUCCESS": "Add Appointment Successfully...!!!",
+        "ADD_PAYMENT_SUCCESS": "Add Payment Successfully...!!!",
+        "ADD_TREATMENT_SUCCESS": "Add Treatment Successfully...!!!",
+        "UPDATE_APPOINTMENT_DETAILS_SUCCESS": "Update Appointment Details Successfully...!!!",
+        "UPDATE_CLINICAL_NOTES_SUCCESS": "Update clinical notes successfully...!!!",
+        "UPDATE_PAYMENT_DETAILS_SUCCESS": "Update Payment Details Successfully...!!!",
+        "UPDATE_TREATMENT_DETAILS_SUCCESS": "Update Treatment Details Successfully...!!!",
+        "DELETE_APPOINTMENT_CONFIRM": "Delete appointment on {{date}}?",
+        "DELETE_PAYMENT_CONFIRM": "Delete payment of {{amount}} NIS?",
+        "DELETE_TREATMENT_CONFIRM": "Delete treatment on {{date}}?",
+        "DELETE_ATTACHMENT_CONFIRM": "Delete attachment: {{name}}",
+        "ATTACHMENT_DELETED_SUCCESS": "Attachment deleted successfully",
+        "ATTACHMENT_DELETE_ERROR": "Could not delete the file from storage. Please try again.",
+        "UPGRADE_STORAGE_TITLE": "Upgrade your plan to add more storage",
+        "UPGRADE_STORAGE_TEXT": "You have reached the maximum storage for your plan ({{bytes}} bytes). \nYou can upgrade your plan to add more storage.",
+        "EDIT_NOTES_SUCCESS": "Edit Notes Successfully...!!!"
+      }
+    }
+  },
+  "DOCTORS": {
+    "BREADCRUMB": "Doctors",
+    "PROFILE": {
+      "ABOUT_ME": "About Me",
+      "ABOUT": "About",
+      "FULL_NAME": "Full Name",
+      "VERIFY": "verify",
+      "LOCATION": "Location",
+      "EDUCATION": "Education",
+      "EXPERIENCE": "Experience",
+      "SETTINGS": "Settings",
+      "ACCOUNT": "Account",
+      "NAME_MIN_ERROR": "Name can't be less than 6 digits",
+      "PHONE_NUMBER": "Phone Number",
+      "SAVE_CHANGES": "Save Changes",
+      "MESSAGES": {
+        "UPDATE_EDUCATION_SUCCESS": "Update Education Successfully...!!!",
+        "UPDATE_EXPERIENCE_SUCCESS": "Update Experience Successfully...!!!",
+        "UPDATE_ABOUT_SUCCESS": "Update About Section Successfully...!!!",
+        "UPDATE_SETTINGS_SUCCESS": "Update Settings Successfully...!!!",
+        "REPLACE_IMAGE_ERROR": "Could not replace the profile image. Please try again."
+      }
+    },
+    "PLANS": {
+      "PRICING": "Pricing",
+      "EXTRA": "Extra",
+      "PLAN_NAME": "{{plan}} Plan",
+      "OPEN_BILLING_PORTAL": "Open billing portal",
+      "STATUS": "Status",
+      "STORAGE": "Storage",
+      "PLANS": "Plans",
+      "AVAILABLE": "available",
+      "RENEWABLE": "Renewable",
+      "NON_RENEWABLE": "Non-renewable",
+      "BUY_NOW": "Buy Now",
+      "MESSAGES": {
+        "CHECKOUT_ERROR": "Unable to start checkout.",
+        "BILLING_PORTAL_ERROR": "Unable to open billing portal."
+      }
+    }
+  },
+  "DASHBOARD": {
+    "NEW_PATIENTS": "New Patients",
+    "APPOINTMENTS": "Appointments",
+    "TREATMENTS": "Treatments",
+    "OPERATIONS": "Operations",
+    "EARNING": "Earning",
+    "EARNING_VALUE": "{{value}} NIS",
+    "RANGE": {
+      "TODAY": "Today",
+      "WEEK": "Week",
+      "MONTH": "Month",
+      "YEAR": "Year"
+    },
+    "EARNINGS": {
+      "TITLE": "Earnings",
+      "ALL": "All Earnings",
+      "DATE": "Date",
+      "PATIENT": "Patient",
+      "TYPE": "Type",
+      "AMOUNT": "Amount",
+      "DETAILS": "Details",
+      "EMPTY": "No earnings found for this range.",
+      "UNKNOWN": "Unknown",
+      "PATIENT_FALLBACK": "Patient",
+      "TYPE_APPOINTMENT": "Appointment",
+      "TYPE_PAYMENT": "Payment"
+    },
+    "TREATMENTS_PAGE": {
+      "TITLE": "Treatments",
+      "ALL": "All Treatments",
+      "DATE": "Date",
+      "PATIENT": "Patient",
+      "PRICE": "Price",
+      "DISCOUNT": "Discount",
+      "DETAILS": "Details",
+      "EMPTY": "No treatments found for this range."
+    }
+  },
+  "CALENDAR": {
+    "ADD_NEW_EVENT": "Add New Event",
+    "NEW_EVENT": "New Event",
+    "FORM": {
+      "TITLE": "Title",
+      "CATEGORY": "Category",
+      "START_DATE": "Start date",
+      "END_DATE": "End date",
+      "EVENT_DETAILS": "Event Details",
+      "REQUIRED_FIELD": "Required field",
+      "INVALID_EMAIL": "Not a valid email"
+    },
+    "CATEGORIES": {
+      "WORK": "Work",
+      "PERSONAL": "Personal",
+      "IMPORTANT": "Important",
+      "TRAVEL": "Travel",
+      "FRIENDS": "Friends"
+    },
+    "MESSAGES": {
+      "ADD_SUCCESS": "Add Record Successfully...!!!",
+      "EDIT_SUCCESS": "Edit Record Successfully...!!!",
+      "DELETE_SUCCESS": "Delete Record Successfully...!!!",
+      "DELETE_CONFIRM": "Delete calendar event \"{{title}}\"?"
+    }
+  },
+  "TASK": {
+    "TASKS": "Tasks",
+    "TOTAL_TASK": "{{count}} Total task",
+    "ADD_TASK": "Add Task",
+    "NEW_TASK": "New Task",
+    "EDIT_TASK": "Edit Task",
+    "DELETE_TASK": "Delete Task",
+    "SAVE_TASK": "Save Task",
+    "MARK_COMPLETE": "Mark as complete",
+    "PRIORITY": "Priority",
+    "PRIORITY_LOW": "Low",
+    "PRIORITY_NORMAL": "Normal",
+    "PRIORITY_HIGH": "High",
+    "DUE_DATE": "Due date",
+    "THIS_TASK": "this task",
+    "MESSAGES": {
+      "DELETE_CONFIRM": "Delete task \"{{title}}\"?"
+    }
+  },
   "MENUITEMS": {
     "MAIN": {
       "TEXT": "Main"
     },
     "DASHBOARD": {
-      "TEXT": "Dashboard",
-      "LIST": {
-        "DASHBOARD1": "Dashboard 1",
-        "DASHBOARD2": "Dashboard 2",
-        "DOCTOR-DASHBOARD": "Doctor Dashboard",
-        "PATIENT-DASHBOARD": "Patient Dashboard"
-      }
-    },
-    "APPOINTMENTS": {
-      "TEXT": "Appointments",
-      "LIST": {
-        "VIEW-APPOINTMENT": "View Appointment",
-        "BOOK-APPOINTMENT": "Book Appointment",
-        "EDIT-APPOINTMENT": "Edit Appointment"
-      }
-    },
-    "DOCTORS": {
-      "TEXT": "Doctors",
-      "LIST": {
-        "ALL-DOCTOR": "All Doctors",
-        "ADD-DOCTOR": "Add Doctor",
-        "EDIT-DOCTOR": "Edit Doctor",
-        "MY-ACCOUNT": "My Account",
-        "PROFILE": "Profile",
-        "PLANS": "Plans",
-        "BILLS": "Bills"
-      }
-    },
-    "STAFF": {
-      "TEXT": "Staff",
-      "LIST": {
-        "ALL-STAFF": "All Staff",
-        "ADD-STAFF": "Add Staff",
-        "EDIT-STAFF": "Edit Staff",
-        "PROFILE": "Staff Profile"
-      }
+      "TEXT": "Dashboard"
     },
     "PATIENTS": {
       "TEXT": "Patients",
       "LIST": {
         "ALL-PATIENT": "All Patients",
-        "ADD-PATIENT": "Add Patient",
-        "EDIT-PATIENT": "Edit Patient",
-        "PROFILE": "Patient Profile"
+        "ADD-PATIENT": "Add Patient"
       }
     },
-    "ROOMS": {
-      "TEXT": "Room Allotment",
+    "DOCTORS": {
       "LIST": {
-        "ALLOTED-ROOMS": "Alloted Rooms",
-        "NEW-ALLOTMENT": "New Allotment",
-        "EDIT-ALLOTMENT": "Edit Allotment"
+        "MY-ACCOUNT": "My Account",
+        "PROFILE": "Profile",
+        "PLANS": "Plans"
       }
-    },
-    "BILLING": {
-      "TEXT": "Billing",
-      "LIST": {
-        "BILL-LIST": "Bill List",
-        "ADD-BILL": "Add Bill",
-        "INVOICE": "Invoice"
-      }
-    },
-    "RECORDS": {
-      "TEXT": "Records",
-      "LIST": {
-        "BIRTH-RECORDS": "Birth Records",
-        "DEATH-RECORDS": "Death Records"
-      }
-    },
-    "AMBULANCE": {
-      "TEXT": "Ambulance",
-      "LIST": {
-        "AMBULANCE-CALL-LIST": "Ambulance Call List",
-        "AMBULANCE-LIST": "Ambulance List"
-      }
-    },
-    "PHARMACY": {
-      "TEXT": "Pharmacy",
-      "LIST": {
-        "MEDICINE-LIST": "Medicine List",
-        "ADD-MEDICINE": "Add Medicine"
-      }
-    },
-    "DEPARTMENTS": {
-      "TEXT": "Departments",
-      "LIST": {
-        "DEPARTMENT-LIST": "Department List",
-        "ADD-DEPARTMENT": "Add Department"
-      }
-    },
-    "INVENTORY": {
-      "TEXT": "Inventory",
-      "LIST": {
-        "ITEM-STOCK-LIST": "Item Stock List",
-        "ISSUED-ITEMS": "Issued Items"
-      }
-    },
-    "DOCTOR": {
-        "DASHBOARD": "Dashboard",
-        "APPOINTMENTS": "Appointments",
-        "DOCTORS": "Doctors",
-        "PATIENTS": "Patients",
-        "SETTINGS": "Settings",
-        "CHAT": "Chat"
-    },
-    "PATIENT": {
-      "TEXT": "Patient",
-      "DASHBOARD": "Dashboard",
-      "APPOINTMENTS": {
-        "TEXT": "Appointments",
-        "LIST": {
-          "BOOK-APPOINTMENT": "Book Appointment",
-          "TODAY": "Today Appointments",
-          "UPCOMING": "Upcoming Appointments",
-          "PAST": "Past Appointments"
-        }
-      },
-      "PRESCRIPTIONS": "Prescriptions",
-      "MEDICAL-RECORD": "Medical Record",
-      "BILLING": "Billing",
-      "CHAT": "Chat",
-      "SETTINGS": "Settings"
-    },
-    "APPS": {
-      "TEXT": "-- Apps"
     },
     "CALENDAR": {
-      "TEXT": "Calendar"
+      "TEXT": "Appointments Calendar"
     },
     "TASK": {
       "TEXT": "Task"
-    },
-    "CONTACTS": {
-      "TEXT": "Contacts"
     }
   }
 }

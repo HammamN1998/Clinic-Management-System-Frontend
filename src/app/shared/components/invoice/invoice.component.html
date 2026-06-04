@@ -2,7 +2,7 @@
   <div class="content-block">
     <div class="block-header">
       <!-- breadcrumb -->
-      <app-breadcrumb [title]="'Invoice'" [items]="['Extra']" [active_item]="'Invoice'"></app-breadcrumb>
+      <app-breadcrumb [title]="'SHARED.INVOICE.TITLE' | translate" [items]="['Extra']" [active_item]="'SHARED.INVOICE.TITLE' | translate"></app-breadcrumb>
     </div>
     <div class="row clearfix">
       <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
@@ -12,7 +12,7 @@
               <div class="col-md-12">
                 <div class="white-box">
                   <h3>
-                    <b>INVOICE</b>
+                    <b>{{ 'SHARED.INVOICE.HEADING' | translate }}</b>
                     <span class="float-end">#345766</span>
                   </h3>
                   <hr>
@@ -20,7 +20,7 @@
                     <div class="col-md-12">
                       <div class="float-start">
                         <address>
-                          <p class="font-bold">BILL FROM :</p>
+                          <p class="font-bold">{{ 'SHARED.INVOICE.BILL_FROM' | translate }}</p>
                           <p class="text-muted">
                             Aditya University,
                             <br> Opp. Town Hall,
@@ -31,7 +31,7 @@
                       </div>
                       <div class="float-end text-end">
                         <address>
-                          <p class="addr-font-h3 font-bold">BILL TO :</p>
+                          <p class="addr-font-h3 font-bold">{{ 'SHARED.INVOICE.BILL_TO' | translate }}</p>
                           <p class="font-bold addr-font-h4">Jayesh Patel</p>
                           <p class="text-muted m-l-30">
                             207, Prem Sagar Appt.,
@@ -40,12 +40,12 @@
                             <br> Ahmedabad - 380057
                           </p>
                           <p class="m-t-30">
-                            <b>Invoice Date :</b>
+                            <b>{{ 'SHARED.INVOICE.INVOICE_DATE' | translate }}</b>
                             <i class="fa fa-calendar"></i> 14th July 2017
                           </p>
                           <p>
-                            <b>Status :</b>
-                            <span class="label label-success">Success</span>
+                            <b>{{ 'SHARED.INVOICE.STATUS' | translate }}</b>
+                            <span class="label label-success">{{ 'SHARED.INVOICE.STATUS_SUCCESS' | translate }}</span>
                           </p>
                         </address>
                       </div>
@@ -57,10 +57,10 @@
                             <tr>
                               <th class="text-center">#</th>
                               <th class="text-center">image</th>
-                              <th class="text-center">Description</th>
-                              <th class="text-center">Quantity</th>
-                              <th class="text-center">Unit Cost</th>
-                              <th class="text-end">Total</th>
+                              <th class="text-center">{{ 'SHARED.INVOICE.DESCRIPTION' | translate }}</th>
+                              <th class="text-center">{{ 'SHARED.INVOICE.QUANTITY' | translate }}</th>
+                              <th class="text-center">{{ 'SHARED.INVOICE.UNIT_COST' | translate }}</th>
+                              <th class="text-end">{{ 'SHARED.INVOICE.TOTAL' | translate }}</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -100,18 +100,18 @@
                     </div>
                     <div class="col-md-12">
                       <div class="float-end m-t-30 text-end">
-                        <p>Sub - Total amount: $300</p>
-                        <p>Discount : $10 </p>
-                        <p>Tax (10%) : $14 </p>
+                        <p>{{ 'SHARED.INVOICE.SUBTOTAL' | translate }}: $300</p>
+                        <p>{{ 'SHARED.INVOICE.DISCOUNT' | translate }} : $10 </p>
+                        <p>{{ 'SHARED.INVOICE.TAX' | translate }} : $14 </p>
                         <hr>
                         <h3>
-                          <b>Total :</b> $304
+                          <b>{{ 'SHARED.INVOICE.TOTAL' | translate }} :</b> $304
                         </h3>
                       </div>
                       <div class="clearfix"></div>
                       <hr>
                       <div class="text-end">
-                        <button mat-raised-button color="primary"><i class="fas fa-print msr-2"></i>Print</button>
+                        <button mat-raised-button color="primary"><i class="fas fa-print msr-2"></i>{{ 'COMMON.PRINT' | translate }}</button>
                       </div>
                     </div>
                   </div>

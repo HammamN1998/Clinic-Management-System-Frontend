@@ -2,11 +2,11 @@
   <div mat-dialog-title>
     <div class="row">
       <div class="col-lg-8 col-md-12">
-        <h1 *ngIf="this.totalBalance >=0">Total Balance is <span style="color: green">{{this.totalBalance}}</span> NIS</h1>
-        <h1 *ngIf="this.totalBalance <0" >Total Balance is <span style="color: red">{{this.totalBalance}}</span> NIS</h1>
+        <h1 *ngIf="this.totalBalance >=0">{{ 'PATIENTS.BALANCE.TITLE' | translate }} <span style="color: green">{{this.totalBalance}}</span> {{ 'PATIENTS.BALANCE.CURRENCY' | translate }}</h1>
+        <h1 *ngIf="this.totalBalance <0" >{{ 'PATIENTS.BALANCE.TITLE' | translate }} <span style="color: red">{{this.totalBalance}}</span> {{ 'PATIENTS.BALANCE.CURRENCY' | translate }}</h1>
       </div>
       <div class="col-lg-4 col-md-12">
-        <button  mat-flat-button (click)="createAnInvoice()" ><i class="fas fa-print"></i>Create Invoice</button>
+        <button  mat-flat-button (click)="createAnInvoice()" ><i class="fas fa-print"></i>{{ 'PATIENTS.BALANCE.CREATE_INVOICE' | translate }}</button>
       </div>
     </div>
   </div>
@@ -16,35 +16,35 @@
       <thead>
       <tr>
         <th class="text-center">#</th>
-        <th>Treatment</th>
-        <th class="text-end">Discount</th>
-        <th class="text-end">Payment</th>
-        <th class="text-end">Details</th>
-        <th class="text-end">Date</th>
-        <th class="text-end">Total</th>
+        <th>{{ 'PATIENTS.LIST.TREATMENT' | translate }}</th>
+        <th class="text-end">{{ 'PATIENTS.BALANCE.DISCOUNT' | translate }}</th>
+        <th class="text-end">{{ 'PATIENTS.BALANCE.PAYMENT' | translate }}</th>
+        <th class="text-end">{{ 'PATIENTS.BALANCE.DETAILS' | translate }}</th>
+        <th class="text-end">{{ 'PATIENTS.BALANCE.DATE' | translate }}</th>
+        <th class="text-end">{{ 'PATIENTS.BALANCE.TOTAL' | translate }}</th>
       </tr>
       </thead>
       <tbody>
         <tr *ngFor="let combinedItem of this.combinedList; index as i">
           <td class="text-center">{{i + 1}}</td>
           <!--Treatment.price-->
-          <th *ngIf="!isNullOrUndefined(combinedItem.price)" style="color: green">+{{combinedItem.price}} NIS</th>
-          <th *ngIf="!isNullOrUndefined(combinedItem.cost) " style="color: green">+{{combinedItem.cost}} NIS</th>
+          <th *ngIf="!isNullOrUndefined(combinedItem.price)" style="color: green">+{{combinedItem.price}} {{ 'PATIENTS.BALANCE.CURRENCY' | translate }}</th>
+          <th *ngIf="!isNullOrUndefined(combinedItem.cost) " style="color: green">+{{combinedItem.cost}} {{ 'PATIENTS.BALANCE.CURRENCY' | translate }}</th>
           <th *ngIf=" isNullOrUndefined(combinedItem.price) && isNullOrUndefined(combinedItem.cost)" class="text-center">-</th>
           <!--Treatment.discount-->
-          <th *ngIf="!isNullOrUndefined(combinedItem.discount)" class="text-end" style="color: red">-{{combinedItem.discount}} NIS</th>
+          <th *ngIf="!isNullOrUndefined(combinedItem.discount)" class="text-end" style="color: red">-{{combinedItem.discount}} {{ 'PATIENTS.BALANCE.CURRENCY' | translate }}</th>
           <th *ngIf=" isNullOrUndefined(combinedItem.discount)" class="text-center">-</th>
           <!--Payment.amount-->
-          <th *ngIf="!isNullOrUndefined(combinedItem.amount)" class="text-end" style="color: red">-{{combinedItem.amount}} NIS</th>
+          <th *ngIf="!isNullOrUndefined(combinedItem.amount)" class="text-end" style="color: red">-{{combinedItem.amount}} {{ 'PATIENTS.BALANCE.CURRENCY' | translate }}</th>
           <th *ngIf=" isNullOrUndefined(combinedItem.amount)" class="text-center">-</th>
           <!--details-->
           <th class="text-end">{{combinedItem.details}}</th>
           <!--date-->
           <th class="text-end">{{combinedItem.date.toDate().toLocaleDateString()}}</th>
           <!--total-->
-          <th *ngIf="!isNullOrUndefined(combinedItem.price)" class="text-end" style="color: green">+{{combinedItem.price - combinedItem.discount}} NIS</th>
-          <th *ngIf="!isNullOrUndefined(combinedItem.cost) " class="text-end" style="color: green">+{{combinedItem.cost}} NIS</th>
-          <th *ngIf="!isNullOrUndefined(combinedItem.amount)" class="text-end" style="color: red">-{{combinedItem.amount}} NIS</th>
+          <th *ngIf="!isNullOrUndefined(combinedItem.price)" class="text-end" style="color: green">+{{combinedItem.price - combinedItem.discount}} {{ 'PATIENTS.BALANCE.CURRENCY' | translate }}</th>
+          <th *ngIf="!isNullOrUndefined(combinedItem.cost) " class="text-end" style="color: green">+{{combinedItem.cost}} {{ 'PATIENTS.BALANCE.CURRENCY' | translate }}</th>
+          <th *ngIf="!isNullOrUndefined(combinedItem.amount)" class="text-end" style="color: red">-{{combinedItem.amount}} {{ 'PATIENTS.BALANCE.CURRENCY' | translate }}</th>
         </tr>
         <tr>
           <th class="text-center" >-</th>
@@ -52,15 +52,15 @@
           <th class="text-center" >-</th>
           <th class="text-center" >-</th>
           <th class="text-center" >-</th>
-          <th class="text-end" >Total</th>
-          <th *ngIf="this.totalBalance >=0" style="color: green">+{{this.totalBalance}} NIS</th>
-          <th *ngIf="this.totalBalance <0" style="color: red">{{this.totalBalance}} NIS</th>
+          <th class="text-end" >{{ 'PATIENTS.BALANCE.TOTAL' | translate }}</th>
+          <th *ngIf="this.totalBalance >=0" style="color: green">+{{this.totalBalance}} {{ 'PATIENTS.BALANCE.CURRENCY' | translate }}</th>
+          <th *ngIf="this.totalBalance <0" style="color: red">{{this.totalBalance}} {{ 'PATIENTS.BALANCE.CURRENCY' | translate }}</th>
         </tr>
       </tbody>
     </table>
   </div>
   </div>
   <div mat-dialog-actions class="mb-1">
-    <button mat-flat-button (click)="onNoClick()" tabindex="-1">Close</button>
+    <button mat-flat-button (click)="onNoClick()" tabindex="-1">{{ 'COMMON.CLOSE' | translate }}</button>
   </div>
 </div>

@@ -2,7 +2,7 @@
   <div class="content-block">
     <div class="block-header">
       <!-- breadcrumb -->
-      <app-breadcrumb [title]="'Profile'" [items]="['Patients']" [active_item]="'Profile'"></app-breadcrumb>
+      <app-breadcrumb [title]="'MENUITEMS.DOCTORS.LIST.PROFILE' | translate" [items]="[('MENUITEMS.PATIENTS.TEXT' | translate)]" [active_item]="'MENUITEMS.DOCTORS.LIST.PROFILE' | translate"></app-breadcrumb>
     </div>
     <div class="row clearfix">
       <div class="col-lg-3 col-md-12">
@@ -15,16 +15,16 @@
         <!--Balance Section-->
         <div class="card">
           <div class="header">
-            <h2>Balance</h2>
+            <h2>{{ 'PATIENTS.PROFILE.BALANCE' | translate }}</h2>
           </div>
           <div class="tab-pane body active" id="balance">
-            <small class="text-muted">Treatments Cost </small>
+            <small class="text-muted">{{ 'PATIENTS.PROFILE.TREATMENTS_COST' | translate }} </small>
             <p style="color: green;" >{{this.getTreatmentsCost()}}</p>
             <hr>
-            <small class="text-muted">Payments Amount </small>
+            <small class="text-muted">{{ 'PATIENTS.PROFILE.PAYMENTS_AMOUNT' | translate }} </small>
             <p style="color: red;">-{{this.getPaymentsAmount()}}</p>
             <hr>
-            <small class="text-muted">Total Balance</small>
+            <small class="text-muted">{{ 'PATIENTS.PROFILE.TOTAL_BALANCE' | translate }}</small>
             <p *ngIf="this.getTreatmentsCost() >= this.getPaymentsAmount()" style="color: green">
               {{this.getTreatmentsCost() - this.getPaymentsAmount()}}
             </p>
@@ -32,17 +32,17 @@
               {{this.getTreatmentsCost() - this.getPaymentsAmount()}}
             </p>
           </div>
-          <button mat-button class="basic-btn" (click)="this.getBalanceDetails()" >More Details</button>
+          <button mat-button class="basic-btn" (click)="this.getBalanceDetails()" >{{ 'PATIENTS.PROFILE.MORE_DETAILS' | translate }}</button>
         </div>
         <!--Attachments Section-->
         <div class="card">
           <div class="header">
-            <h2>Attachments</h2>
+            <h2>{{ 'PATIENTS.PROFILE.ATTACHMENTS' | translate }}</h2>
           </div>
           <div class="tab-pane body active" id="attachments">
             <div class="list-group">
               <div class="list-group-item" *ngFor="let attachment of patient.attachments">
-                <button mat-icon-button  matTooltip="Delete" (click)="deleteAttachment(attachment)">
+                <button mat-icon-button  [matTooltip]="'COMMON.DELETE' | translate" (click)="deleteAttachment(attachment)">
                   <mat-icon>delete</mat-icon>
                 </button>
                 <a [href]="attachment.url" target="_blank">
@@ -56,7 +56,7 @@
             </div>
             <div *ngIf="isNullOrUndefined(patient.attachments) ? true : patient.attachments.length < 3">
               <mat-checkbox [(ngModel)]="compressAttachments" class="compress-attachments-option">
-                Optimize images before upload (recommended for smaller file size)
+                {{ 'PATIENTS.PROFILE.OPTIMIZE_HINT' | translate }}
               </mat-checkbox>
               <app-file-upload
                 rootFolder="doctors/{{this.doctor.id}}/patients/{{this.patient.id}}/attachments"
@@ -71,19 +71,19 @@
         <!--Notes Section-->
         <div class="card">
           <div class="header">
-            <h2>Notes</h2>
+            <h2>{{ 'PATIENTS.PROFILE.NOTES' | translate }}</h2>
           </div>
           <div class="body" id="notes">
             <textarea class="col-12" rows="10" [(ngModel)]="this.patient.notes"></textarea>
           </div>
-          <button mat-button class="basic-btn" (click)="this.updatePatientNotes()" >Save Notes</button>
+          <button mat-button class="basic-btn" (click)="this.updatePatientNotes()" >{{ 'PATIENTS.PROFILE.SAVE_NOTES' | translate }}</button>
         </div>
       </div>
       <div class="col-lg-9 col-md-12">
         <!--Information Section-->
         <div class="card">
           <div class="header">
-            <h2>Information Section</h2>
+            <h2>{{ 'PATIENTS.PROFILE.INFORMATION' | translate }}</h2>
           </div>
           <div class="body">
             <mat-tab-group dynamicHeight>
@@ -91,64 +91,64 @@
               <mat-tab>
                 <ng-template mat-tab-label>
                   <mat-icon class="example-tab-icon msr-2">face</mat-icon>
-                  About {{patient.firstName}}
+                  {{ 'PATIENTS.PROFILE.ABOUT' | translate:{ name: patient.firstName } }}
                 </ng-template>
                 <div class="col-lg-12 col-md-12 col-sm-12">
                   <div class="project_widget">
                     <div class="body">
                       <div class="row">
                         <div class="col-md-3 col-6 b-r">
-                          <strong>Full Name</strong>
+                          <strong>{{ 'PATIENTS.PROFILE.FULL_NAME' | translate }}</strong>
                           <br>
                           <p class="text-muted">{{patient.firstName}} {{patient.lastName}}</p>
                         </div>
                         <div class="col-md-3 col-6 b-r">
-                          <strong>Mobile</strong>
+                          <strong>{{ 'PATIENTS.FIELDS.MOBILE' | translate }}</strong>
                           <br>
                           <p class="text-muted">{{patient.phoneNumber}}</p>
                         </div>
                         <div class="col-md-3 col-6 b-r">
-                          <strong>Email</strong>
+                          <strong>{{ 'COMMON.EMAIL' | translate }}</strong>
                           <br>
                           <p class="text-muted">{{patient.email}}</p>
                         </div>
                         <div class="col-md-3 col-6">
-                          <strong>Location</strong>
+                          <strong>{{ 'PATIENTS.PROFILE.LOCATION' | translate }}</strong>
                           <br>
                           <p class="text-muted">{{patient.address}}</p>
                         </div>
                         <div class="col-md-3 col-6">
-                          <strong>Gender</strong>
+                          <strong>{{ 'PATIENTS.FIELDS.GENDER' | translate }}</strong>
                           <br>
                           <p class="text-muted">{{patient.gender}}</p>
                         </div>
                         <div class="col-md-3 col-6">
-                          <strong>Marital Status</strong>
+                          <strong>{{ 'PATIENTS.FIELDS.MARITAL' | translate }}</strong>
                           <br>
                           <p class="text-muted">{{patient.maritalState}}</p>
                         </div>
                         <div class="col-md-3 col-6">
-                          <strong>Birth Date</strong>
+                          <strong>{{ 'PATIENTS.PROFILE.BIRTH_DATE' | translate }}</strong>
                           <br>
                           <p class="text-muted">{{patient.birthDate.toDate().toLocaleDateString()}}</p>
                         </div>
                         <div class="col-md-3 col-6">
-                          <strong>Blood Group</strong>
+                          <strong>{{ 'PATIENTS.FIELDS.BLOOD_GROUP' | translate }}</strong>
                           <br>
                           <p class="text-muted">{{patient.bloodGroup}}</p>
                         </div>
                         <div class="col-md-3 col-6">
-                          <strong>Blood Pressure</strong>
+                          <strong>{{ 'PATIENTS.FIELDS.BLOOD_PRESSURE' | translate }}</strong>
                           <br>
                           <p class="text-muted">{{patient.bloodPressure}}</p>
                         </div>
                         <div class="col-md-3 col-6">
-                          <strong>Weight (kg)</strong>
+                          <strong>{{ 'PATIENTS.FIELDS.WEIGHT' | translate }}</strong>
                           <br>
                           <p class="text-muted">{{patient.weight}}</p>
                         </div>
                         <div class="col-md-3 col-6">
-                          <strong>Condition</strong>
+                          <strong>{{ 'PATIENTS.PROFILE.CONDITION' | translate }}</strong>
                           <br>
                           <p class="text-muted">{{patient.condition}}</p>
                         </div>
@@ -161,20 +161,20 @@
               <mat-tab>
                 <ng-template mat-tab-label>
                   <mat-icon class="example-tab-icon msr-2">settings</mat-icon>
-                  Settings
+                  {{ 'PATIENTS.PROFILE.SETTINGS' | translate }}
                 </ng-template>
                 <div class="header">
                   <h2>
-                    <strong>Account</strong> Settings
+                    <strong>{{ 'PATIENTS.PROFILE.ACCOUNT' | translate }}</strong> {{ 'PATIENTS.PROFILE.SETTINGS' | translate }}
                   </h2>
                 </div>
                 <div class="body">
                   <div class="row">
                     <div class="col-lg-4 col-md-12">
-                      <button mat-raised-button color="primary" (click)='goToEditPage()' >Edit Patient</button>
+                      <button mat-raised-button color="primary" (click)='goToEditPage()' >{{ 'PATIENTS.EDIT.TITLE' | translate }}</button>
                     </div>
                     <div class="col-lg-4 col-md-12">
-                      <button mat-raised-button color="warn" (click)="deletePatient()" >Delete Patient</button>
+                      <button mat-raised-button color="warn" (click)="deletePatient()" >{{ 'PATIENTS.PROFILE.DELETE_PATIENT' | translate }}</button>
                     </div>
                   </div>
                 </div>
@@ -185,7 +185,7 @@
         <!--Appointments Section-->
         <div class="card">
           <div class="header">
-            <h2>Appointments Section</h2>
+            <h2>{{ 'PATIENTS.PROFILE.APPOINTMENTS_SECTION' | translate }}</h2>
           </div>
           <div class="body">
             <mat-tab-group dynamicHeight>
@@ -193,7 +193,7 @@
               <mat-tab>
                 <ng-template mat-tab-label>
                   <mat-icon class="example-tab-icon msr-2">my_library_books</mat-icon>
-                  All Appointments
+                  {{ 'PATIENTS.PROFILE.ALL_APPOINTMENTS' | translate }}
                 </ng-template>
                 <div class="body">
                   <mat-accordion>
@@ -211,45 +211,45 @@
                       <div class="row">
                         <div class="col-lg-12 col-md-12">
                           <editable-text-compacted
-                            headerText="Appointment Details"
+                            [headerText]="'PATIENTS.PROFILE.APPOINTMENT_DETAILS' | translate"
                             [bodyText]="appointment.details || ''"
                             (bodyTextEdited)="updateAppointmentDetails(appointment, $event)">
                           </editable-text-compacted>
                         </div>
                         <div class="col-lg-12 col-md-12">
                           <editable-text-compacted
-                            headerText="Subjective"
+                            [headerText]="'PATIENTS.PROFILE.SUBJECTIVE' | translate"
                             [bodyText]="appointment.subjective || ''"
                             (bodyTextEdited)="patchAppointmentSoap(appointment, { subjective: $event })">
                           </editable-text-compacted>
                         </div>
                         <div class="col-lg-12 col-md-12">
                           <editable-text-compacted
-                            headerText="Objective"
+                            [headerText]="'PATIENTS.PROFILE.OBJECTIVE' | translate"
                             [bodyText]="appointment.objective || ''"
                             (bodyTextEdited)="patchAppointmentSoap(appointment, { objective: $event })">
                           </editable-text-compacted>
                         </div>
                         <div class="col-lg-12 col-md-12">
                           <editable-text-compacted
-                            headerText="Assessment"
+                            [headerText]="'PATIENTS.PROFILE.ASSESSMENT' | translate"
                             [bodyText]="appointment.assessment || ''"
                             (bodyTextEdited)="patchAppointmentSoap(appointment, { assessment: $event })">
                           </editable-text-compacted>
                         </div>
                         <div class="col-lg-12 col-md-12">
                           <editable-text-compacted
-                            headerText="Plan"
+                            [headerText]="'PATIENTS.PROFILE.PLAN' | translate"
                             [bodyText]="appointment.plan || ''"
                             (bodyTextEdited)="patchAppointmentSoap(appointment, { plan: $event })">
                           </editable-text-compacted>
                         </div>
                         <div class="col-lg-12 col-md-12">
                           <div class="d-flex justify-content-between align-items-center mb-1">
-                            <h4 class="mb-0">Prescription</h4>
+                            <h4 class="mb-0">{{ 'PATIENTS.PROFILE.PRESCRIPTION' | translate }}</h4>
                             <button type="button" mat-stroked-button color="primary" (click)="addAppointmentDrug(appointment)">
                               <mat-icon class="me-1">add</mat-icon>
-                              Add Drug
+                              {{ 'PATIENTS.PROFILE.ADD_DRUG' | translate }}
                             </button>
                           </div>
                         </div>
@@ -257,7 +257,7 @@
                           <div class="card mb-1" *ngFor="let drug of appointment.prescriptions || []; let i = index">
                             <div class="body py-2">
                               <div class="d-flex justify-content-between align-items-center mb-1">
-                                <strong>Drug {{ i + 1 }}</strong>
+                                <strong>{{ 'PATIENTS.PROFILE.DRUG' | translate:{ num: i + 1 } }}</strong>
                                 <button type="button" mat-icon-button color="warn" (click)="removeAppointmentDrug(appointment, i)">
                                   <mat-icon>close</mat-icon>
                                 </button>
@@ -265,25 +265,25 @@
                               <div class="row clearfix">
                                 <div class="col-lg-3 col-md-6">
                                   <mat-form-field class="example-full-width" appearance="outline">
-                                    <mat-label>Name</mat-label>
+                                    <mat-label>{{ 'PATIENTS.PROFILE.NAME' | translate }}</mat-label>
                                   <input matInput [value]="drug.name" (blur)="updateAppointmentDrugField(appointment, i, 'name', $any($event.target).value)">
                                   </mat-form-field>
                                 </div>
                                 <div class="col-lg-3 col-md-6">
                                   <mat-form-field class="example-full-width" appearance="outline">
-                                    <mat-label>Type</mat-label>
+                                    <mat-label>{{ 'PATIENTS.PROFILE.TYPE' | translate }}</mat-label>
                                   <input matInput [value]="drug.type" (blur)="updateAppointmentDrugField(appointment, i, 'type', $any($event.target).value)">
                                   </mat-form-field>
                                 </div>
                                 <div class="col-lg-3 col-md-6">
                                   <mat-form-field class="example-full-width" appearance="outline">
-                                    <mat-label>Duration</mat-label>
+                                    <mat-label>{{ 'PATIENTS.PROFILE.DURATION' | translate }}</mat-label>
                                   <input matInput [value]="drug.duration" (blur)="updateAppointmentDrugField(appointment, i, 'duration', $any($event.target).value)">
                                   </mat-form-field>
                                 </div>
                                 <div class="col-lg-3 col-md-6">
                                   <mat-form-field class="example-full-width" appearance="outline">
-                                    <mat-label>Notes</mat-label>
+                                    <mat-label>{{ 'PATIENTS.PROFILE.NOTES' | translate }}</mat-label>
                                   <input matInput [value]="drug.notes" (blur)="updateAppointmentDrugField(appointment, i, 'notes', $any($event.target).value)">
                                   </mat-form-field>
                                 </div>
@@ -294,25 +294,25 @@
                         <div class="col-lg-6 col-md-12">
                           <mat-slide-toggle [checked]=appointment.attended (change)="changeAppointmentAttended($event, appointment)">
                             <ng-container *ngIf="appointment.attended">
-                              Patient attended
+                              {{ 'PATIENTS.PROFILE.PATIENT_ATTENDED' | translate }}
                             </ng-container>
                             <ng-container *ngIf="!appointment.attended">
-                              Patient did not attend
+                              {{ 'PATIENTS.PROFILE.PATIENT_NOT_ATTENDED' | translate }}
                             </ng-container>
                           </mat-slide-toggle>
                         </div>
                         <div class="col-lg-6 col-md-12">
                           <mat-slide-toggle [checked]=appointment.costPaid (change)="changeAppointmentCostPaid($event, appointment); ">
                             <ng-container *ngIf="appointment.costPaid">
-                              {{appointment.cost}} NIS Paid
+                              {{ 'PATIENTS.PROFILE.COST_PAID' | translate:{ cost: appointment.cost } }}
                             </ng-container>
                             <ng-container *ngIf="!appointment.costPaid">
-                              {{appointment.cost}} NIS Unpaid
+                              {{ 'PATIENTS.PROFILE.COST_UNPAID' | translate:{ cost: appointment.cost } }}
                             </ng-container>
                           </mat-slide-toggle>
                         </div>
                         <div class="col-lg-3 col-md-12">
-                          <button mat-raised-button color="warn" (click)="deleteAppointment(appointment)" >Delete</button>
+                          <button mat-raised-button color="warn" (click)="deleteAppointment(appointment)" >{{ 'COMMON.DELETE' | translate }}</button>
                         </div>
                       </div>
                     </mat-expansion-panel>
@@ -323,7 +323,7 @@
               <mat-tab>
                 <ng-template mat-tab-label>
                   <mat-icon class="example-tab-icon msr-2">my_library_add</mat-icon>
-                  Add Appointment
+                  {{ 'PATIENTS.PROFILE.ADD_APPOINTMENT' | translate }}
                 </ng-template>
                 <div class="body">
                   <form class="register-form m-4" [formGroup]="appointmentForm">
@@ -332,52 +332,52 @@
                       <mat-tab>
                         <ng-template mat-tab-label>
                           <mat-icon class="example-tab-icon msr-2">date_range</mat-icon>
-                          Appointment Details
+                          {{ 'PATIENTS.PROFILE.APPOINTMENT_DETAILS' | translate }}
                         </ng-template>
                         <div class="body">
                           <div class="row clearfix">
                             <!--date-->
                             <div class="col-lg-6 col-md-12">
                               <mat-form-field class="example-full-width">
-                                <mat-label>Choose a date</mat-label>
+                                <mat-label>{{ 'PATIENTS.PROFILE.CHOOSE_DATE' | translate }}</mat-label>
                                 <input matInput  [matDatepicker]="picker1" formControlName="date">
                                 <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
                                 <mat-datepicker #picker1></mat-datepicker>
                                 <mat-error *ngIf="appointmentForm.get('date')?.hasError('required')">
-                                  Date is required
+                                  {{ 'VALIDATION.REQUIRED' | translate:{ field: ('PATIENTS.PROFILE.DATE_LABEL' | translate) } }}
                                 </mat-error>
                               </mat-form-field>
                             </div>
                             <!--time-->
                             <div class="col-lg-6 col-md-12">
                               <mat-form-field class="example-full-width mb-3">
-                                <mat-label>Choose a time</mat-label>
+                                <mat-label>{{ 'PATIENTS.PROFILE.CHOOSE_TIME' | translate }}</mat-label>
                                 <input matInput [owlDateTimeTrigger]="time1" [owlDateTime]="time1" formControlName="time">
                                 <mat-icon matSuffix [owlDateTimeTrigger]="time1" class="date-icon" >schedule</mat-icon>
                                 <owl-date-time [pickerType]="'timer'" #time1 [hour12Timer]="true"></owl-date-time>
                                 <mat-error *ngIf="appointmentForm.get('time')?.hasError('required')">
-                                  Time is required
+                                  {{ 'VALIDATION.REQUIRED' | translate:{ field: ('PATIENTS.PROFILE.TIME_LABEL' | translate) } }}
                                 </mat-error>
                               </mat-form-field>
                             </div>
                             <!--details-->
                             <div class="col-lg-12 col-md-12">
                               <mat-form-field class="example-full-width" appearance="fill">
-                                <mat-label>Appointment Details</mat-label>
+                                <mat-label>{{ 'PATIENTS.PROFILE.APPOINTMENT_DETAILS' | translate }}</mat-label>
                                 <textarea matInput formControlName="details" cdkTextareaAutosize cdkAutosizeMinRows="2" cdkAutosizeMaxRows="8"></textarea>
                               </mat-form-field>
                             </div>
                             <!--cost and constPaid-->
                             <div class="col-lg-6 col-md-12">
                               <mat-form-field class="example-full-width">
-                                <mat-label>Appointment Cost</mat-label>
+                                <mat-label>{{ 'PATIENTS.PROFILE.APPOINTMENT_COST' | translate }}</mat-label>
                                 <input matInput formControlName="cost" type="number">
                                 <mat-slide-toggle  formControlName="costPaid" >
                                   <ng-container *ngIf="this.appointmentForm.get('costPaid')?.value">
-                                    Paid
+                                    {{ 'PATIENTS.PROFILE.PAID' | translate }}
                                   </ng-container>
                                   <ng-container *ngIf="!this.appointmentForm.get('costPaid')?.value">
-                                    Unpaid
+                                    {{ 'PATIENTS.PROFILE.UNPAID' | translate }}
                                   </ng-container>
                                 </mat-slide-toggle>
                               </mat-form-field>
@@ -386,10 +386,10 @@
                             <div class="col-lg-6 col-md-12">
                               <mat-slide-toggle  formControlName="attended" >
                                 <ng-container *ngIf="this.appointmentForm.get('attended')?.value">
-                                  Patient attended
+                                  {{ 'PATIENTS.PROFILE.PATIENT_ATTENDED' | translate }}
                                 </ng-container>
                                 <ng-container *ngIf="!this.appointmentForm.get('attended')?.value">
-                                  Patient did not attend
+                                  {{ 'PATIENTS.PROFILE.PATIENT_NOT_ATTENDED' | translate }}
                                 </ng-container>
                               </mat-slide-toggle>
                             </div>
@@ -400,31 +400,31 @@
                       <mat-tab>
                         <ng-template mat-tab-label>
                           <mat-icon class="example-tab-icon msr-2">assignment</mat-icon>
-                          Clinical Notes and Diagnosis
+                          {{ 'PATIENTS.PROFILE.CLINICAL_NOTES' | translate }}
                         </ng-template>
                         <div class="body">
                           <div class="row clearfix">
                             <div class="col-lg-12 col-md-12">
                               <mat-form-field class="example-full-width" appearance="fill">
-                                <mat-label>Subjective (chief complaint / history)</mat-label>
+                                <mat-label>{{ 'PATIENTS.PROFILE.SUBJECTIVE_LABEL' | translate }}</mat-label>
                                 <textarea matInput formControlName="subjective" cdkTextareaAutosize cdkAutosizeMinRows="2" cdkAutosizeMaxRows="8"></textarea>
                               </mat-form-field>
                             </div>
                             <div class="col-lg-12 col-md-12">
                               <mat-form-field class="example-full-width" appearance="fill">
-                                <mat-label>Objective (exam findings)</mat-label>
+                                <mat-label>{{ 'PATIENTS.PROFILE.OBJECTIVE_LABEL' | translate }}</mat-label>
                                 <textarea matInput formControlName="objective" cdkTextareaAutosize cdkAutosizeMinRows="2" cdkAutosizeMaxRows="8"></textarea>
                               </mat-form-field>
                             </div>
                             <div class="col-lg-12 col-md-12">
                               <mat-form-field class="example-full-width" appearance="fill">
-                                <mat-label>Assessment</mat-label>
+                                <mat-label>{{ 'PATIENTS.PROFILE.ASSESSMENT' | translate }}</mat-label>
                                 <textarea matInput formControlName="assessment" cdkTextareaAutosize cdkAutosizeMinRows="2" cdkAutosizeMaxRows="8"></textarea>
                               </mat-form-field>
                             </div>
                             <div class="col-lg-12 col-md-12">
                               <mat-form-field class="example-full-width" appearance="fill">
-                                <mat-label>Plan</mat-label>
+                                <mat-label>{{ 'PATIENTS.PROFILE.PLAN' | translate }}</mat-label>
                                 <textarea matInput formControlName="plan" cdkTextareaAutosize cdkAutosizeMinRows="2" cdkAutosizeMaxRows="8"></textarea>
                               </mat-form-field>
                             </div>
@@ -435,16 +435,16 @@
                       <mat-tab>
                         <ng-template mat-tab-label>
                           <mat-icon class="example-tab-icon msr-2">prescription</mat-icon>
-                          Prescription
+                          {{ 'PATIENTS.PROFILE.PRESCRIPTION' | translate }}
                         </ng-template>
                         <div class="body">
                           <div class="row clearfix">
                             <div class="col-lg-12 col-md-12">
                               <div class="d-flex justify-content-between align-items-center mb-1">
-                                <h4 class="mb-0">Prescription</h4>
+                                <h4 class="mb-0">{{ 'PATIENTS.PROFILE.PRESCRIPTION' | translate }}</h4>
                                 <button type="button" mat-stroked-button color="primary" (click)="addDrug()">
                                   <mat-icon class="me-1">add</mat-icon>
-                                  Add Drug
+                                  {{ 'PATIENTS.PROFILE.ADD_DRUG' | translate }}
                                 </button>
                               </div>
                             </div>
@@ -452,7 +452,7 @@
                               <div class="card mb-1" *ngFor="let drug of appointmentDrugs.controls; let i = index" [formGroupName]="i">
                                 <div class="body py-2">
                                   <div class="d-flex justify-content-between align-items-center mb-1">
-                                    <strong>Drug {{ i + 1 }}</strong>
+                                    <strong>{{ 'PATIENTS.PROFILE.DRUG' | translate:{ num: i + 1 } }}</strong>
                                     <button type="button" mat-icon-button color="warn" (click)="removeDrug(i)">
                                       <mat-icon>close</mat-icon>
                                     </button>
@@ -460,25 +460,25 @@
                                   <div class="row clearfix">
                                     <div class="col-lg-3 col-md-6">
                                       <mat-form-field class="example-full-width" appearance="outline">
-                                        <mat-label>Name</mat-label>
+                                        <mat-label>{{ 'PATIENTS.PROFILE.NAME' | translate }}</mat-label>
                                         <input matInput formControlName="name">
                                       </mat-form-field>
                                     </div>
                                     <div class="col-lg-3 col-md-6">
                                       <mat-form-field class="example-full-width" appearance="outline">
-                                        <mat-label>Type</mat-label>
+                                        <mat-label>{{ 'PATIENTS.PROFILE.TYPE' | translate }}</mat-label>
                                         <input matInput formControlName="type">
                                       </mat-form-field>
                                     </div>
                                     <div class="col-lg-3 col-md-6">
                                       <mat-form-field class="example-full-width" appearance="outline">
-                                        <mat-label>Duration</mat-label>
+                                        <mat-label>{{ 'PATIENTS.PROFILE.DURATION' | translate }}</mat-label>
                                         <input matInput formControlName="duration">
                                       </mat-form-field>
                                     </div>
                                     <div class="col-lg-3 col-md-6">
                                       <mat-form-field class="example-full-width" appearance="outline">
-                                        <mat-label>Notes</mat-label>
+                                        <mat-label>{{ 'PATIENTS.PROFILE.NOTES' | translate }}</mat-label>
                                         <input matInput formControlName="notes">
                                       </mat-form-field>
                                     </div>
@@ -492,7 +492,7 @@
                     </mat-tab-group>
                     <!--button-->
                     <div class="col-lg-12 col-md-12">
-                      <button [disabled]="appointmentForm.invalid" type="submit" mat-raised-button color="primary" (click)="addAppointment()">Add Appointment</button>
+                      <button [disabled]="appointmentForm.invalid" type="submit" mat-raised-button color="primary" (click)="addAppointment()">{{ 'PATIENTS.PROFILE.ADD_APPOINTMENT' | translate }}</button>
                     </div>
                   </form>
                 </div>
@@ -503,7 +503,7 @@
         <!--Payments/Treatments Section-->
         <div class="card">
           <div class="header">
-            <h2>Payments/Treatments Section</h2>
+            <h2>{{ 'PATIENTS.PROFILE.PAYMENTS_TREATMENTS_SECTION' | translate }}</h2>
           </div>
           <div class="body">
             <mat-tab-group dynamicHeight>
@@ -511,7 +511,7 @@
               <mat-tab>
                 <ng-template mat-tab-label>
                   <mat-icon class="example-tab-icon msr-2">payment</mat-icon>
-                  All Payments
+                  {{ 'PATIENTS.PROFILE.ALL_PAYMENTS' | translate }}
                 </ng-template>
                 <div class="body">
                   <mat-accordion>
@@ -529,13 +529,13 @@
                       <div class="row">
                         <div class="col-lg-12 col-md-12">
                           <app-editable-text
-                            headerText="Payment Details"
+                            [headerText]="'PATIENTS.PROFILE.PAYMENT_DETAILS' | translate"
                             [bodyText]="payment.details || ''"
                             (bodyTextEdited)="updatePaymentDetails(payment, $event)">
                           </app-editable-text>
                         </div>
                         <div class="col-lg-3 col-md-12">
-                          <button mat-raised-button color="warn" (click)="deletePayment(payment)" >Delete</button>
+                          <button mat-raised-button color="warn" (click)="deletePayment(payment)" >{{ 'COMMON.DELETE' | translate }}</button>
                         </div>
                       </div>
                     </mat-expansion-panel>
@@ -546,7 +546,7 @@
               <mat-tab>
                 <ng-template mat-tab-label>
                   <mat-icon class="example-tab-icon msr-2">healing</mat-icon>
-                  All Treatments
+                  {{ 'PATIENTS.PROFILE.ALL_TREATMENTS' | translate }}
                 </ng-template>
                 <div class="body">
                   <mat-accordion>
@@ -558,19 +558,19 @@
                         </mat-panel-title>
                         <mat-panel-description>
                           <mat-icon class="example-tab-icon msr-2">payment</mat-icon>
-                          {{treatment.price}} NIS with {{treatment.discount}} discount
+                          {{ 'PATIENTS.PROFILE.TREATMENT_SUMMARY' | translate:{ price: treatment.price, discount: treatment.discount } }}
                         </mat-panel-description>
                       </mat-expansion-panel-header>
                       <div class="row">
                         <div class="col-lg-12 col-md-12">
                           <app-editable-text
-                            headerText="Treatment Details"
+                            [headerText]="'PATIENTS.PROFILE.TREATMENT_DETAILS' | translate"
                             [bodyText]="treatment.details || ''"
                             (bodyTextEdited)="updateTreatmentDetails(treatment, $event)">
                           </app-editable-text>
                         </div>
                         <div class="col-lg-3 col-md-12">
-                          <button mat-raised-button color="warn" (click)="deleteTreatment(treatment)" >Delete</button>
+                          <button mat-raised-button color="warn" (click)="deleteTreatment(treatment)" >{{ 'COMMON.DELETE' | translate }}</button>
                         </div>
                       </div>
                     </mat-expansion-panel>
@@ -581,7 +581,7 @@
               <mat-tab >
                 <ng-template mat-tab-label>
                   <mat-icon class="example-tab-icon msr-2">my_library_add</mat-icon>
-                  Add Payment/Treatment
+                  {{ 'PATIENTS.PROFILE.ADD_PAYMENT_TREATMENT' | translate }}
                 </ng-template>
                 <div class="body">
                   <mat-accordion>
@@ -590,7 +590,7 @@
                       <mat-expansion-panel-header>
                         <mat-panel-title>
                           <mat-icon class="example-tab-icon msr-2">payment</mat-icon>
-                          Add Payment
+                          {{ 'PATIENTS.PROFILE.ADD_PAYMENT' | translate }}
                         </mat-panel-title>
                         <mat-panel-description>
                         </mat-panel-description>
@@ -601,35 +601,35 @@
                             <!--amount-->
                             <div class="col-lg-6 col-md-12">
                               <mat-form-field class="example-full-width">
-                                <mat-label>Amount</mat-label>
+                                <mat-label>{{ 'PATIENTS.PROFILE.AMOUNT' | translate }}</mat-label>
                                 <input matInput  type="number" formControlName="amount">
                                 <mat-error *ngIf="this.paymentForm.get('amount')?.hasError('required')">
-                                  Amount is required
+                                  {{ 'VALIDATION.REQUIRED' | translate:{ field: ('PATIENTS.PROFILE.AMOUNT' | translate) } }}
                                 </mat-error>
                               </mat-form-field>
                             </div>
                             <!--date-->
                             <div class="col-lg-6 col-md-12">
                               <mat-form-field class="example-full-width">
-                                <mat-label>Choose a date</mat-label>
+                                <mat-label>{{ 'PATIENTS.PROFILE.CHOOSE_DATE' | translate }}</mat-label>
                                 <input matInput  [matDatepicker]="picker2" formControlName="date">
                                 <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
                                 <mat-datepicker #picker2></mat-datepicker>
                                 <mat-error *ngIf="this.paymentForm.get('date')?.hasError('required')">
-                                  Date is required
+                                  {{ 'VALIDATION.REQUIRED' | translate:{ field: ('PATIENTS.PROFILE.DATE_LABEL' | translate) } }}
                                 </mat-error>
                               </mat-form-field>
                             </div>
                             <!--details-->
                             <div class="col-lg-12 col-md-12">
                               <mat-form-field class="example-full-width" appearance="fill">
-                                <mat-label>Payment Details</mat-label>
+                                <mat-label>{{ 'PATIENTS.PROFILE.PAYMENT_DETAILS' | translate }}</mat-label>
                                 <textarea matInput formControlName="details" cdkTextareaAutosize cdkAutosizeMinRows="2" cdkAutosizeMaxRows="8"></textarea>
                               </mat-form-field>
                             </div>
                             <!--button-->
                             <div class="col-lg-12 col-md-12">
-                              <button [disabled]="paymentForm.invalid" type="submit" mat-raised-button color="primary" (click)="addPayment()">Add Payment</button>
+                              <button [disabled]="paymentForm.invalid" type="submit" mat-raised-button color="primary" (click)="addPayment()">{{ 'PATIENTS.PROFILE.ADD_PAYMENT' | translate }}</button>
                             </div>
                           </div>
                         </form>
@@ -640,7 +640,7 @@
                       <mat-expansion-panel-header>
                         <mat-panel-title>
                           <mat-icon class="example-tab-icon msr-2">healing</mat-icon>
-                          Add Treatment
+                          {{ 'PATIENTS.PROFILE.ADD_TREATMENT' | translate }}
                         </mat-panel-title>
                         <mat-panel-description>
                         </mat-panel-description>
@@ -651,42 +651,42 @@
                             <!--price-->
                             <div class="col-lg-6 col-md-12">
                               <mat-form-field class="example-full-width">
-                                <mat-label>Price</mat-label>
+                                <mat-label>{{ 'PATIENTS.PROFILE.PRICE' | translate }}</mat-label>
                                 <input matInput formControlName="price" type="number">
                                 <mat-error *ngIf="this.treatmentForm.get('price')?.hasError('required')">
-                                  Price is required
+                                  {{ 'VALIDATION.REQUIRED' | translate:{ field: ('PATIENTS.PROFILE.PRICE' | translate) } }}
                                 </mat-error>
                               </mat-form-field>
                             </div>
                             <!--discount-->
                             <div class="col-lg-6 col-md-12">
                               <mat-form-field class="example-full-width">
-                                <mat-label>Discount</mat-label>
+                                <mat-label>{{ 'PATIENTS.PROFILE.DISCOUNT' | translate }}</mat-label>
                                 <input matInput formControlName="discount" type="number">
                               </mat-form-field>
                             </div>
                             <!--date-->
                             <div class="col-lg-6 col-md-12">
                               <mat-form-field class="example-full-width">
-                                <mat-label>Choose a date</mat-label>
+                                <mat-label>{{ 'PATIENTS.PROFILE.CHOOSE_DATE' | translate }}</mat-label>
                                 <input matInput  [matDatepicker]="picker3" formControlName="date">
                                 <mat-datepicker-toggle matSuffix [for]="picker3"></mat-datepicker-toggle>
                                 <mat-datepicker #picker3></mat-datepicker>
                                 <mat-error *ngIf="this.treatmentForm.get('date')?.hasError('required')">
-                                  Date is required
+                                  {{ 'VALIDATION.REQUIRED' | translate:{ field: ('PATIENTS.PROFILE.DATE_LABEL' | translate) } }}
                                 </mat-error>
                               </mat-form-field>
                             </div>
                             <!--details-->
                             <div class="col-lg-12 col-md-12">
                               <mat-form-field class="example-full-width" appearance="fill">
-                                <mat-label>Treatment Details</mat-label>
+                                <mat-label>{{ 'PATIENTS.PROFILE.TREATMENT_DETAILS' | translate }}</mat-label>
                                 <textarea matInput formControlName="details" cdkTextareaAutosize cdkAutosizeMinRows="2" cdkAutosizeMaxRows="8"></textarea>
                               </mat-form-field>
                             </div>
                             <!--button-->
                             <div class="col-lg-12 col-md-12">
-                              <button [disabled]="treatmentForm.invalid" type="submit" mat-raised-button color="primary" (click)="addTreatment()">Add Trearment</button>
+                              <button [disabled]="treatmentForm.invalid" type="submit" mat-raised-button color="primary" (click)="addTreatment()">{{ 'PATIENTS.PROFILE.ADD_TREATMENT' | translate }}</button>
                             </div>
                           </div>
                         </form>
@@ -701,31 +701,31 @@
         <!--Specialized Forms Section-->
         <div class="card">
           <div class="header">
-            Specialized Forms Section
+            {{ 'PATIENTS.PROFILE.SPECIALIZED_FORMS_SECTION' | translate }}
           </div>
           <div class="body">
             <div class="row">
               <div class="col-lg-8 col-md-12">
                 <mat-form-field class="example-full-width " appearance="outline">
-                  <mat-label>Available Diagrams</mat-label>
+                  <mat-label>{{ 'PATIENTS.PROFILE.AVAILABLE_DIAGRAMS' | translate }}</mat-label>
                   <mat-select [(value)]="this.selectedDiagram">
-                    <mat-optgroup [label]="'Dentist'">
-                      <mat-option [value]="'universalTeethDiagram'"    [disabled]="isNullOrUndefined(this.patient.specialDiagrams.universalTeethDiagram) ? false : this.patient.specialDiagrams.universalTeethDiagram.length > 0" >Universal Teeth Diagram </mat-option>
-                      <mat-option [value]="'fdiTeethDiagram'"    [disabled]="isNullOrUndefined(this.patient.specialDiagrams.fdiTeethDiagram) ? false : this.patient.specialDiagrams.fdiTeethDiagram.length > 0" >FDI Teeth Diagram </mat-option>
-                      <mat-option [value]="'palmerTeethDiagram'"    [disabled]="isNullOrUndefined(this.patient.specialDiagrams.palmerTeethDiagram) ? false : this.patient.specialDiagrams.palmerTeethDiagram.length > 0" >Palmer Teeth Diagram </mat-option>
+                    <mat-optgroup [label]="'PATIENTS.PROFILE.DENTIST' | translate">
+                      <mat-option [value]="'universalTeethDiagram'"    [disabled]="isNullOrUndefined(this.patient.specialDiagrams.universalTeethDiagram) ? false : this.patient.specialDiagrams.universalTeethDiagram.length > 0" >{{ 'PATIENTS.PROFILE.UNIVERSAL_TEETH_DIAGRAM' | translate }} </mat-option>
+                      <mat-option [value]="'fdiTeethDiagram'"    [disabled]="isNullOrUndefined(this.patient.specialDiagrams.fdiTeethDiagram) ? false : this.patient.specialDiagrams.fdiTeethDiagram.length > 0" >{{ 'PATIENTS.PROFILE.FDI_TEETH_DIAGRAM' | translate }} </mat-option>
+                      <mat-option [value]="'palmerTeethDiagram'"    [disabled]="isNullOrUndefined(this.patient.specialDiagrams.palmerTeethDiagram) ? false : this.patient.specialDiagrams.palmerTeethDiagram.length > 0" >{{ 'PATIENTS.PROFILE.PALMER_TEETH_DIAGRAM' | translate }} </mat-option>
                     </mat-optgroup>
                   </mat-select>
                 </mat-form-field>
               </div>
               <div class="col-lg-4 col-md-12">
-                <button mat-raised-button color="primary" (click)="this.addSpecialDiagram()">Create</button>
+                <button mat-raised-button color="primary" (click)="this.addSpecialDiagram()">{{ 'COMMON.CREATE' | translate }}</button>
               </div>
             </div>
             <mat-tab-group>
               <mat-tab *ngIf="isNullOrUndefined(this.patient.specialDiagrams.universalTeethDiagram) ? false : this.patient.specialDiagrams.universalTeethDiagram.length > 0">
                 <ng-template mat-tab-label>
                     <div class="icon-preview msr-2"><i class="fas fa-teeth-open"></i></div>
-                  Universal Teeth Diagram
+                  {{ 'PATIENTS.PROFILE.UNIVERSAL_TEETH_DIAGRAM' | translate }}
                 </ng-template>
                 <div class="body" >
                   <app-universal-teeth-diagram></app-universal-teeth-diagram>
@@ -734,7 +734,7 @@
               <mat-tab *ngIf="isNullOrUndefined(this.patient.specialDiagrams.fdiTeethDiagram) ? false : this.patient.specialDiagrams.fdiTeethDiagram.length > 0">
                 <ng-template mat-tab-label>
                     <div class="icon-preview msr-2"><i class="fas fa-teeth-open"></i></div>
-                  FDI Teeth Diagram
+                  {{ 'PATIENTS.PROFILE.FDI_TEETH_DIAGRAM' | translate }}
                 </ng-template>
                 <div class="body" >
                   <app-fdi-teeth-diagram></app-fdi-teeth-diagram>
@@ -743,7 +743,7 @@
               <mat-tab *ngIf="isNullOrUndefined(this.patient.specialDiagrams.palmerTeethDiagram) ? false : this.patient.specialDiagrams.palmerTeethDiagram.length > 0">
                 <ng-template mat-tab-label>
                     <div class="icon-preview msr-2"><i class="fas fa-teeth-open"></i></div>
-                  Palmer Teeth Diagram
+                  {{ 'PATIENTS.PROFILE.PALMER_TEETH_DIAGRAM' | translate }}
                 </ng-template>
                 <div class="body" >
                   <app-palmer-teeth-diagram></app-palmer-teeth-diagram>

@@ -2,7 +2,7 @@
   <div class="content-block">
     <div class="block-header">
       <!-- breadcrumb -->
-      <app-breadcrumb [title]="'Profile'" [items]="['Doctors']" [active_item]="'Profile'"></app-breadcrumb>
+      <app-breadcrumb [title]="'MENUITEMS.DOCTORS.LIST.PROFILE' | translate" [items]="[('DOCTORS.BREADCRUMB' | translate)]" [active_item]="'MENUITEMS.DOCTORS.LIST.PROFILE' | translate"></app-breadcrumb>
     </div>
     <!-- Your content goes here  -->
     <div class="row clearfix">
@@ -46,34 +46,34 @@
             <mat-tab>
               <ng-template mat-tab-label>
                 <mat-icon class="example-tab-icon msr-2">face</mat-icon>
-                About Me
+                {{ 'DOCTORS.PROFILE.ABOUT_ME' | translate }}
               </ng-template>
               <!--About Me Section-->
               <div class="col-lg-12 col-md-12 col-sm-12">
                 <div class="project_widget">
                   <div class="header">
-                    <h2><strong>About</strong></h2>
+                    <h2><strong>{{ 'DOCTORS.PROFILE.ABOUT' | translate }}</strong></h2>
                   </div>
                   <div class="body">
                     <div class="row">
                       <div class="col-md-3 col-6 b-r">
-                        <strong>Full Name</strong>
+                        <strong>{{ 'DOCTORS.PROFILE.FULL_NAME' | translate }}</strong>
                         <br>
                         <p class="text-muted">{{this.doctor.name}}</p>
                       </div>
                       <div class="col-md-3 col-6 b-r">
-                        <strong>Mobile</strong>
+                        <strong>{{ 'PATIENTS.FIELDS.MOBILE' | translate }}</strong>
                         <br>
                         <p class="text-muted">{{this.doctor.phoneNumber}}</p>
                       </div>
                       <div class="col-md-3 col-6 b-r">
-                        <strong>Email</strong>
-                        <button *ngIf="!isEmailVerified" (click)="this.sendEmailVerificationCode()" style="background: none; border: none; color: red"><u>verify</u></button>
+                        <strong>{{ 'COMMON.EMAIL' | translate }}</strong>
+                        <button *ngIf="!isEmailVerified" (click)="this.sendEmailVerificationCode()" style="background: none; border: none; color: red"><u>{{ 'DOCTORS.PROFILE.VERIFY' | translate }}</u></button>
                         <br>
                         <p class="text-muted">{{this.doctor.email}}</p>
                       </div>
                       <div class="col-md-3 col-6">
-                        <strong>Location</strong>
+                        <strong>{{ 'DOCTORS.PROFILE.LOCATION' | translate }}</strong>
                         <br>
                         <p class="text-muted">{{this.doctor.address}}</p>
                       </div>
@@ -83,27 +83,27 @@
               </div>
               <!--About Section-->
               <div class="col-lg-12 col-md-12 col-sm-12">
-                <app-editable-text headerText="About"  [bodyText]="this.doctor.about"  (bodyTextEdited)="editDoctorAbout($event)"></app-editable-text>
+                <app-editable-text [headerText]="'DOCTORS.PROFILE.ABOUT' | translate"  [bodyText]="this.doctor.about"  (bodyTextEdited)="editDoctorAbout($event)"></app-editable-text>
               </div>
               <!--Education Section-->
               <div class="col-lg-12 col-md-12 col-sm-12">
-                <app-editable-text headerText="Education"  [bodyText]="this.doctor.education"  (bodyTextEdited)="editDoctorEducation($event)"></app-editable-text>
+                <app-editable-text [headerText]="'DOCTORS.PROFILE.EDUCATION' | translate"  [bodyText]="this.doctor.education"  (bodyTextEdited)="editDoctorEducation($event)"></app-editable-text>
               </div>
               <!--Experience Section-->
               <div class="col-lg-12 col-md-12 col-sm-12">
-                <app-editable-text headerText="Experience"  [bodyText]="this.doctor.experience"  (bodyTextEdited)="editDoctorExperience($event)"></app-editable-text>
+                <app-editable-text [headerText]="'DOCTORS.PROFILE.EXPERIENCE' | translate"  [bodyText]="this.doctor.experience"  (bodyTextEdited)="editDoctorExperience($event)"></app-editable-text>
               </div>
             </mat-tab>
             <!--Settings Section-->
             <mat-tab>
               <ng-template mat-tab-label>
                 <mat-icon class="example-tab-icon msr-2">settings</mat-icon>
-                Settings
+                {{ 'DOCTORS.PROFILE.SETTINGS' | translate }}
               </ng-template>
               <!--Account Settings-->
               <div class="header">
                 <h2>
-                  <strong>Account</strong> Settings
+                  <strong>{{ 'DOCTORS.PROFILE.ACCOUNT' | translate }}</strong> {{ 'DOCTORS.PROFILE.SETTINGS' | translate }}
                 </h2>
               </div>
               <div class="body">
@@ -112,13 +112,13 @@
                     <div class="col-lg-6 col-md-12">
                       <div class="form-group">
                         <mat-form-field class="example-full-width" appearance="fill">
-                          <mat-label>Full Name</mat-label>
+                          <mat-label>{{ 'DOCTORS.PROFILE.FULL_NAME' | translate }}</mat-label>
                           <input matInput formControlName="name" required>
                           <mat-error *ngIf="accountSettingsForm.get('name')?.errors">
-                            Name can't be less than 6 digits
+                            {{ 'DOCTORS.PROFILE.NAME_MIN_ERROR' | translate }}
                           </mat-error>
                           <mat-error *ngIf="accountSettingsForm.get('name')?.hasError('required')">
-                            Full Name is required
+                            {{ 'VALIDATION.REQUIRED' | translate:{ field: ('DOCTORS.PROFILE.FULL_NAME' | translate) } }}
                           </mat-error>
                         </mat-form-field>
                       </div>
@@ -126,7 +126,7 @@
                     <div class="col-lg-6 col-md-12">
                       <div class="form-group">
                         <mat-form-field class="example-full-width" appearance="fill">
-                          <mat-label>Phone Number</mat-label>
+                          <mat-label>{{ 'DOCTORS.PROFILE.PHONE_NUMBER' | translate }}</mat-label>
                           <input matInput formControlName="phoneNumber">
                         </mat-form-field>
                       </div>
@@ -134,13 +134,13 @@
                     <div class="col-md-12">
                       <div class="form-group">
                         <mat-form-field class="example-full-width" appearance="fill">
-                          <mat-label>Address</mat-label>
+                          <mat-label>{{ 'PATIENTS.FIELDS.ADDRESS' | translate }}</mat-label>
                           <textarea matInput formControlName="address" ></textarea>
                         </mat-form-field>
                       </div>
                     </div>
                     <div class="col-md-12">
-                      <button mat-raised-button color="primary" type="submit" [disabled]="!accountSettingsForm.valid ">Save Changes</button>
+                      <button mat-raised-button color="primary" type="submit" [disabled]="!accountSettingsForm.valid ">{{ 'DOCTORS.PROFILE.SAVE_CHANGES' | translate }}</button>
                     </div>
                   </div>
                 </form>

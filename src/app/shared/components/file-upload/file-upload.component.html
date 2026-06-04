@@ -1,5 +1,5 @@
 <div class="file-drop-area" [class.file-drop-area--busy]="isBusy">
-  <span>{{ file ? file.name : ' Click or drag and drop file here' }}</span>
+  <span>{{ file ? file.name : ('SHARED.FILE_UPLOAD.DROP_HINT' | translate) }}</span>
   <input
     class="file-input"
     type="file"
@@ -8,15 +8,15 @@
     (change)="uploadFile($event)"
   />
   <p *ngIf="showOptimizationHint" class="upload-hint">
-    Max 10 MB per file. Photos are automatically optimized.
+    {{ 'SHARED.FILE_UPLOAD.MAX_OPTIMIZED' | translate }}
   </p>
   <p *ngIf="!showOptimizationHint" class="upload-hint">
-    Max 10 MB per file. Original image quality is preserved.
+    {{ 'SHARED.FILE_UPLOAD.MAX_PRESERVED' | translate }}
   </p>
 
   <div *ngIf="isPreparing" class="upload-preparing">
     <mat-spinner diameter="28"></mat-spinner>
-    <span>Optimizing image…</span>
+    <span>{{ 'SHARED.FILE_UPLOAD.OPTIMIZING' | translate }}</span>
   </div>
 
   <mat-progress-bar
@@ -27,10 +27,10 @@
 
   <ng-container *ngIf="progressPercentageField === 100 && file">
     <h4 class="m-b-20">
-      <span class="label label-success">Uploaded</span>
+      <span class="label label-success">{{ 'SHARED.FILE_UPLOAD.UPLOADED' | translate }}</span>
     </h4>
     <p *ngIf="preparationSummary?.compressed" class="upload-summary">
-      Optimized:
+      {{ 'SHARED.FILE_UPLOAD.OPTIMIZED' | translate }}
       {{ formatBytes(preparationSummary!.originalSize) }}
       →
       {{ formatBytes(preparationSummary!.finalSize) }}

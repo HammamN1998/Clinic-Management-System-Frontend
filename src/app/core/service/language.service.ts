@@ -14,6 +14,7 @@ export class LanguageService {
   ) {
     let browserLang: string;
     translate.addLangs(this.languages);
+    translate.setDefaultLang('en');
 
     if (localStorage.getItem('lang')) {
       browserLang = localStorage.getItem('lang') as string;

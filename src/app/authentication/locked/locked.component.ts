@@ -6,6 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import {FirebaseAuthenticationService} from "../services/firebase-authentication.service";
+import { TranslateModule } from '@ngx-translate/core';
 @Component({
     selector: 'app-locked',
     templateUrl: './locked.component.html',
@@ -19,6 +20,7 @@ import {FirebaseAuthenticationService} from "../services/firebase-authentication
         MatIconModule,
         MatButtonModule,
         RouterLink,
+        TranslateModule,
     ],
 })
 export class LockedComponent implements OnInit {

@@ -27,7 +27,7 @@ export const ROUTES: RouteInfo[] = [
   // Calendar
   {
     path: 'calendar',
-    title: 'Appointments Calendar',
+    title: 'MENUITEMS.CALENDAR.TEXT',
     iconType: 'material-icons-two-tone',
     icon: 'event_note',
     class: '',
@@ -74,7 +74,7 @@ export const ROUTES: RouteInfo[] = [
   // Task
   {
     path: 'task',
-    title: 'Task',
+    title: 'MENUITEMS.TASK.TEXT',
     iconType: 'material-icons-two-tone',
     icon: 'event_note',
     class: '',

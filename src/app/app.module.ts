@@ -12,7 +12,12 @@ import { RightSidebarComponent } from './layout/right-sidebar/right-sidebar.comp
 import { AuthLayoutComponent } from './layout/app-layout/auth-layout/auth-layout.component';
 import { MainLayoutComponent } from './layout/app-layout/main-layout/main-layout.component';
 import { LocationStrategy, HashLocationStrategy } from '@angular/common';
-import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
+import {
+    TranslateModule,
+    TranslateLoader,
+    MissingTranslationHandler,
+    MissingTranslationHandlerParams,
+} from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { AngularFireModule } from "@angular/fire/compat";
 import { AngularFireAuthModule } from "@angular/fire/compat/auth";
@@ -32,6 +37,13 @@ export function createTranslateLoader(http: HttpClient) {
     return new TranslateHttpLoader(http, 'assets/i18n/', '.json');
 }
 
+export class WarnMissingTranslationHandler implements MissingTranslationHandler {
+    handle(params: MissingTranslationHandlerParams): string {
+        console.warn(`[i18n] Missing translation key: ${params.key}`);
+        return params.key;
+    }
+}
+
 @NgModule({
     declarations: [AppComponent],
     imports: [
@@ -45,6 +57,10 @@ export function createTranslateLoader(http: HttpClient) {
                 provide: TranslateLoader,
                 useFactory: createTranslateLoader,
                 deps: [HttpClient],
+            },
+            missingTranslationHandler: {
+                provide: MissingTranslationHandler,
+                useClass: WarnMissingTranslationHandler,
             },
         }),
         LoadingBarRouterModule,

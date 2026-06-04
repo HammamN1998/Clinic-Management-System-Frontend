@@ -22,6 +22,7 @@ import {isNullOrUndefined} from "@swimlane/ngx-datatable";
 import { Attachment } from '@core/models/patient.model';
 import { Router } from '@angular/router';
 import { PatientService } from '@core/service/patient.service';
+import {TranslateModule, TranslateService} from "@ngx-translate/core";
 
 @Component({
   selector: 'app-doctor-profile',
@@ -40,6 +41,7 @@ import { PatientService } from '@core/service/patient.service';
     EditableTextComponent,
     SharedModule,
     FileUploadComponent,
+    TranslateModule,
   ],
 })
 export class DoctorProfileComponent {
@@ -56,6 +58,7 @@ export class DoctorProfileComponent {
     private firebaseStorageService: FirebaseStorageService,
     private router: Router,
     private patientService: PatientService,
+    private translate: TranslateService,
   ) {
     this.accountSettingsForm = this.createAccountSettingsForm();
     this.checkIfEmailVerified();
@@ -71,7 +74,7 @@ export class DoctorProfileComponent {
       next: () => {
         this.notificationService.showSnackBarNotification(
           'black',
-          'Update Education Successfully...!!!',
+          this.translate.instant('DOCTORS.PROFILE.MESSAGES.UPDATE_EDUCATION_SUCCESS'),
           'bottom',
           'center'
         );
@@ -88,7 +91,7 @@ export class DoctorProfileComponent {
       next: () => {
         this.notificationService.showSnackBarNotification(
           'black',
-          'Update Experience Successfully...!!!',
+          this.translate.instant('DOCTORS.PROFILE.MESSAGES.UPDATE_EXPERIENCE_SUCCESS'),
           'bottom',
           'center'
         );
@@ -105,7 +108,7 @@ export class DoctorProfileComponent {
       next: () => {
         this.notificationService.showSnackBarNotification(
           'black',
-          'Update About Section Successfully...!!!',
+          this.translate.instant('DOCTORS.PROFILE.MESSAGES.UPDATE_ABOUT_SUCCESS'),
           'bottom',
           'center'
         );
@@ -140,7 +143,7 @@ export class DoctorProfileComponent {
           this.doctor.address = this.accountSettingsForm.value.address;
           this.notificationService.showSnackBarNotification(
             'snackbar-success',
-            'Update Settings Successfully...!!!',
+            this.translate.instant('DOCTORS.PROFILE.MESSAGES.UPDATE_SETTINGS_SUCCESS'),
             'bottom',
             'center'
           );
@@ -158,14 +161,14 @@ export class DoctorProfileComponent {
     if (this.doctor.subscription.storageBytesUsed + attachment.size > this.doctor.subscription.maxStorageLimitBytes || this.doctor.subscription.status !== 'active') {
       this.notificationService.showSwalDialogWithFunction(
         this.doctor.subscription.status !== 'active' ?
-          'Your plan is not active.' :
-          'Upgrade your plan to add more storage',
+          this.translate.instant('PATIENTS.MESSAGES.PLAN_INACTIVE_TITLE') :
+          this.translate.instant('PATIENTS.PROFILE.MESSAGES.UPGRADE_STORAGE_TITLE'),
         this.doctor.subscription.status !== 'active' ?
-          'Check your billing portal in plans page.' :
-          `You have reached the maximum storage for your plan (${this.doctor.subscription.maxStorageLimitBytes} bytes). \nYou can upgrade your plan to add more storage.`,
+          this.translate.instant('PATIENTS.MESSAGES.PLAN_INACTIVE_TEXT') :
+          this.translate.instant('PATIENTS.PROFILE.MESSAGES.UPGRADE_STORAGE_TEXT', { bytes: this.doctor.subscription.maxStorageLimitBytes }),
         'error',
         true,
-        'Go to plan page',
+        this.translate.instant('PATIENTS.MESSAGES.GO_TO_PLAN'),
         () => {
           this.router.navigate(['/admin/doctors/doctor-plans']);
         }
@@ -216,7 +219,7 @@ export class DoctorProfileComponent {
         error: (error) => {
           console.log('error: ' + error);
           this.notificationService.showSwalOkDialog(
-            'Could not replace the profile image. Please try again.',
+            this.translate.instant('DOCTORS.PROFILE.MESSAGES.REPLACE_IMAGE_ERROR'),
             'error',
           );
         },

@@ -11,21 +11,20 @@
       <div class="form-section">
         <div class="auth-wrapper">
           <div class="d-flex align-items-center justify-content-between gap-2">
-            <h2 class="welcome-msg mb-0">Verify your email</h2>
+            <h2 class="welcome-msg mb-0">{{ 'AUTH.VERIFY.TITLE' | translate }}</h2>
             <button
               mat-button
               color="primary"
               [disabled]="resendLoading"
               (click)="resendVerificationEmail()"
             >
-              Resend email
+              {{ 'AUTH.VERIFY.RESEND' | translate }}
             </button>
           </div>
 
           <p class="auth-signup-text text-muted">
-            We sent a verification link to
-            <strong>{{ email || 'your email address' }}</strong>.
-            Please open your inbox and click the link to continue.
+            {{ 'AUTH.VERIFY.SENT_BEFORE' | translate }}
+            <strong>{{ email || ('AUTH.VERIFY.DEFAULT_EMAIL' | translate) }}</strong>{{ 'AUTH.VERIFY.SENT_AFTER' | translate }}
           </p>
 
           <div *ngIf="info" class="alert alert-info mt-3 mb-0">{{ info }}</div>
@@ -40,7 +39,7 @@
               [disabled]="loading"
               (click)="continueIfVerified()"
             >
-              I verified, continue
+              {{ 'AUTH.VERIFY.I_VERIFIED' | translate }}
             </button>
           </div>
 
@@ -52,24 +51,24 @@
               type="button"
               (click)="toggleChangeEmailForm()"
             >
-              {{ showChangeEmailForm ? 'Cancel email change' : 'Wrong email? Change it' }}
+              {{ (showChangeEmailForm ? 'AUTH.VERIFY.CHANGE_TOGGLE_CANCEL' : 'AUTH.VERIFY.CHANGE_TOGGLE_OPEN') | translate }}
             </button>
           </div>
 
           <div class="mt-4">
             <div *ngIf="showChangeEmailForm">
-              <h3 class="login-title mt-3">Change email</h3>
+              <h3 class="login-title mt-3">{{ 'AUTH.VERIFY.CHANGE_TITLE' | translate }}</h3>
 
               <div class="row">
                 <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-2">
                   <div class="form-group">
-                    <label class="text-muted">New email</label>
+                    <label class="text-muted">{{ 'AUTH.VERIFY.NEW_EMAIL' | translate }}</label>
                     <input
                       class="form-control"
                       type="email"
                       [(ngModel)]="newEmail"
                       name="newEmail"
-                      placeholder="name@example.com"
+                      [placeholder]="'AUTH.VERIFY.NEW_EMAIL_PLACEHOLDER' | translate"
                     />
                   </div>
                 </div>
@@ -78,13 +77,13 @@
               <div class="row">
                 <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-2">
                   <div class="form-group">
-                    <label class="text-muted">Current password</label>
+                    <label class="text-muted">{{ 'AUTH.VERIFY.CURRENT_PASSWORD' | translate }}</label>
                     <input
                       class="form-control"
                       type="password"
                       [(ngModel)]="currentPassword"
                       name="currentPassword"
-                      placeholder="Enter your password"
+                      [placeholder]="'AUTH.VERIFY.CURRENT_PASSWORD_PLACEHOLDER' | translate"
                     />
                   </div>
                 </div>
@@ -99,14 +98,14 @@
                   [class.auth-spinner]="changeEmailLoading"
                   (click)="changeEmail()"
                 >
-                  Update email
+                  {{ 'AUTH.VERIFY.UPDATE_EMAIL' | translate }}
                 </button>
               </div>
             </div>
           </div>
 
           <div class="mt-4" style="text-align: center">
-            <a class="txt1" (click)="logout()">Logout</a>
+            <a class="txt1" (click)="logout()">{{ 'HEADER.LOGOUT' | translate }}</a>
           </div>
         </div>
       </div>

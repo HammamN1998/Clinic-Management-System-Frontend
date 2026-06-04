@@ -9,6 +9,7 @@ import {ThumbYDirective} from "ngx-scrollbar/lib/scrollbar/thumb/thumb.directive
 import { PdfService } from '@core/service/pdf.service';
 import { AppointmentModel } from '@core/models/appointment.model';
 import { buildBalanceLedger } from '@core/util/balance-ledger.util';
+import { TranslateModule } from '@ngx-translate/core';
 
 export interface DialogData {
   treatments: TreatmentModel[];
@@ -30,6 +31,7 @@ export interface DialogData {
     NgForOf,
     NgIf,
     ThumbYDirective,
+    TranslateModule,
   ],
 })
 export class BalanceDetailsComponent {

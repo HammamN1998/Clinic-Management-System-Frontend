@@ -3,7 +3,7 @@ import { CdkDragDrop, moveItemInArray, CdkDropList, CdkDrag, CdkDragHandle, CdkD
 import { UntypedFormGroup, UntypedFormControl, UntypedFormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
 import { Task } from './task.model';
-import {NgClass, DatePipe, NgIf, NgForOf} from '@angular/common';
+import {NgClass, DatePipe, NgIf, NgForOf, UpperCasePipe} from '@angular/common';
 import { NgScrollbar } from 'ngx-scrollbar';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatOptionModule } from '@angular/material/core';
@@ -17,6 +17,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { BreadcrumbComponent } from '@shared/components/breadcrumb/breadcrumb.component';
 import {TaskService} from "@core/service/task.service";
 import { DeleteConfirmDialogService } from '@shared/components/delete-confirm-dialog/delete-confirm-dialog.service';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-task',
@@ -46,6 +47,8 @@ import { DeleteConfirmDialogService } from '@shared/components/delete-confirm-di
     DatePipe,
     NgIf,
     NgForOf,
+    UpperCasePipe,
+    TranslateModule,
   ],
 })
 export class TaskComponent {
@@ -60,6 +63,7 @@ export class TaskComponent {
     private fb: UntypedFormBuilder,
     private taskService: TaskService,
     private deleteConfirmDialog: DeleteConfirmDialogService,
+    private translate: TranslateService,
   ){
 
     this.taskForm = this.createFormGroup(new Task());
@@ -78,13 +82,13 @@ export class TaskComponent {
   }
   addNewTask(nav: MatSidenav) {
     this.isNewEvent = true;
-    this.dialogTitle = 'New Task';
+    this.dialogTitle = this.translate.instant('TASK.NEW_TASK');
     this.taskForm.reset();
     nav.open();
   }
   taskClick(task: Task, nav: MatSidenav): void {
     this.isNewEvent = false;
-    this.dialogTitle = 'Edit Task';
+    this.dialogTitle = this.translate.instant('TASK.EDIT_TASK');
     nav.open();
     this.taskForm = this.createFormGroup(task);
   }
@@ -113,8 +117,8 @@ export class TaskComponent {
   }
   deleteTask(nav: MatSidenav) {
     const task: Task = new Task({...this.taskForm.value});
-    const title = task.title || 'this task';
-    const message = `Delete task "${title}"?`;
+    const title = task.title || this.translate.instant('TASK.THIS_TASK');
+    const message = this.translate.instant('TASK.MESSAGES.DELETE_CONFIRM', { title });
     const dialogRef = this.deleteConfirmDialog.open(message);
     dialogRef.afterClosed().subscribe(async (result) => {
       if (result !== 1) {

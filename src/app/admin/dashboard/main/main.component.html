@@ -2,7 +2,7 @@
   <div class="content-block">
     <div class="block-header">
       <!-- breadcrumb -->
-      <app-breadcrumb [title]="'Dashboard'" [items]="[]" [active_item]="'Dashboard'"></app-breadcrumb>
+      <app-breadcrumb [title]="'MENUITEMS.DASHBOARD.TEXT' | translate" [items]="[]" [active_item]="'MENUITEMS.DASHBOARD.TEXT' | translate"></app-breadcrumb>
     </div>
     <div class="dashboard-filters">
       <button
@@ -12,7 +12,7 @@
         [class.active]="selectedRange === range.id"
         (click)="setRange(range.id)"
       >
-        {{ range.label }}
+        {{ range.label | translate }}
       </button>
     </div>
     <!-- Widgets -->
@@ -26,7 +26,7 @@
             </div>
             <div class="card-right">
               <div>
-                <h3 class="float-end">New Patients</h3>
+                <h3 class="float-end">{{ 'DASHBOARD.NEW_PATIENTS' | translate }}</h3>
               </div>
               <div class="m-r-10 m-l-10">
                 <h1 class="font-weight-bold float-end mb-0"> {{numberOfNewPatients}}</h1>
@@ -49,7 +49,7 @@
             </div>
             <div class="card-right">
               <div>
-                <h3 class="float-end">Appointments</h3>
+                <h3 class="float-end">{{ 'DASHBOARD.APPOINTMENTS' | translate }}</h3>
               </div>
               <div class="m-r-10 m-l-10">
                 <h1 class="font-weight-bold float-end mb-0"> {{numberOfAppointments}}</h1>
@@ -74,7 +74,7 @@
             </div>
             <div class="card-right">
               <div>
-                <h3 class="float-end">Treatments</h3>
+                <h3 class="float-end">{{ 'DASHBOARD.TREATMENTS' | translate }}</h3>
               </div>
               <div class="m-r-10 m-l-10">
                 <h1 class="font-weight-bold float-end mb-0"> {{this.numberOfTreatments}} </h1>
@@ -97,10 +97,10 @@
             </div>
             <div class="card-right">
               <div>
-                <h3 class="float-end">Earning</h3>
+                <h3 class="float-end">{{ 'DASHBOARD.EARNING' | translate }}</h3>
               </div>
               <div class="m-r-10 m-l-10">
-                <h1 class="font-weight-bold float-end mb-0"> {{numberOfEarning.toLocaleString()}} NIS</h1>
+                <h1 class="font-weight-bold float-end mb-0"> {{ 'DASHBOARD.EARNING_VALUE' | translate:{ value: numberOfEarning.toLocaleString() } }}</h1>
               </div>
             </div>
           </div>

@@ -34,13 +34,14 @@ import {Attachment} from "@core/models/patient.model";
 import {FirebaseStorageService} from "@core/service/firebase-storage.service";
 import {FirebaseAuthenticationService} from "../../../authentication/services/firebase-authentication.service";
 import {User} from "@core";
+import {TranslateModule, TranslateService} from "@ngx-translate/core";
 
 @Component({
   selector: 'app-patient-profile',
   templateUrl: './patient-profile.component.html',
   styleUrls: ['./patient-profile.component.scss'],
   standalone: true,
-  imports: [BreadcrumbComponent, MatButtonModule, MatCheckboxModule, MatFormFieldModule, MatIconModule, MatInputModule, MatTabsModule, MatDatepickerModule, OwlDateTimeModule, OwlNativeDateTimeModule, ReactiveFormsModule, SharedModule, UniversalTeethDiagramComponent, FdiTeethDiagramComponent, FileUploadComponent, FullScreenImageComponent, EditableTextComponent, EditableTextCompactedComponent, PalmerTeethDiagramComponent],
+  imports: [BreadcrumbComponent, MatButtonModule, MatCheckboxModule, MatFormFieldModule, MatIconModule, MatInputModule, MatTabsModule, MatDatepickerModule, OwlDateTimeModule, OwlNativeDateTimeModule, ReactiveFormsModule, SharedModule, UniversalTeethDiagramComponent, FdiTeethDiagramComponent, FileUploadComponent, FullScreenImageComponent, EditableTextComponent, EditableTextCompactedComponent, PalmerTeethDiagramComponent, TranslateModule],
 })
 export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
 
@@ -64,6 +65,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
     private formBuilder: UntypedFormBuilder,
     private firebaseStorageService: FirebaseStorageService,
     private firebaseAuthenticationService: FirebaseAuthenticationService,
+    private translate: TranslateService,
   ) {
     super();
     if (this.patientService.getDialogData().id === '' ) this.router.navigate(['/admin/patients/all-patients']);
@@ -90,11 +92,12 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
 
   deletePatient() {
     const name = `${this.patient.firstName} ${this.patient.lastName}`.trim();
-    const message =
-      `Delete patient ${name}?\n` +
-      `Gender: ${this.patient.gender}\n` +
-      `Blood Group: ${this.patient.bloodGroup}\n` +
-      `Mobile: ${this.patient.phoneNumber}`;
+    const message = this.translate.instant('PATIENTS.PROFILE.DELETE_PATIENT_CONFIRM', {
+      name,
+      gender: this.patient.gender,
+      bloodGroup: this.patient.bloodGroup,
+      mobile: this.patient.phoneNumber,
+    });
     const dialogRef = this.deleteConfirmDialog.open(message);
 
     this.subs.sink = dialogRef.afterClosed().subscribe((result) => {
@@ -105,7 +108,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
         this.router.navigate(['/admin/patients/all-patients']);
         this.notificationService.showSnackBarNotification(
           'snackbar-danger',
-          'Delete Record Successfully...!!!',
+          this.translate.instant('PATIENTS.MESSAGES.DELETE_SUCCESS'),
           'bottom',
           'center'
         );
@@ -138,7 +141,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
         // show success  message
         this.notificationService.showSnackBarNotification(
           'snackbar-success',
-          'Add Appointment Successfully...!!!',
+          this.translate.instant('PATIENTS.PROFILE.MESSAGES.ADD_APPOINTMENT_SUCCESS'),
           'bottom',
           'center'
         );
@@ -163,7 +166,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
         next: () => {
           this.notificationService.showSnackBarNotification(
             'snackbar-success',
-            'Add Payment Successfully...!!!',
+            this.translate.instant('PATIENTS.PROFILE.MESSAGES.ADD_PAYMENT_SUCCESS'),
             'bottom',
             'center'
           );
@@ -189,7 +192,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
         next: () => {
           this.notificationService.showSnackBarNotification(
             'snackbar-success',
-            'Add Treatment Successfully...!!!',
+            this.translate.instant('PATIENTS.PROFILE.MESSAGES.ADD_TREATMENT_SUCCESS'),
             'bottom',
             'center'
           );
@@ -309,7 +312,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
       next: () => {
         this.notificationService.showSnackBarNotification(
           'black',
-          'Update Appointment Details Successfully...!!!',
+          this.translate.instant('PATIENTS.PROFILE.MESSAGES.UPDATE_APPOINTMENT_DETAILS_SUCCESS'),
           'bottom',
           'center'
         );
@@ -331,7 +334,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
       next: () => {
         this.notificationService.showSnackBarNotification(
           'black',
-          'Update clinical notes successfully...!!!',
+          this.translate.instant('PATIENTS.PROFILE.MESSAGES.UPDATE_CLINICAL_NOTES_SUCCESS'),
           'bottom',
           'center'
         );
@@ -398,7 +401,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
       next: () => {
         this.notificationService.showSnackBarNotification(
           'black',
-          'Update Payment Details Successfully...!!!',
+          this.translate.instant('PATIENTS.PROFILE.MESSAGES.UPDATE_PAYMENT_DETAILS_SUCCESS'),
           'bottom',
           'center'
         );
@@ -415,7 +418,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
       next: () => {
         this.notificationService.showSnackBarNotification(
           'black',
-          'Update Treatment Details Successfully...!!!',
+          this.translate.instant('PATIENTS.PROFILE.MESSAGES.UPDATE_TREATMENT_DETAILS_SUCCESS'),
           'bottom',
           'center'
         );
@@ -428,7 +431,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
 
   deleteAppointment(appointment: AppointmentModel) {
     const date = appointment.date.toDate().toDateString();
-    const message = `Delete appointment on ${date}?`;
+    const message = this.translate.instant('PATIENTS.PROFILE.MESSAGES.DELETE_APPOINTMENT_CONFIRM', { date });
     const dialogRef = this.deleteConfirmDialog.open(message);
     this.subs.sink = dialogRef.afterClosed().subscribe((result) => {
       if (result !== 1) {
@@ -445,7 +448,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
   }
 
   deletePayment(payment: PaymentModel) {
-    const message = `Delete payment of ${payment.amount} NIS?`;
+    const message = this.translate.instant('PATIENTS.PROFILE.MESSAGES.DELETE_PAYMENT_CONFIRM', { amount: payment.amount });
     const dialogRef = this.deleteConfirmDialog.open(message);
     this.subs.sink = dialogRef.afterClosed().subscribe((result) => {
       if (result !== 1) {
@@ -461,7 +464,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
 
   deleteTreatment(treatment: TreatmentModel) {
     const date = treatment.date.toDate().toDateString();
-    const message = `Delete treatment on ${date}?`;
+    const message = this.translate.instant('PATIENTS.PROFILE.MESSAGES.DELETE_TREATMENT_CONFIRM', { date });
     const dialogRef = this.deleteConfirmDialog.open(message);
     this.subs.sink = dialogRef.afterClosed().subscribe((result) => {
       if (result !== 1) {
@@ -527,7 +530,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
   }
 
   deleteAttachment(attachment: Attachment) {
-    const message = `Delete attachment: ${attachment.name}`;
+    const message = this.translate.instant('PATIENTS.PROFILE.MESSAGES.DELETE_ATTACHMENT_CONFIRM', { name: attachment.name });
     const dialogRef = this.deleteConfirmDialog.open(message);
 
     this.subs.sink = dialogRef.afterClosed().subscribe((result) => {
@@ -549,7 +552,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
             this.patientService.updatePatient(this.patient);
             this.notificationService.showSnackBarNotification(
               'snackbar-success',
-              'Attachment deleted successfully',
+              this.translate.instant('PATIENTS.PROFILE.MESSAGES.ATTACHMENT_DELETED_SUCCESS'),
               'bottom',
               'center',
             );
@@ -557,7 +560,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
           error: (error) => {
             console.log('error: ' + error);
             this.notificationService.showSwalOkDialog(
-              'Could not delete the file from storage. Please try again.',
+              this.translate.instant('PATIENTS.PROFILE.MESSAGES.ATTACHMENT_DELETE_ERROR'),
               'error',
             );
           },
@@ -569,14 +572,14 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
     if (this.doctor.subscription.storageBytesUsed + attachment.size > this.doctor.subscription.maxStorageLimitBytes || this.doctor.subscription.status !== 'active') {
       this.notificationService.showSwalDialogWithFunction(
         this.doctor.subscription.status !== 'active' ?
-          'Your plan is not active.' :
-          'Upgrade your plan to add more storage',
+          this.translate.instant('PATIENTS.MESSAGES.PLAN_INACTIVE_TITLE') :
+          this.translate.instant('PATIENTS.PROFILE.MESSAGES.UPGRADE_STORAGE_TITLE'),
         this.doctor.subscription.status !== 'active' ?
-          'Check your billing portal in plans page.' :
-          `You have reached the maximum storage for your plan (${this.doctor.subscription.maxStorageLimitBytes} bytes). \nYou can upgrade your plan to add more storage.`,
+          this.translate.instant('PATIENTS.MESSAGES.PLAN_INACTIVE_TEXT') :
+          this.translate.instant('PATIENTS.PROFILE.MESSAGES.UPGRADE_STORAGE_TEXT', { bytes: this.doctor.subscription.maxStorageLimitBytes }),
         'error',
         true,
-        'Go to plan page',
+        this.translate.instant('PATIENTS.MESSAGES.GO_TO_PLAN'),
         () => {
           this.router.navigate(['/admin/doctors/doctor-plans']);
         }
@@ -595,7 +598,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
     this.patientService.updatePatientNotes(this.patient.notes);
     this.notificationService.showSnackBarNotification(
       'black',
-      'Edit Notes Successfully...!!!',
+      this.translate.instant('PATIENTS.PROFILE.MESSAGES.EDIT_NOTES_SUCCESS'),
       'bottom',
       'center'
     );

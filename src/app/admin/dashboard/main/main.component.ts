@@ -28,6 +28,7 @@ import {TreatmentModel} from "@core/models/treatment.model";
 import {Patient} from "@core/models/patient.model";
 import {PaymentModel} from "@core/models/payment.model";
 import {FirebaseAuthenticationService} from "../../../authentication/services/firebase-authentication.service";
+import {TranslateModule, TranslateService} from "@ngx-translate/core";
 
 export type ChartOptions = {
   series: ApexAxisChartSeries;
@@ -68,15 +69,16 @@ interface RangeOption {
     MatMenuModule,
     MatIconModule,
     FeatherIconsComponent,
+    TranslateModule,
   ],
 })
 
 export class MainComponent implements OnInit {
   rangeOptions: RangeOption[] = [
-    {id: 'today', label: 'Today'},
-    {id: 'week', label: 'Week'},
-    {id: 'month', label: 'Month'},
-    {id: 'year', label: 'Year'},
+    {id: 'today', label: 'DASHBOARD.RANGE.TODAY'},
+    {id: 'week', label: 'DASHBOARD.RANGE.WEEK'},
+    {id: 'month', label: 'DASHBOARD.RANGE.MONTH'},
+    {id: 'year', label: 'DASHBOARD.RANGE.YEAR'},
   ];
   selectedRange: RangePreset = 'month';
 
@@ -102,7 +104,8 @@ export class MainComponent implements OnInit {
 
   constructor(
     private doctorService: DoctorService,
-    private firebaseAuthenticationService: FirebaseAuthenticationService
+    private firebaseAuthenticationService: FirebaseAuthenticationService,
+    private translate: TranslateService,
   ) {
 
   }
@@ -183,7 +186,7 @@ export class MainComponent implements OnInit {
     this.appointmentsChartOptions = {
       series: [
         {
-          name: 'Appointments',
+          name: this.translate.instant('DASHBOARD.APPOINTMENTS'),
           data: dataArray,
         },
       ],
@@ -231,7 +234,7 @@ export class MainComponent implements OnInit {
     this.treatmentsChartOptions = {
       series: [
         {
-          name: 'Operations',
+          name: this.translate.instant('DASHBOARD.OPERATIONS'),
           data: dataArray,
         },
       ],
@@ -279,7 +282,7 @@ export class MainComponent implements OnInit {
     this.newPatientsChartOptions = {
       series: [
         {
-          name: 'New Patients',
+          name: this.translate.instant('DASHBOARD.NEW_PATIENTS'),
           data: dataArray,
         },
       ],
@@ -327,7 +330,7 @@ export class MainComponent implements OnInit {
     this.earningChartOptions = {
       series: [
         {
-          name: 'Earning',
+          name: this.translate.instant('DASHBOARD.EARNING'),
           data: dataArray,
         },
       ],

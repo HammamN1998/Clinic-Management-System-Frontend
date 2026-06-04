@@ -8,6 +8,7 @@ import { finalize, from } from 'rxjs';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { NgIf } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
 import firebase from 'firebase/compat';
 import storage = firebase.storage;
 import { Attachment } from '@core/models/patient.model';
@@ -41,7 +42,7 @@ export interface PreparationSummary {
   ],
   styleUrls: ['./file-upload.component.scss'],
   standalone: true,
-  imports: [MatButtonModule, MatProgressBarModule, MatProgressSpinnerModule, NgIf],
+  imports: [MatButtonModule, MatProgressBarModule, MatProgressSpinnerModule, NgIf, TranslateModule],
 })
 export class FileUploadComponent implements ControlValueAccessor, OnInit {
   @Input() accept: string = '';

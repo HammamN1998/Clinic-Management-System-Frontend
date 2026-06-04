@@ -5,10 +5,10 @@
   <ng-scrollbar [style.height]="maxHeight + 'px'" visibility="hover">
     <div class="settingSidebar-body ps-container ps-theme-default">
       <div class=" fade show active">
-        <div class="setting-panel-header">Setting Panel
+        <div class="setting-panel-header">{{ 'RIGHT_SIDEBAR.SETTING_PANEL' | translate }}
         </div>
         <div class="p-15 border-bottom">
-          <p class="font-medium m-b-10">Select Layout</p>
+          <p class="font-medium m-b-10">{{ 'RIGHT_SIDEBAR.SELECT_LAYOUT' | translate }}</p>
           <div class="flex flex-wrap hiddenradio">
             <div class="flex flex-col ">
               <label>
@@ -16,26 +16,26 @@
                   (click)="lightThemeBtnClick()">
                 <img src="assets/images/right-sidebar/light.png">
               </label>
-              <div class="mt-1 text-md text-center"> Light </div>
+              <div class="mt-1 text-md text-center"> {{ 'RIGHT_SIDEBAR.LIGHT' | translate }} </div>
             </div>
             <div class="flex flex-col mt-3"> <label>
                 <input type="radio" name="value" value="dark" [checked]="isDarTheme === true ? true : false"
                   (click)="darkThemeBtnClick()">
                 <img src="assets/images/right-sidebar/dark.png">
               </label>
-              <div class="mt-1 text-md text-center"> Dark </div>
+              <div class="mt-1 text-md text-center"> {{ 'RIGHT_SIDEBAR.DARK' | translate }} </div>
             </div>
           </div>
         </div>
         <div class="rightSetting">
-          <p class="font-medium m-b-10">Sidebar Menu Color</p>
+          <p class="font-medium m-b-10">{{ 'RIGHT_SIDEBAR.SIDEBAR_MENU_COLOR' | translate }}</p>
           <mat-button-toggle-group class="mt-2" [value]="isDarkSidebar ? 'dark' : 'light'">
-            <mat-button-toggle (click)="lightSidebarBtnClick()" value="light">Light</mat-button-toggle>
-            <mat-button-toggle (click)="darkSidebarBtnClick()" value="dark">Dark</mat-button-toggle>
+            <mat-button-toggle (click)="lightSidebarBtnClick()" value="light">{{ 'RIGHT_SIDEBAR.LIGHT' | translate }}</mat-button-toggle>
+            <mat-button-toggle (click)="darkSidebarBtnClick()" value="dark">{{ 'RIGHT_SIDEBAR.DARK' | translate }}</mat-button-toggle>
           </mat-button-toggle-group>
         </div>
         <div class="p-15 border-bottom">
-          <p class="font-medium m-b-10">Color Theme</p>
+          <p class="font-medium m-b-10">{{ 'RIGHT_SIDEBAR.COLOR_THEME' | translate }}</p>
           <div class="theme-setting-options">
             <ul class="choose-theme list-unstyled mb-0">
               <li data-theme="white" [ngClass]="{'active': selectedBgColor === 'white'}" (click)="selectTheme('white')">

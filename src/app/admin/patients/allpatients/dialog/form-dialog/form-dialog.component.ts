@@ -14,6 +14,7 @@ import { MatButtonModule } from '@angular/material/button';
 import {NgIf} from "@angular/common";
 import {Router} from "@angular/router";
 import {isNullOrUndefined} from "@swimlane/ngx-datatable";
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 export interface DialogData {
   id: number;
@@ -40,6 +41,7 @@ export interface DialogData {
     MatOptionModule,
     MatDialogClose,
     NgIf,
+    TranslateModule,
   ],
 })
 export class FormDialogComponent {
@@ -53,6 +55,7 @@ export class FormDialogComponent {
     public patientService: PatientService,
     private fb: UntypedFormBuilder,
     private router: Router,
+    private translate: TranslateService,
   ) {
     // Set the defaults
     this.action = data.action;
@@ -60,7 +63,7 @@ export class FormDialogComponent {
       this.dialogTitle = data.patient.firstName;
       this.patient = data.patient;
     } else {
-      this.dialogTitle = 'New Patient';
+      this.dialogTitle = this.translate.instant('PATIENTS.DIALOG.NEW_TITLE');
       this.patient = new Patient();
     }
     this.patientForm = this.createContactForm();

@@ -13,6 +13,7 @@ import {Patient} from "@core/models/patient.model";
 import {NotificationService} from "@core/service/notification.service";
 import {Router} from "@angular/router";
 import * as firestore from "firebase/firestore";
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-edit-patient',
@@ -30,6 +31,7 @@ import * as firestore from "firebase/firestore";
     MatDatepickerModule,
     MatButtonModule,
     NgIf,
+    TranslateModule,
   ],
 })
 export class EditPatientComponent {
@@ -39,6 +41,7 @@ export class EditPatientComponent {
     private patientService: PatientService,
     private notificationService: NotificationService,
     private router: Router,
+    private translate: TranslateService,
   ) {
     this.patientForm = this.createContactForm();
   }
@@ -85,7 +88,7 @@ export class EditPatientComponent {
     this.router.navigate(['/admin/patients/patient-profile']);
     this.notificationService.showSnackBarNotification(
       'black',
-      'Edit Record Successfully...!!!',
+      this.translate.instant('PATIENTS.MESSAGES.UPDATE_SUCCESS'),
       'bottom',
       'center'
     )

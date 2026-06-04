@@ -14,6 +14,7 @@ import { UnsubscribeOnDestroyAdapter } from '@shared';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { NgScrollbar } from 'ngx-scrollbar';
 import { FeatherIconsComponent } from '@shared/components/feather-icons/feather-icons.component';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -26,6 +27,7 @@ import { FeatherIconsComponent } from '@shared/components/feather-icons/feather-
     FeatherIconsComponent,
     NgScrollbar,
     MatButtonToggleModule,
+    TranslateModule,
   ],
 })
 export class RightSidebarComponent

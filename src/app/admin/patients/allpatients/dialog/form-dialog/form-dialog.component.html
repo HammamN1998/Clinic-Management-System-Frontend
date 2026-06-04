@@ -21,21 +21,21 @@
       <div class="row">
         <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-2">
           <mat-form-field class="example-full-width" appearance="outline">
-            <mat-label>First Name</mat-label>
+            <mat-label>{{ 'PATIENTS.FIELDS.FIRST_NAME' | translate }}</mat-label>
             <input matInput formControlName="firstName" required>
             <mat-icon class="material-icons-two-tone color-icon p-3" matSuffix>face</mat-icon>
             <mat-error *ngIf="patientForm.get('firstName')?.hasError('required')">
-              First name is required
+              {{ 'VALIDATION.REQUIRED' | translate:{ field: ('PATIENTS.FIELDS.FIRST_NAME' | translate) } }}
             </mat-error>
           </mat-form-field>
         </div>
         <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-2">
           <mat-form-field class="example-full-width" appearance="outline">
-            <mat-label>Mobile</mat-label>
+            <mat-label>{{ 'PATIENTS.FIELDS.MOBILE' | translate }}</mat-label>
             <input matInput formControlName="phoneNumber" type="number" required>
             <mat-icon class="material-icons-two-tone color-icon p-3" matSuffix>phone</mat-icon>
             <mat-error *ngIf="patientForm.get('phoneNumber')?.hasError('required')">
-              Mobile is required
+              {{ 'VALIDATION.REQUIRED' | translate:{ field: ('PATIENTS.FIELDS.MOBILE' | translate) } }}
             </mat-error>
           </mat-form-field>
         </div>
@@ -43,12 +43,12 @@
       <div class="row">
         <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-2">
           <div class="m-b-20">
-            <mat-label class="msr-3">Gender:</mat-label>
+            <mat-label class="msr-3">{{ 'PATIENTS.FIELDS.GENDER' | translate }}:</mat-label>
             <mat-radio-group aria-label="Select gender" formControlName="gender" required>
-              <mat-radio-button value="male">Male</mat-radio-button>
-              <mat-radio-button value="female">Female</mat-radio-button>
+              <mat-radio-button value="male">{{ 'PATIENTS.OPTIONS.MALE' | translate }}</mat-radio-button>
+              <mat-radio-button value="female">{{ 'PATIENTS.OPTIONS.FEMALE' | translate }}</mat-radio-button>
               <mat-error *ngIf="patientForm.get('gender')?.hasError('required')">
-                Select gender
+                {{ 'PATIENTS.DIALOG.SELECT_GENDER' | translate }}
               </mat-error>
             </mat-radio-group>
           </div>
@@ -57,10 +57,10 @@
       <div class="row">
         <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-2">
           <mat-form-field class="example-full-width" appearance="outline">
-            <mat-label>Address</mat-label>
+            <mat-label>{{ 'PATIENTS.FIELDS.ADDRESS' | translate }}</mat-label>
             <input matInput formControlName="address" required>
             <mat-error *ngIf="patientForm.get('address')?.hasError('required')">
-              Address is required
+              {{ 'VALIDATION.REQUIRED' | translate:{ field: ('PATIENTS.FIELDS.ADDRESS' | translate) } }}
             </mat-error>
           </mat-form-field>
         </div>
@@ -69,16 +69,16 @@
         <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-2">
           <div class="example-button-row">
             <button mat-raised-button type="submit" color="primary" [disabled]="!patientForm.valid" [mat-dialog-close]="1" (click)="confirmAdd()">
-              Save
+              {{ 'COMMON.SAVE' | translate }}
             </button>
             <button mat-raised-button *ngIf="action==='edit'" color="primary" (click)="goToFullEditPage()">
-              Full Edit
+              {{ 'PATIENTS.DIALOG.FULL_EDIT' | translate }}
             </button>
             <button mat-raised-button *ngIf="action==='add'" color="primary" (click)="goToFullAddPage()">
-              Full Add
+              {{ 'PATIENTS.DIALOG.FULL_ADD' | translate }}
             </button>
             <button mat-raised-button color="warn" (click)="onNoClick()" tabindex="-1">
-              Cancel
+              {{ 'COMMON.CANCEL' | translate }}
             </button>
           </div>
         </div>

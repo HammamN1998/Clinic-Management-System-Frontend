@@ -10,6 +10,7 @@ import { PAYMENT_PLANS } from '@core/util/payment-plans';
 import {finalize} from "rxjs/operators";
 import {DoctorService} from "@core/service/doctor.service";
 import { LegalPolicyFooterComponent } from '@shared/components/legal-policy-footer/legal-policy-footer.component';
+import {TranslateModule, TranslateService} from "@ngx-translate/core";
 
 @Component({
   selector: 'app-doctor-plans',
@@ -21,6 +22,7 @@ import { LegalPolicyFooterComponent } from '@shared/components/legal-policy-foot
     MatTabsModule,
     SharedModule,
     LegalPolicyFooterComponent,
+    TranslateModule,
   ],
   templateUrl: './doctor-plans.component.html',
   styleUrl: './doctor-plans.component.scss'
@@ -35,6 +37,7 @@ export class DoctorPlansComponent {
     private paymentService: PaymentService,
     private notificationService: NotificationService,
     private doctorService: DoctorService,
+    private translate: TranslateService,
   ) {
 
   }
@@ -73,7 +76,7 @@ export class DoctorPlansComponent {
       error: (err: { message?: string }) => {
         this.notificationService.showSnackBarNotification(
           'snackbar-danger',
-          err?.message ?? 'Unable to start checkout.',
+          err?.message ?? this.translate.instant('DOCTORS.PLANS.MESSAGES.CHECKOUT_ERROR'),
           'bottom',
           'center',
         );
@@ -94,7 +97,7 @@ export class DoctorPlansComponent {
       error: (err: { message?: string }) => {
         this.notificationService.showSnackBarNotification(
           'snackbar-danger',
-          err?.message ?? 'Unable to open billing portal.',
+          err?.message ?? this.translate.instant('DOCTORS.PLANS.MESSAGES.BILLING_PORTAL_ERROR'),
           'bottom',
           'center',
         );

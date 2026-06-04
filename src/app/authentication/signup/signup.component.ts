@@ -8,6 +8,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import {FirebaseAuthenticationService} from "../services/firebase-authentication.service";
 import {NgIf} from "@angular/common";
 import { LegalPolicyFooterComponent } from '@shared/components/legal-policy-footer/legal-policy-footer.component';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
     selector: 'app-signup',
@@ -24,6 +25,7 @@ import { LegalPolicyFooterComponent } from '@shared/components/legal-policy-foot
     MatButtonModule,
     NgIf,
     LegalPolicyFooterComponent,
+    TranslateModule,
   ],
 })
 export class SignupComponent implements OnInit {

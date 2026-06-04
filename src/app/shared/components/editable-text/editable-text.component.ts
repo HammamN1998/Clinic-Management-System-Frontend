@@ -3,6 +3,7 @@ import {MatButtonModule} from "@angular/material/button";
 import {MatIconModule} from "@angular/material/icon";
 import {MatTooltipModule} from "@angular/material/tooltip";
 import {FormsModule} from "@angular/forms";
+import {TranslateModule} from "@ngx-translate/core";
 
 @Component({
   selector: 'app-editable-text',
@@ -11,7 +12,8 @@ import {FormsModule} from "@angular/forms";
     MatButtonModule,
     MatIconModule,
     MatTooltipModule,
-    FormsModule
+    FormsModule,
+    TranslateModule
   ],
   templateUrl: './editable-text.component.html',
   styleUrl: './editable-text.component.scss'

@@ -9,11 +9,12 @@ import { FormsModule } from '@angular/forms';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-verify-email',
   standalone: true,
-  imports: [CommonModule, RouterLink, MatButtonModule, MatIconModule, FormsModule],
+  imports: [CommonModule, RouterLink, MatButtonModule, MatIconModule, FormsModule, TranslateModule],
   templateUrl: './verify-email.component.html',
   styleUrls: ['./verify-email.component.scss'],
 })

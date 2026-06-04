@@ -32,6 +32,7 @@ import {Router} from "@angular/router";
 import * as firestore from "firebase/firestore";
 import {FirebaseAuthenticationService} from "../../../authentication/services/firebase-authentication.service";
 import {User} from "@core";
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-allpatients',
@@ -52,6 +53,7 @@ import {User} from "@core";
     MatPaginatorModule,
     DatePipe,
     NgIf,
+    TranslateModule,
   ],
 })
 export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements AfterViewInit {
@@ -87,6 +89,7 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
     private notificationService: NotificationService,
     private router: Router,
     private firebaseAuthenticationService: FirebaseAuthenticationService,
+    private translate: TranslateService,
   ) {
     super();
   }
@@ -125,16 +128,15 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
   }
   addNew() {
     if (this.doctor.subscription.patientsCount >= this.doctor.subscription.maxPatientsLimit || this.doctor.subscription.status !== 'active') {
+      const isInactive = this.doctor.subscription.status !== 'active';
       this.notificationService.showSwalDialogWithFunction(
-        this.doctor.subscription.status !== 'active' ?
-          'Your plan is not active.' :
-          'Upgrade your plan to add more patients',
-        this.doctor.subscription.status !== 'active' ?
-          'Check your billing portal in plans page.' :
-          `You have reached the maximum number of patients for your plan (${this.doctor.subscription.maxPatientsLimit} patients). \nYou can upgrade your plan to add more patients.`,
+        this.translate.instant(isInactive ? 'PATIENTS.MESSAGES.PLAN_INACTIVE_TITLE' : 'PATIENTS.MESSAGES.UPGRADE_TITLE'),
+        isInactive
+          ? this.translate.instant('PATIENTS.MESSAGES.PLAN_INACTIVE_BODY')
+          : this.translate.instant('PATIENTS.MESSAGES.UPGRADE_BODY', { count: this.doctor.subscription.maxPatientsLimit }),
         'error',
         true,
-        'Go to plan page',
+        this.translate.instant('PATIENTS.MESSAGES.GO_TO_PLAN'),
         () => {
           this.router.navigate(['/admin/doctors/doctor-plans']);
         }
@@ -181,7 +183,7 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
         });
         this.notificationService.showSnackBarNotification(
           'snackbar-success',
-          'Add Record Successfully...!!!',
+          this.translate.instant('PATIENTS.MESSAGES.ADD_SUCCESS'),
           'bottom',
           'center'
         );
@@ -225,7 +227,7 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
         this.loadCurrentPage();
         this.notificationService.showSnackBarNotification(
           'black',
-          'Edit Record Successfully...!!!',
+          this.translate.instant('PATIENTS.MESSAGES.UPDATE_SUCCESS'),
           'bottom',
           'center'
         );
@@ -234,7 +236,7 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
   }
   deleteItem(row: Patient) {
     const name = `${row.firstName} ${row.lastName}`.trim();
-    const message = `Delete patient ${name}?`;
+    const message = this.translate.instant('PATIENTS.MESSAGES.DELETE_CONFIRM', { name });
     const dialogRef = this.deleteConfirmDialog.open(message);
 
     this.subs.sink = dialogRef.afterClosed().subscribe((result) => {
@@ -248,7 +250,7 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
         });
         this.notificationService.showSnackBarNotification(
           'snackbar-danger',
-          'Delete Record Successfully...!!!',
+          this.translate.instant('PATIENTS.MESSAGES.DELETE_SUCCESS'),
           'bottom',
           'center'
         );
@@ -278,7 +280,7 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
 
     const selected = this.selection.selected;
     const n = selected.length;
-    const message = `Delete ${n} patient(s)?`;
+    const message = this.translate.instant('PATIENTS.MESSAGES.DELETE_MANY_CONFIRM', { count: n });
     const dialogRef = this.deleteConfirmDialog.open(message);
 
     this.subs.sink = dialogRef.afterClosed().subscribe((result) => {
@@ -299,7 +301,7 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
 
         this.notificationService.showSnackBarNotification(
           'snackbar-danger',
-          totalSelect + ' Record Delete Successfully...!!!',
+          this.translate.instant('PATIENTS.MESSAGES.DELETE_MANY_SUCCESS', { count: totalSelect }),
           'bottom',
           'center'
         );

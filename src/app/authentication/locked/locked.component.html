@@ -18,22 +18,22 @@
             </span>
             <div class="text-center">
               <p class="txt1 p-b-20">
-                Locked
+                {{ 'AUTH.LOCKED.LOCKED' | translate }}
               </p>
             </div>
             <div class="row">
               <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-2">
                 <span class="error-subheader2 p-t-20 p-b-15">
-                  Enter your password here.
+                  {{ 'AUTH.LOCKED.PASSWORD_HINT' | translate }}
                 </span>
                 <mat-form-field class="example-full-width" appearance="outline">
-                  <mat-label>Password</mat-label>
+                  <mat-label>{{ 'COMMON.PASSWORD' | translate }}</mat-label>
                   <input matInput formControlName="password" [type]="hide ? 'password' : 'text'" required>
                   <mat-icon matSuffix (click)="hide = !hide">
                     {{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
                   @if (authForm.get('password')!.hasError('required')) {
                   <mat-error>
-                    Password is required
+                    {{ 'VALIDATION.REQUIRED' | translate:{ field: ('COMMON.PASSWORD' | translate) } }}
                   </mat-error>
                   }
                 </mat-form-field>
@@ -42,13 +42,13 @@
             <div class="container-auth-form-btn mt-5">
               <button mat-raised-button color="primary" class="auth-form-btn" [disabled]="!authForm.valid "
                 type="submit">
-                Reset My Password
+                {{ 'AUTH.LOCKED.RESET' | translate }}
               </button>
             </div>
             <div class="w-full p-t-15 p-b-15 text-center">
               <div>
                 <a routerLink="/authentication/signin" class="txt1">
-                  Need Help?
+                  {{ 'AUTH.LOCKED.NEED_HELP' | translate }}
                 </a>
               </div>
             </div>

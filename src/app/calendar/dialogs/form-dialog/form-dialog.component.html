@@ -16,7 +16,7 @@
       <div class="row">
         <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 ">
           <mat-form-field class="example-full-width mb-3" appearance="outline">
-            <mat-label>Title</mat-label>
+            <mat-label>{{ 'CALENDAR.FORM.TITLE' | translate }}</mat-label>
             <input matInput formControlName="title" required>
             <mat-icon class="material-icons-two-tone color-icon p-3" matSuffix>turned_in_not</mat-icon>
           </mat-form-field>
@@ -25,22 +25,22 @@
       <div class="row">
         <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 ">
           <mat-form-field class="example-full-width mb-3" appearance="outline">
-            <mat-label>Category</mat-label>
+            <mat-label>{{ 'CALENDAR.FORM.CATEGORY' | translate }}</mat-label>
             <mat-select formControlName="category" required>
               <mat-option [value]="'work'">
-                Work
+                {{ 'CALENDAR.CATEGORIES.WORK' | translate }}
               </mat-option>
               <mat-option [value]="'personal'">
-                Personal
+                {{ 'CALENDAR.CATEGORIES.PERSONAL' | translate }}
               </mat-option>
               <mat-option [value]="'important'">
-                Important
+                {{ 'CALENDAR.CATEGORIES.IMPORTANT' | translate }}
               </mat-option>
               <mat-option [value]="'travel'">
-                Travel
+                {{ 'CALENDAR.CATEGORIES.TRAVEL' | translate }}
               </mat-option>
               <mat-option [value]="'friends'">
-                Friends
+                {{ 'CALENDAR.CATEGORIES.FRIENDS' | translate }}
               </mat-option>
             </mat-select>
           </mat-form-field>
@@ -49,18 +49,18 @@
       <div class="row">
         <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 ">
           <mat-form-field class="example-full-width mb-3" appearance="outline">
-            <mat-label>Start date</mat-label>
+            <mat-label>{{ 'CALENDAR.FORM.START_DATE' | translate }}</mat-label>
             <input matInput formControlName="startDate" [owlDateTimeTrigger]="startDate" [owlDateTime]="startDate"
-              placeholder="Choose a date" required>
+              [placeholder]="'PATIENTS.PROFILE.CHOOSE_DATE' | translate" required>
             <mat-icon matSuffix [owlDateTimeTrigger]="startDate" class="date-icon">today</mat-icon>
             <owl-date-time #startDate></owl-date-time>
           </mat-form-field>
         </div>
         <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 ">
           <mat-form-field class="example-full-width mb-3" appearance="outline">
-            <mat-label>End date</mat-label>
+            <mat-label>{{ 'CALENDAR.FORM.END_DATE' | translate }}</mat-label>
             <input matInput formControlName="endDate" [owlDateTimeTrigger]="endDate" [owlDateTime]="endDate"
-              placeholder="Choose a date" required>
+              [placeholder]="'PATIENTS.PROFILE.CHOOSE_DATE' | translate" required>
             <mat-icon matSuffix [owlDateTimeTrigger]="endDate" class="date-icon">today</mat-icon>
             <owl-date-time #endDate></owl-date-time>
           </mat-form-field>
@@ -69,7 +69,7 @@
       <div class="row">
         <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12">
           <mat-form-field class="example-full-width mb-3" appearance="outline">
-            <mat-label>Event Details</mat-label>
+            <mat-label>{{ 'CALENDAR.FORM.EVENT_DETAILS' | translate }}</mat-label>
             <textarea matInput formControlName="details"></textarea>
           </mat-form-field>
         </div>
@@ -78,8 +78,8 @@
         <div class="col-xl-10 col-lg-10 col-md-12 col-sm-12">
           <div class="example-button-row">
             <button mat-raised-button color="primary" [type]="submit" [disabled]="!calendarForm.valid"
-              (click)="confirmAdd()">Save</button>
-            <button mat-raised-button color="warn" (click)="dialogRef.close()" tabindex="-1">Cancel</button>
+              (click)="confirmAdd()">{{ 'COMMON.SAVE' | translate }}</button>
+            <button mat-raised-button color="warn" (click)="dialogRef.close()" tabindex="-1">{{ 'COMMON.CANCEL' | translate }}</button>
           </div>
         </div>
         <div class="col-xl-2 col-lg-2 col-md-12 col-sm-12">

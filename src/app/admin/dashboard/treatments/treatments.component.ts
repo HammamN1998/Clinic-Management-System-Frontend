@@ -8,6 +8,7 @@ import {PatientService} from '@core/service/patient.service';
 import {TreatmentModel} from '@core/models/treatment.model';
 import {Patient} from '@core/models/patient.model';
 import {from} from 'rxjs';
+import {TranslateModule, TranslateService} from '@ngx-translate/core';
 
 type RangePreset = 'today' | 'week' | 'month' | 'year';
 interface RangeOption {
@@ -29,14 +30,14 @@ interface TreatmentRow {
   templateUrl: './treatments.component.html',
   styleUrls: ['./treatments.component.scss'],
   standalone: true,
-  imports: [CommonModule, MatButtonModule, BreadcrumbComponent],
+  imports: [CommonModule, MatButtonModule, BreadcrumbComponent, TranslateModule],
 })
 export class TreatmentsComponent implements OnInit {
   rangeOptions: RangeOption[] = [
-    {id: 'today', label: 'Today'},
-    {id: 'week', label: 'Week'},
-    {id: 'month', label: 'Month'},
-    {id: 'year', label: 'Year'},
+    {id: 'today', label: 'DASHBOARD.RANGE.TODAY'},
+    {id: 'week', label: 'DASHBOARD.RANGE.WEEK'},
+    {id: 'month', label: 'DASHBOARD.RANGE.MONTH'},
+    {id: 'year', label: 'DASHBOARD.RANGE.YEAR'},
   ];
   selectedRange: RangePreset = 'month';
   treatments: TreatmentRow[] = [];
@@ -46,7 +47,8 @@ export class TreatmentsComponent implements OnInit {
   constructor(
     private doctorService: DoctorService,
     private patientService: PatientService,
-    private router: Router
+    private router: Router,
+    private translate: TranslateService,
   ) {}
 
   ngOnInit() {
@@ -97,7 +99,7 @@ export class TreatmentsComponent implements OnInit {
           return {
             id: treatmentId,
             patientId: data.patientId,
-            patientName: data.patientId ? 'Loading...' : 'Unknown',
+            patientName: data.patientId ? this.translate.instant('COMMON.LOADING') : this.translate.instant('DASHBOARD.EARNINGS.UNKNOWN'),
             date: data.date.toDate(),
             price: data.price,
             discount: data.discount,
@@ -128,7 +130,7 @@ export class TreatmentsComponent implements OnInit {
       next: (snapshot) => {
         const data = snapshot.data() as Patient | undefined;
         if (!data) {
-          this.applyPatientName(patientId, 'Unknown');
+          this.applyPatientName(patientId, this.translate.instant('DASHBOARD.EARNINGS.UNKNOWN'));
           return;
         }
         const patient: Patient = {...data, id: snapshot.id};
@@ -137,7 +139,7 @@ export class TreatmentsComponent implements OnInit {
       },
       error: (error) => {
         console.log('error: ' + error);
-        this.applyPatientName(patientId, 'Unknown');
+        this.applyPatientName(patientId, this.translate.instant('DASHBOARD.EARNINGS.UNKNOWN'));
       }
     });
   }
@@ -155,7 +157,7 @@ export class TreatmentsComponent implements OnInit {
 
   private getPatientName(patient: Patient): string {
     const name = `${patient.firstName} ${patient.lastName}`.trim();
-    return name.length ? name : 'Patient';
+    return name.length ? name : this.translate.instant('DASHBOARD.EARNINGS.PATIENT_FALLBACK');
   }
 
   private getRangeDates(preset: RangePreset): {start: Date; end: Date} {

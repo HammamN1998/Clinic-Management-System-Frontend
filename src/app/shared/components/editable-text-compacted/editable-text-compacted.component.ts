@@ -11,11 +11,12 @@ import {
   ViewChild,
 } from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
+import {TranslateModule} from '@ngx-translate/core';
 
 @Component({
   selector: 'editable-text-compacted',
   standalone: true,
-  imports: [CommonModule, MatButtonModule],
+  imports: [CommonModule, MatButtonModule, TranslateModule],
   templateUrl: './editable-text-compacted.component.html',
   styleUrl: './editable-text-compacted.component.scss',
 })

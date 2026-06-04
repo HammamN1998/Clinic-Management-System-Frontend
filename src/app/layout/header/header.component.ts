@@ -21,6 +21,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatButtonModule } from '@angular/material/button';
 import { PaymentService } from '@core/service/payment.service';
 import { finalize } from 'rxjs/operators';
+import { TranslateModule } from '@ngx-translate/core';
 
 interface Notifications {
   message: string;
@@ -44,6 +45,7 @@ interface Notifications {
     FeatherIconsComponent,
     NgIf,
     NgFor,
+    TranslateModule,
   ],
 })
 export class HeaderComponent

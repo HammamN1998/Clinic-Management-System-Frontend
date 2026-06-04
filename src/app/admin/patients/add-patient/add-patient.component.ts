@@ -14,6 +14,7 @@ import {NotificationService} from "@core/service/notification.service";
 import * as firestore from 'firebase/firestore';
 import { User } from '@core/models/user';
 import {Router} from "@angular/router";
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-add-patient',
@@ -31,6 +32,7 @@ import {Router} from "@angular/router";
     MatDatepickerModule,
     MatButtonModule,
     NgIf,
+    TranslateModule,
   ],
 })
 export class AddPatientComponent {
@@ -40,6 +42,7 @@ export class AddPatientComponent {
     private patientService: PatientService,
     private notificationService: NotificationService,
     private router: Router,
+    private translate: TranslateService,
   ) {
     this.patientForm = this.createContactForm();
   }
@@ -73,16 +76,15 @@ export class AddPatientComponent {
 
   onSubmit() {
     if (this.doctor.subscription.patientsCount >= this.doctor.subscription.maxPatientsLimit || this.doctor.subscription.status !== 'active') {
+      const isInactive = this.doctor.subscription.status !== 'active';
       this.notificationService.showSwalDialogWithFunction(
-        this.doctor.subscription.status !== 'active' ? 
-          'Your plan is not active.' :
-          'Upgrade your plan to add more patients',
-        this.doctor.subscription.status !== 'active' ? 
-          'Check your billing portal in plans page.' :
-          `You have reached the maximum number of patients for your plan (${this.doctor.subscription.maxPatientsLimit} patients). \nYou can upgrade your plan to add more patients.`,
+        this.translate.instant(isInactive ? 'PATIENTS.MESSAGES.PLAN_INACTIVE_TITLE' : 'PATIENTS.MESSAGES.UPGRADE_TITLE'),
+        isInactive
+          ? this.translate.instant('PATIENTS.MESSAGES.PLAN_INACTIVE_BODY')
+          : this.translate.instant('PATIENTS.MESSAGES.UPGRADE_BODY', { count: this.doctor.subscription.maxPatientsLimit }),
         'error',
         true,
-        'Go to plan page',
+        this.translate.instant('PATIENTS.MESSAGES.GO_TO_PLAN'),
         () => {
           this.router.navigate(['/admin/doctors/doctor-plans']);
         }
@@ -107,7 +109,7 @@ export class AddPatientComponent {
     this.patientService.addPatient(newPatient)
     this.notificationService.showSnackBarNotification(
       'snackbar-success',
-      'Add Record Successfully...!!!',
+      this.translate.instant('PATIENTS.MESSAGES.ADD_SUCCESS'),
       'bottom',
       'center'
     )

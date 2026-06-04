@@ -11,6 +11,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { DeleteConfirmDialogService } from '@shared/components/delete-confirm-dialog/delete-confirm-dialog.service';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 export interface DialogData {
   id: number;
@@ -34,6 +35,7 @@ export interface DialogData {
     MatSelectModule,
     MatOptionModule,
     OwlDateTimeModule,
+    TranslateModule,
   ],
 })
 export class FormDialogComponent {
@@ -48,6 +50,7 @@ export class FormDialogComponent {
     public calendarService: CalendarService,
     private fb: UntypedFormBuilder,
     private deleteConfirmDialog: DeleteConfirmDialogService,
+    private translate: TranslateService,
   ) {
     // Set the defaults
     this.action = data.action;
@@ -56,7 +59,7 @@ export class FormDialogComponent {
       this.calendar = data.calendar;
       this.showDeleteBtn = true;
     } else {
-      this.dialogTitle = 'New Event';
+      this.dialogTitle = this.translate.instant('CALENDAR.NEW_EVENT');
       const blankObject = {} as Calendar;
       this.calendar = new Calendar(blankObject);
       this.showDeleteBtn = false;
@@ -70,9 +73,9 @@ export class FormDialogComponent {
   ]);
   getErrorMessage() {
     return this.formControl.hasError('required')
-      ? 'Required field'
+      ? this.translate.instant('CALENDAR.FORM.REQUIRED_FIELD')
       : this.formControl.hasError('email')
-        ? 'Not a valid email'
+        ? this.translate.instant('CALENDAR.FORM.INVALID_EMAIL')
         : '';
   }
   createContactForm(): UntypedFormGroup {
@@ -92,7 +95,7 @@ export class FormDialogComponent {
   }
   deleteEvent() {
     const title = this.calendarForm.get('title')?.value ?? '';
-    const message = `Delete calendar event "${title}"?`;
+    const message = this.translate.instant('CALENDAR.MESSAGES.DELETE_CONFIRM', { title });
     const confirmRef = this.deleteConfirmDialog.open(message);
     confirmRef.afterClosed().subscribe((result) => {
       if (result !== 1) {

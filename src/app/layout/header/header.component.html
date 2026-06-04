@@ -22,10 +22,10 @@
         <!-- Email Verification -->
         <li *ngIf="!isEmailVerified">
           <span style="color: red">
-            Your email need verification,
+            {{ 'HEADER.EMAIL_VERIFY_TEXT' | translate }}
             <button style="background: none; border: none; color: red">
               <u (click)="this.sendEmailVerificationCode()">
-                Verify?
+                {{ 'HEADER.EMAIL_VERIFY_ACTION' | translate }}
               </u>
             </button>
           </span>
@@ -33,10 +33,10 @@
         <!-- Billing Portal -->
         <li *ngIf="this.doctor.subscription.status !== 'active'">
           <span style="color: red">
-            Your plan is not active.
+            {{ 'HEADER.PLAN_INACTIVE_TEXT' | translate }}
             <button type="button" style="background: none; border: none; color: red" (click)="openBillingPortal()" [class.auth-spinner]="billingPortalLoading" [disabled]="billingPortalLoading">
               <u>
-                Manage?
+                {{ 'HEADER.PLAN_MANAGE_ACTION' | translate }}
               </u>
             </button>
           </span>
@@ -77,10 +77,10 @@
               <div class="menu ">
                 <div class="user_dw_menu">
                   <button mat-menu-item class="user-item-list" (click)="goToDoctorProfilePage()">
-                    <app-feather-icons [icon]="'user'" [class]="'user-menu-icons'"></app-feather-icons>Account
+                    <app-feather-icons [icon]="'user'" [class]="'user-menu-icons'"></app-feather-icons>{{ 'HEADER.ACCOUNT' | translate }}
                   </button>
                   <button mat-menu-item (click)="logout()" class="user-item-list">
-                    <app-feather-icons [icon]="'log-out'" [class]="'user-menu-icons'"></app-feather-icons>Logout
+                    <app-feather-icons [icon]="'log-out'" [class]="'user-menu-icons'"></app-feather-icons>{{ 'HEADER.LOGOUT' | translate }}
                   </button>
                 </div>
               </div>

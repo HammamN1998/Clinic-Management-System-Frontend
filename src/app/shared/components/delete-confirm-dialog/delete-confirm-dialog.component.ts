@@ -8,6 +8,7 @@ import {
 } from '@angular/material/dialog';
 import { Component, Inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
+import { TranslateModule } from '@ngx-translate/core';
 
 export interface DialogData {
   message?: string;
@@ -24,11 +25,10 @@ export interface DialogData {
     MatDialogActions,
     MatButtonModule,
     MatDialogClose,
+    TranslateModule,
   ],
 })
 export class DeleteComponent {
-  readonly defaultMessage = 'Are you sure you want to delete this item?';
-
   constructor(
     public dialogRef: MatDialogRef<DeleteComponent>,
     @Inject(MAT_DIALOG_DATA) public data: DialogData,

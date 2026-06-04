@@ -24,6 +24,7 @@ import {DateService} from "@core/service/date.service";
 import {PatientService} from "@core/service/patient.service";
 import {Patient} from "@core/models/patient.model";
 import {Router} from "@angular/router";
+import {TranslateModule, TranslateService} from "@ngx-translate/core";
 
 @Component({
   selector: 'app-calendar',
@@ -35,6 +36,7 @@ import {Router} from "@angular/router";
     MatButtonModule,
     MatCheckboxModule,
     FullCalendarModule,
+    TranslateModule,
   ],
 })
 export class CalendarComponent  extends UnsubscribeOnDestroyAdapter  implements OnInit {
@@ -66,9 +68,10 @@ export class CalendarComponent  extends UnsubscribeOnDestroyAdapter  implements 
     private patientService: PatientService,
     private dateService: DateService,
     private router: Router,
+    private translate: TranslateService,
   ) {
     super();
-    this.dialogTitle = 'Add New Event';
+    this.dialogTitle = this.translate.instant('CALENDAR.ADD_NEW_EVENT');
     const blankObject = {} as Calendar;
     this.calendar = new Calendar(blankObject);
     this.addCusForm = this.createCalendarForm(this.calendar);
@@ -162,7 +165,7 @@ export class CalendarComponent  extends UnsubscribeOnDestroyAdapter  implements 
         this.addCusForm.reset();
         this.showNotification(
           'snackbar-success',
-          'Add Record Successfully...!!!',
+          this.translate.instant('CALENDAR.MESSAGES.ADD_SUCCESS'),
           'bottom',
           'center'
         );
@@ -226,7 +229,7 @@ export class CalendarComponent  extends UnsubscribeOnDestroyAdapter  implements 
         }, this);
         this.showNotification(
           'black',
-          'Edit Record Successfully...!!!',
+          this.translate.instant('CALENDAR.MESSAGES.EDIT_SUCCESS'),
           'bottom',
           'center'
         );
@@ -241,7 +244,7 @@ export class CalendarComponent  extends UnsubscribeOnDestroyAdapter  implements 
 
         this.showNotification(
           'snackbar-danger',
-          'Delete Record Successfully...!!!',
+          this.translate.instant('CALENDAR.MESSAGES.DELETE_SUCCESS'),
           'bottom',
           'center'
         );

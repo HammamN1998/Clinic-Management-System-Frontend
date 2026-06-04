@@ -2,7 +2,7 @@
   <div class="content-block">
     <div class="block-header">
       <!-- breadcrumb -->
-      <app-breadcrumb [title]="'Task'" [items]="[]" [active_item]="'Task'"></app-breadcrumb>
+      <app-breadcrumb [title]="'MENUITEMS.TASK.TEXT' | translate" [items]="[]" [active_item]="'MENUITEMS.TASK.TEXT' | translate"></app-breadcrumb>
     </div>
     <div class="block-header">
       <div class="row">
@@ -17,11 +17,11 @@
             <div class="task-module">
               <div class="task-header">
                 <div class="task-title">
-                  <h2>Tasks</h2>
-                  <h5>{{tasks.length}} Total task</h5>
+                  <h2>{{ 'TASK.TASKS' | translate }}</h2>
+                  <h5>{{ 'TASK.TOTAL_TASK' | translate:{ count: tasks.length } }}</h5>
                 </div>
                 <div class="header-button">
-                  <button *ngIf="!sidenav.opened" mat-raised-button color="primary" (click)="addNewTask(sidenav)">Add Task</button>
+                  <button *ngIf="!sidenav.opened" mat-raised-button color="primary" (click)="addNewTask(sidenav)">{{ 'TASK.ADD_TASK' | translate }}</button>
                 </div>
               </div>
               <div class="row">
@@ -32,13 +32,13 @@
                         <div class="header">
                           <h2 class="header-title">{{dialogTitle}}</h2>
                           <div class="header-close m-r-0">
-                            <button *ngIf="!isNewEvent" mat-icon-button type="button" (click)="deleteTask(sidenav)" matTooltip="Delete Task">
+                            <button *ngIf="!isNewEvent" mat-icon-button type="button" (click)="deleteTask(sidenav)" [matTooltip]="'TASK.DELETE_TASK' | translate">
                               <mat-icon>delete</mat-icon>
                             </button>
-                            <button *ngIf="isNewEvent" mat-icon-button type="submit" [disabled]="f.invalid" matTooltip="Save Task">
+                            <button *ngIf="isNewEvent" mat-icon-button type="submit" [disabled]="f.invalid" [matTooltip]="'TASK.SAVE_TASK' | translate">
                               <mat-icon>save</mat-icon>
                             </button>
-                            <button *ngIf="!isNewEvent" mat-icon-button type="submit" [disabled]="f.invalid" matTooltip="Edit Task">
+                            <button *ngIf="!isNewEvent" mat-icon-button type="submit" [disabled]="f.invalid" [matTooltip]="'TASK.EDIT_TASK' | translate">
                               <mat-icon>save</mat-icon>
                             </button>
                             <button mat-icon-button type="button" (click)="closeSlider(sidenav)">
@@ -58,7 +58,7 @@
                         <div class="row">
                           <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 ">
                             <mat-form-field class="example-full-width" appearance="outline">
-                              <mat-label>Title</mat-label>
+                              <mat-label>{{ 'CALENDAR.FORM.TITLE' | translate }}</mat-label>
                               <input matInput formControlName="title" required>
                               <mat-icon class="material-icons-two-tone color-icon p-3" matSuffix>turned_in_not
                               </mat-icon>
@@ -68,8 +68,7 @@
                         <!--done-->
                         <div class="row">
                           <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-3">
-                            <mat-checkbox class="example-margin" formControlName="done" color="primary">Mark as
-                              complete
+                            <mat-checkbox class="example-margin" formControlName="done" color="primary">{{ 'TASK.MARK_COMPLETE' | translate }}
                             </mat-checkbox>
                           </div>
                         </div>
@@ -77,16 +76,16 @@
                         <div class="row">
                           <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-2">
                             <mat-form-field class="example-full-width" appearance="outline">
-                              <mat-label>Priority</mat-label>
+                              <mat-label>{{ 'TASK.PRIORITY' | translate }}</mat-label>
                               <mat-select formControlName="priority">
                                 <mat-option [value]="'Low'">
-                                  Low
+                                  {{ 'TASK.PRIORITY_LOW' | translate }}
                                 </mat-option>
                                 <mat-option [value]="'Normal'">
-                                  Normal
+                                  {{ 'TASK.PRIORITY_NORMAL' | translate }}
                                 </mat-option>
                                 <mat-option [value]="'High'">
-                                  High
+                                  {{ 'TASK.PRIORITY_HIGH' | translate }}
                                 </mat-option>
                               </mat-select>
                             </mat-form-field>
@@ -94,7 +93,7 @@
                           <!--dueDate-->
                           <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-2">
                             <mat-form-field class="example-full-width" appearance="outline">
-                              <mat-label>Due date</mat-label>
+                              <mat-label>{{ 'TASK.DUE_DATE' | translate }}</mat-label>
                               <input matInput formControlName="dueDate" [matDatepicker]="picker1">
                               <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
                               <mat-datepicker #picker1></mat-datepicker>
@@ -105,7 +104,7 @@
                         <div class="row">
                           <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12">
                             <mat-form-field class="example-full-width" appearance="outline">
-                              <mat-label>Event Details</mat-label>
+                              <mat-label>{{ 'CALENDAR.FORM.EVENT_DETAILS' | translate }}</mat-label>
                               <textarea matInput formControlName="note"></textarea>
                             </mat-form-field>
                           </div>
@@ -130,15 +129,15 @@
                               color="primary">
                             </mat-checkbox>
                             <div class="task-custom-placeholder" *cdkDragPlaceholder></div>
-                            <div matTooltip="Title" [ngClass]="{done:task.done}">
+                            <div [matTooltip]="'CALENDAR.FORM.TITLE' | translate" [ngClass]="{done:task.done}">
                               {{task.title}}</div>
                             <div [ngClass]="{'task-low': task.priority==='Low', 'task-high': task.priority==='High','task-normal': task.priority==='Normal'}">
-                              <mat-icon *ngIf="task?.priority === 'Low'" matTooltip="Low" aria-hidden="false" class="lbl-low">arrow_downward</mat-icon>
-                              <mat-icon *ngIf="task?.priority === 'High'" matTooltip="High" aria-hidden="false" class="lbl-high">arrow_upward</mat-icon>
-                              <mat-icon *ngIf="task?.priority === 'Normal'" matTooltip="Normal" aria-hidden="false" class="lbl-normal">remove</mat-icon>
-                              {{task.priority}}
+                              <mat-icon *ngIf="task?.priority === 'Low'" [matTooltip]="'TASK.PRIORITY_LOW' | translate" aria-hidden="false" class="lbl-low">arrow_downward</mat-icon>
+                              <mat-icon *ngIf="task?.priority === 'High'" [matTooltip]="'TASK.PRIORITY_HIGH' | translate" aria-hidden="false" class="lbl-high">arrow_upward</mat-icon>
+                              <mat-icon *ngIf="task?.priority === 'Normal'" [matTooltip]="'TASK.PRIORITY_NORMAL' | translate" aria-hidden="false" class="lbl-normal">remove</mat-icon>
+                              {{ ('TASK.PRIORITY_' + (task.priority | uppercase)) | translate }}
                             </div>
-                            <div class="task-date" matTooltip="Due Date">{{ task.dueDate | date }}</div>
+                            <div class="task-date" [matTooltip]="'TASK.DUE_DATE' | translate">{{ task.dueDate | date }}</div>
                           </div>
                         </div>
                       </ng-scrollbar>
