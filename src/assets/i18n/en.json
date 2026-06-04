@@ -286,6 +286,8 @@
       "SUBJECTIVE_LABEL": "Subjective (chief complaint / history)",
       "OBJECTIVE_LABEL": "Objective (exam findings)",
       "PAYMENTS_TREATMENTS_SECTION": "Payments/Treatments Section",
+      "PAYMENTS_SECTION": "Payments Section",
+      "TREATMENTS_SECTION": "Treatments Section",
       "ALL_PAYMENTS": "All Payments",
       "PAYMENT_DETAILS": "Payment Details",
       "ALL_TREATMENTS": "All Treatments",

@@ -286,6 +286,8 @@
       "SUBJECTIVE_LABEL": "الشكوى (الشكوى الرئيسية / التاريخ)",
       "OBJECTIVE_LABEL": "الفحص (نتائج الفحص)",
       "PAYMENTS_TREATMENTS_SECTION": "قسم المدفوعات/العلاجات",
+      "PAYMENTS_SECTION": "قسم المدفوعات",
+      "TREATMENTS_SECTION": "قسم العلاجات",
       "ALL_PAYMENTS": "جميع المدفوعات",
       "PAYMENT_DETAILS": "تفاصيل الدفعة",
       "ALL_TREATMENTS": "جميع العلاجات",
