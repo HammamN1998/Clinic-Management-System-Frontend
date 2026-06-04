@@ -210,6 +210,7 @@
       "TOTAL": "Total"
     },
     "PROFILE": {
+      "TITLE": "Patient Profile",
       "BALANCE": "Balance",
       "TREATMENTS_COST": "Treatments Cost",
       "PAYMENTS_AMOUNT": "Payments Amount",

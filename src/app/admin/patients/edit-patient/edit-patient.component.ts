@@ -93,4 +93,10 @@ export class EditPatientComponent {
       'center'
     )
   }
+  
+  onCancel(): void {
+    this.router.navigate(['/admin/patients/patient-profile']);
+  }
+
 }
+
