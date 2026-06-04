@@ -2,7 +2,7 @@
   <div class="content-block">
     <div class="block-header">
       <!-- breadcrumb -->
-      <app-breadcrumb [title]="'MENUITEMS.DOCTORS.LIST.PROFILE' | translate" [items]="[('MENUITEMS.PATIENTS.TEXT' | translate)]" [active_item]="'MENUITEMS.DOCTORS.LIST.PROFILE' | translate"></app-breadcrumb>
+      <app-breadcrumb [title]="'MENUITEMS.DOCTORS.LIST.PROFILE' | translate" [items]="[{ label: ('MENUITEMS.PATIENTS.TEXT' | translate), link: '/admin/patients/all-patients' }]" [active_item]="'MENUITEMS.DOCTORS.LIST.PROFILE' | translate"></app-breadcrumb>
     </div>
     <div class="row clearfix">
       <div class="col-lg-3 col-md-12">

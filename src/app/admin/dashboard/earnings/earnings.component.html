@@ -1,7 +1,7 @@
 <section class="content">
   <div class="content-block">
     <div class="block-header">
-      <app-breadcrumb [title]="'DASHBOARD.EARNINGS.TITLE' | translate" [items]="[]" [active_item]="'DASHBOARD.EARNINGS.TITLE' | translate"></app-breadcrumb>
+      <app-breadcrumb [title]="'DASHBOARD.EARNINGS.TITLE' | translate" [items]="[{ label: ('MENUITEMS.DASHBOARD.TEXT' | translate), link: '/admin/dashboard/main' }]" [active_item]="'DASHBOARD.EARNINGS.TITLE' | translate"></app-breadcrumb>
     </div>
     <div class="dashboard-filters">
       <button
