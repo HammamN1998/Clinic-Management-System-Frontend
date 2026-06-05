@@ -252,7 +252,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
       plan: [''],
       cost: [0, [Validators.min(0), Validators.max(1000)]],
       costPaid: [true],
-      attended: [true],
+      attended: [false],
       drugs: this.formBuilder.array([])
     })
   }
