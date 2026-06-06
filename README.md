@@ -27,3 +27,26 @@
 
 # To create a service. SERVICE-PATH root is src/app
 `ng g service SERVICE-PATH` 
+
+# Storage CORS (required for branded PDF logos)
+Branded PDFs embed the doctor's uploaded logo. `PdfService` fetches the logo bytes
+from Firebase Storage via `HttpClient` (XHR) to base64-encode them for pdfmake, so
+the Storage bucket must allow cross-origin reads from the app origins. Without this,
+the browser blocks the request with a CORS error and the PDF is generated without a logo.
+
+Allowed origins are defined in `cors.json` (repo root). Apply them once per bucket
+(re-run whenever origins change). The bucket is `europe-west1-storage-1`.
+
+Using Google Cloud SDK (`gcloud`/`gsutil`) — run from the repo root:
+- `gcloud storage buckets update gs://europe-west1-storage-1 --cors-file=cors.json`
+- or `gsutil cors set cors.json gs://europe-west1-storage-1`
+
+No SDK installed? Open Google Cloud Shell (https://console.cloud.google.com, project
+`clinic-management-system-12-23`), upload `cors.json`, then run the same command.
+
+To verify:
+- `gcloud storage buckets describe gs://europe-west1-storage-1 --format="default(cors_config)"`
+- or `gsutil cors get gs://europe-west1-storage-1`
+
+When adding a new deployment domain, add it to `cors.json` and re-apply. CORS preflight
+results are cached (`maxAgeSeconds`), so allow some time or hard-refresh after changes.

@@ -33,6 +33,7 @@
             </p>
           </div>
           <button mat-button class="basic-btn" (click)="this.getBalanceDetails()" >{{ 'PATIENTS.PROFILE.MORE_DETAILS' | translate }}</button>
+          <button mat-button class="basic-btn" (click)="this.openDocuments()" ><i class="fas fa-file-pdf"></i> {{ 'PATIENTS.DOCUMENTS.HUB_TITLE' | translate }}</button>
         </div>
         <!--Attachments Section-->
         <div class="card">
@@ -311,7 +312,13 @@
                             </ng-container>
                           </mat-slide-toggle>
                         </div>
-                        <div class="col-lg-3 col-md-12">
+                        <div class="col-lg-12 col-md-12 m-t-10 d-flex flex-wrap gap-2">
+                          <button mat-stroked-button color="primary" (click)="downloadAppointmentPdf(appointment)">
+                            <mat-icon class="me-1">picture_as_pdf</mat-icon>{{ 'PATIENTS.DOCUMENTS.APPOINTMENT_TITLE' | translate }}
+                          </button>
+                          <button mat-stroked-button color="primary" *ngIf="(appointment.prescriptions || []).length > 0" (click)="downloadPrescriptionPdf(appointment)">
+                            <mat-icon class="me-1">medication</mat-icon>{{ 'PATIENTS.DOCUMENTS.PRESCRIPTION_TITLE' | translate }}
+                          </button>
                           <button mat-raised-button color="warn" (click)="deleteAppointment(appointment)" >{{ 'COMMON.DELETE' | translate }}</button>
                         </div>
                       </div>
@@ -632,7 +639,10 @@
                             (bodyTextEdited)="updatePaymentDetails(payment, $event)">
                           </app-editable-text>
                         </div>
-                        <div class="col-lg-3 col-md-12">
+                        <div class="col-lg-12 col-md-12 d-flex flex-wrap gap-2">
+                          <button mat-stroked-button color="primary" (click)="downloadPaymentReceipt(payment)">
+                            <mat-icon class="me-1">receipt</mat-icon>{{ 'PATIENTS.DOCUMENTS.RECEIPT_TITLE' | translate }}
+                          </button>
                           <button mat-raised-button color="warn" (click)="deletePayment(payment)" >{{ 'COMMON.DELETE' | translate }}</button>
                         </div>
                       </div>

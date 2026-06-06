@@ -1,0 +1,15 @@
+<h2 mat-dialog-title>{{ 'PATIENTS.DOCUMENTS.LETTER_TITLE' | translate }}</h2>
+<mat-dialog-content>
+  <mat-form-field appearance="fill" style="width: 100%">
+    <mat-label>{{ 'PATIENTS.DOCUMENTS.LETTER_SUBJECT' | translate }}</mat-label>
+    <input matInput [(ngModel)]="title" maxlength="120">
+  </mat-form-field>
+  <mat-form-field appearance="fill" style="width: 100%">
+    <mat-label>{{ 'PATIENTS.DOCUMENTS.LETTER_BODY' | translate }}</mat-label>
+    <textarea matInput [(ngModel)]="body" maxlength="5000" rows="8"></textarea>
+  </mat-form-field>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>{{ 'COMMON.CLOSE' | translate }}</button>
+  <button mat-flat-button color="primary" [disabled]="!body.trim()" (click)="download()">{{ 'PATIENTS.DOCUMENTS.DOWNLOAD_PDF' | translate }}</button>
+</mat-dialog-actions>

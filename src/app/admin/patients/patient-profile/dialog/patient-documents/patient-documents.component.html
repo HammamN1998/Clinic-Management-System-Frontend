@@ -1,0 +1,20 @@
+<h2 mat-dialog-title>{{ 'PATIENTS.DOCUMENTS.HUB_TITLE' | translate }}</h2>
+<mat-dialog-content>
+  <mat-action-list>
+    <button mat-list-item (click)="select('detailed')">
+      <mat-icon matListItemIcon>description</mat-icon>
+      <span matListItemTitle>{{ 'PATIENTS.DOCUMENTS.DETAILED_INVOICE_TITLE' | translate }}</span>
+    </button>
+    <button mat-list-item (click)="select('simple')">
+      <mat-icon matListItemIcon>receipt_long</mat-icon>
+      <span matListItemTitle>{{ 'PATIENTS.DOCUMENTS.SIMPLE_INVOICE_TITLE' | translate }}</span>
+    </button>
+    <button mat-list-item (click)="select('letter')">
+      <mat-icon matListItemIcon>mail</mat-icon>
+      <span matListItemTitle>{{ 'PATIENTS.DOCUMENTS.LETTER_TITLE' | translate }}</span>
+    </button>
+  </mat-action-list>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>{{ 'COMMON.CLOSE' | translate }}</button>
+</mat-dialog-actions>

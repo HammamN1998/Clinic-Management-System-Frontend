@@ -10,12 +10,16 @@ import { PdfService } from '@core/service/pdf.service';
 import { AppointmentModel } from '@core/models/appointment.model';
 import { buildBalanceLedger } from '@core/util/balance-ledger.util';
 import { TranslateModule } from '@ngx-translate/core';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatIconModule } from '@angular/material/icon';
+import { PatientPdfContext } from '@core/models/pdf-document.model';
 
 export interface DialogData {
   treatments: TreatmentModel[];
   payments: PaymentModel[];
   appointments: AppointmentModel[];
   patientName?: string;
+  patient?: PatientPdfContext;
 }
 @Component({
     selector: 'app-balance-details',
@@ -32,6 +36,8 @@ export interface DialogData {
     NgIf,
     ThumbYDirective,
     TranslateModule,
+    MatMenuModule,
+    MatIconModule,
   ],
 })
 export class BalanceDetailsComponent {
@@ -65,6 +71,21 @@ export class BalanceDetailsComponent {
         treatments: this.data.treatments,
         payments: this.data.payments,
         appointments: this.data.appointments,
+        patient: this.data.patient,
+        patientName: this.data.patientName,
+      })
+      .catch(() => {
+        /* optional: surface via notification service */
+      });
+  }
+
+  createSimpleInvoice(): void {
+    void this.pdfService
+      .downloadPatientSimpleBalancePdf({
+        treatments: this.data.treatments,
+        payments: this.data.payments,
+        appointments: this.data.appointments,
+        patient: this.data.patient,
         patientName: this.data.patientName,
       })
       .catch(() => {

@@ -6,7 +6,11 @@
         <h1 *ngIf="this.totalBalance <0" >{{ 'PATIENTS.BALANCE.TITLE' | translate }} <span style="color: red">{{this.totalBalance}}</span> {{ 'PATIENTS.BALANCE.CURRENCY' | translate }}</h1>
       </div>
       <div class="col-lg-4 col-md-12">
-        <button  mat-flat-button (click)="createAnInvoice()" ><i class="fas fa-print"></i>{{ 'PATIENTS.BALANCE.CREATE_INVOICE' | translate }}</button>
+        <button mat-flat-button [matMenuTriggerFor]="invoiceMenu"><i class="fas fa-print"></i>{{ 'PATIENTS.BALANCE.CREATE_INVOICE' | translate }}</button>
+        <mat-menu #invoiceMenu="matMenu">
+          <button mat-menu-item (click)="createAnInvoice()">{{ 'PATIENTS.DOCUMENTS.DETAILED_INVOICE_TITLE' | translate }}</button>
+          <button mat-menu-item (click)="createSimpleInvoice()">{{ 'PATIENTS.DOCUMENTS.SIMPLE_INVOICE_TITLE' | translate }}</button>
+        </mat-menu>
       </div>
     </div>
   </div>

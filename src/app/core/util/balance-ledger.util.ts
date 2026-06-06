@@ -7,6 +7,10 @@ export type BalanceLedgerLine = TreatmentModel | AppointmentModel | PaymentModel
 export interface BalanceLedgerResult {
   combinedList: BalanceLedgerLine[];
   totalBalance: number;
+  /** Sum of treatment net (price - discount) plus unpaid appointment costs. */
+  totalCharges: number;
+  /** Sum of recorded patient payments. */
+  totalPayments: number;
 }
 
 export function buildBalanceLedger(
@@ -24,18 +28,22 @@ export function buildBalanceLedger(
     (a, b) => b.date.toDate().getTime() - a.date.toDate().getTime(),
   );
 
-  let totalBalance = 0;
+  let totalCharges = 0;
   treatments.forEach((t) => {
-    totalBalance += t.price - t.discount;
+    totalCharges += t.price - t.discount;
   });
   appointments.forEach((a) => {
     if (!a.costPaid) {
-      totalBalance += a.cost;
+      totalCharges += a.cost;
     }
   });
+
+  let totalPayments = 0;
   payments.forEach((p) => {
-    totalBalance -= p.amount;
+    totalPayments += p.amount;
   });
 
-  return { combinedList, totalBalance };
+  const totalBalance = totalCharges - totalPayments;
+
+  return { combinedList, totalBalance, totalCharges, totalPayments };
 }

@@ -1,0 +1,12 @@
+<h2 mat-dialog-title>{{ 'PATIENTS.DOCUMENTS.PRESCRIPTION_TITLE' | translate }}</h2>
+<mat-dialog-content>
+  <p class="text-muted">{{ 'PATIENTS.DOCUMENTS.PRESCRIPTION_NOTE_HINT' | translate }}</p>
+  <mat-form-field appearance="fill" style="width: 100%">
+    <mat-label>{{ 'PATIENTS.DOCUMENTS.DOCTOR_NOTE' | translate }}</mat-label>
+    <textarea matInput [(ngModel)]="note" maxlength="2000" rows="5"></textarea>
+  </mat-form-field>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>{{ 'COMMON.CLOSE' | translate }}</button>
+  <button mat-flat-button color="primary" (click)="download()">{{ 'PATIENTS.DOCUMENTS.DOWNLOAD_PDF' | translate }}</button>
+</mat-dialog-actions>

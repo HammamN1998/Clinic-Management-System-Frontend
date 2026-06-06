@@ -150,6 +150,8 @@ export class FirebaseAuthenticationService {
             localUser.about = firestoreUser.about;
             localUser.experience = firestoreUser.experience;
             localUser.imgSize = firestoreUser.imgSize;
+            localUser.logo = firestoreUser.logo;
+            localUser.logoSize = firestoreUser.logoSize;
             if (userSubscription.exists) {
               const userSubscriptionData: UserSubscription = userSubscription.data() as UserSubscription;
               localUser.subscription = userSubscriptionData;

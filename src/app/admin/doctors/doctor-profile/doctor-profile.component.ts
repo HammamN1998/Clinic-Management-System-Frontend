@@ -47,6 +47,7 @@ import {TranslateModule, TranslateService} from "@ngx-translate/core";
 export class DoctorProfileComponent {
   accountSettingsForm: UntypedFormGroup;
   showUploadProfilePicture: boolean = false;
+  showUploadLogo: boolean = false;
   isEmailVerified: boolean = false
 
   constructor(
@@ -226,6 +227,119 @@ export class DoctorProfileComponent {
       });
     }
     this.showUploadProfilePicture = !this.showUploadProfilePicture;
+  }
+
+  private hasStorageQuotaFor(size: number): boolean {
+    if (
+      this.doctor.subscription.storageBytesUsed + size >
+        this.doctor.subscription.maxStorageLimitBytes ||
+      this.doctor.subscription.status !== 'active'
+    ) {
+      this.notificationService.showSwalDialogWithFunction(
+        this.doctor.subscription.status !== 'active'
+          ? this.translate.instant('PATIENTS.MESSAGES.PLAN_INACTIVE_TITLE')
+          : this.translate.instant('PATIENTS.PROFILE.MESSAGES.UPGRADE_STORAGE_TITLE'),
+        this.doctor.subscription.status !== 'active'
+          ? this.translate.instant('PATIENTS.MESSAGES.PLAN_INACTIVE_TEXT')
+          : this.translate.instant('PATIENTS.PROFILE.MESSAGES.UPGRADE_STORAGE_TEXT', {
+              bytes: this.doctor.subscription.maxStorageLimitBytes,
+            }),
+        'error',
+        true,
+        this.translate.instant('PATIENTS.MESSAGES.GO_TO_PLAN'),
+        () => {
+          this.router.navigate(['/admin/doctors/doctor-plans']);
+        },
+      );
+      return false;
+    }
+    return true;
+  }
+
+  updateDoctorLogo(attachment: Attachment) {
+    if (!this.hasStorageQuotaFor(attachment.size)) {
+      return;
+    }
+    if (isNullOrUndefined(this.doctor.logo) || this.doctor.logo === '') {
+      this.doctor.logo = attachment.url;
+      this.doctor.logoSize = attachment.size;
+      this.doctorService.editDoctor({ logo: attachment.url, logoSize: attachment.size });
+      this.doctor.subscription.storageBytesUsed += attachment.size;
+      this.notificationService.showSnackBarNotification(
+        'snackbar-success',
+        this.translate.instant('DOCTORS.PROFILE.MESSAGES.UPDATE_LOGO_SUCCESS'),
+        'bottom',
+        'center',
+      );
+      this.showUploadLogo = false;
+    } else {
+      const oldLogoSize = this.doctor.logoSize;
+      const oldLogoUrl = this.doctor.logo;
+      this.firebaseStorageService.deleteFile(oldLogoUrl).subscribe({
+        next: () => {
+          this.doctor.logo = attachment.url;
+          this.doctor.logoSize = attachment.size;
+          this.doctorService.editDoctor({
+            logo: attachment.url,
+            logoSize: attachment.size,
+          });
+          this.doctor.subscription.storageBytesUsed += attachment.size - oldLogoSize;
+          this.notificationService.showSnackBarNotification(
+            'snackbar-success',
+            this.translate.instant('DOCTORS.PROFILE.MESSAGES.UPDATE_LOGO_SUCCESS'),
+            'bottom',
+            'center',
+          );
+          this.showUploadLogo = false;
+        },
+        error: (error) => {
+          console.log('error: ' + error);
+          this.notificationService.showSwalOkDialog(
+            this.translate.instant('DOCTORS.PROFILE.MESSAGES.REPLACE_IMAGE_ERROR'),
+            'error',
+          );
+        },
+      });
+    }
+  }
+
+  deleteDoctorLogo() {
+    if (isNullOrUndefined(this.doctor.logo) || this.doctor.logo === '') {
+      return;
+    }
+    this.notificationService.showSwalDialogWithFunction(
+      this.translate.instant('DOCTORS.PROFILE.DELETE_LOGO_CONFIRM_TITLE'),
+      this.translate.instant('DOCTORS.PROFILE.DELETE_LOGO_CONFIRM_TEXT'),
+      'warning',
+      true,
+      this.translate.instant('COMMON.DELETE'),
+      () => {
+        const oldLogoSize = this.doctor.logoSize;
+        const oldLogoUrl = this.doctor.logo;
+        this.firebaseStorageService.deleteFile(oldLogoUrl).subscribe({
+          next: () => {
+            this.doctor.logo = '';
+            this.doctor.logoSize = 0;
+            this.doctorService.editDoctor({ logo: '', logoSize: 0 });
+            this.doctor.subscription.storageBytesUsed -= oldLogoSize;
+            this.showUploadLogo = false;
+            this.notificationService.showSnackBarNotification(
+              'snackbar-success',
+              this.translate.instant('DOCTORS.PROFILE.MESSAGES.DELETE_LOGO_SUCCESS'),
+              'bottom',
+              'center',
+            );
+          },
+          error: (error) => {
+            console.log('error: ' + error);
+            this.notificationService.showSwalOkDialog(
+              this.translate.instant('DOCTORS.PROFILE.MESSAGES.REPLACE_IMAGE_ERROR'),
+              'error',
+            );
+          },
+        });
+      },
+    );
   }
 
   async checkIfEmailVerified() {

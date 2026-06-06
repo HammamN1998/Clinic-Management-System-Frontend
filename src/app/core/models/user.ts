@@ -18,5 +18,7 @@ export class User {
   experience: string = '';
   img: string = '';
   imgSize: number = 0;
+  logo: string = '';
+  logoSize: number = 0;
   subscription: UserSubscription = {} as UserSubscription;
 }

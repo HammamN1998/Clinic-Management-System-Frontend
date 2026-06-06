@@ -35,6 +35,11 @@ import {FirebaseStorageService} from "@core/service/firebase-storage.service";
 import {FirebaseAuthenticationService} from "../../../authentication/services/firebase-authentication.service";
 import {User} from "@core";
 import {TranslateModule, TranslateService} from "@ngx-translate/core";
+import {PdfService} from "@core/service/pdf.service";
+import {PrescriptionNoteDialogComponent} from "./dialog/prescription-note/prescription-note.component";
+import {PatientLetterDialogComponent, PatientLetterResult} from "./dialog/patient-letter/patient-letter.component";
+import {PatientDocumentsDialogComponent, PatientDocumentAction} from "./dialog/patient-documents/patient-documents.component";
+import {buildBalanceLedger} from "@core/util/balance-ledger.util";
 
 @Component({
   selector: 'app-patient-profile',
@@ -66,6 +71,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
     private firebaseStorageService: FirebaseStorageService,
     private firebaseAuthenticationService: FirebaseAuthenticationService,
     private translate: TranslateService,
+    private pdfService: PdfService,
   ) {
     super();
     if (this.patientService.getDialogData().id === '' ) this.router.navigate(['/admin/patients/all-patients']);
@@ -506,8 +512,94 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
         payments: this.patientPayments,
         appointments: this.patientAppointments,
         patientName: `${this.patient.firstName} ${this.patient.lastName}`.trim(),
+        patient: this.patient,
       },
     });
+  }
+
+  downloadAppointmentPdf(appointment: AppointmentModel) {
+    void this.pdfService
+      .downloadAppointmentPdf({ appointment, patient: this.patient })
+      .catch(() => {});
+  }
+
+  downloadPrescriptionPdf(appointment: AppointmentModel) {
+    this.dialog
+      .open(PrescriptionNoteDialogComponent, { width: '480px' })
+      .afterClosed()
+      .subscribe((note?: string) => {
+        if (note === undefined) {
+          return;
+        }
+        void this.pdfService
+          .downloadPrescriptionPdf({ appointment, patient: this.patient, note })
+          .catch(() => {});
+      });
+  }
+
+  downloadPaymentReceipt(payment: PaymentModel) {
+    const ledger = buildBalanceLedger(
+      this.patientTreatments,
+      this.patientPayments,
+      this.patientAppointments,
+    );
+    void this.pdfService
+      .downloadPaymentReceiptPdf({
+        payment,
+        patient: this.patient,
+        remainingBalance: ledger.totalBalance,
+      })
+      .catch(() => {});
+  }
+
+  openDocuments() {
+    this.dialog
+      .open(PatientDocumentsDialogComponent, { width: '420px' })
+      .afterClosed()
+      .subscribe((action?: PatientDocumentAction) => {
+        if (!action) {
+          return;
+        }
+        if (action === 'detailed') {
+          void this.pdfService
+            .downloadPatientBalancePdf(this.balancePdfInput())
+            .catch(() => {});
+        } else if (action === 'simple') {
+          void this.pdfService
+            .downloadPatientSimpleBalancePdf(this.balancePdfInput())
+            .catch(() => {});
+        } else if (action === 'letter') {
+          this.openLetterDialog();
+        }
+      });
+  }
+
+  private openLetterDialog() {
+    this.dialog
+      .open(PatientLetterDialogComponent, { width: '560px' })
+      .afterClosed()
+      .subscribe((result?: PatientLetterResult) => {
+        if (!result) {
+          return;
+        }
+        void this.pdfService
+          .downloadPatientLetterPdf({
+            body: result.body,
+            title: result.title,
+            patient: this.patient,
+          })
+          .catch(() => {});
+      });
+  }
+
+  private balancePdfInput() {
+    return {
+      treatments: this.patientTreatments,
+      payments: this.patientPayments,
+      appointments: this.patientAppointments,
+      patient: this.patient,
+      patientName: `${this.patient.firstName} ${this.patient.lastName}`.trim(),
+    };
   }
 
   protected readonly isNullOrUndefined = isNullOrUndefined;

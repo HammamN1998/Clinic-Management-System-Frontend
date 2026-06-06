@@ -1,0 +1,14 @@
+[
+  {
+    "origin": [
+      "http://localhost:4200",
+      "https://clinicwell.app",
+      "https://www.clinicwell.app",
+      "https://clinic-management-system-12-23.web.app",
+      "https://clinic-management-system-12-23.firebaseapp.com"
+    ],
+    "method": ["GET"],
+    "maxAgeSeconds": 3600,
+    "responseHeader": ["Content-Type"]
+  }
+]
