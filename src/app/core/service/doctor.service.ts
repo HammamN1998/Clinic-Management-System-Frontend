@@ -22,6 +22,8 @@ export class DoctorService {
   }
 
   editDoctor (data: {[p:string]: string | number}) {
+    Object.assign(this.doctor, data);
+    this.firebaseAuthenticationService.persistCurrentUser();
     return this.firestore.collection('doctors').doc(this.doctor.id).update(data);
   }
 

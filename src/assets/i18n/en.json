@@ -386,6 +386,9 @@
       "DELETE_LOGO": "Delete Logo",
       "DELETE_LOGO_CONFIRM_TITLE": "Delete brand logo?",
       "DELETE_LOGO_CONFIRM_TEXT": "Your documents will no longer show a logo until you upload a new one.",
+      "DELETE_IMAGE": "Delete Photo",
+      "DELETE_IMAGE_CONFIRM_TITLE": "Delete profile photo?",
+      "DELETE_IMAGE_CONFIRM_TEXT": "Your profile will use the default photo until you upload a new one.",
       "MESSAGES": {
         "UPDATE_EDUCATION_SUCCESS": "Update Education Successfully...!!!",
         "UPDATE_EXPERIENCE_SUCCESS": "Update Experience Successfully...!!!",
@@ -393,6 +396,7 @@
         "UPDATE_SETTINGS_SUCCESS": "Update Settings Successfully...!!!",
         "UPDATE_LOGO_SUCCESS": "Brand logo updated successfully...!!!",
         "DELETE_LOGO_SUCCESS": "Brand logo deleted successfully...!!!",
+        "DELETE_IMAGE_SUCCESS": "Profile photo deleted successfully...!!!",
         "REPLACE_IMAGE_ERROR": "Could not replace the profile image. Please try again."
       }
     },

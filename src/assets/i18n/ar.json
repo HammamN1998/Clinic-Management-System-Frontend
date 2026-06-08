@@ -386,6 +386,9 @@
       "DELETE_LOGO": "حذف الشعار",
       "DELETE_LOGO_CONFIRM_TITLE": "حذف شعار العيادة؟",
       "DELETE_LOGO_CONFIRM_TEXT": "لن تظهر المستندات أي شعار حتى ترفع شعارًا جديدًا.",
+      "DELETE_IMAGE": "حذف الصورة",
+      "DELETE_IMAGE_CONFIRM_TITLE": "حذف صورة الملف الشخصي؟",
+      "DELETE_IMAGE_CONFIRM_TEXT": "سيُستخدم الصورة الافتراضية حتى ترفع صورة جديدة.",
       "MESSAGES": {
         "UPDATE_EDUCATION_SUCCESS": "تم تحديث التعليم بنجاح...!!!",
         "UPDATE_EXPERIENCE_SUCCESS": "تم تحديث الخبرة بنجاح...!!!",
@@ -393,6 +396,7 @@
         "UPDATE_SETTINGS_SUCCESS": "تم تحديث الإعدادات بنجاح...!!!",
         "UPDATE_LOGO_SUCCESS": "تم تحديث شعار العيادة بنجاح...!!!",
         "DELETE_LOGO_SUCCESS": "تم حذف شعار العيادة بنجاح...!!!",
+        "DELETE_IMAGE_SUCCESS": "تم حذف صورة الملف الشخصي بنجاح...!!!",
         "REPLACE_IMAGE_ERROR": "تعذّر استبدال صورة الملف الشخصي. يرجى المحاولة مرة أخرى."
       }
     },

@@ -159,40 +159,15 @@ export class DoctorProfileComponent {
   }
 
   updateDoctorProfilePicture(attachment: Attachment) {
-    if (this.doctor.subscription.storageBytesUsed + attachment.size > this.doctor.subscription.maxStorageLimitBytes || this.doctor.subscription.status !== 'active') {
-      this.notificationService.showSwalDialogWithFunction(
-        this.doctor.subscription.status !== 'active' ?
-          this.translate.instant('PATIENTS.MESSAGES.PLAN_INACTIVE_TITLE') :
-          this.translate.instant('PATIENTS.PROFILE.MESSAGES.UPGRADE_STORAGE_TITLE'),
-        this.doctor.subscription.status !== 'active' ?
-          this.translate.instant('PATIENTS.MESSAGES.PLAN_INACTIVE_TEXT') :
-          this.translate.instant('PATIENTS.PROFILE.MESSAGES.UPGRADE_STORAGE_TEXT', { bytes: this.doctor.subscription.maxStorageLimitBytes }),
-        'error',
-        true,
-        this.translate.instant('PATIENTS.MESSAGES.GO_TO_PLAN'),
-        () => {
-          this.router.navigate(['/admin/doctors/doctor-plans']);
-        }
-      );
+    if (!this.hasStorageQuotaFor(attachment.size)) {
       return;
     }
-    if(isNullOrUndefined(this.doctor.img) || this.doctor.img === '') {
+    if (isNullOrUndefined(this.doctor.img) || this.doctor.img === '') {
       this.doctor.img = attachment.url;
       this.doctor.imgSize = attachment.size;
-      from (this.auth.currentUser)
-      .subscribe({
-        next: (user) => {
-          user!.updateProfile({
-            photoURL: attachment.url,
-          })
-          this.doctorService.editDoctor({img: attachment.url, imgSize: attachment.size});
-          this.doctor.subscription.storageBytesUsed += attachment.size;
-        },
-        error: (error) => {
-          console.log('error: ' + error)
-        }
-      })
-      this.showUploadProfilePicture = !this.showUploadProfilePicture;
+      this.doctorService.editDoctor({ img: attachment.url, imgSize: attachment.size });
+      this.doctor.subscription.storageBytesUsed += attachment.size;
+      this.showUploadProfilePicture = false;
     } else {
       const oldImgSize = this.doctor.imgSize;
       const oldImgUrl = this.doctor.img;
@@ -200,22 +175,12 @@ export class DoctorProfileComponent {
         next: () => {
           this.doctor.img = attachment.url;
           this.doctor.imgSize = attachment.size;
-          from(this.auth.currentUser).subscribe({
-            next: (user) => {
-              user!.updateProfile({
-                photoURL: attachment.url,
-              });
-              this.doctorService.editDoctor({
-                img: attachment.url,
-                imgSize: attachment.size,
-              });
-              this.doctor.subscription.storageBytesUsed +=
-                attachment.size - oldImgSize;
-            },
-            error: (error) => {
-              console.log('error: ' + error);
-            },
+          this.doctorService.editDoctor({
+            img: attachment.url,
+            imgSize: attachment.size,
           });
+          this.doctor.subscription.storageBytesUsed += attachment.size - oldImgSize;
+          this.showUploadProfilePicture = false;
         },
         error: (error) => {
           console.log('error: ' + error);
@@ -226,7 +191,6 @@ export class DoctorProfileComponent {
         },
       });
     }
-    this.showUploadProfilePicture = !this.showUploadProfilePicture;
   }
 
   private hasStorageQuotaFor(size: number): boolean {
@@ -301,6 +265,45 @@ export class DoctorProfileComponent {
         },
       });
     }
+  }
+
+  deleteDoctorProfilePicture() {
+    if (isNullOrUndefined(this.doctor.img) || this.doctor.img === '') {
+      return;
+    }
+    this.notificationService.showSwalDialogWithFunction(
+      this.translate.instant('DOCTORS.PROFILE.DELETE_IMAGE_CONFIRM_TITLE'),
+      this.translate.instant('DOCTORS.PROFILE.DELETE_IMAGE_CONFIRM_TEXT'),
+      'warning',
+      true,
+      this.translate.instant('COMMON.DELETE'),
+      () => {
+        const oldImgSize = this.doctor.imgSize;
+        const oldImgUrl = this.doctor.img;
+        this.firebaseStorageService.deleteFile(oldImgUrl).subscribe({
+          next: () => {
+            this.doctor.img = '';
+            this.doctor.imgSize = 0;
+            this.doctorService.editDoctor({ img: '', imgSize: 0 });
+            this.doctor.subscription.storageBytesUsed -= oldImgSize;
+            this.showUploadProfilePicture = false;
+            this.notificationService.showSnackBarNotification(
+              'snackbar-success',
+              this.translate.instant('DOCTORS.PROFILE.MESSAGES.DELETE_IMAGE_SUCCESS'),
+              'bottom',
+              'center',
+            );
+          },
+          error: (error) => {
+            console.log('error: ' + error);
+            this.notificationService.showSwalOkDialog(
+              this.translate.instant('DOCTORS.PROFILE.MESSAGES.REPLACE_IMAGE_ERROR'),
+              'error',
+            );
+          },
+        });
+      },
+    );
   }
 
   deleteDoctorLogo() {

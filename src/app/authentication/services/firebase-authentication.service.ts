@@ -40,6 +40,10 @@ export class FirebaseAuthenticationService {
     return this.currentUserSubject.value;
   }
 
+  persistCurrentUser(): void {
+    localStorage.setItem('currentUser', JSON.stringify(this.currentUserSubject.value));
+  }
+
   login(userName: string, password: string) {
     return from ( this.auth.signInWithEmailAndPassword( userName, password ) )
   }
@@ -91,7 +95,6 @@ export class FirebaseAuthenticationService {
   fireAuthUserToUser(fireUser: firebase.User) : User {
     const doctor = new User();
     doctor.id = fireUser!.uid!;
-    doctor.img = fireUser!.photoURL! ?? '';
     doctor.email = fireUser!.email!;
     doctor.name = fireUser!.displayName!;
     return doctor
@@ -149,7 +152,8 @@ export class FirebaseAuthenticationService {
             localUser.education = firestoreUser.education;
             localUser.about = firestoreUser.about;
             localUser.experience = firestoreUser.experience;
-            localUser.imgSize = firestoreUser.imgSize;
+            localUser.img = firestoreUser.img ?? '';
+            localUser.imgSize = firestoreUser.imgSize ?? 0;
             localUser.logo = firestoreUser.logo;
             localUser.logoSize = firestoreUser.logoSize;
             if (userSubscription.exists) {

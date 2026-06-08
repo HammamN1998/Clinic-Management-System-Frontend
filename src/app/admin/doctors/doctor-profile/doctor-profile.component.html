@@ -16,7 +16,12 @@
               </div>
               <div class="card">
                 <div class="contact-grid profile-image">
-                <img class="user-img" [src]=" isNullOrUndefined(this.doctor.img) || this.doctor.img === '' ? 'assets/images/patient/patient-default-profile.png' : this.doctor.img" (click)="this.showUploadProfilePicture = !this.showUploadProfilePicture" alt="">
+                <img class="user-img" [src]="isNullOrUndefined(this.doctor.img) || this.doctor.img === '' ? 'assets/images/patient/patient-default-profile.png' : this.doctor.img" (click)="this.showUploadProfilePicture = !this.showUploadProfilePicture" alt="">
+                </div>
+                <div class="text-center m-b-10" *ngIf="!isNullOrUndefined(this.doctor.img) && this.doctor.img !== ''">
+                  <button mat-stroked-button color="warn" (click)="deleteDoctorProfilePicture()">
+                    <mat-icon class="me-1">delete</mat-icon>{{ 'DOCTORS.PROFILE.DELETE_IMAGE' | translate }}
+                  </button>
                 </div>
                 <div class="full-body" *ngIf="this.showUploadProfilePicture">
                   <app-file-upload
