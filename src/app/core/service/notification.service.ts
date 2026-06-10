@@ -77,4 +77,32 @@ export class NotificationService {
       }
     });
   }
+
+  showSwalTwoChoiceDialog(
+    title: string,
+    text: string,
+    confirmButtonText: string,
+    cancelButtonText: string,
+    onConfirm: () => void,
+    onCancel: () => void,
+    icon: SweetAlertIcon = 'warning',
+  ) {
+    Swal.fire({
+      title: title,
+      text: text,
+      icon: icon,
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: confirmButtonText,
+      cancelButtonText: cancelButtonText,
+      reverseButtons: localStorage.getItem('isRtl') === 'true',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        onConfirm();
+      } else if (result.dismiss === Swal.DismissReason.cancel) {
+        onCancel();
+      }
+    });
+  }
 }

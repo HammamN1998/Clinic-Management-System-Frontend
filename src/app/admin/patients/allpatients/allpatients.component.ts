@@ -158,37 +158,44 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
     });
     this.subs.sink = dialogRef.afterClosed().subscribe((result) => {
       if (result === 1) {
-        const newPatient: Patient = new Patient();
-        newPatient.firstName = dialogRef.componentInstance.patientForm.value.firstName;
-        newPatient.lastName  = dialogRef.componentInstance.patientForm.value.lastName;
-        newPatient.gender = dialogRef.componentInstance.patientForm.value.gender;
-        newPatient.phoneNumber = dialogRef.componentInstance.patientForm.value.phoneNumber;
-        newPatient.address = dialogRef.componentInstance.patientForm.value.address;
-        newPatient.condition = dialogRef.componentInstance.patientForm.value.condition;
-        newPatient.birthDate = firestore.Timestamp.fromDate(dialogRef.componentInstance.patientForm.value.birthDate);
-        newPatient.email = dialogRef.componentInstance.patientForm.value.email;
-        newPatient.maritalState = dialogRef.componentInstance.patientForm.value.maritalState;
-        newPatient.bloodGroup = dialogRef.componentInstance.patientForm.value.bloodGroup;
-        newPatient.bloodPressure = dialogRef.componentInstance.patientForm.value.bloodPressure;
-        newPatient.weight = dialogRef.componentInstance.patientForm.value.weight;
-        newPatient.img = dialogRef.componentInstance.patientForm.value.img;
-        void this.patientService.addPatient(newPatient).then(() => {
-          this.invalidateSearchCache();
-          this.patientService.clearPatientsPageCursors();
-          if (this.paginator.pageIndex !== 0) {
-            this.paginator.pageIndex = 0;
-          } else {
-            this.loadCurrentPage();
-          }
-        });
-        this.notificationService.showSnackBarNotification(
-          'snackbar-success',
-          this.translate.instant('PATIENTS.MESSAGES.ADD_SUCCESS'),
-          'bottom',
-          'center'
+        const formValues = dialogRef.componentInstance.patientForm.value;
+        void this.patientService.checkBeforeAdd(formValues.phoneNumber, () =>
+          this.saveNewPatient(formValues)
         );
       }
     });
+  }
+
+  private saveNewPatient(formValues: any) {
+    const newPatient: Patient = new Patient();
+    newPatient.firstName = formValues.firstName;
+    newPatient.lastName  = formValues.lastName;
+    newPatient.gender = formValues.gender;
+    newPatient.phoneNumber = String(formValues.phoneNumber ?? '').trim();
+    newPatient.address = formValues.address;
+    newPatient.condition = formValues.condition;
+    newPatient.birthDate = firestore.Timestamp.fromDate(formValues.birthDate);
+    newPatient.email = formValues.email;
+    newPatient.maritalState = formValues.maritalState;
+    newPatient.bloodGroup = formValues.bloodGroup;
+    newPatient.bloodPressure = formValues.bloodPressure;
+    newPatient.weight = formValues.weight;
+    newPatient.img = formValues.img;
+    void this.patientService.addPatient(newPatient).then(() => {
+      this.invalidateSearchCache();
+      this.patientService.clearPatientsPageCursors();
+      if (this.paginator.pageIndex !== 0) {
+        this.paginator.pageIndex = 0;
+      } else {
+        this.loadCurrentPage();
+      }
+    });
+    this.notificationService.showSnackBarNotification(
+      'snackbar-success',
+      this.translate.instant('PATIENTS.MESSAGES.ADD_SUCCESS'),
+      'bottom',
+      'center'
+    );
   }
   editCall(row: Patient) {
     this.patientService.dialogData = row;

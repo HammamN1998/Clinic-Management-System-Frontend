@@ -221,7 +221,11 @@
       "DELETE_SUCCESS": "تم حذف السجل بنجاح...!!!",
       "DELETE_MANY_SUCCESS": "تم حذف {{count}} سجل بنجاح...!!!",
       "DELETE_CONFIRM": "حذف المريض {{name}}؟",
-      "DELETE_MANY_CONFIRM": "حذف {{count}} مريض؟"
+      "DELETE_MANY_CONFIRM": "حذف {{count}} مريض؟",
+      "DUPLICATE_PHONE_TITLE": "يوجد مريض مسجّل بالفعل",
+      "DUPLICATE_PHONE_BODY": "يوجد مريض مسجّل بالفعل: الاسم: {{name}}, رقم الهاتف: {{phone}}, العنوان: {{address}}.",
+      "GO_TO_EXISTING_PATIENT": "الذهاب إلى المريض الموجود",
+      "CONTINUE_ADDING": "متابعة إضافة مريض جديد"
     },
     "DIALOG": {
       "SELECT_GENDER": "اختر الجنس",

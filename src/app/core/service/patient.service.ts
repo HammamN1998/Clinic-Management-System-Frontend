@@ -12,6 +12,9 @@ import * as firestore from "firebase/firestore";
 import {User} from "@core";
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/firestore';
+import {Router} from "@angular/router";
+import {TranslateService} from "@ngx-translate/core";
+import {NotificationService} from "@core/service/notification.service";
 
 export interface PatientsPageResult {
   patients: Patient[];
@@ -29,6 +32,9 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
   constructor(
     private firebaseAuthenticationService: FirebaseAuthenticationService,
     private firestore: AngularFirestore,
+    private notificationService: NotificationService,
+    private router: Router,
+    private translate: TranslateService,
   ) {
     super();
   }
@@ -115,6 +121,51 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
       this.patientsPageCursors.set(pageIndex + 1, result.lastDoc);
     }
     return result;
+  }
+
+  async findPatientByPhoneNumber(phoneNumber: string): Promise<Patient | null> {
+    const normalized = String(phoneNumber ?? '').trim();
+    if (!normalized) {
+      return null;
+    }
+
+    const snapshot = await this.firestore.collection('patients').ref
+      .where('doctorId', '==', this.doctor.id)
+      .where('phoneNumber', '==', normalized)
+      .limit(1)
+      .get();
+
+    return snapshot.empty ? null : (snapshot.docs[0].data() as Patient);
+  }
+
+  async checkBeforeAdd(
+    phoneNumber: string,
+    onContinueAdd: () => void | Promise<void>,
+  ): Promise<void> {
+    const existing = await this.findPatientByPhoneNumber(phoneNumber);
+    if (!existing) {
+      await onContinueAdd();
+      return;
+    }
+
+    const name = `${existing.firstName} ${existing.lastName}`.replace(/\s+/g, ' ').trim();
+    this.notificationService.showSwalTwoChoiceDialog(
+      this.translate.instant('PATIENTS.MESSAGES.DUPLICATE_PHONE_TITLE'),
+      this.translate.instant('PATIENTS.MESSAGES.DUPLICATE_PHONE_BODY', {
+        phone: existing.phoneNumber,
+        name,
+        address: existing.address,
+      }),
+      this.translate.instant('PATIENTS.MESSAGES.GO_TO_EXISTING_PATIENT'),
+      this.translate.instant('PATIENTS.MESSAGES.CONTINUE_ADDING'),
+      () => {
+        this.dialogData = existing;
+        void this.router.navigate(['/admin/patients/patient-profile']);
+      },
+      () => {
+        void onContinueAdd();
+      },
+    );
   }
 
   async addPatient(patient: Patient): Promise<void> {

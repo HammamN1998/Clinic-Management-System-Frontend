@@ -91,11 +91,17 @@ export class AddPatientComponent {
       );
       return;
     }
+    void this.patientService.checkBeforeAdd(this.patientForm.value.phoneNumber, () =>
+      this.saveNewPatient()
+    );
+  }
+
+  private saveNewPatient() {
     const newPatient: Patient = new Patient();
     newPatient.firstName = this.patientForm.value.firstName.toString();
     newPatient.lastName = this.patientForm.value.lastName.toString();
     newPatient.gender = this.patientForm.value.gender.toString();
-    newPatient.phoneNumber = this.patientForm.value.phoneNumber.toString();
+    newPatient.phoneNumber = String(this.patientForm.value.phoneNumber ?? '').trim();
     newPatient.birthDate = firestore.Timestamp.fromDate(this.patientForm.value.birthDate);
     newPatient.email = this.patientForm.value.email.toString();
     newPatient.maritalState = this.patientForm.value.maritalState.toString();

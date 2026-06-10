@@ -221,7 +221,11 @@
       "DELETE_SUCCESS": "Delete Record Successfully...!!!",
       "DELETE_MANY_SUCCESS": "{{count}} Record Delete Successfully...!!!",
       "DELETE_CONFIRM": "Delete patient {{name}}?",
-      "DELETE_MANY_CONFIRM": "Delete {{count}} patient(s)?"
+      "DELETE_MANY_CONFIRM": "Delete {{count}} patient(s)?",
+      "DUPLICATE_PHONE_TITLE": "Existing patient found",
+      "DUPLICATE_PHONE_BODY": "A patient already exists: Name: {{name}}, Phone: {{phone}}, Address: {{address}}.",
+      "GO_TO_EXISTING_PATIENT": "Go to existing patient",
+      "CONTINUE_ADDING": "Continue adding new patient"
     },
     "DIALOG": {
       "SELECT_GENDER": "Select gender",
