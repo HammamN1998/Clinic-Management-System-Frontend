@@ -11,13 +11,13 @@
             <h2><strong> {{ 'PATIENTS.INFO' | translate }}</strong></h2>
           </div>
           <div class="body">
-            <form class="m-4" [formGroup]="patientForm">
+            <form class="m-4" [formGroup]="patientForm" (ngSubmit)="onSubmit()">
               <div class="row">
                 <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-3">
                   <mat-form-field class="example-full-width mb-3" appearance="outline">
                     <mat-label>{{ 'PATIENTS.FIELDS.FIRST_NAME' | translate }}</mat-label>
-                    <input matInput formControlName="firstName" required>
-                    <mat-error *ngIf="patientForm.get('firstName')?.hasError('required')">
+                    <input matInput formControlName="firstName">
+                    <mat-error *ngIf="patientForm.get('firstName')?.hasError('required') && submitted">
                       {{ 'VALIDATION.REQUIRED' | translate:{ field: ('PATIENTS.FIELDS.FIRST_NAME' | translate) } }}
                     </mat-error>
                   </mat-form-field>
@@ -33,7 +33,7 @@
                 <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-3">
                   <mat-form-field class="example-full-width mb-3" appearance="outline">
                     <mat-label>{{ 'PATIENTS.FIELDS.GENDER' | translate }}</mat-label>
-                    <mat-select formControlName="gender" required>
+                    <mat-select formControlName="gender">
                       <mat-option [value]="'male'">
                         {{ 'PATIENTS.OPTIONS.MALE' | translate }}
                       </mat-option>
@@ -41,7 +41,7 @@
                         {{ 'PATIENTS.OPTIONS.FEMALE' | translate }}
                       </mat-option>
                     </mat-select>
-                    <mat-error *ngIf="patientForm.get('gender')?.hasError('required')">
+                    <mat-error *ngIf="patientForm.get('gender')?.hasError('required') && submitted">
                       {{ 'VALIDATION.REQUIRED' | translate:{ field: ('PATIENTS.FIELDS.GENDER' | translate) } }}
                     </mat-error>
                   </mat-form-field>
@@ -50,6 +50,9 @@
                   <mat-form-field class="example-full-width mb-3" appearance="outline">
                     <mat-label>{{ 'PATIENTS.FIELDS.MOBILE' | translate }}</mat-label>
                     <input matInput formControlName="phoneNumber" type="number">
+                    <mat-error *ngIf="patientForm.get('phoneNumber')?.hasError('required') && submitted">
+                      {{ 'VALIDATION.REQUIRED' | translate:{ field: ('PATIENTS.FIELDS.MOBILE' | translate) } }}
+                    </mat-error>
                   </mat-form-field>
                 </div>
               </div>
@@ -57,8 +60,8 @@
                 <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-3">
                   <mat-form-field class="example-full-width mb-3" appearance="outline">
                     <mat-label>{{ 'PATIENTS.FIELDS.ADDRESS' | translate }}</mat-label>
-                    <textarea matInput formControlName="address" required></textarea>
-                    <mat-error *ngIf="patientForm.get('address')?.hasError('required')">
+                    <input matInput formControlName="address">
+                    <mat-error *ngIf="patientForm.get('address')?.hasError('required') && submitted">
                       {{ 'VALIDATION.REQUIRED' | translate:{ field: ('PATIENTS.FIELDS.ADDRESS' | translate) } }}
                     </mat-error>
                   </mat-form-field>
@@ -77,9 +80,6 @@
                     <input matInput [matDatepicker]="picker" formControlName="birthDate">
                     <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
                     <mat-datepicker #picker></mat-datepicker>
-                    <mat-error *ngIf="patientForm.get('birthDate')?.hasError('required')">
-                      {{ 'VALIDATION.SELECT_DATE' | translate }}
-                    </mat-error>
                   </mat-form-field>
                 </div>
               </div>
@@ -87,8 +87,8 @@
                 <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-3">
                   <mat-form-field class="example-full-width mb-3" appearance="outline">
                     <mat-label>{{ 'COMMON.EMAIL' | translate }}</mat-label>
-                    <input matInput formControlName="email" type="email" >
-                    <mat-error *ngIf="patientForm.get('email')?.hasError('email') && patientForm.get('email')?.touched">
+                    <input matInput formControlName="email" type="email">
+                    <mat-error *ngIf="patientForm.get('email')?.hasError('email') && submitted">
                       {{ 'VALIDATION.EMAIL_INVALID' | translate }}
                     </mat-error>
                   </mat-form-field>
@@ -104,9 +104,6 @@
                         {{ 'PATIENTS.OPTIONS.MARRIED' | translate }}
                       </mat-option>
                     </mat-select>
-                    <mat-error *ngIf="patientForm.get('maritalState')?.hasError('required')">
-                      {{ 'VALIDATION.SELECT_ANY' | translate }}
-                    </mat-error>
                   </mat-form-field>
                 </div>
               </div>
@@ -128,9 +125,6 @@
                         AB+
                       </mat-option>
                     </mat-select>
-                    <mat-error *ngIf="patientForm.get('bloodGroup')?.hasError('required')">
-                      {{ 'VALIDATION.REQUIRED' | translate:{ field: ('PATIENTS.FIELDS.BLOOD_GROUP' | translate) } }}
-                    </mat-error>
                   </mat-form-field>
                 </div>
                 <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-3">
@@ -150,8 +144,8 @@
               </div>
               <div class="row">
                 <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-3">
-                  <button class="btn-space" [disabled]="!patientForm.valid " mat-raised-button type="submit" color="primary" (click)="onSubmit()">{{ 'COMMON.SUBMIT' | translate }}</button>
-                  <button type="submit" mat-raised-button color="warn">{{ 'COMMON.CANCEL' | translate }}</button>
+                  <button class="btn-space" mat-raised-button type="submit" color="primary">{{ 'COMMON.SUBMIT' | translate }}</button>
+                  <button type="button" mat-raised-button color="warn" (click)="onCancel()">{{ 'COMMON.CANCEL' | translate }}</button>
                 </div>
               </div>
             </form>

@@ -60,7 +60,7 @@
                 <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-3">
                   <mat-form-field class="example-full-width mb-3" appearance="outline">
                     <mat-label>{{ 'PATIENTS.FIELDS.ADDRESS' | translate }}</mat-label>
-                    <textarea matInput formControlName="address" required></textarea>
+                    <input matInput formControlName="address" required>
                     <mat-error *ngIf="patientForm.get('address')?.hasError('required')">
                       {{ 'VALIDATION.REQUIRED' | translate:{ field: ('PATIENTS.FIELDS.ADDRESS' | translate) } }}
                     </mat-error>

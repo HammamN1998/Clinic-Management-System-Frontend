@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
-import { UntypedFormBuilder, UntypedFormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormGroupDirective, NgForm, UntypedFormBuilder, UntypedFormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatOptionModule } from '@angular/material/core';
+import { ErrorStateMatcher, MatOptionModule } from '@angular/material/core';
 import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -34,9 +34,11 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
     NgIf,
     TranslateModule,
   ],
+  providers: [{ provide: ErrorStateMatcher, useExisting: AddPatientComponent }],
 })
-export class AddPatientComponent {
+export class AddPatientComponent implements ErrorStateMatcher {
   patientForm: UntypedFormGroup;
+  submitted = false;
   constructor(
     private fb: UntypedFormBuilder,
     private patientService: PatientService,
@@ -49,6 +51,10 @@ export class AddPatientComponent {
 
   get doctor(): User {
     return this.patientService.doctor;
+  }
+
+  isErrorState(control: FormControl | null, _form: FormGroupDirective | NgForm | null): boolean {
+    return !!(control && control.invalid && this.submitted);
   }
 
   createContactForm(): UntypedFormGroup {
@@ -64,7 +70,7 @@ export class AddPatientComponent {
       id: [newPatient.id],
       lastName: [newPatient.lastName],
       maritalState: [newPatient.maritalState],
-      email: [ newPatient.email, [Validators.email, Validators.minLength(5)], ],
+      email: [newPatient.email, [Validators.email]],
       bloodGroup: [newPatient.bloodGroup],
       bloodPressure: [newPatient.bloodPressure],
       weight: [newPatient.weight],
@@ -75,6 +81,11 @@ export class AddPatientComponent {
   }
 
   onSubmit() {
+    this.submitted = true;
+    if (this.patientForm.invalid) {
+      return;
+    }
+
     if (this.doctor.subscription.patientsCount >= this.doctor.subscription.maxPatientsLimit || this.doctor.subscription.status !== 'active') {
       const isInactive = this.doctor.subscription.status !== 'active';
       this.notificationService.showSwalDialogWithFunction(
@@ -119,6 +130,11 @@ export class AddPatientComponent {
       'bottom',
       'center'
     )
+    this.submitted = false;
     this.patientForm = this.createContactForm();
+  }
+
+  onCancel(): void {
+    void this.router.navigate(['/admin/patients/all-patients']);
   }
 }
