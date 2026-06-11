@@ -1,0 +1,45 @@
+<div class="card onboarding-card" *ngIf="visible && status">
+  <div class="onboarding-card__header">
+    <div>
+      <h3 class="onboarding-card__title">{{ 'ONBOARDING.TITLE' | translate }}</h3>
+      <p class="onboarding-card__subtitle">{{ 'ONBOARDING.SUBTITLE' | translate }}</p>
+    </div>
+  </div>
+
+  <div class="onboarding-card__progress">
+    <span class="onboarding-card__progress-label">
+      {{ 'ONBOARDING.PROGRESS' | translate:{ done: status.completedCount, total: status.totalSteps } }}
+    </span>
+    <div class="onboarding-card__progress-bar" role="progressbar"
+         [attr.aria-valuenow]="status.completedCount"
+         [attr.aria-valuemin]="0"
+         [attr.aria-valuemax]="status.totalSteps">
+      <span class="onboarding-card__progress-fill"
+            [style.width.%]="(status.completedCount / status.totalSteps) * 100"></span>
+    </div>
+  </div>
+
+  <ul class="onboarding-card__steps">
+    <li class="onboarding-step" *ngFor="let step of steps" [class.onboarding-step--done]="step.done">
+      <i class="material-icons onboarding-step__icon">
+        {{ step.done ? 'check_circle' : 'radio_button_unchecked' }}
+      </i>
+      <div class="onboarding-step__body">
+        <span class="onboarding-step__title">{{ step.titleKey | translate }}</span>
+        <span class="onboarding-step__desc">{{ step.descriptionKey | translate }}</span>
+      </div>
+      <a *ngIf="!step.done" class="onboarding-step__action" [routerLink]="step.link" [queryParams]="step.queryParams">
+        {{ 'ONBOARDING.START' | translate }}
+      </a>
+    </li>
+  </ul>
+
+  <div class="onboarding-card__actions">
+    <button type="button" class="onboarding-card__action-secondary" (click)="remindLater()">
+      {{ 'ONBOARDING.REMIND_LATER' | translate }}
+    </button>
+    <button type="button" class="onboarding-card__action-muted" (click)="dontShowAgain()">
+      {{ 'ONBOARDING.DONT_SHOW_AGAIN' | translate }}
+    </button>
+  </div>
+</div>

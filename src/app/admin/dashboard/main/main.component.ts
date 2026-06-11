@@ -21,6 +21,7 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatMenuModule} from '@angular/material/menu';
 import {MatButtonModule} from '@angular/material/button';
 import {BreadcrumbComponent} from '@shared/components/breadcrumb/breadcrumb.component';
+import {OnboardingChecklistComponent} from '@shared/components/onboarding-checklist/onboarding-checklist.component';
 import {from} from "rxjs";
 import {DoctorService} from "@core/service/doctor.service";
 import {AppointmentModel} from "@core/models/appointment.model";
@@ -64,6 +65,7 @@ interface RangeOption {
     CommonModule,
     RouterModule,
     BreadcrumbComponent,
+    OnboardingChecklistComponent,
     NgApexchartsModule,
     MatButtonModule,
     MatMenuModule,

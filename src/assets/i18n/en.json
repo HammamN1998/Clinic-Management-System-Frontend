@@ -386,6 +386,10 @@
       "SAVE_CHANGES": "Save Changes",
       "BRAND_LOGO": "Brand Logo",
       "BRAND_LOGO_HINT": "This logo appears on invoices and documents you generate for patients. No logo is shown if none is uploaded.",
+      "SETUP_CALLOUT": "Add your phone number and clinic logo below to complete the \"Get started\" checklist on your dashboard.",
+      "SETUP_PHONE_HINT": "Required to complete your setup checklist — save after entering.",
+      "SETUP_LOGO_HINT": "Upload your logo to complete your setup checklist.",
+      "SETUP_STEP": "Setup step",
       "UPLOAD_LOGO": "Upload Logo",
       "DELETE_LOGO": "Delete Logo",
       "DELETE_LOGO_CONFIRM_TITLE": "Delete brand logo?",
@@ -458,6 +462,28 @@
       "DISCOUNT": "Discount",
       "DETAILS": "Details",
       "EMPTY": "No treatments found for this range."
+    }
+  },
+  "ONBOARDING": {
+    "TITLE": "Get started with ClinicWell",
+    "SUBTITLE": "Finish these steps to set up your clinic.",
+    "PROGRESS": "{{done}} of {{total}} completed",
+    "START": "Start",
+    "REMIND_LATER": "Remind me later",
+    "DONT_SHOW_AGAIN": "Don't show again",
+    "STEPS": {
+      "PROFILE": {
+        "TITLE": "Complete your profile",
+        "DESC": "Add your details and upload your clinic logo."
+      },
+      "PATIENT": {
+        "TITLE": "Add your first patient",
+        "DESC": "Create a patient record to get started."
+      },
+      "APPOINTMENT": {
+        "TITLE": "Schedule an appointment",
+        "DESC": "Open a patient and book their first appointment."
+      }
     }
   },
   "CALENDAR": {

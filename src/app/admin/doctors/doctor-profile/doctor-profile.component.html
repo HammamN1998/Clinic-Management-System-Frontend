@@ -46,7 +46,7 @@
       </div>
       <div class="col-lg-8 col-md-12">
         <div class="card">
-          <mat-tab-group>
+          <mat-tab-group [(selectedIndex)]="selectedTabIndex">
             <!--Profile Section-->
             <mat-tab>
               <ng-template mat-tab-label>
@@ -105,6 +105,10 @@
                 <mat-icon class="example-tab-icon msr-2">settings</mat-icon>
                 {{ 'DOCTORS.PROFILE.SETTINGS' | translate }}
               </ng-template>
+              <div class="setup-callout" *ngIf="showSetupEncouragement">
+                <mat-icon class="setup-callout__icon">rocket_launch</mat-icon>
+                <p class="setup-callout__text">{{ 'DOCTORS.PROFILE.SETUP_CALLOUT' | translate }}</p>
+              </div>
               <!--Account Settings-->
               <div class="header">
                 <h2>
@@ -119,9 +123,6 @@
                         <mat-form-field class="example-full-width" appearance="fill">
                           <mat-label>{{ 'DOCTORS.PROFILE.FULL_NAME' | translate }}</mat-label>
                           <input matInput formControlName="name" required>
-                          <mat-error *ngIf="accountSettingsForm.get('name')?.errors">
-                            {{ 'DOCTORS.PROFILE.NAME_MIN_ERROR' | translate }}
-                          </mat-error>
                           <mat-error *ngIf="accountSettingsForm.get('name')?.hasError('required')">
                             {{ 'VALIDATION.REQUIRED' | translate:{ field: ('DOCTORS.PROFILE.FULL_NAME' | translate) } }}
                           </mat-error>
@@ -133,6 +134,7 @@
                         <mat-form-field class="example-full-width" appearance="fill">
                           <mat-label>{{ 'DOCTORS.PROFILE.PHONE_NUMBER' | translate }}</mat-label>
                           <input matInput formControlName="phoneNumber">
+                          <mat-hint *ngIf="needsPhoneForSetup">{{ 'DOCTORS.PROFILE.SETUP_PHONE_HINT' | translate }}</mat-hint>
                         </mat-form-field>
                       </div>
                     </div>
@@ -154,10 +156,15 @@
               <div class="header">
                 <h2>
                   <strong>{{ 'DOCTORS.PROFILE.BRAND_LOGO' | translate }}</strong>
+                  <span class="setup-step-chip" *ngIf="needsLogoForSetup">{{ 'DOCTORS.PROFILE.SETUP_STEP' | translate }}</span>
                 </h2>
               </div>
               <div class="body">
                 <p class="text-muted">{{ 'DOCTORS.PROFILE.BRAND_LOGO_HINT' | translate }}</p>
+                <p class="setup-field-hint" *ngIf="needsLogoForSetup">
+                  <mat-icon class="setup-field-hint__icon">info_outline</mat-icon>
+                  {{ 'DOCTORS.PROFILE.SETUP_LOGO_HINT' | translate }}
+                </p>
                 <div class="row clearfix">
                   <div class="col-md-12" *ngIf="!isNullOrUndefined(this.doctor.logo) && this.doctor.logo !== ''">
                     <img

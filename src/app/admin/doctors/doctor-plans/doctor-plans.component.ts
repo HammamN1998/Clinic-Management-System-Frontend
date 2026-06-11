@@ -11,6 +11,7 @@ import {finalize} from "rxjs/operators";
 import {DoctorService} from "@core/service/doctor.service";
 import { LegalPolicyFooterComponent } from '@shared/components/legal-policy-footer/legal-policy-footer.component';
 import {TranslateModule, TranslateService} from "@ngx-translate/core";
+import {AnalyticsService} from "@core/service/analytics.service";
 
 @Component({
   selector: 'app-doctor-plans',
@@ -38,6 +39,7 @@ export class DoctorPlansComponent {
     private notificationService: NotificationService,
     private doctorService: DoctorService,
     private translate: TranslateService,
+    private analytics: AnalyticsService,
   ) {
 
   }
@@ -70,6 +72,7 @@ export class DoctorPlansComponent {
     ).subscribe({
       next: (res) => {
         if (res?.url) {
+          this.analytics.checkoutStarted(price?.priceId);
           window.location.href = res.url;
         }
       },
@@ -91,6 +94,7 @@ export class DoctorPlansComponent {
     ).subscribe({
       next: (res) => {
         if (res?.url) {
+          this.analytics.billingPortalOpened('doctor_plans');
           window.location.href = res.url;
         }
       },

@@ -15,6 +15,7 @@ import 'firebase/compat/firestore';
 import {Router} from "@angular/router";
 import {TranslateService} from "@ngx-translate/core";
 import {NotificationService} from "@core/service/notification.service";
+import {OnboardingService} from "@core/service/onboarding.service";
 
 export interface PatientsPageResult {
   patients: Patient[];
@@ -35,6 +36,7 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
     private notificationService: NotificationService,
     private router: Router,
     private translate: TranslateService,
+    private onboardingService: OnboardingService,
   ) {
     super();
   }
@@ -174,11 +176,13 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
     this.dialogData = patient;
 
     try {
+      const wasFirstPatient = (this.doctor.subscription?.patientsCount ?? 0) === 0;
       const result = await this.firestore.collection('patients').add({...patient});
       await this.firestore.collection('patients').doc(result.id).ref.update({id: result.id});
       patient.id = result.id;
       this.dialogData = patient;
       this.doctor.subscription.patientsCount++;
+      this.onboardingService.recordPatientAdded(wasFirstPatient);
       console.log('patient ID: ' + JSON.stringify(result.id));
     } catch (error) {
       console.log('error: ' + JSON.stringify(error));
@@ -225,6 +229,7 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
     from(result).subscribe({
         next: (result) => {
           this.firestore.collection('appointments').doc(result.id).update({id: result.id});
+          this.onboardingService.recordAppointmentCreated();
         },
         error: (error) => {
           console.log('error: ' + error)

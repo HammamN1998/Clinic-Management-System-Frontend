@@ -10,6 +10,7 @@ import {AngularFireFunctions} from "@angular/fire/compat/functions";
 import {Router} from "@angular/router";
 import {NotificationService} from "@core/service/notification.service";
 import {TranslateService} from "@ngx-translate/core";
+import {AnalyticsService} from "@core/service/analytics.service";
 
 @Injectable({
   providedIn: 'root'
@@ -26,6 +27,7 @@ export class FirebaseAuthenticationService {
     private notificationService: NotificationService,
     private functions: AngularFireFunctions,
     private translate: TranslateService,
+    private analytics: AnalyticsService,
   ) {
 
     this.currentUserSubject = new BehaviorSubject<User>(
@@ -80,6 +82,8 @@ export class FirebaseAuthenticationService {
       localUser.email = email;
       this.currentUserSubject.next(localUser);
       await this.firestore.collection('doctors').doc(uid).set({...localUser});
+      this.analytics.setDoctorUserId(uid);
+      this.analytics.signupComplete();
       await this.sendEmailVerificationCode();
       this.router.navigate(['/authentication/verify-email']);
     } catch (err) {
@@ -162,6 +166,10 @@ export class FirebaseAuthenticationService {
             }
             this.currentUserSubject.next(localUser);
             localStorage.setItem('currentUser', JSON.stringify(localUser));
+            this.analytics.setDoctorUserId(fireAuthUser.uid);
+            if (fireAuthUser.emailVerified) {
+              this.analytics.emailVerified(fireAuthUser.uid);
+            }
             const isOnAuthPages =
               this.router.url === '/authentication/signup' ||
               this.router.url === '/authentication/signin' ||
@@ -186,6 +194,7 @@ export class FirebaseAuthenticationService {
         }
       } else {
         // remove user from local storage to log user out
+        this.analytics.clearDoctorUserId();
         localStorage.removeItem('currentUser');
         this.router.navigate(['/authentication/signin']);
         console.log('user not logged in');

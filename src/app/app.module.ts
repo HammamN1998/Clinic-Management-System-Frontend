@@ -23,6 +23,7 @@ import { AngularFireModule } from "@angular/fire/compat";
 import { AngularFireAuthModule } from "@angular/fire/compat/auth";
 import { AngularFirestoreModule } from '@angular/fire/compat/firestore';
 import { AngularFireFunctionsModule, REGION } from '@angular/fire/compat/functions';
+import { AngularFireAnalyticsModule } from '@angular/fire/compat/analytics';
 
 import {
     HttpClientModule,
@@ -77,6 +78,7 @@ export class WarnMissingTranslationHandler implements MissingTranslationHandler 
         AngularFireAuthModule,
         AngularFirestoreModule ,
         AngularFireFunctionsModule,
+        AngularFireAnalyticsModule,
     ],
     providers: [
         { provide: LocationStrategy, useClass: HashLocationStrategy },

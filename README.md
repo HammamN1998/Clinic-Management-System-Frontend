@@ -50,3 +50,76 @@ To verify:
 
 When adding a new deployment domain, add it to `cors.json` and re-apply. CORS preflight
 results are cached (`maxAgeSeconds`), so allow some time or hard-refresh after changes.
+
+# Analytics events
+
+Full write-up (onboarding + analytics): **[docs/onboarding-and-analytics.md](docs/onboarding-and-analytics.md)**
+
+Product activation events are sent to **Firebase Analytics** via `AnalyticsService`
+(`src/app/core/service/analytics.service.ts`). They measure how new clinics move through
+signup, setup, and subscription — not day-to-day clinical usage.
+
+**Privacy:** No patient or doctor PII is included in event payloads (only booleans and
+Stripe `price_id` values). Doctor identity is linked via Firebase Analytics **`setUserId`**
+using the opaque Firebase Auth UID (same as `doctor.id`), set on login/signup and cleared
+on logout. Logging is wrapped in try/catch so analytics never blocks clinical workflows.
+
+**Deduplication:** Some events fire at most **once per doctor per browser**, using
+localStorage keys `cw_analytics_{suffix}_{doctorId}`. If the user clears site data or
+uses another device, the event may fire again.
+
+## Activation funnel (in order)
+
+These events describe the ideal path from signup to paid plan:
+
+```
+signup_complete
+  → email_verified
+  → profile_completed
+  → first_patient_added
+  → first_appointment_created
+  → onboarding_completed
+  → checkout_started
+```
+
+| Event | Parameters | Once per doctor? | When it fires | Trigger location |
+|-------|------------|------------------|---------------|------------------|
+| `signup_complete` | — | No | A new doctor account is created and saved to Firestore | `FirebaseAuthenticationService.signup()` |
+| `email_verified` | — | Yes | Firebase Auth reports the doctor’s email as verified (e.g. after clicking the verification link and the session reloads) | `FirebaseAuthenticationService.traceAuthenticationStatus()` |
+| `profile_completed` | — | Yes | The doctor has both a **phone number** and a **brand logo** saved (matches the onboarding “Complete your profile” step) | `OnboardingService.recordProfileIfComplete()` — called after saving settings or uploading a logo in doctor profile |
+| `patient_added` | `first` (boolean) | No | Any patient record is added | `OnboardingService.recordPatientAdded()` |
+| `first_patient_added` | — | Yes* | The clinic’s **first** patient is added (`first: true` on `patient_added` is also sent) | Same as `patient_added`, when it is the first patient |
+| `appointment_created` | `first` (boolean) | No | Any appointment is saved | `OnboardingService.recordAppointmentCreated()` |
+| `first_appointment_created` | — | Yes* | The clinic’s **first** appointment is saved | Same as `appointment_created`, when it is the first appointment |
+| `onboarding_completed` | — | Yes | All three onboarding checklist steps are done: profile (phone + logo), first patient, first appointment | `OnboardingService.maybeRecordOnboardingComplete()` — after profile, patient, or appointment milestones |
+| `checkout_started` | `price_id` (string) | No | The doctor is redirected to the Stripe checkout page (does **not** mean payment succeeded) | `DoctorPlansComponent.pay()` |
+
+\*First-patient and first-appointment events are deduplicated via onboarding localStorage
+flags (`cw_onboarding_patient_*`, `cw_onboarding_appointment_*`), not the analytics
+once-per-doctor keys.
+
+## Onboarding checklist UX events
+
+These track how doctors interact with the dashboard “Get started” checklist. They are not
+part of the core monetization funnel but help measure whether the checklist is useful.
+
+| Event | Parameters | When it fires | Trigger location |
+|-------|------------|---------------|------------------|
+| `onboarding_remind_later` | — | Doctor clicks **Remind me later** (checklist hidden for 7 days) | `OnboardingService.remindLater()` |
+| `onboarding_dismiss_permanent` | — | Doctor clicks **Don’t show again** | `OnboardingService.dismissPermanently()` |
+
+## Monetization events
+
+| Event | Parameters | When it fires | Trigger location |
+|-------|------------|---------------|------------------|
+| `billing_portal_opened` | `source` (`doctor_plans` \| `header`) | Stripe billing portal URL is returned and the user is redirected | `DoctorPlansComponent.openBillingPortal()`, `HeaderComponent.openBillingPortal()` |
+
+## Notes
+
+- **`checkout_started` vs. paid subscription:** This event fires when checkout **opens**,
+  not when Stripe confirms payment. Use backend/Stripe webhook data for true conversion.
+- **`profile_completed` criteria:** Phone and logo must both be non-empty on the in-memory
+  doctor user (same rules as the onboarding checklist).
+- **Adding a new event:** Add a method to `AnalyticsService`, keep payloads free of PII,
+  and document it in this table.
+

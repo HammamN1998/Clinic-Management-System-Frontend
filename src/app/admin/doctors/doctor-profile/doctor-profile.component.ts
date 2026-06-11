@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
@@ -20,9 +20,10 @@ import {FileUploadComponent} from "@shared/components/file-upload/file-upload.co
 import {FirebaseStorageService} from "@core/service/firebase-storage.service";
 import {isNullOrUndefined} from "@swimlane/ngx-datatable";
 import { Attachment } from '@core/models/patient.model';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { PatientService } from '@core/service/patient.service';
 import {TranslateModule, TranslateService} from "@ngx-translate/core";
+import { OnboardingService } from '@core/service/onboarding.service';
 
 @Component({
   selector: 'app-doctor-profile',
@@ -44,11 +45,12 @@ import {TranslateModule, TranslateService} from "@ngx-translate/core";
     TranslateModule,
   ],
 })
-export class DoctorProfileComponent {
+export class DoctorProfileComponent implements OnInit {
   accountSettingsForm: UntypedFormGroup;
   showUploadProfilePicture: boolean = false;
   showUploadLogo: boolean = false;
-  isEmailVerified: boolean = false
+  isEmailVerified: boolean = false;
+  selectedTabIndex = 0;
 
   constructor(
     private doctorService: DoctorService,
@@ -58,11 +60,19 @@ export class DoctorProfileComponent {
     private auth: AngularFireAuth,
     private firebaseStorageService: FirebaseStorageService,
     private router: Router,
+    private route: ActivatedRoute,
     private patientService: PatientService,
     private translate: TranslateService,
+    private onboardingService: OnboardingService,
   ) {
     this.accountSettingsForm = this.createAccountSettingsForm();
     this.checkIfEmailVerified();
+  }
+
+  ngOnInit(): void {
+    if (this.route.snapshot.queryParamMap.get('tab') === 'settings') {
+      this.selectedTabIndex = 1;
+    }
   }
 
   get doctor () : User{
@@ -122,7 +132,7 @@ export class DoctorProfileComponent {
 
   private createAccountSettingsForm() {
     return this.fb.group({
-      name: [this.doctor.name, [Validators.required, Validators.minLength(6)]],
+      name: [this.doctor.name, [Validators.required]],
       phoneNumber: [this.doctor.phoneNumber, [Validators.minLength(9)]],
       address: [this.doctor.address],
     });
@@ -142,6 +152,7 @@ export class DoctorProfileComponent {
           this.doctor.name = this.accountSettingsForm.value.name;
           this.doctor.phoneNumber = this.accountSettingsForm.value.phoneNumber;
           this.doctor.address = this.accountSettingsForm.value.address;
+          this.onboardingService.recordProfileIfComplete();
           this.notificationService.showSnackBarNotification(
             'snackbar-success',
             this.translate.instant('DOCTORS.PROFILE.MESSAGES.UPDATE_SETTINGS_SUCCESS'),
@@ -236,6 +247,7 @@ export class DoctorProfileComponent {
         'center',
       );
       this.showUploadLogo = false;
+      this.onboardingService.recordProfileIfComplete();
     } else {
       const oldLogoSize = this.doctor.logoSize;
       const oldLogoUrl = this.doctor.logo;
@@ -255,6 +267,7 @@ export class DoctorProfileComponent {
             'center',
           );
           this.showUploadLogo = false;
+          this.onboardingService.recordProfileIfComplete();
         },
         error: (error) => {
           console.log('error: ' + error);
@@ -350,6 +363,18 @@ export class DoctorProfileComponent {
   }
   sendEmailVerificationCode() {
     this.firebaseAuthenticationService.sendEmailVerificationCode();
+  }
+
+  get needsPhoneForSetup(): boolean {
+    return !this.doctor.phoneNumber?.trim();
+  }
+
+  get needsLogoForSetup(): boolean {
+    return isNullOrUndefined(this.doctor.logo) || this.doctor.logo === '';
+  }
+
+  get showSetupEncouragement(): boolean {
+    return this.needsPhoneForSetup || this.needsLogoForSetup;
   }
 
   protected readonly isNullOrUndefined = isNullOrUndefined;

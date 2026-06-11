@@ -1,0 +1,151 @@
+.onboarding-card {
+  padding: 20px 22px;
+  margin-bottom: 20px;
+  border-radius: 12px;
+  border: 1px solid rgba(111, 66, 193, 0.18);
+  background: linear-gradient(135deg, rgba(111, 66, 193, 0.06), rgba(33, 150, 243, 0.06));
+
+  &__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  &__subtitle {
+    margin: 4px 0 0;
+    font-size: 13px;
+    opacity: 0.75;
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 16px;
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+  }
+
+  &__action-secondary,
+  &__action-muted {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 13px;
+    padding: 4px 0;
+  }
+
+  &__action-secondary {
+    font-weight: 600;
+    color: #6f42c1;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  &__action-muted {
+    color: rgba(0, 0, 0, 0.45);
+
+    &:hover {
+      color: rgba(0, 0, 0, 0.65);
+      text-decoration: underline;
+    }
+  }
+
+  &__progress {
+    margin: 16px 0 18px;
+  }
+
+  &__progress-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    margin-bottom: 6px;
+    opacity: 0.8;
+  }
+
+  &__progress-bar {
+    height: 6px;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+  }
+
+  &__progress-fill {
+    display: block;
+    height: 100%;
+    border-radius: 999px;
+    background: #6f42c1;
+    transition: width 0.3s ease;
+  }
+
+  &__steps {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+}
+
+.onboarding-step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  &__icon {
+    font-size: 22px;
+    color: rgba(0, 0, 0, 0.35);
+    flex-shrink: 0;
+  }
+
+  &--done &__icon {
+    color: #4caf50;
+  }
+
+  &--done &__title {
+    text-decoration: line-through;
+    opacity: 0.6;
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+  }
+
+  &__title {
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  &__desc {
+    font-size: 12px;
+    opacity: 0.7;
+  }
+
+  &__action {
+    flex-shrink: 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: #6f42c1;
+    text-decoration: none;
+    padding: 6px 14px;
+    border: 1px solid rgba(111, 66, 193, 0.4);
+    border-radius: 999px;
+
+    &:hover {
+      background: rgba(111, 66, 193, 0.1);
+    }
+  }
+}

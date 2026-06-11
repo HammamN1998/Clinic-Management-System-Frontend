@@ -20,6 +20,7 @@ import { NgScrollbar } from 'ngx-scrollbar';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatButtonModule } from '@angular/material/button';
 import { PaymentService } from '@core/service/payment.service';
+import { AnalyticsService } from '@core/service/analytics.service';
 import { finalize } from 'rxjs/operators';
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -75,6 +76,7 @@ export class HeaderComponent
     private router: Router,
     public languageService: LanguageService,
     private paymentService: PaymentService,
+    private analytics: AnalyticsService,
   ) {
     super();
     this.checkIfEmailVerified()
@@ -225,6 +227,7 @@ export class HeaderComponent
     ).subscribe({
       next: (res) => {
         if (res?.url) {
+          this.analytics.billingPortalOpened('header');
           window.open(res.url, '_blank', 'noopener,noreferrer');
         }
       },
