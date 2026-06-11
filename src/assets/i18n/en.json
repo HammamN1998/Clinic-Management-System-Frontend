@@ -223,9 +223,10 @@
       "DELETE_CONFIRM": "Delete patient {{name}}?",
       "DELETE_MANY_CONFIRM": "Delete {{count}} patient(s)?",
       "DUPLICATE_PHONE_TITLE": "Existing patient found",
-      "DUPLICATE_PHONE_BODY": "A patient already exists: Name: {{name}}, Phone: {{phone}}, Address: {{address}}.",
+      "DUPLICATE_PHONE_LABEL": "Phone number",
+      "DUPLICATE_PHONE_INTRO": "This phone number is already used by:",
       "GO_TO_EXISTING_PATIENT": "Go to existing patient",
-      "CONTINUE_ADDING": "Continue adding new patient"
+      "CONTINUE_ADDING": "Add anyway"
     },
     "DIALOG": {
       "SELECT_GENDER": "Select gender",

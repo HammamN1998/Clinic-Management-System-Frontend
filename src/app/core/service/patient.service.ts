@@ -16,6 +16,12 @@ import {Router} from "@angular/router";
 import {TranslateService} from "@ngx-translate/core";
 import {NotificationService} from "@core/service/notification.service";
 import {OnboardingService} from "@core/service/onboarding.service";
+import {Direction} from "@angular/cdk/bidi";
+import {MatDialog} from "@angular/material/dialog";
+import {
+  DuplicatePhoneDialogComponent,
+  DuplicatePhoneDialogResult,
+} from "../../admin/patients/allpatients/dialog/duplicate-phone-dialog/duplicate-phone-dialog.component";
 
 export interface PatientsPageResult {
   patients: Patient[];
@@ -37,6 +43,7 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
     private router: Router,
     private translate: TranslateService,
     private onboardingService: OnboardingService,
+    private dialog: MatDialog,
   ) {
     super();
   }
@@ -125,49 +132,51 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
     return result;
   }
 
-  async findPatientByPhoneNumber(phoneNumber: string): Promise<Patient | null> {
+  async findPatientsByPhoneNumber(phoneNumber: string): Promise<Patient[]> {
     const normalized = String(phoneNumber ?? '').trim();
     if (!normalized) {
-      return null;
+      return [];
     }
 
     const snapshot = await this.firestore.collection('patients').ref
       .where('doctorId', '==', this.doctor.id)
       .where('phoneNumber', '==', normalized)
-      .limit(1)
+      .limit(20)
       .get();
 
-    return snapshot.empty ? null : (snapshot.docs[0].data() as Patient);
+    return snapshot.docs.map((doc) => doc.data() as Patient);
   }
 
   async checkBeforeAdd(
     phoneNumber: string,
     onContinueAdd: () => void | Promise<void>,
   ): Promise<void> {
-    const existing = await this.findPatientByPhoneNumber(phoneNumber);
-    if (!existing) {
+    const normalized = String(phoneNumber ?? '').trim();
+    const existing = await this.findPatientsByPhoneNumber(normalized);
+    if (existing.length === 0) {
       await onContinueAdd();
       return;
     }
 
-    const name = `${existing.firstName} ${existing.lastName}`.replace(/\s+/g, ' ').trim();
-    this.notificationService.showSwalTwoChoiceDialog(
-      this.translate.instant('PATIENTS.MESSAGES.DUPLICATE_PHONE_TITLE'),
-      this.translate.instant('PATIENTS.MESSAGES.DUPLICATE_PHONE_BODY', {
-        phone: existing.phoneNumber,
-        name,
-        address: existing.address,
-      }),
-      this.translate.instant('PATIENTS.MESSAGES.GO_TO_EXISTING_PATIENT'),
-      this.translate.instant('PATIENTS.MESSAGES.CONTINUE_ADDING'),
-      () => {
-        this.dialogData = existing;
+    const direction: Direction = localStorage.getItem('isRtl') === 'true' ? 'rtl' : 'ltr';
+    const dialogRef = this.dialog.open(DuplicatePhoneDialogComponent, {
+      data: { phoneNumber: normalized, patients: existing },
+      direction,
+      width: '440px',
+      maxWidth: '95vw',
+    });
+
+    dialogRef.afterClosed().subscribe((result: DuplicatePhoneDialogResult | undefined) => {
+      if (!result) {
+        return;
+      }
+      if (result.action === 'navigate') {
+        this.dialogData = result.patient;
         void this.router.navigate(['/admin/patients/patient-profile']);
-      },
-      () => {
+      } else if (result.action === 'continue') {
         void onContinueAdd();
-      },
-    );
+      }
+    });
   }
 
   async addPatient(patient: Patient): Promise<void> {

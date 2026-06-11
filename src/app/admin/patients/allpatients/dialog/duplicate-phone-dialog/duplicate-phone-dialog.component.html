@@ -1,0 +1,29 @@
+<h1 mat-dialog-title>{{ 'PATIENTS.MESSAGES.DUPLICATE_PHONE_TITLE' | translate }}</h1>
+
+<div mat-dialog-content>
+  <div class="duplicate-phone__banner">
+    <span class="duplicate-phone__banner-label">{{ 'PATIENTS.MESSAGES.DUPLICATE_PHONE_LABEL' | translate }}</span>
+    <span class="duplicate-phone__banner-value">{{ data.phoneNumber }}</span>
+  </div>
+
+  <p class="duplicate-phone__intro">{{ 'PATIENTS.MESSAGES.DUPLICATE_PHONE_INTRO' | translate }}</p>
+
+  <div class="duplicate-phone__list">
+    <button
+      type="button"
+      class="duplicate-phone__card"
+      matRipple
+      *ngFor="let patient of data.patients"
+      (click)="selectPatient(patient)"
+    >
+      <span class="duplicate-phone__card-name">{{ getDisplayName(patient) }}</span>
+      <span class="duplicate-phone__card-address">{{ patient.address }}</span>
+    </button>
+  </div>
+</div>
+
+<div mat-dialog-actions class="duplicate-phone__actions">
+  <button mat-raised-button color="primary" (click)="continueAdding()">
+    {{ 'PATIENTS.MESSAGES.CONTINUE_ADDING' | translate }}
+  </button>
+</div>

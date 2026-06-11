@@ -223,9 +223,10 @@
       "DELETE_CONFIRM": "حذف المريض {{name}}؟",
       "DELETE_MANY_CONFIRM": "حذف {{count}} مريض؟",
       "DUPLICATE_PHONE_TITLE": "يوجد مريض مسجّل بالفعل",
-      "DUPLICATE_PHONE_BODY": "يوجد مريض مسجّل بالفعل: الاسم: {{name}}, رقم الهاتف: {{phone}}, العنوان: {{address}}.",
+      "DUPLICATE_PHONE_LABEL": "رقم الهاتف",
+      "DUPLICATE_PHONE_INTRO": "رقم الهاتف هذا مستخدم بالفعل من قبل:",
       "GO_TO_EXISTING_PATIENT": "الذهاب إلى المريض الموجود",
-      "CONTINUE_ADDING": "متابعة إضافة مريض جديد"
+      "CONTINUE_ADDING": "أضف على أي حال"
     },
     "DIALOG": {
       "SELECT_GENDER": "اختر الجنس",

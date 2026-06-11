@@ -1,0 +1,86 @@
+:host {
+  display: block;
+}
+
+.duplicate-phone__banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 8px;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  border-radius: 6px;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+
+.duplicate-phone__banner-label {
+  font-size: 0.85rem;
+  opacity: 0.7;
+}
+
+.duplicate-phone__banner-value {
+  font-size: 1.1rem;
+  font-weight: 600;
+  word-break: break-all;
+}
+
+.duplicate-phone__intro {
+  margin-bottom: 12px;
+  opacity: 0.8;
+}
+
+.duplicate-phone__list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: min(320px, 45vh);
+  overflow-y: auto;
+}
+
+.duplicate-phone__card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 6px;
+  width: 100%;
+  min-height: 72px;
+  padding: 18px 16px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 8px;
+  background-color: transparent;
+  text-align: start;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+    border-color: rgba(0, 0, 0, 0.24);
+  }
+}
+
+.duplicate-phone__card-name {
+  font-weight: 600;
+  word-break: break-word;
+}
+
+.duplicate-phone__card-address {
+  font-size: 0.85rem;
+  opacity: 0.7;
+  word-break: break-word;
+}
+
+.duplicate-phone__actions {
+  justify-content: flex-end;
+}
+
+@media (max-width: 480px) {
+  .duplicate-phone__actions {
+    justify-content: stretch;
+
+    button {
+      width: 100%;
+    }
+  }
+}
