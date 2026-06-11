@@ -21,7 +21,6 @@ import {
 import {formatDate, NgClass, DatePipe, NgIf} from '@angular/common';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatRippleModule } from '@angular/material/core';
-import { FeatherIconsComponent } from '@shared/components/feather-icons/feather-icons.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -47,7 +46,6 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
     MatTableModule,
     NgClass,
     MatCheckboxModule,
-    FeatherIconsComponent,
     MatRippleModule,
     MatProgressSpinnerModule,
     MatPaginatorModule,
@@ -68,7 +66,6 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
     'address',
     'phoneNumber',
     //'condition',
-    'actions',
   ];
 
   dataSource = new MatTableDataSource<Patient>([]);
@@ -197,74 +194,6 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
       'center'
     );
   }
-  editCall(row: Patient) {
-    this.patientService.dialogData = row;
-
-    let tempDirection: Direction;
-    if (localStorage.getItem('isRtl') === 'true') {
-      tempDirection = 'rtl';
-    } else {
-      tempDirection = 'ltr';
-    }
-    const dialogRef = this.dialog.open(FormDialogComponent, {
-      data: {
-        patient: row,
-        action: 'edit',
-      },
-      direction: tempDirection,
-    });
-    this.subs.sink = dialogRef.afterClosed().subscribe((result) => {
-      if (result === 1) {
-        const updatePatient: Patient = new Patient();
-        updatePatient.firstName = dialogRef.componentInstance.patientForm.value.firstName;
-        updatePatient.lastName  = dialogRef.componentInstance.patientForm.value.lastName;
-        updatePatient.gender = dialogRef.componentInstance.patientForm.value.gender;
-        updatePatient.phoneNumber = dialogRef.componentInstance.patientForm.value.phoneNumber;
-        updatePatient.address = dialogRef.componentInstance.patientForm.value.address;
-        updatePatient.condition = dialogRef.componentInstance.patientForm.value.condition;
-        updatePatient.birthDate = firestore.Timestamp.fromDate(dialogRef.componentInstance.patientForm.value.birthDate);
-        updatePatient.email = dialogRef.componentInstance.patientForm.value.email;
-        updatePatient.maritalState = dialogRef.componentInstance.patientForm.value.maritalState;
-        updatePatient.bloodGroup = dialogRef.componentInstance.patientForm.value.bloodGroup;
-        updatePatient.bloodPressure = dialogRef.componentInstance.patientForm.value.bloodPressure;
-        updatePatient.weight = dialogRef.componentInstance.patientForm.value.weight;
-        updatePatient.img = dialogRef.componentInstance.patientForm.value.img;
-        this.patientService.updatePatient(updatePatient);
-        this.invalidateSearchCache();
-        this.loadCurrentPage();
-        this.notificationService.showSnackBarNotification(
-          'black',
-          this.translate.instant('PATIENTS.MESSAGES.UPDATE_SUCCESS'),
-          'bottom',
-          'center'
-        );
-      }
-    });
-  }
-  deleteItem(row: Patient) {
-    const name = `${row.firstName} ${row.lastName}`.trim();
-    const message = this.translate.instant('PATIENTS.MESSAGES.DELETE_CONFIRM', { name });
-    const dialogRef = this.deleteConfirmDialog.open(message);
-
-    this.subs.sink = dialogRef.afterClosed().subscribe((result) => {
-      if (result === 1) {
-        void this.patientService.deletePatient(row.id).then(() => {
-          this.invalidateSearchCache();
-          if (!this.isSearchMode) {
-            this.patientService.clearPatientsPageCursors();
-          }
-          this.loadCurrentPage();
-        });
-        this.notificationService.showSnackBarNotification(
-          'snackbar-danger',
-          this.translate.instant('PATIENTS.MESSAGES.DELETE_SUCCESS'),
-          'bottom',
-          'center'
-        );
-      }
-    });
-  }
-
   /** Whether the number of selected elements matches the total number of rows. */
   isAllSelected() {
     const numSelected = this.selection.selected.length;

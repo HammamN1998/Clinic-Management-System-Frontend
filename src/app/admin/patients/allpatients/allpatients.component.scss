@@ -6,3 +6,31 @@
     pointer-events: none;
   }
 }
+
+$patient-row-accent: #6777ef;
+
+:host ::ng-deep .patient-row.mdc-data-table__row {
+  cursor: pointer;
+  transition: background-color 0.18s ease, box-shadow 0.18s ease;
+
+  &:hover {
+    background-color: rgba($patient-row-accent, 0.06);
+    box-shadow: inset 3px 0 0 $patient-row-accent;
+  }
+
+  &:active {
+    background-color: rgba($patient-row-accent, 0.11);
+    box-shadow: inset 3px 0 0 $patient-row-accent;
+  }
+}
+
+:host-context(body.dark) ::ng-deep .patient-row.mdc-data-table__row {
+  &:hover {
+    background-color: rgba($patient-row-accent, 0.14);
+    box-shadow: inset 3px 0 0 lighten($patient-row-accent, 12%);
+  }
+
+  &:active {
+    background-color: rgba($patient-row-accent, 0.2);
+  }
+}
