@@ -108,7 +108,7 @@ export class AnalyticsService {
     this.log('checkout_started', { price_id: priceId ?? 'unknown' });
   }
 
-  billingPortalOpened(source: 'doctor_plans' | 'header' = 'doctor_plans'): void {
+  billingPortalOpened(source: 'doctor_plans' | 'header' | 'contact_us' = 'doctor_plans'): void {
     this.log('billing_portal_opened', { source });
   }
 }

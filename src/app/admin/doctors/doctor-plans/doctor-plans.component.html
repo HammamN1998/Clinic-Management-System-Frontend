@@ -128,6 +128,17 @@
         </div>
       </div>
     </div>
+    <div class="doctor-plans-help">
+      <i class="material-icons" aria-hidden="true">support_agent</i>
+      <div class="doctor-plans-help__content">
+        <h3 class="doctor-plans-help__title">{{ 'DOCTORS.PLANS.CONTACT_HELP' | translate }}</h3>
+        <p class="doctor-plans-help__subtitle">{{ 'DOCTORS.PLANS.CONTACT_HELP_SUBTITLE' | translate }}</p>
+      </div>
+      <a mat-raised-button color="primary" [routerLink]="['/admin/contact']">
+        <i class="material-icons align-middle m-r-5" aria-hidden="true">contact_support</i>
+        {{ 'DOCTORS.PLANS.CONTACT_HELP_BTN' | translate }}
+      </a>
+    </div>
     <app-legal-policy-footer></app-legal-policy-footer>
   </div>
 </section>

@@ -1,0 +1,125 @@
+.contact-us {
+  &__intro {
+    margin-bottom: 24px;
+  }
+
+  &__subtitle {
+    margin: 0 0 2px;
+    font-size: 15px;
+    color: #555;
+  }
+
+  &__response-time {
+    margin: 0;
+    font-size: 13px;
+    color: #888;
+  }
+
+  &__section-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 14px;
+  }
+
+  &__try-first {
+    margin-bottom: 24px;
+  }
+
+  &__try-first-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  &__chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    border-radius: 20px;
+    background: transparent;
+    color: inherit;
+    font-size: 13px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+
+    i {
+      font-size: 18px;
+    }
+
+    &:hover:not([disabled]) {
+      background-color: rgba(0, 0, 0, 0.04);
+      border-color: rgba(0, 0, 0, 0.24);
+    }
+
+    &[disabled] {
+      opacity: 0.6;
+      cursor: default;
+    }
+  }
+
+  &__columns {
+    margin-top: 8px;
+  }
+
+  &__panel {
+    height: 100%;
+    padding: 20px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 8px;
+  }
+
+  &__whatsapp-btn {
+    display: inline-flex;
+    align-items: center;
+    width: 100%;
+    justify-content: center;
+    background-color: #25d366;
+    color: #fff;
+    margin-bottom: 8px;
+
+    &:hover {
+      background-color: #1da851;
+      color: #fff;
+    }
+  }
+
+  &__email-btn {
+    display: inline-flex;
+    align-items: center;
+    width: 100%;
+    justify-content: center;
+    margin-top: 16px;
+  }
+
+  &__hint {
+    margin: 6px 0 0;
+    font-size: 12px;
+    color: #888;
+  }
+
+  &__phi-notice {
+    display: flex;
+    align-items: center;
+    margin: 4px 0 18px;
+    font-size: 12px;
+    color: #888;
+  }
+
+  .example-full-width {
+    width: 100%;
+  }
+}
+
+@media (max-width: 991px) {
+  .contact-us {
+    &__columns {
+      .col-xl-5,
+      .col-xl-7 {
+        margin-bottom: 16px;
+      }
+    }
+  }
+}

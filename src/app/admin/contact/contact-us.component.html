@@ -1,0 +1,181 @@
+<section class="content contact-us">
+  <div class="content-block">
+    <div class="block-header">
+      <!-- breadcrumb -->
+      <app-breadcrumb
+        [title]="'CONTACT.TITLE' | translate"
+        [items]="[]"
+        [active_item]="'CONTACT.TITLE' | translate"
+      ></app-breadcrumb>
+    </div>
+
+    <div class="row clearfix">
+      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div class="card">
+          <div class="body">
+            <!-- Intro -->
+            <div class="contact-us__intro">
+              <p class="contact-us__subtitle">{{ 'CONTACT.SUBTITLE' | translate }}</p>
+              <p class="contact-us__response-time">{{ 'CONTACT.RESPONSE_TIME' | translate }}</p>
+            </div>
+
+            <!-- Try this first -->
+            <div class="contact-us__try-first">
+              <h3 class="contact-us__section-title">{{ 'CONTACT.TRY_FIRST.TITLE' | translate }}</h3>
+              <div class="contact-us__try-first-links">
+                <button
+                  type="button"
+                  class="contact-us__chip"
+                  (click)="openBillingPortal()"
+                  [class.auth-spinner]="billingPortalLoading"
+                  [disabled]="billingPortalLoading"
+                >
+                  <i class="material-icons align-middle" aria-hidden="true">credit_card</i>
+                  {{ 'CONTACT.TRY_FIRST.BILLING' | translate }}
+                </button>
+                <a class="contact-us__chip" [routerLink]="['/admin/doctors/doctor-profile']" [queryParams]="{ tab: 'settings' }">
+                  <i class="material-icons align-middle" aria-hidden="true">manage_accounts</i>
+                  {{ 'CONTACT.TRY_FIRST.PROFILE' | translate }}
+                </a>
+                <a
+                  class="contact-us__chip"
+                  href="https://hstars-2025.web.app/pages/privacy-policy.html"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <i class="material-icons align-middle" aria-hidden="true">policy</i>
+                  {{ 'CONTACT.TRY_FIRST.LEGAL' | translate }}
+                </a>
+              </div>
+            </div>
+
+            <div class="row contact-us__columns">
+              <!-- Quick contact -->
+              <div class="col-xl-5 col-lg-5 col-md-12 col-sm-12">
+                <div class="contact-us__panel">
+                  <h3 class="contact-us__section-title">{{ 'CONTACT.QUICK.TITLE' | translate }}</h3>
+
+                  <a
+                    class="contact-us__whatsapp-btn"
+                    mat-raised-button
+                    [href]="whatsappUrl"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <i class="material-icons align-middle m-r-5" aria-hidden="true">chat</i>
+                    {{ 'CONTACT.WHATSAPP.BUTTON' | translate }}
+                  </a>
+                  <p class="contact-us__hint">{{ 'CONTACT.WHATSAPP.HOURS' | translate }}</p>
+                  <p class="contact-us__hint">{{ 'CONTACT.WHATSAPP.HINT' | translate }}</p>
+
+                  <a
+                    class="contact-us__email-btn"
+                    mat-stroked-button
+                    color="primary"
+                    [href]="mailtoUrl"
+                  >
+                    <i class="material-icons align-middle m-r-5" aria-hidden="true">mail_outline</i>
+                    {{ 'CONTACT.EMAIL.BUTTON' | translate }}
+                  </a>
+                  <p class="contact-us__hint">{{ 'CONTACT.EMAIL.HINT' | translate }}</p>
+                </div>
+              </div>
+
+              <!-- Support form -->
+              <div class="col-xl-7 col-lg-7 col-md-12 col-sm-12">
+                <div class="contact-us__panel">
+                  <h3 class="contact-us__section-title">{{ 'CONTACT.FORM.TITLE' | translate }}</h3>
+
+                  <form [formGroup]="contactForm" (ngSubmit)="onSubmit()">
+                    <div class="row">
+                      <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 mb-3">
+                        <mat-form-field class="example-full-width" appearance="outline">
+                          <mat-label>{{ 'CONTACT.FORM.NAME' | translate }}</mat-label>
+                          <input matInput [value]="doctor.name" readonly>
+                        </mat-form-field>
+                      </div>
+                      <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 mb-3">
+                        <mat-form-field class="example-full-width" appearance="outline">
+                          <mat-label>{{ 'COMMON.EMAIL' | translate }}</mat-label>
+                          <input matInput [value]="doctor.email" readonly>
+                        </mat-form-field>
+                      </div>
+                    </div>
+
+                    <div class="row">
+                      <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-3">
+                        <mat-form-field class="example-full-width" appearance="outline">
+                          <mat-label>{{ 'CONTACT.FORM.CATEGORY' | translate }}</mat-label>
+                          <mat-select formControlName="category">
+                            <mat-option *ngFor="let category of categories" [value]="category">
+                              {{ 'CONTACT.FORM.CATEGORIES.' + (category | uppercase) | translate }}
+                            </mat-option>
+                          </mat-select>
+                          <mat-error *ngIf="contactForm.get('category')?.hasError('required') && submitted">
+                            {{ 'VALIDATION.REQUIRED' | translate:{ field: ('CONTACT.FORM.CATEGORY' | translate) } }}
+                          </mat-error>
+                        </mat-form-field>
+                      </div>
+                    </div>
+
+                    <div class="row">
+                      <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-3">
+                        <mat-form-field class="example-full-width" appearance="outline">
+                          <mat-label>{{ 'CONTACT.FORM.SUBJECT' | translate }}</mat-label>
+                          <input matInput formControlName="subject" maxlength="120">
+                          <mat-error *ngIf="contactForm.get('subject')?.hasError('required') && submitted">
+                            {{ 'VALIDATION.REQUIRED' | translate:{ field: ('CONTACT.FORM.SUBJECT' | translate) } }}
+                          </mat-error>
+                          <mat-error *ngIf="contactForm.get('subject')?.hasError('minlength') && submitted">
+                            {{ 'VALIDATION.MIN_LENGTH' | translate:{ field: ('CONTACT.FORM.SUBJECT' | translate), min: 5 } }}
+                          </mat-error>
+                        </mat-form-field>
+                      </div>
+                    </div>
+
+                    <div class="row">
+                      <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-3">
+                        <mat-form-field class="example-full-width" appearance="outline">
+                          <mat-label>{{ 'CONTACT.FORM.DESCRIPTION' | translate }}</mat-label>
+                          <textarea matInput formControlName="description" rows="6" maxlength="2000"></textarea>
+                          <mat-error *ngIf="contactForm.get('description')?.hasError('required') && submitted">
+                            {{ 'VALIDATION.REQUIRED' | translate:{ field: ('CONTACT.FORM.DESCRIPTION' | translate) } }}
+                          </mat-error>
+                          <mat-error *ngIf="contactForm.get('description')?.hasError('minlength') && submitted">
+                            {{ 'VALIDATION.MIN_LENGTH' | translate:{ field: ('CONTACT.FORM.DESCRIPTION' | translate), min: 20 } }}
+                          </mat-error>
+                        </mat-form-field>
+                      </div>
+                    </div>
+
+                    <p class="contact-us__phi-notice">
+                      <i class="material-icons align-middle m-r-5" aria-hidden="true">privacy_tip</i>
+                      {{ 'CONTACT.FORM.PHI_NOTICE' | translate }}
+                    </p>
+
+                    <div class="row">
+                      <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12">
+                        <button
+                          class="btn-space"
+                          mat-raised-button
+                          type="submit"
+                          color="primary"
+                          [class.auth-spinner]="sending"
+                          [disabled]="sending"
+                        >
+                          {{ 'CONTACT.FORM.SUBMIT' | translate }}
+                        </button>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+
+            <app-legal-policy-footer></app-legal-policy-footer>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

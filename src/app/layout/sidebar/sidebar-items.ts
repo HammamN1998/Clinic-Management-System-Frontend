@@ -118,4 +118,16 @@ export const ROUTES: RouteInfo[] = [
       },
     ],
   },
+   // Contact Us
+   {
+    path: '/admin/contact',
+    title: 'MENUITEMS.CONTACT.TEXT',
+    iconType: 'material-icons-two-tone',
+    icon: 'contact_support',
+    class: '',
+    groupTitle: false,
+    badge: '',
+    badgeClass: '',
+    submenu: [],
+  },
 ];

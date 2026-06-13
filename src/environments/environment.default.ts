@@ -10,5 +10,8 @@ export const defaultEnvironment = {
     appId: "1:71169558916:web:9267d1a20873878f0335d1",
     measurementId: "G-4ZTE50TCLY"
   },
-
+  supportContact: {
+    whatsappNumber: '972592831998', // E.164 without the leading +
+    email: 'hammam.najem@clinicwell.app',
+  },
 };

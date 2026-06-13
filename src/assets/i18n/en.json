@@ -421,6 +421,9 @@
       "RENEWABLE": "Renewable",
       "NON_RENEWABLE": "Non-renewable",
       "BUY_NOW": "Buy Now",
+      "CONTACT_HELP": "Contact us for any problems",
+      "CONTACT_HELP_SUBTITLE": "Our team is here to help with billing, your account, or anything else.",
+      "CONTACT_HELP_BTN": "Contact us",
       "MESSAGES": {
         "CHECKOUT_ERROR": "Unable to start checkout.",
         "BILLING_PORTAL_ERROR": "Unable to open billing portal."
@@ -558,6 +561,58 @@
     },
     "TASK": {
       "TEXT": "Task"
+    },
+    "CONTACT": {
+      "TEXT": "Contact Us"
+    }
+  },
+  "CONTACT": {
+    "TITLE": "Contact Us",
+    "SUBTITLE": "Questions about billing, your account, or how to use ClinicWell.",
+    "RESPONSE_TIME": "We aim to respond within 1-2 business days.",
+    "TRY_FIRST": {
+      "TITLE": "Try this first",
+      "BILLING": "Manage billing",
+      "PROFILE": "Profile settings",
+      "LEGAL": "Legal policies"
+    },
+    "QUICK": {
+      "TITLE": "Quick contact"
+    },
+    "WHATSAPP": {
+      "BUTTON": "Chat on WhatsApp",
+      "HOURS": "Available Sunday to Thursday, 9:00 - 17:00.",
+      "HINT": "Best for quick questions.",
+      "PREFILL": "Hello ClinicWell support, I am {{name}} ({{email}}). I need help with:"
+    },
+    "EMAIL": {
+      "BUTTON": "Email support",
+      "HINT": "Opens your email app.",
+      "SUBJECT": "ClinicWell support request"
+    },
+    "FORM": {
+      "TITLE": "Send us a message",
+      "NAME": "Name",
+      "CATEGORY": "Category",
+      "SUBJECT": "Subject",
+      "DESCRIPTION": "Description",
+      "PHI_NOTICE": "Please do not include patient names or medical records in your message.",
+      "SUBMIT": "Send message",
+      "CATEGORIES": {
+        "BILLING": "Billing & subscription",
+        "ACCOUNT": "Account & login",
+        "PATIENTS": "Patients & appointments",
+        "BUG": "Bug / something not working",
+        "FEATURE": "Feature request",
+        "PRIVACY": "Data & privacy",
+        "OTHER": "Other"
+      }
+    },
+    "MESSAGES": {
+      "SENT": "Your message has been sent. We sent a confirmation to {{email}} and aim to reply within 1-2 business days."
+    },
+    "ERRORS": {
+      "SEND_FAILED": "Could not send your message. Please try again or reach us on WhatsApp."
     }
   }
 }

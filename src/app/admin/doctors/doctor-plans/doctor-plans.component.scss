@@ -97,3 +97,20 @@
     word-break: break-word;
   }
 }
+
+.doctor-plans-help {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  margin: 20px;
+  padding: 18px 22px;
+  border-radius: 10px;
+  border: 1px solid rgba(63, 81, 181, 0.25);
+  background: rgba(63, 81, 181, 0.08);
+
+  i { font-size: 30px; color: #3f51b5; }
+  &__content { flex: 1; }
+  &__title { margin: 0 0 4px; font-size: 16px; font-weight: 600; }
+  &__subtitle { margin: 0; font-size: 13px; color: #777; }
+}
