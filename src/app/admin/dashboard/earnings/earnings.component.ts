@@ -2,6 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {Router} from '@angular/router';
 import {MatButtonModule} from '@angular/material/button';
+import {MatIconModule} from '@angular/material/icon';
 import {BreadcrumbComponent} from '@shared/components/breadcrumb/breadcrumb.component';
 import {DoctorService} from '@core/service/doctor.service';
 import {PatientService} from '@core/service/patient.service';
@@ -31,7 +32,7 @@ interface EarningRow {
   templateUrl: './earnings.component.html',
   styleUrls: ['./earnings.component.scss'],
   standalone: true,
-  imports: [CommonModule, MatButtonModule, BreadcrumbComponent, TranslateModule],
+  imports: [CommonModule, MatButtonModule, MatIconModule, BreadcrumbComponent, TranslateModule],
 })
 export class EarningsComponent implements OnInit {
   rangeOptions: RangeOption[] = [
@@ -41,6 +42,7 @@ export class EarningsComponent implements OnInit {
     {id: 'year', label: 'DASHBOARD.RANGE.YEAR'},
   ];
   selectedRange: RangePreset = 'month';
+  rangeOffset: number = 0;
   earnings: EarningRow[] = [];
   isLoading = false;
   private patientCache = new Map<string, Patient>();
@@ -61,7 +63,66 @@ export class EarningsComponent implements OnInit {
       return;
     }
     this.selectedRange = preset;
+    this.rangeOffset = 0;
     this.loadEarnings();
+  }
+
+  prevRange() {
+    this.rangeOffset -= 1;
+    this.loadEarnings();
+  }
+
+  nextRange() {
+    if (!this.canGoNext) {
+      return;
+    }
+    this.rangeOffset += 1;
+    this.loadEarnings();
+  }
+
+  get isCurrentRange(): boolean {
+    return this.rangeOffset === 0;
+  }
+
+  get canGoNext(): boolean {
+    return this.rangeOffset < 0;
+  }
+
+  get currentRangeButtonLabel(): string {
+    const labels: Record<RangePreset, string> = {
+      today: 'DASHBOARD.RANGE.CURRENT.TODAY',
+      week: 'DASHBOARD.RANGE.CURRENT.WEEK',
+      month: 'DASHBOARD.RANGE.CURRENT.MONTH',
+      year: 'DASHBOARD.RANGE.CURRENT.YEAR',
+    };
+    return labels[this.selectedRange];
+  }
+
+  resetToCurrentRange() {
+    if (this.rangeOffset === 0) {
+      return;
+    }
+    this.rangeOffset = 0;
+    this.loadEarnings();
+  }
+
+  get selectedRangeLabel(): string {
+    const {start, end} = this.getRangeDates(this.selectedRange, this.rangeOffset);
+    const lastDay = new Date(end);
+    lastDay.setDate(lastDay.getDate() - 1);
+
+    if (this.selectedRange === 'today') {
+      return start.toLocaleDateString(undefined, {weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'});
+    }
+    if (this.selectedRange === 'week') {
+      const startLabel = start.toLocaleDateString(undefined, {month: 'short', day: 'numeric'});
+      const endLabel = lastDay.toLocaleDateString(undefined, {month: 'short', day: 'numeric', year: 'numeric'});
+      return `${startLabel} – ${endLabel}`;
+    }
+    if (this.selectedRange === 'month') {
+      return start.toLocaleDateString(undefined, {month: 'long', year: 'numeric'});
+    }
+    return start.getFullYear().toString();
   }
 
   openPatient(row: EarningRow) {
@@ -89,7 +150,7 @@ export class EarningsComponent implements OnInit {
   }
 
   private loadEarnings() {
-    const {start, end} = this.getRangeDates(this.selectedRange);
+    const {start, end} = this.getRangeDates(this.selectedRange, this.rangeOffset);
     this.isLoading = true;
     this.earnings = [];
     from(Promise.all([
@@ -177,30 +238,32 @@ export class EarningsComponent implements OnInit {
     return name.length ? name : this.translate.instant('DASHBOARD.EARNINGS.PATIENT_FALLBACK');
   }
 
-  private getRangeDates(preset: RangePreset): {start: Date; end: Date} {
+  private getRangeDates(preset: RangePreset, offset: number = 0): {start: Date; end: Date} {
     const now = new Date();
     const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     if (preset === 'today') {
-      const end = new Date(startOfToday);
+      const start = new Date(startOfToday);
+      start.setDate(start.getDate() + offset);
+      const end = new Date(start);
       end.setDate(end.getDate() + 1);
-      return {start: startOfToday, end};
+      return {start, end};
     }
     if (preset === 'week') {
       const day = startOfToday.getDay();
       const diff = day === 0 ? -6 : 1 - day;
       const start = new Date(startOfToday);
-      start.setDate(start.getDate() + diff);
+      start.setDate(start.getDate() + diff + offset * 7);
       const end = new Date(start);
       end.setDate(start.getDate() + 7);
       return {start, end};
     }
     if (preset === 'year') {
-      const start = new Date(now.getFullYear(), 0, 1);
-      const end = new Date(now.getFullYear() + 1, 0, 1);
+      const start = new Date(now.getFullYear() + offset, 0, 1);
+      const end = new Date(now.getFullYear() + offset + 1, 0, 1);
       return {start, end};
     }
-    const start = new Date(now.getFullYear(), now.getMonth(), 1);
-    const end = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+    const start = new Date(now.getFullYear(), now.getMonth() + offset, 1);
+    const end = new Date(now.getFullYear(), now.getMonth() + offset + 1, 1);
     return {start, end};
   }
 }

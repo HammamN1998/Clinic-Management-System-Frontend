@@ -83,6 +83,7 @@ export class MainComponent implements OnInit {
     {id: 'year', label: 'DASHBOARD.RANGE.YEAR'},
   ];
   selectedRange: RangePreset = 'month';
+  rangeOffset: number = 0;
 
   // Appointments chart properties
   public appointmentsChartOptions!: Partial<ChartOptions>;
@@ -121,11 +122,70 @@ export class MainComponent implements OnInit {
       return;
     }
     this.selectedRange = preset;
+    this.rangeOffset = 0;
     this.loadDashboardData();
   }
 
+  prevRange() {
+    this.rangeOffset -= 1;
+    this.loadDashboardData();
+  }
+
+  nextRange() {
+    if (!this.canGoNext) {
+      return;
+    }
+    this.rangeOffset += 1;
+    this.loadDashboardData();
+  }
+
+  get isCurrentRange(): boolean {
+    return this.rangeOffset === 0;
+  }
+
+  get canGoNext(): boolean {
+    return this.rangeOffset < 0;
+  }
+
+  get currentRangeButtonLabel(): string {
+    const labels: Record<RangePreset, string> = {
+      today: 'DASHBOARD.RANGE.CURRENT.TODAY',
+      week: 'DASHBOARD.RANGE.CURRENT.WEEK',
+      month: 'DASHBOARD.RANGE.CURRENT.MONTH',
+      year: 'DASHBOARD.RANGE.CURRENT.YEAR',
+    };
+    return labels[this.selectedRange];
+  }
+
+  resetToCurrentRange() {
+    if (this.rangeOffset === 0) {
+      return;
+    }
+    this.rangeOffset = 0;
+    this.loadDashboardData();
+  }
+
+  get selectedRangeLabel(): string {
+    const {start, end} = this.getRangeDates(this.selectedRange, this.rangeOffset);
+    const lastDay = new Date(end);
+    lastDay.setDate(lastDay.getDate() - 1);
+
+    if (this.selectedRange === 'today') {
+      return start.toLocaleDateString(undefined, {weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'});
+    }
+    if (this.selectedRange === 'week') {
+      const startLabel = start.toLocaleDateString(undefined, {month: 'short', day: 'numeric'});
+      const endLabel = lastDay.toLocaleDateString(undefined, {month: 'short', day: 'numeric', year: 'numeric'});
+      return `${startLabel} – ${endLabel}`;
+    }
+    if (this.selectedRange === 'month') {
+      return start.toLocaleDateString(undefined, {month: 'long', year: 'numeric'});
+    }
+    return start.getFullYear().toString();
+  }
+
   private loadDashboardData() {
-    const {start, end} = this.getRangeDates(this.selectedRange);
+    const {start, end} = this.getRangeDates(this.selectedRange, this.rangeOffset);
     this.resetDashboardData();
     setTimeout(() => {
       this.getAppointmentsData(start, end);
@@ -154,30 +214,32 @@ export class MainComponent implements OnInit {
     this.initializeCharts();
   }
 
-  private getRangeDates(preset: RangePreset): {start: Date; end: Date} {
+  private getRangeDates(preset: RangePreset, offset: number = 0): {start: Date; end: Date} {
     const now = new Date();
     const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     if (preset === 'today') {
-      const end = new Date(startOfToday);
+      const start = new Date(startOfToday);
+      start.setDate(start.getDate() + offset);
+      const end = new Date(start);
       end.setDate(end.getDate() + 1);
-      return {start: startOfToday, end};
+      return {start, end};
     }
     if (preset === 'week') {
       const day = startOfToday.getDay();
       const diff = day === 0 ? -6 : 1 - day;
       const start = new Date(startOfToday);
-      start.setDate(start.getDate() + diff);
+      start.setDate(start.getDate() + diff + offset * 7);
       const end = new Date(start);
       end.setDate(start.getDate() + 7);
       return {start, end};
     }
     if (preset === 'year') {
-      const start = new Date(now.getFullYear(), 0, 1);
-      const end = new Date(now.getFullYear() + 1, 0, 1);
+      const start = new Date(now.getFullYear() + offset, 0, 1);
+      const end = new Date(now.getFullYear() + offset + 1, 0, 1);
       return {start, end};
     }
-    const start = new Date(now.getFullYear(), now.getMonth(), 1);
-    const end = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+    const start = new Date(now.getFullYear(), now.getMonth() + offset, 1);
+    const end = new Date(now.getFullYear(), now.getMonth() + offset + 1, 1);
     return {start, end};
   }
 

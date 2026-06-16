@@ -332,6 +332,7 @@ export class CalendarComponent  extends UnsubscribeOnDestroyAdapter  implements 
       selectMirror: true,
       dayMaxEvents: true,
       allDaySlot: false,
+      slotEventOverlap: false,
       slotMinTime: '07:00:00',
       slotMaxTime: '24:00:00',
       firstDay: 0,

@@ -441,7 +441,13 @@
       "TODAY": "Today",
       "WEEK": "Week",
       "MONTH": "Month",
-      "YEAR": "Year"
+      "YEAR": "Year",
+      "CURRENT": {
+        "TODAY": "Today",
+        "WEEK": "This week",
+        "MONTH": "This month",
+        "YEAR": "This year"
+      }
     },
     "EARNINGS": {
       "TITLE": "Earnings",

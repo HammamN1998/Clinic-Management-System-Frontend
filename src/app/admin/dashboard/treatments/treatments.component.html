@@ -4,15 +4,46 @@
       <app-breadcrumb [title]="'DASHBOARD.TREATMENTS_PAGE.TITLE' | translate" [items]="[{ label: ('MENUITEMS.DASHBOARD.TEXT' | translate), link: '/admin/dashboard/main' }]" [active_item]="'DASHBOARD.TREATMENTS_PAGE.TITLE' | translate"></app-breadcrumb>
     </div>
     <div class="dashboard-filters">
-      <button
-        mat-button
-        class="filter-button"
-        *ngFor="let range of rangeOptions"
-        [class.active]="selectedRange === range.id"
-        (click)="setRange(range.id)"
-      >
-        {{ range.label | translate }}
-      </button>
+      <div class="range-display">
+        <span class="range-label">{{ selectedRangeLabel }}</span>
+        <span *ngIf="!isCurrentRange" class="range-divider"></span>
+        <button
+          *ngIf="!isCurrentRange"
+          mat-button
+          type="button"
+          class="current-range-button"
+          (click)="resetToCurrentRange()"
+        >
+          <mat-icon>restore</mat-icon>
+          <span>{{ currentRangeButtonLabel | translate }}</span>
+        </button>
+      </div>
+      <div class="filter-controls">
+        <button mat-icon-button type="button" (click)="prevRange()" aria-label="Previous range">
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+        <button
+          mat-button
+          class="filter-button"
+          *ngFor="let range of rangeOptions"
+          [class.active]="selectedRange === range.id"
+          (click)="setRange(range.id)"
+        >
+          {{ range.label | translate }}
+        </button>
+        <button
+          mat-icon-button
+          type="button"
+          class="nav-range-button"
+          [class.nav-range-button--hidden]="!canGoNext"
+          (click)="nextRange()"
+          aria-label="Next range"
+          [attr.aria-hidden]="!canGoNext"
+          [tabindex]="canGoNext ? 0 : -1"
+        >
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      </div>
     </div>
     <div class="card">
       <div class="card-header">
