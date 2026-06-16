@@ -421,40 +421,32 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
     return this.firestore.collection('treatments').doc(id).delete();
   }
 
-  updateUniversalTeethDiagramToothNote(toothId: string, toothNote: string) {
-
-    // Update note if it added before, if not, add new note.
-    const foundToothIndex = this.getDialogData().specialDiagrams.universalTeethDiagram.findIndex((tooth) => !isNullOrUndefined(tooth[toothId]));
+  /**
+   * Upsert a legacy per-tooth note in the given special-diagram array and
+   * persist it. Shared by the three notation diagrams (and their dual-mode base).
+   */
+  updateSpecialDiagramNote(diagramKey: keyof SpecialDiagrams, toothId: string, toothNote: string) {
+    const notes = this.getDialogData().specialDiagrams[diagramKey];
+    const foundToothIndex = notes.findIndex((tooth) => !isNullOrUndefined(tooth[toothId]));
     if (!isNullOrUndefined(foundToothIndex) && foundToothIndex != -1) {
-      this.getDialogData().specialDiagrams.universalTeethDiagram[foundToothIndex] = {[toothId]: toothNote};
+      notes[foundToothIndex] = {[toothId]: toothNote};
     } else {
-      this.getDialogData().specialDiagrams.universalTeethDiagram.push({[toothId]: toothNote});
+      notes.push({[toothId]: toothNote});
     }
-
     const newSpecialDiagrams: SpecialDiagrams = this.getDialogData().specialDiagrams;
     return this.firestore.collection('patients').doc(this.getDialogData().id).ref.update( {specialDiagrams: newSpecialDiagrams} );
+  }
+
+  updateUniversalTeethDiagramToothNote(toothId: string, toothNote: string) {
+    return this.updateSpecialDiagramNote('universalTeethDiagram', toothId, toothNote);
   }
 
   updateFdiTeethDiagramToothNote(toothId: string, toothNote: string) {
-    const foundToothIndex = this.getDialogData().specialDiagrams.fdiTeethDiagram.findIndex((tooth) => !isNullOrUndefined(tooth[toothId]));
-    if (!isNullOrUndefined(foundToothIndex) && foundToothIndex != -1) {
-      this.getDialogData().specialDiagrams.fdiTeethDiagram[foundToothIndex] = {[toothId]: toothNote};
-    } else {
-      this.getDialogData().specialDiagrams.fdiTeethDiagram.push({[toothId]: toothNote});
-    }
-    const newSpecialDiagrams: SpecialDiagrams = this.getDialogData().specialDiagrams;
-    return this.firestore.collection('patients').doc(this.getDialogData().id).ref.update( {specialDiagrams: newSpecialDiagrams} );
+    return this.updateSpecialDiagramNote('fdiTeethDiagram', toothId, toothNote);
   }
 
   updatePalmerTeethDiagramToothNote(toothId: string, toothNote: string) {
-    const foundToothIndex = this.getDialogData().specialDiagrams.palmerTeethDiagram.findIndex((tooth) => !isNullOrUndefined(tooth[toothId]));
-    if (!isNullOrUndefined(foundToothIndex) && foundToothIndex != -1) {
-      this.getDialogData().specialDiagrams.palmerTeethDiagram[foundToothIndex] = {[toothId]: toothNote};
-    } else {
-      this.getDialogData().specialDiagrams.palmerTeethDiagram.push({[toothId]: toothNote});
-    }
-    const newSpecialDiagrams: SpecialDiagrams = this.getDialogData().specialDiagrams;
-    return this.firestore.collection('patients').doc(this.getDialogData().id).ref.update( {specialDiagrams: newSpecialDiagrams} );
+    return this.updateSpecialDiagramNote('palmerTeethDiagram', toothId, toothNote);
   }
 
   getPatientInfo(patientId: string) {

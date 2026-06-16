@@ -1,80 +1,45 @@
 import { Component } from '@angular/core';
-import {BreadcrumbComponent} from "@shared/components/breadcrumb/breadcrumb.component";
-import {FormsModule, ReactiveFormsModule} from "@angular/forms";
-import {MatFormFieldModule} from "@angular/material/form-field";
-import {MatInputModule} from "@angular/material/input";
-import {MatSelectModule} from "@angular/material/select";
-import {MatOptionModule} from "@angular/material/core";
-import {MatDatepickerModule} from "@angular/material/datepicker";
-import {MatButtonModule} from "@angular/material/button";
-import {NgIf} from "@angular/common";
-import {PatientService} from "@core/service/patient.service";
-import {isNullOrUndefined} from "@swimlane/ngx-datatable";
-import {from} from "rxjs";
-import {NotificationService} from "@core/service/notification.service";
-import {SharedModule} from "@shared";
+import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { PatientService } from '@core/service/patient.service';
+import { NotificationService } from '@core/service/notification.service';
+import { SharedModule } from '@shared';
+import { DentalNotation, SpecialDiagrams } from '@core/models/patient.model';
+import { OdontogramDiagramBase } from '../odontogram-diagram.base';
 
 @Component({
   selector: 'app-universal-teeth-diagram',
   standalone: true,
   imports: [
-    BreadcrumbComponent,
+    CommonModule,
     FormsModule,
     ReactiveFormsModule,
     MatFormFieldModule,
     MatInputModule,
-    MatSelectModule,
-    MatOptionModule,
-    MatDatepickerModule,
     MatButtonModule,
-    NgIf,
+    MatIconModule,
+    MatTooltipModule,
     SharedModule,
+    TranslateModule,
   ],
   templateUrl: './universal-teeth-diagram.component.html',
   styleUrl: './universal-teeth-diagram.component.scss'
 })
-export class UniversalTeethDiagramComponent {
-
-  selectedTooth!: string;
-  toothNote: string = '';
+export class UniversalTeethDiagramComponent extends OdontogramDiagramBase {
+  readonly notation: DentalNotation = 'universal';
+  readonly legacyArrayKey: keyof SpecialDiagrams = 'universalTeethDiagram';
 
   constructor(
-    private patientService: PatientService,
-    private notificationService: NotificationService,
+    patientService: PatientService,
+    notificationService: NotificationService,
+    translate: TranslateService,
   ) {
-  }
-  selectTooth(toothId: string) {
-    this.selectedTooth = toothId;
-    const foundToothIndex = this.patientService.getDialogData().specialDiagrams.universalTeethDiagram.findIndex((tooth) => !isNullOrUndefined(tooth[toothId]));
-    if (!isNullOrUndefined(foundToothIndex) && foundToothIndex != -1) {
-      this.toothNote = this.patientService.getDialogData().specialDiagrams.universalTeethDiagram[foundToothIndex][toothId];
-    } else {
-      this.toothNote = '';
-    }
-  }
-
-  saveToothNote() {
-    from( this.patientService.updateUniversalTeethDiagramToothNote(this.selectedTooth, this.toothNote))
-    .subscribe({
-      next: () => {
-        this.notificationService.showSnackBarNotification(
-          'black',
-          'Edit Note Successfully...!!!',
-          'bottom',
-          'center'
-        );
-      },
-      error: (error) => {
-        console.log('error: ' + error);
-      }
-    })
-  }
-
-  protected readonly isNullOrUndefined = isNullOrUndefined;
-
-  isToothExist(toothId: string) {
-    const foundToothIndex = this.patientService.getDialogData().specialDiagrams.universalTeethDiagram.findIndex((tooth) => !isNullOrUndefined(tooth[toothId]) && tooth[toothId].trim() !== '')
-    if (!isNullOrUndefined(foundToothIndex ) && foundToothIndex != -1) return true;
-    return false;
+    super(patientService, notificationService, translate);
   }
 }

@@ -7,11 +7,11 @@ import { DeleteComponent, DialogData } from './delete-confirm-dialog.component';
 export class DeleteConfirmDialogService {
   constructor(private dialog: MatDialog) {}
 
-  open(message: string): MatDialogRef<DeleteComponent> {
+  open(message: string, confirmLabel?: string): MatDialogRef<DeleteComponent> {
     const direction: Direction =
       localStorage.getItem('isRtl') === 'true' ? 'rtl' : 'ltr';
     return this.dialog.open(DeleteComponent, {
-      data: { message } satisfies DialogData,
+      data: { message, confirmLabel } satisfies DialogData,
       direction,
     });
   }

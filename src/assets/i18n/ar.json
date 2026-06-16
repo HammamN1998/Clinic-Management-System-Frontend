@@ -14,7 +14,9 @@
     "DELETE": "حذف",
     "EDIT": "تعديل",
     "ADD": "إضافة",
+    "UPDATE": "تحديث",
     "CLOSE": "إغلاق",
+    "DISCARD": "تجاهل",
     "CREATE": "إنشاء",
     "SEARCH": "بحث",
     "YES": "نعم",
@@ -167,6 +169,73 @@
     }
   },
   "PATIENTS": {
+    "DENTAL_CHART": {
+      "TITLE": "مخطط الأسنان",
+      "OPEN": "فتح مخطط الأسنان",
+      "NOTATION": "نظام الترقيم",
+      "TOOTH": "السن",
+      "CONDITION": "الحالة",
+      "TOOTH_NOTE": "ملاحظة السن",
+      "SAVE_NOTE": "حفظ الملاحظة",
+      "OPERATION": "الإجراء",
+      "DATE": "التاريخ",
+      "STATUS_LABEL": "الحالة",
+      "NOTE": "ملاحظة",
+      "ADD_TREATMENT": "إضافة علاج",
+      "EDIT_TREATMENT": "تعديل العلاج",
+      "NO_TREATMENTS": "لا توجد علاجات مسجلة بعد.",
+      "SELECT_TOOTH_HINT": "اختر سنًا من المخطط لعرض تفاصيله وتعديلها.",
+      "STATUS": {
+        "PENDING": "قيد الانتظار",
+        "DONE": "منجز"
+      },
+      "CONDITIONS": {
+        "HEALTHY": "سليم",
+        "CARIES": "تسوس",
+        "FILLED": "محشو",
+        "CROWN": "تاج",
+        "MISSING": "مفقود",
+        "IMPLANT": "زرعة",
+        "ROOT_CANAL": "علاج عصب",
+        "OTHER": "أخرى"
+      },
+      "OPERATIONS": {
+        "EXAMINATION": "فحص",
+        "CLEANING": "تنظيف",
+        "FILLING": "حشو",
+        "EXTRACTION": "خلع",
+        "ROOT_CANAL": "علاج عصب",
+        "CROWN": "تاج",
+        "BRIDGE": "جسر",
+        "IMPLANT": "زرعة",
+        "WHITENING": "تبييض",
+        "SCALING": "تقليح",
+        "OTHER": "أخرى"
+      },
+      "NOTATIONS": {
+        "FDI": "FDI",
+        "UNIVERSAL": "Universal",
+        "PALMER": "Palmer"
+      },
+      "BRIDGE": {
+        "NEW": "جسر جديد",
+        "EDIT": "تعديل الجسر",
+        "TITLE": "جسر",
+        "SELECT_HINT": "انقر على كل سن متجاور في المخطط لإضافته إلى الجسر (سنّان على الأقل)، ثم أدخل التفاصيل بالأسفل واحفظ.",
+        "SELECTED": "محدد",
+        "NO_TEETH": "لم يتم اختيار أي سن بعد.",
+        "EXISTING": "الجسور",
+        "NOT_ADJACENT": "يجب أن تكون الأسنان متجاورة وفي نفس الفك.",
+        "INVALID_SELECTION": "اختر سنّين متجاورين على الأقل للجسر."
+      },
+      "MESSAGES": {
+        "SAVED": "تم الحفظ",
+        "NOTE_SAVED": "تم حفظ الملاحظة",
+        "DELETE_TREATMENT_CONFIRM": "هل أنت متأكد أنك تريد حذف هذا العلاج؟",
+        "DELETE_BRIDGE_CONFIRM": "هل أنت متأكد أنك تريد حذف هذا الجسر؟",
+        "UNSAVED_CONFIRM": "لديك تغييرات غير محفوظة. هل تريد الإغلاق دون حفظ؟"
+      }
+    },
     "INFO": "معلومات المريض",
     "FIELDS": {
       "FIRST_NAME": "الاسم الأول",

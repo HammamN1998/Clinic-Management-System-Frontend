@@ -1,0 +1,116 @@
+<section class="content">
+  <app-breadcrumb
+    [title]="'PATIENTS.DENTAL_CHART.TITLE' | translate"
+    [items]="[
+      { label: ('MENUITEMS.PATIENTS.TEXT' | translate), link: '/admin/patients/all-patients' },
+      { label: patientName, link: '/admin/patients/patient-profile' }
+    ]"
+    [active_item]="'PATIENTS.DENTAL_CHART.TITLE' | translate">
+  </app-breadcrumb>
+
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="body">
+
+          <!-- Vertical split: diagram | details -->
+          <div class="row chart-split">
+            <div class="col-lg-8 col-md-12 diagram-col">
+              <ng-container [ngSwitch]="activeNotation">
+                <app-fdi-teeth-diagram *ngSwitchCase="'fdi'"
+                  [chartMode]="true"
+                  [toothStates]="toothStates"
+                  [spanningTreatments]="spanningTreatments"
+                  [selectedToothId]="selectedToothId"
+                  [bridgeSelectMode]="mode === 'bridge'"
+                  [bridgeDraftToothIds]="bridgeDraft"
+                  [selectedBridgeId]="selectedBridgeId"
+                  (toothSelect)="onToothSelect($event)"
+                  (treatmentSelect)="onTreatmentSelect($event)"
+                  (bridgeSelect)="onBridgeSelect($event)"
+                  (badgeMoved)="onBadgeMoved($event)">
+                </app-fdi-teeth-diagram>
+
+                <app-universal-teeth-diagram *ngSwitchCase="'universal'"
+                  [chartMode]="true"
+                  [toothStates]="toothStates"
+                  [spanningTreatments]="spanningTreatments"
+                  [selectedToothId]="selectedToothId"
+                  [bridgeSelectMode]="mode === 'bridge'"
+                  [bridgeDraftToothIds]="bridgeDraft"
+                  [selectedBridgeId]="selectedBridgeId"
+                  (toothSelect)="onToothSelect($event)"
+                  (treatmentSelect)="onTreatmentSelect($event)"
+                  (bridgeSelect)="onBridgeSelect($event)"
+                  (badgeMoved)="onBadgeMoved($event)">
+                </app-universal-teeth-diagram>
+
+                <app-palmer-teeth-diagram *ngSwitchCase="'palmer'"
+                  [chartMode]="true"
+                  [toothStates]="toothStates"
+                  [spanningTreatments]="spanningTreatments"
+                  [selectedToothId]="selectedToothId"
+                  [bridgeSelectMode]="mode === 'bridge'"
+                  [bridgeDraftToothIds]="bridgeDraft"
+                  [selectedBridgeId]="selectedBridgeId"
+                  (toothSelect)="onToothSelect($event)"
+                  (treatmentSelect)="onTreatmentSelect($event)"
+                  (bridgeSelect)="onBridgeSelect($event)"
+                  (badgeMoved)="onBadgeMoved($event)">
+                </app-palmer-teeth-diagram>
+              </ng-container>
+            </div>
+
+            <div class="col-lg-4 col-md-12 panel-col">
+              <!-- Chart controls: New bridge entry point. While a bridge is being
+                   created/edited the controls turn into a highlighted active
+                   banner with a Cancel action. -->
+              <div class="panel-controls" [class.bridge-active]="mode === 'bridge'">
+                <button mat-stroked-button color="primary" *ngIf="mode !== 'bridge'" (click)="startBridge()">
+                  <mat-icon>link</mat-icon>
+                  {{ 'PATIENTS.DENTAL_CHART.BRIDGE.NEW' | translate }}
+                </button>
+
+                <!-- Small notation selector, pushed to the opposite edge. -->
+                <mat-form-field *ngIf="mode !== 'bridge'" appearance="outline"
+                  class="notation-select" subscriptSizing="dynamic">
+                  <mat-label>{{ 'PATIENTS.DENTAL_CHART.NOTATION' | translate }}</mat-label>
+                  <mat-select [ngModel]="activeNotation" (ngModelChange)="changeNotation($event)">
+                    <mat-option *ngFor="let n of notations" [value]="n.value">{{ n.labelKey | translate }}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+
+                <ng-container *ngIf="mode === 'bridge'">
+                  <span class="bridge-active-label">
+                    <mat-icon>link</mat-icon>
+                    {{ (editingBridgeId ? 'PATIENTS.DENTAL_CHART.BRIDGE.EDIT' : 'PATIENTS.DENTAL_CHART.BRIDGE.NEW') | translate }}
+                  </span>
+                  <button mat-stroked-button color="warn" (click)="cancelBridge()">
+                    <mat-icon>close</mat-icon>
+                    {{ 'COMMON.CANCEL' | translate }}
+                  </button>
+                </ng-container>
+              </div>
+
+              <app-tooth-detail-panel
+                [notation]="activeNotation"
+                [selectedToothId]="selectedToothId"
+                [bridgeMode]="mode === 'bridge'"
+                [bridgeDraftToothIds]="bridgeDraft"
+                [editingBridgeId]="editingBridgeId"
+                [selectedBridgeId]="selectedBridgeId"
+                [highlightedTreatmentId]="highlightedTreatmentId"
+                (changed)="onPanelChanged()"
+                (cancelBridge)="cancelBridge()"
+                (editBridge)="enterBridgeEdit($event)"
+                (bridgeSaved)="onBridgeSaved()"
+                (closePanel)="closePanel()">
+              </app-tooth-detail-panel>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

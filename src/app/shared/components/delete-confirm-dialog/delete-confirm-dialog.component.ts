@@ -12,6 +12,8 @@ import { TranslateModule } from '@ngx-translate/core';
 
 export interface DialogData {
   message?: string;
+  /** Optional translation key for the confirm button (defaults to COMMON.DELETE). */
+  confirmLabel?: string;
 }
 
 @Component({

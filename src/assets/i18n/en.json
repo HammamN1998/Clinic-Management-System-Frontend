@@ -14,7 +14,9 @@
     "DELETE": "Delete",
     "EDIT": "Edit",
     "ADD": "Add",
+    "UPDATE": "Update",
     "CLOSE": "Close",
+    "DISCARD": "Discard",
     "CREATE": "Create",
     "SEARCH": "Search",
     "YES": "Yes",
@@ -167,6 +169,73 @@
     }
   },
   "PATIENTS": {
+    "DENTAL_CHART": {
+      "TITLE": "Dental Chart",
+      "OPEN": "Open Dental Chart",
+      "NOTATION": "Numbering system",
+      "TOOTH": "Tooth",
+      "CONDITION": "Condition",
+      "TOOTH_NOTE": "Tooth note",
+      "SAVE_NOTE": "Save note",
+      "OPERATION": "Operation",
+      "DATE": "Date",
+      "STATUS_LABEL": "Status",
+      "NOTE": "Note",
+      "ADD_TREATMENT": "Add treatment",
+      "EDIT_TREATMENT": "Edit treatment",
+      "NO_TREATMENTS": "No treatments recorded yet.",
+      "SELECT_TOOTH_HINT": "Select a tooth on the diagram to view and edit its details.",
+      "STATUS": {
+        "PENDING": "Pending",
+        "DONE": "Done"
+      },
+      "CONDITIONS": {
+        "HEALTHY": "Healthy",
+        "CARIES": "Caries",
+        "FILLED": "Filled",
+        "CROWN": "Crown",
+        "MISSING": "Missing",
+        "IMPLANT": "Implant",
+        "ROOT_CANAL": "Root canal",
+        "OTHER": "Other"
+      },
+      "OPERATIONS": {
+        "EXAMINATION": "Examination",
+        "CLEANING": "Cleaning",
+        "FILLING": "Filling",
+        "EXTRACTION": "Extraction",
+        "ROOT_CANAL": "Root canal",
+        "CROWN": "Crown",
+        "BRIDGE": "Bridge",
+        "IMPLANT": "Implant",
+        "WHITENING": "Whitening",
+        "SCALING": "Scaling",
+        "OTHER": "Other"
+      },
+      "NOTATIONS": {
+        "FDI": "FDI",
+        "UNIVERSAL": "Universal",
+        "PALMER": "Palmer"
+      },
+      "BRIDGE": {
+        "NEW": "New bridge",
+        "EDIT": "Edit bridge",
+        "TITLE": "Bridge",
+        "SELECT_HINT": "Click each adjacent tooth on the diagram to add it to the bridge (at least 2), then fill in the details below and Save.",
+        "SELECTED": "selected",
+        "NO_TEETH": "No teeth selected yet.",
+        "EXISTING": "Bridges",
+        "NOT_ADJACENT": "Teeth must be adjacent and in the same arch.",
+        "INVALID_SELECTION": "Select at least 2 adjacent teeth for a bridge."
+      },
+      "MESSAGES": {
+        "SAVED": "Saved",
+        "NOTE_SAVED": "Note saved",
+        "DELETE_TREATMENT_CONFIRM": "Are you sure you want to delete this treatment?",
+        "DELETE_BRIDGE_CONFIRM": "Are you sure you want to delete this bridge?",
+        "UNSAVED_CONFIRM": "You have unsaved changes. Close without saving?"
+      }
+    },
     "INFO": "Patient Information",
     "FIELDS": {
       "FIRST_NAME": "First name",

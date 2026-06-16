@@ -30,7 +30,7 @@ import {FileUploadComponent} from "@shared/components/file-upload/file-upload.co
 import {FullScreenImageComponent} from "@shared/components/full-screen-image/full-screen-image.component";
 import {EditableTextComponent} from "@shared/components/editable-text/editable-text.component";
 import {EditableTextCompactedComponent} from "@shared/components/editable-text-compacted/editable-text-compacted.component";
-import {Attachment} from "@core/models/patient.model";
+import {Attachment, DentalNotation} from "@core/models/patient.model";
 import {FirebaseStorageService} from "@core/service/firebase-storage.service";
 import {FirebaseAuthenticationService} from "../../../authentication/services/firebase-authentication.service";
 import {User} from "@core";
@@ -94,6 +94,16 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
 
   goToEditPage() {
     this.router.navigate(['/admin/patients/edit-patient']);
+  }
+
+  /**
+   * Open the dental chart (BETA). An optional notation can be passed via router
+   * state to preselect the numbering system; otherwise the chart page falls
+   * back to the doctor's preferred notation and lets them switch it there.
+   */
+  openDentalChart(notation?: DentalNotation) {
+    const extras = notation ? { state: { notation } } : undefined;
+    this.router.navigate(['/admin/patients/dental-chart'], extras);
   }
 
   deletePatient() {

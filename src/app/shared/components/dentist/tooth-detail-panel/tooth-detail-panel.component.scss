@@ -1,0 +1,228 @@
+.tooth-detail-panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  /* Close (X) sits in the top end corner (right in LTR, left in RTL). */
+  .panel-close {
+    position: absolute;
+    top: -8px;
+    inset-inline-end: -8px;
+    z-index: 2;
+    color: #607d8b;
+  }
+
+  /* Highlight the bridge editor so it's clearly the active section while the
+     doctor is picking teeth on the diagram. */
+  .bridge-editor-active {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    border: 1px solid #ffb74d;
+    border-left: 4px solid #fb8c00;
+    border-radius: 6px;
+    background: #fff8f0;
+    padding: 12px;
+
+    .panel-title {
+      color: #e65100;
+    }
+  }
+
+  .panel-title {
+    margin: 0;
+    font-weight: 600;
+
+    .count-badge {
+      margin-left: 8px;
+      padding: 1px 8px;
+      border-radius: 10px;
+      background: #e8eaf6;
+      color: #3f51b5;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+  }
+
+  .panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .hint {
+    margin: 0;
+    color: #607d8b;
+    font-size: 13px;
+  }
+
+  .muted {
+    color: #90a4ae;
+    font-size: 13px;
+  }
+
+  .section-label {
+    margin: 4px 0 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: #455a64;
+  }
+
+  .empty {
+    padding: 24px 8px;
+    text-align: center;
+    color: #90a4ae;
+  }
+
+  .full-width {
+    width: 100%;
+  }
+
+  /* Place two fields (e.g. Date + Status) on the same row. */
+  .form-row {
+    display: flex;
+    gap: 8px;
+
+    > .full-width {
+      flex: 1;
+      min-width: 0;
+    }
+  }
+
+  /* Condition swatches */
+  .condition-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .swatch {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: pointer;
+    padding: 0;
+
+    &.active {
+      border-color: #263238;
+      box-shadow: 0 0 0 2px #fff inset;
+    }
+  }
+
+  .condition-current {
+    font-size: 13px;
+    color: #455a64;
+  }
+
+  /* Bridge draft chips */
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .chip {
+    background: #e8eaf6;
+    color: #3f51b5;
+    border-radius: 12px;
+    padding: 2px 10px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .span-label {
+    font-weight: 700;
+    color: #3f51b5;
+  }
+
+  .actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  /* Treatment + bridge lists */
+  .treatment-list,
+  .existing-bridges {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 4px;
+  }
+
+  .treatment-row,
+  .bridge-row {
+    border: 1px solid #eceff1;
+    border-radius: 6px;
+    padding: 6px 8px;
+    transition: background 0.2s;
+
+    &.highlight {
+      border-color: #1976d2;
+      background: #e3f2fd;
+    }
+  }
+
+  .t-main,
+  .b-main {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  /* The whole treatment/bridge card is clickable to edit/highlight it. */
+  .treatment-row.clickable,
+  .bridge-row.clickable {
+    cursor: pointer;
+  }
+
+  .t-index {
+    font-weight: 700;
+    color: #607d8b;
+  }
+
+  .t-op,
+  .b-op {
+    font-weight: 600;
+  }
+
+  .t-date {
+    color: #90a4ae;
+    font-size: 12px;
+    margin-left: auto;
+  }
+
+  .t-actions,
+  .b-actions {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
+
+  .t-note {
+    color: #546e7a;
+    font-size: 13px;
+    margin-top: 4px;
+  }
+
+  .b-status {
+    color: #fb8c00;
+    font-size: 12px;
+    font-weight: 600;
+
+    &.done {
+      color: #43a047;
+    }
+  }
+
+  .b-teeth {
+    font-weight: 700;
+    color: #3f51b5;
+  }
+}

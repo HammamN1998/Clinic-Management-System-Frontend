@@ -5,7 +5,7 @@
   </div>
   <div mat-dialog-actions class="mb-1">
     <button mat-flat-button color="warn" [mat-dialog-close]="1">
-      {{ 'COMMON.DELETE' | translate }}
+      {{ (data.confirmLabel || 'COMMON.DELETE') | translate }}
     </button>
     <button mat-flat-button (click)="onNoClick()" tabindex="-1">{{ 'COMMON.CANCEL' | translate }}</button>
   </div>

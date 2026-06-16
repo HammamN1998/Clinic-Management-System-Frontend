@@ -2,3 +2,22 @@
   display: block;
   margin: 12px 0 8px;
 }
+
+/* "Open dental chart" entry point sits above each legacy diagram. The BETA
+   badge signals the feature is still under development. */
+.open-dental-chart-btn {
+  margin-bottom: 24px;
+
+  .beta-badge {
+    margin-left: 8px;
+    padding: 1px 6px;
+    border-radius: 8px;
+    background: #ff9800;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    line-height: 1.4;
+    vertical-align: middle;
+  }
+}

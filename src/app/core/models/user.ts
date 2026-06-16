@@ -1,3 +1,5 @@
+import { DentalNotation } from './patient.model';
+
 export interface UserSubscription {
   plan: string;
   status: string;
@@ -21,4 +23,6 @@ export class User {
   logo: string = '';
   logoSize: number = 0;
   subscription: UserSubscription = {} as UserSubscription;
+  /** Doctor's last-used dental notation; reused as the default on every chart. */
+  preferredDentalNotation?: DentalNotation;
 }

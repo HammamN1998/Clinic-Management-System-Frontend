@@ -3,6 +3,12 @@ path {
   fill-opacity:0.0;
 }
 
+/* SVG text (tooth labels, badges, bridges) is decorative - never selectable. */
+text {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
 /* Highlight hovered tooth */
 path:hover {
   // fill: #706d6d;
@@ -11,11 +17,90 @@ path:hover {
   stroke-width: 2;
 }
 
-/* Highlight selected tooth (!important beats [ngStyle] fill on the path) */
+/* Selected tooth: highlight with a distinct border only (no fill override),
+   so the condition colour underneath stays visible. */
 path.selected {
-  // fill: #706d6d;
-  // fill-opacity:0.5;
-  stroke: #3F51B5;
-  stroke-width: 3;
+  stroke: #ff0000;
+  stroke-width: 3.5;
 }
+
+/* ===================== Dental chart (odontogram page) ===================== */
+.odontogram-wrapper {
+  width: 100%;
+  text-align: center;
+}
+
+/* In chart mode the diagram is responsive (legacy keeps its fixed 442x558).
+   Block + width:100% (not a flex child) so the viewBox-only SVG fills the
+   column instead of collapsing to its tiny intrinsic size. */
+svg.chart-mode {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 640px;
+  margin: 0 auto;
+  /* Let badge cards/connectors be dragged outside the viewBox without clipping. */
+  overflow: visible;
+}
+
+.chart-overlay {
+  /* Badge/bridge labels are decorative - never let them be text-selected. */
+  user-select: none;
+  -webkit-user-select: none;
+
+  .bridge-bar {
+    fill: none;
+    stroke-width: 6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    opacity: 0.85;
+    cursor: pointer;
+
+    &.selected {
+      stroke-width: 9;
+      opacity: 1;
+    }
+  }
+
+  .badge-leader {
+    stroke: #90a4ae;
+    stroke-width: 1;
+    stroke-dasharray: 3 2;
+  }
+
+  .badge-card {
+    cursor: grab;
+
+    &:active {
+      cursor: grabbing;
+    }
+  }
+
+  .badge-card-bg {
+    fill: #ffffff;
+    stroke: #cfd8dc;
+    stroke-width: 1;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+  }
+
+  .badge-card-title {
+    font-size: 12px;
+    font-weight: 700;
+    fill: #37474f;
+  }
+
+  .badge-row {
+    cursor: pointer;
+
+    .badge-row-text {
+      font-size: 13px;
+      fill: #000000;
+    }
+
+    &:hover .badge-row-text {
+      fill: #1976d2;
+    }
+  }
+}
+
 

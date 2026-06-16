@@ -1,0 +1,76 @@
+.chart-split {
+  align-items: flex-start;
+}
+
+/* Chart controls live at the top of the detail panel (keeps the diagram tall). */
+.panel-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  /* Separate the controls from the detail panel so they read as distinct. */
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #eceff1;
+
+  /* Small, compact notation selector on the opposite edge from "New bridge".
+     Logical margin keeps it correctly aligned in both LTR and RTL (Arabic). */
+  .notation-select {
+    margin-inline-start: auto;
+    width: 108px;
+    max-width: 100%;
+    font-size: 12px;
+
+    ::ng-deep {
+      .mat-mdc-text-field-wrapper {
+        padding-left: 8px;
+        padding-right: 8px;
+      }
+      .mat-mdc-form-field-infix {
+        min-height: 36px;
+        padding-top: 8px;
+        padding-bottom: 8px;
+      }
+      .mat-mdc-select-value,
+      .mat-mdc-floating-label {
+        font-size: 12px;
+      }
+    }
+  }
+
+  /* Active state while creating/editing a bridge: highlight so the doctor
+     knows tooth clicks are being captured by the bridge editor. */
+  &.bridge-active {
+    background: #fff3e0;
+    border: 1px solid #ffb74d;
+    border-radius: 6px;
+    padding: 8px 12px;
+  }
+
+  .bridge-active-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    color: #e65100;
+
+    mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+  }
+}
+
+.panel-col {
+  border-left: 1px solid #eceff1;
+}
+
+@media (max-width: 991px) {
+  .panel-col {
+    border-left: none;
+    border-top: 1px solid #eceff1;
+    margin-top: 12px;
+    padding-top: 12px;
+  }
+}
