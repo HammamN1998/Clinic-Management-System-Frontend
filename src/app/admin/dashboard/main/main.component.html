@@ -7,7 +7,7 @@
     <app-onboarding-checklist></app-onboarding-checklist>
     <div class="dashboard-filters">
       <div class="range-display">
-        <span class="range-label">{{ selectedRangeLabel }}</span>
+        <span class="range-label" dir="auto">{{ selectedRangeLabel }}</span>
         <span *ngIf="!isCurrentRange" class="range-divider"></span>
         <button
           *ngIf="!isCurrentRange"
