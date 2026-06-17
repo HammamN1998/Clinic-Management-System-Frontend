@@ -79,6 +79,7 @@
     background-color: #25d366;
     color: #fff;
     margin-bottom: 8px;
+    gap: 6px;
 
     &:hover {
       background-color: #1da851;
@@ -92,6 +93,7 @@
     width: 100%;
     justify-content: center;
     margin-top: 16px;
+    gap: 6px;
   }
 
   &__hint {
@@ -103,6 +105,7 @@
   &__phi-notice {
     display: flex;
     align-items: center;
+    gap: 6px;
     margin: 4px 0 18px;
     font-size: 12px;
     color: #888;
@@ -110,6 +113,13 @@
 
   .example-full-width {
     width: 100%;
+  }
+
+  ::ng-deep .contact-us__whatsapp-btn .mdc-button__label,
+  ::ng-deep .contact-us__email-btn .mdc-button__label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
   }
 }
 
