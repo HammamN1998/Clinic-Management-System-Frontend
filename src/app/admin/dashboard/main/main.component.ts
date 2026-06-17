@@ -1,4 +1,5 @@
-import {Component, OnInit} from '@angular/core';
+import {ChangeDetectorRef, Component, DestroyRef, OnInit, inject} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {CommonModule} from '@angular/common';
 import {RouterModule} from '@angular/router';
 import {
@@ -76,6 +77,9 @@ interface RangeOption {
 })
 
 export class MainComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly cdr = inject(ChangeDetectorRef);
+
   rangeOptions: RangeOption[] = [
     {id: 'today', label: 'DASHBOARD.RANGE.TODAY'},
     {id: 'week', label: 'DASHBOARD.RANGE.WEEK'},
@@ -113,6 +117,15 @@ export class MainComponent implements OnInit {
 
   }
   ngOnInit() {
+    this.translate.onLangChange
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.appointmentsChart();
+        this.treatmentsChart();
+        this.newPatientsChart();
+        this.earningChart();
+        this.cdr.markForCheck();
+      });
     this.initializeCharts();
     this.loadDashboardData();
   }
@@ -169,19 +182,24 @@ export class MainComponent implements OnInit {
     const {start, end} = this.getRangeDates(this.selectedRange, this.rangeOffset);
     const lastDay = new Date(end);
     lastDay.setDate(lastDay.getDate() - 1);
+    const locale = this.getDateLocale();
 
     if (this.selectedRange === 'today') {
-      return start.toLocaleDateString(undefined, {weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'});
+      return start.toLocaleDateString(locale, {weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'});
     }
     if (this.selectedRange === 'week') {
-      const startLabel = start.toLocaleDateString(undefined, {month: 'short', day: 'numeric'});
-      const endLabel = lastDay.toLocaleDateString(undefined, {month: 'short', day: 'numeric', year: 'numeric'});
+      const startLabel = start.toLocaleDateString(locale, {month: 'short', day: 'numeric'});
+      const endLabel = lastDay.toLocaleDateString(locale, {month: 'short', day: 'numeric', year: 'numeric'});
       return `${startLabel} – ${endLabel}`;
     }
     if (this.selectedRange === 'month') {
-      return start.toLocaleDateString(undefined, {month: 'long', year: 'numeric'});
+      return start.toLocaleDateString(locale, {month: 'long', year: 'numeric'});
     }
-    return start.getFullYear().toString();
+    return start.toLocaleDateString(locale, {year: 'numeric'});
+  }
+
+  private getDateLocale(): string {
+    return this.translate.currentLang === 'ar' ? 'ar-SA' : 'en-US';
   }
 
   private loadDashboardData() {
