@@ -121,12 +121,12 @@
                         <div class="col-md-3 col-6">
                           <strong>{{ 'PATIENTS.FIELDS.GENDER' | translate }}</strong>
                           <br>
-                          <p class="text-muted">{{patient.gender}}</p>
+                          <p class="text-muted">{{ ('PATIENTS.OPTIONS.' + patient.gender.toUpperCase()) | translate }}</p>
                         </div>
                         <div class="col-md-3 col-6">
                           <strong>{{ 'PATIENTS.FIELDS.MARITAL' | translate }}</strong>
                           <br>
-                          <p class="text-muted">{{patient.maritalState}}</p>
+                          <p class="text-muted">{{ patient.maritalState ? (('PATIENTS.OPTIONS.' + patient.maritalState.toUpperCase()) | translate) : '' }}</p>
                         </div>
                         <div class="col-md-3 col-6">
                           <strong>{{ 'PATIENTS.PROFILE.BIRTH_DATE' | translate }}</strong>

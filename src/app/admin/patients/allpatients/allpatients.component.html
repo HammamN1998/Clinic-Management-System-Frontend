@@ -108,12 +108,12 @@
                     <span class="phoneNumber-label">{{ 'PATIENTS.FIELDS.GENDER' | translate }}:</span>
                     <div *ngIf="row.gender.toLowerCase() === 'male' ">
                       <span class="badge badge-solid-green" >
-                        {{row.gender}}
+                        {{ ('PATIENTS.OPTIONS.' + row.gender.toUpperCase()) | translate }}
                       </span>
                     </div>
                     <div *ngIf="row.gender.toLowerCase() === 'female'">
                       <span class="badge badge-solid-purple">
-                        {{row.gender}}
+                        {{ ('PATIENTS.OPTIONS.' + row.gender.toUpperCase()) | translate }}
                       </span>
                     </div>
                   </mat-cell>
