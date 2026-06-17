@@ -5,6 +5,7 @@ import interactionPlugin from '@fullcalendar/interaction';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
 import arLocale from '@fullcalendar/core/locales/ar';
+import {isArabicLang} from '@core/util/app-locale.util';
 
 import {MatDialog} from '@angular/material/dialog';
 import {UntypedFormBuilder, UntypedFormGroup, Validators,} from '@angular/forms';
@@ -324,7 +325,7 @@ export class CalendarComponent  extends UnsubscribeOnDestroyAdapter  implements 
   }
 
   private updateCalendarLocale(lang: string) {
-    const isArabic = lang === 'ar';
+    const isArabic = isArabicLang(lang);
     this.calendarOptions = {
       ...this.calendarOptions,
       locale: isArabic ? arLocale : 'en',

@@ -1,4 +1,5 @@
-import {Component, OnInit} from '@angular/core';
+import {ChangeDetectorRef, Component, DestroyRef, OnInit, inject} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {CommonModule} from '@angular/common';
 import {Router} from '@angular/router';
 import {MatButtonModule} from '@angular/material/button';
@@ -11,6 +12,10 @@ import {PaymentModel} from '@core/models/payment.model';
 import {Patient} from '@core/models/patient.model';
 import {from} from 'rxjs';
 import {TranslateModule, TranslateService} from '@ngx-translate/core';
+import {
+  formatDashboardRangeLabel,
+  getAppDateLocale,
+} from '@core/util/dashboard-range-label.util';
 
 type RangePreset = 'today' | 'week' | 'month' | 'year';
 interface RangeOption {
@@ -35,6 +40,9 @@ interface EarningRow {
   imports: [CommonModule, MatButtonModule, MatIconModule, BreadcrumbComponent, TranslateModule],
 })
 export class EarningsComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly cdr = inject(ChangeDetectorRef);
+
   rangeOptions: RangeOption[] = [
     {id: 'today', label: 'DASHBOARD.RANGE.TODAY'},
     {id: 'week', label: 'DASHBOARD.RANGE.WEEK'},
@@ -55,6 +63,9 @@ export class EarningsComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    this.translate.onLangChange
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.cdr.markForCheck());
     this.loadEarnings();
   }
 
@@ -108,21 +119,16 @@ export class EarningsComponent implements OnInit {
 
   get selectedRangeLabel(): string {
     const {start, end} = this.getRangeDates(this.selectedRange, this.rangeOffset);
-    const lastDay = new Date(end);
-    lastDay.setDate(lastDay.getDate() - 1);
+    return formatDashboardRangeLabel(
+      this.selectedRange,
+      start,
+      end,
+      getAppDateLocale(this.translate.currentLang),
+    );
+  }
 
-    if (this.selectedRange === 'today') {
-      return start.toLocaleDateString(undefined, {weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'});
-    }
-    if (this.selectedRange === 'week') {
-      const startLabel = start.toLocaleDateString(undefined, {month: 'short', day: 'numeric'});
-      const endLabel = lastDay.toLocaleDateString(undefined, {month: 'short', day: 'numeric', year: 'numeric'});
-      return `${startLabel} – ${endLabel}`;
-    }
-    if (this.selectedRange === 'month') {
-      return start.toLocaleDateString(undefined, {month: 'long', year: 'numeric'});
-    }
-    return start.getFullYear().toString();
+  get dateLocale(): string {
+    return getAppDateLocale(this.translate.currentLang);
   }
 
   openPatient(row: EarningRow) {

@@ -31,6 +31,10 @@ import {Patient} from "@core/models/patient.model";
 import {PaymentModel} from "@core/models/payment.model";
 import {FirebaseAuthenticationService} from "../../../authentication/services/firebase-authentication.service";
 import {TranslateModule, TranslateService} from "@ngx-translate/core";
+import {
+  formatDashboardRangeLabel,
+  getAppDateLocale,
+} from '@core/util/dashboard-range-label.util';
 
 export type ChartOptions = {
   series: ApexAxisChartSeries;
@@ -180,26 +184,12 @@ export class MainComponent implements OnInit {
 
   get selectedRangeLabel(): string {
     const {start, end} = this.getRangeDates(this.selectedRange, this.rangeOffset);
-    const lastDay = new Date(end);
-    lastDay.setDate(lastDay.getDate() - 1);
-    const locale = this.getDateLocale();
-
-    if (this.selectedRange === 'today') {
-      return start.toLocaleDateString(locale, {weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'});
-    }
-    if (this.selectedRange === 'week') {
-      const startLabel = start.toLocaleDateString(locale, {month: 'short', day: 'numeric'});
-      const endLabel = lastDay.toLocaleDateString(locale, {month: 'short', day: 'numeric', year: 'numeric'});
-      return `${startLabel} – ${endLabel}`;
-    }
-    if (this.selectedRange === 'month') {
-      return start.toLocaleDateString(locale, {month: 'long', year: 'numeric'});
-    }
-    return start.toLocaleDateString(locale, {year: 'numeric'});
-  }
-
-  private getDateLocale(): string {
-    return this.translate.currentLang === 'ar' ? 'ar-SA' : 'en-US';
+    return formatDashboardRangeLabel(
+      this.selectedRange,
+      start,
+      end,
+      getAppDateLocale(this.translate.currentLang),
+    );
   }
 
   private loadDashboardData() {
