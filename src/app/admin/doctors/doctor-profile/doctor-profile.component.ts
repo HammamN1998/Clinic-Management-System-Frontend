@@ -24,6 +24,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { PatientService } from '@core/service/patient.service';
 import {TranslateModule, TranslateService} from "@ngx-translate/core";
 import { OnboardingService } from '@core/service/onboarding.service';
+import { getDoctorTitlePrefix } from '@core/util/doctor-title.util';
 
 @Component({
   selector: 'app-doctor-profile',
@@ -77,6 +78,10 @@ export class DoctorProfileComponent implements OnInit {
 
   get doctor () : User{
     return this.firebaseAuthenticationService.currentUserValue
+  }
+
+  get doctorTitlePrefix(): string {
+    return getDoctorTitlePrefix(this.doctor.name);
   }
 
   editDoctorEducation($event: string) {

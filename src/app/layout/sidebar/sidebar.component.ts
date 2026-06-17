@@ -9,6 +9,7 @@ import {NgScrollbar} from 'ngx-scrollbar';
 import {UnsubscribeOnDestroyAdapter} from '@shared';
 import {FirebaseAuthenticationService} from "../../authentication/services/firebase-authentication.service";
 import {isNullOrUndefined} from "@swimlane/ngx-datatable";
+import { getDoctorTitlePrefix } from '@core/util/doctor-title.util';
 
 @Component({
   selector: 'app-sidebar',
@@ -31,7 +32,6 @@ export class SidebarComponent extends UnsubscribeOnDestroyAdapter implements OnI
   listMaxWidth?: string;
   userFullName?: string;
   userImg?: string;
-  userType?: string;
   headerHeight = 60;
   currentRoute?: string;
 
@@ -54,6 +54,10 @@ export class SidebarComponent extends UnsubscribeOnDestroyAdapter implements OnI
 
   get doctor() {
     return this.firebaseAuthenticationService.currentUserValue
+  }
+
+  get doctorTitlePrefix(): string {
+    return getDoctorTitlePrefix(this.userFullName ?? '');
   }
   @HostListener('window:resize', ['$event'])
   windowResizecall() {

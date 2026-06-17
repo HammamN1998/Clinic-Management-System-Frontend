@@ -69,7 +69,7 @@
         <li class="nav-item user_profile">
           <button mat-button [matMenuTriggerFor]="profilemenu">
             <div class="chip dropdown-toggle" ngbDropdownToggle class="">
-              <span>{{this.firebaseAuthenticationService.currentUserValue.name}}</span>
+              <span>{{ doctorTitlePrefix }} {{ doctor.name }}</span>
             </div>
           </button>
           <mat-menu #profilemenu="matMenu" class="profile-menu">

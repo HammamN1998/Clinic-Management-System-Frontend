@@ -23,6 +23,7 @@ import { PaymentService } from '@core/service/payment.service';
 import { AnalyticsService } from '@core/service/analytics.service';
 import { finalize } from 'rxjs/operators';
 import { TranslateModule } from '@ngx-translate/core';
+import { getDoctorTitlePrefix } from '@core/util/doctor-title.util';
 
 interface Notifications {
   message: string;
@@ -160,6 +161,10 @@ export class HeaderComponent
 
   get doctor() {
     return this.firebaseAuthenticationService.currentUserValue;
+  }
+
+  get doctorTitlePrefix(): string {
+    return getDoctorTitlePrefix(this.doctor?.name ?? '');
   }
 
   callFullscreen() {
