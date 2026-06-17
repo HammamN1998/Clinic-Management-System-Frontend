@@ -30,6 +30,14 @@ path.selected {
   text-align: center;
 }
 
+/* Legacy (patient profile) diagram keeps its fixed 442x558 size on desktop, but
+   must scale down to fit narrow/mobile containers instead of overflowing. The
+   viewBox preserves the aspect ratio while height:auto keeps it proportional. */
+svg:not(.chart-mode) {
+  max-width: 100%;
+  height: auto;
+}
+
 /* In chart mode the diagram is responsive (legacy keeps its fixed 442x558).
    Block + width:100% (not a flex child) so the viewBox-only SVG fills the
    column instead of collapsing to its tiny intrinsic size. */
