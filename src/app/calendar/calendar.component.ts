@@ -4,6 +4,7 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
+import arLocale from '@fullcalendar/core/locales/ar';
 
 import {MatDialog} from '@angular/material/dialog';
 import {UntypedFormBuilder, UntypedFormGroup, Validators,} from '@angular/forms';
@@ -57,7 +58,7 @@ export class CalendarComponent  extends UnsubscribeOnDestroyAdapter  implements 
   calendarEvents: EventInput[] = [];
   tempEvents?: EventInput[];
 
-  calendarOptions: CalendarOptions = this.getInitialCalendarOptions();
+  calendarOptions: CalendarOptions;
 
   constructor(
     private fb: UntypedFormBuilder,
@@ -71,6 +72,8 @@ export class CalendarComponent  extends UnsubscribeOnDestroyAdapter  implements 
     private translate: TranslateService,
   ) {
     super();
+    this.calendarOptions = this.getInitialCalendarOptions();
+    this.updateCalendarLocale(this.translate.currentLang);
     this.dialogTitle = this.translate.instant('CALENDAR.ADD_NEW_EVENT');
     const blankObject = {} as Calendar;
     this.calendar = new Calendar(blankObject);
@@ -78,6 +81,9 @@ export class CalendarComponent  extends UnsubscribeOnDestroyAdapter  implements 
   }
 
   public ngOnInit(): void {
+    this.subs.sink = this.translate.onLangChange.subscribe(({ lang }) => {
+      this.updateCalendarLocale(lang);
+    });
     this.getAppointmentsData();
     this.tempEvents = this.calendarEvents;
     this.calendarOptions.initialEvents = this.calendarEvents;
@@ -317,7 +323,17 @@ export class CalendarComponent  extends UnsubscribeOnDestroyAdapter  implements 
     return className;
   }
 
-  private getInitialCalendarOptions() {
+  private updateCalendarLocale(lang: string) {
+    const isArabic = lang === 'ar';
+    this.calendarOptions = {
+      ...this.calendarOptions,
+      locale: isArabic ? arLocale : 'en',
+      direction: isArabic ? 'rtl' : 'ltr',
+      firstDay: isArabic ? 6 : 0,
+    };
+  }
+
+  private getInitialCalendarOptions(): CalendarOptions {
     return {
       plugins: [dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin],
       headerToolbar: {
@@ -335,7 +351,6 @@ export class CalendarComponent  extends UnsubscribeOnDestroyAdapter  implements 
       slotEventOverlap: false,
       slotMinTime: '07:00:00',
       slotMaxTime: '24:00:00',
-      firstDay: 0,
       select: this.handleDateSelect.bind(this),
       eventClick: this.goToProfilePage.bind(this),
       eventsSet: this.handleEvents.bind(this),
