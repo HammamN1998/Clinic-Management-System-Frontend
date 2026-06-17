@@ -1,3 +1,28 @@
+.contact-grid .phone,
+.contact-grid .address {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  .phone__icon,
+  .address__icon,
+  .material-icons {
+    padding: 0;
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    line-height: 16px;
+  }
+}
+
+.contact-grid .address {
+  align-items: flex-start;
+
+  .address__icon {
+    margin-top: 2px;
+  }
+}
+
 .setup-callout {
   display: flex;
   align-items: flex-start;
