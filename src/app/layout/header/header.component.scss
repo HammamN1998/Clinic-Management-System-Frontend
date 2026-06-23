@@ -1,0 +1,42 @@
+@media (max-width: 1024px) {
+  :host ::ng-deep {
+    .navbar-header {
+      display: flex;
+      align-items: center;
+      width: 100% !important;
+      float: none !important;
+    }
+
+    .bars {
+      position: relative;
+      z-index: 2;
+      flex: 0 0 44px;
+      width: 44px;
+      height: 60px;
+    }
+
+    .navbar-brand {
+      width: auto !important;
+      flex: 1;
+      min-width: 0;
+      margin-left: 0 !important;
+      padding-left: 0;
+    }
+  }
+}
+
+@media (max-width: 767px) {
+  :host ::ng-deep {
+    .navbar-toggle {
+      display: block !important;
+      float: none !important;
+      flex: 0 0 44px;
+      width: 44px;
+      height: 60px;
+      line-height: 60px;
+      margin: 0 8px 0 0 !important;
+      margin-top: 0 !important;
+      text-align: center;
+    }
+  }
+}
