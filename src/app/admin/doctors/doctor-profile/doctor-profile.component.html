@@ -152,6 +152,23 @@
                   </div>
                 </form>
               </div>
+              <!--Religious Reminders-->
+              <ng-container *ngIf="showReligiousReminders">
+                <div class="header">
+                  <h2>
+                    <strong>{{ 'DOCTORS.PROFILE.RELIGIOUS_REMINDERS' | translate }}</strong>
+                  </h2>
+                </div>
+                <div class="body">
+                  <p class="text-muted">{{ 'DOCTORS.PROFILE.RELIGIOUS_REMINDERS_HINT' | translate }}</p>
+                  <mat-slide-toggle
+                    [checked]="isReligiousRemindersEnabled"
+                    (change)="toggleReligiousReminders($event.checked)"
+                  >
+                    {{ 'DOCTORS.PROFILE.RELIGIOUS_REMINDERS' | translate }}
+                  </mat-slide-toggle>
+                </div>
+              </ng-container>
               <!--Brand Logo-->
               <div class="header">
                 <h2>

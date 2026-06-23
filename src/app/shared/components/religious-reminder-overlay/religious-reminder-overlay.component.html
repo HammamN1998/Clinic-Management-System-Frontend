@@ -1,0 +1,9 @@
+<div
+  class="religious-reminder"
+  *ngIf="reminders.active$ | async"
+  dir="rtl"
+  role="status"
+  aria-live="polite"
+>
+  <span class="religious-reminder__text">{{ reminders.currentPhrase$ | async }}</span>
+</div>

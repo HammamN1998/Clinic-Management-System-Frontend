@@ -1,0 +1,33 @@
+.religious-reminder {
+  position: fixed;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1100;
+  max-width: 90vw;
+  padding: 10px 22px;
+  border-radius: 999px;
+  background: rgba(33, 33, 33, 0.88);
+  color: #fff;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  pointer-events: none;
+  text-align: center;
+  animation: religiousReminderFade 0.45s ease;
+
+  &__text {
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.5;
+  }
+}
+
+@keyframes religiousReminderFade {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}

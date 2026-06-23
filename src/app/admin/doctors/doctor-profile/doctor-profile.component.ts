@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -25,6 +26,8 @@ import { PatientService } from '@core/service/patient.service';
 import {TranslateModule, TranslateService} from "@ngx-translate/core";
 import { OnboardingService } from '@core/service/onboarding.service';
 import { getDoctorTitlePrefix } from '@core/util/doctor-title.util';
+import { isArabicLang } from '@core/util/app-locale.util';
+import { ReligiousReminderService } from '@core/service/religious-reminder.service';
 
 @Component({
   selector: 'app-doctor-profile',
@@ -39,6 +42,7 @@ import { getDoctorTitlePrefix } from '@core/util/doctor-title.util';
     MatInputModule,
     MatButtonModule,
     MatCheckboxModule,
+    MatSlideToggleModule,
     MatTooltipModule,
     EditableTextComponent,
     SharedModule,
@@ -65,6 +69,7 @@ export class DoctorProfileComponent implements OnInit {
     private patientService: PatientService,
     private translate: TranslateService,
     private onboardingService: OnboardingService,
+    private religiousReminderService: ReligiousReminderService,
   ) {
     this.accountSettingsForm = this.createAccountSettingsForm();
     this.checkIfEmailVerified();
@@ -82,6 +87,32 @@ export class DoctorProfileComponent implements OnInit {
 
   get doctorTitlePrefix(): string {
     return getDoctorTitlePrefix(this.doctor.name);
+  }
+
+  get isReligiousRemindersEnabled(): boolean {
+    return this.doctor.religiousRemindersEnabled !== 'false';
+  }
+
+  get showReligiousReminders(): boolean {
+    return isArabicLang(this.translate.currentLang);
+  }
+
+  toggleReligiousReminders(checked: boolean) {
+    from(this.doctorService.editDoctor({ religiousRemindersEnabled: checked ? 'true' : 'false' }))
+      .subscribe({
+        next: () => {
+          this.religiousReminderService.refresh();
+          this.notificationService.showSnackBarNotification(
+            'snackbar-success',
+            this.translate.instant('DOCTORS.PROFILE.MESSAGES.UPDATE_RELIGIOUS_REMINDERS_SUCCESS'),
+            'bottom',
+            'center'
+          );
+        },
+        error: (error) => {
+          console.log('error: ' + error)
+        }
+      });
   }
 
   editDoctorEducation($event: string) {

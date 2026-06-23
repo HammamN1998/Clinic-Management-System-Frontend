@@ -25,4 +25,6 @@ export class User {
   subscription: UserSubscription = {} as UserSubscription;
   /** Doctor's last-used dental notation; reused as the default on every chart. */
   preferredDentalNotation?: DentalNotation;
+  /** Firestore: "true" | "false". Omitted or non-"false" = reminders enabled. */
+  religiousRemindersEnabled?: string;
 }

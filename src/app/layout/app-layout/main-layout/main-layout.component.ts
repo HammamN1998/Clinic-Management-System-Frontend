@@ -8,6 +8,8 @@ import { RightSidebarComponent } from '../../right-sidebar/right-sidebar.compone
 import { SidebarComponent } from '../../sidebar/sidebar.component';
 import { HeaderComponent } from '../../header/header.component';
 import { UnsubscribeOnDestroyAdapter } from '@shared';
+import { ReligiousReminderOverlayComponent } from '@shared/components/religious-reminder-overlay/religious-reminder-overlay.component';
+import { ReligiousReminderService } from '@core/service/religious-reminder.service';
 
 @Component({
   selector: 'app-main-layout',
@@ -20,6 +22,7 @@ import { UnsubscribeOnDestroyAdapter } from '@shared';
     RightSidebarComponent,
     BidiModule,
     RouterOutlet,
+    ReligiousReminderOverlayComponent,
   ],
 })
 export class MainLayoutComponent extends UnsubscribeOnDestroyAdapter implements AfterViewInit {
@@ -29,7 +32,8 @@ export class MainLayoutComponent extends UnsubscribeOnDestroyAdapter implements 
     private directoryService: DirectionService,
     private configService: ConfigService,
     @Inject(DOCUMENT) private document: Document,
-    private renderer: Renderer2
+    private renderer: Renderer2,
+    private religiousReminderService: ReligiousReminderService
   ) {
     super();
     this.config = this.configService.configData;
@@ -178,6 +182,13 @@ export class MainLayoutComponent extends UnsubscribeOnDestroyAdapter implements 
     }
 
     //------------ set sidebar collapse end----------------
+
+    this.religiousReminderService.start();
+  }
+
+  override ngOnDestroy(): void {
+    this.religiousReminderService.stop();
+    super.ngOnDestroy();
   }
 
   setRTLSettings() {
