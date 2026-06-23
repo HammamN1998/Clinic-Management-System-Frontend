@@ -1,0 +1,58 @@
+@media (max-width: 767px) {
+  .calendar-panel {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  :host ::ng-deep {
+    .fc .fc-toolbar {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .fc .fc-toolbar-chunk {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .fc .fc-button {
+      padding: 6px 10px;
+      font-size: 0.75rem;
+      margin-right: 4px !important;
+    }
+
+    .fc-toolbar-title {
+      font-size: 1rem !important;
+    }
+
+    .fc-view {
+      padding: 0;
+    }
+
+    .fc .fc-col-header-cell-cushion,
+    .fc .fc-daygrid-day-number {
+      font-size: 11px !important;
+    }
+
+    .fc-event-title {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .fc-list-event-title,
+    .fc-list-event-time {
+      font-size: 0.875rem;
+    }
+
+    .fc .fc-scrollgrid {
+      min-width: 0;
+    }
+  }
+
+  .card-body {
+    padding: 0.75rem;
+  }
+}

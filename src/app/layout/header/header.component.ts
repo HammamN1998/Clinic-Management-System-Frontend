@@ -233,7 +233,7 @@ export class HeaderComponent
       next: (res) => {
         if (res?.url) {
           this.analytics.billingPortalOpened('header');
-          window.open(res.url, '_blank', 'noopener,noreferrer');
+          window.location.href = res.url;
         }
       },
       error: (err: { message?: string }) => {

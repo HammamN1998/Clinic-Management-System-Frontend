@@ -1,4 +1,5 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
+import {BreakpointObserver} from '@angular/cdk/layout';
 import {CalendarOptions, DateSelectArg, EventApi, EventClickArg, EventInput,} from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
@@ -16,7 +17,7 @@ import {MatSnackBar, MatSnackBarHorizontalPosition, MatSnackBarVerticalPosition,
 import {MatCheckboxChange, MatCheckboxModule} from '@angular/material/checkbox';
 import {UnsubscribeOnDestroyAdapter} from '@shared/UnsubscribeOnDestroyAdapter';
 import {Direction} from '@angular/cdk/bidi';
-import {FullCalendarModule} from '@fullcalendar/angular';
+import {FullCalendarComponent, FullCalendarModule} from '@fullcalendar/angular';
 import {MatButtonModule} from '@angular/material/button';
 import {BreadcrumbComponent} from '@shared/components/breadcrumb/breadcrumb.component';
 import {DoctorService} from "@core/service/doctor.service";
@@ -42,8 +43,14 @@ import {TranslateModule, TranslateService} from "@ngx-translate/core";
   ],
 })
 export class CalendarComponent  extends UnsubscribeOnDestroyAdapter  implements OnInit {
+  private static readonly MOBILE_BREAKPOINT = '(max-width: 767px)';
+
   @ViewChild('calendar', { static: false })
   calendar: Calendar | null;
+  @ViewChild(FullCalendarComponent)
+  fullCalendar?: FullCalendarComponent;
+
+  private isMobile = false;
   public addCusForm: UntypedFormGroup;
   dialogTitle: string;
   filterOptions = 'All';
@@ -71,9 +78,13 @@ export class CalendarComponent  extends UnsubscribeOnDestroyAdapter  implements 
     private dateService: DateService,
     private router: Router,
     private translate: TranslateService,
+    private breakpointObserver: BreakpointObserver,
   ) {
     super();
-    this.calendarOptions = this.getInitialCalendarOptions();
+    this.isMobile = this.breakpointObserver.isMatched(
+      CalendarComponent.MOBILE_BREAKPOINT
+    );
+    this.calendarOptions = this.getInitialCalendarOptions(this.isMobile);
     this.updateCalendarLocale(this.translate.currentLang);
     this.dialogTitle = this.translate.instant('CALENDAR.ADD_NEW_EVENT');
     const blankObject = {} as Calendar;
@@ -85,6 +96,14 @@ export class CalendarComponent  extends UnsubscribeOnDestroyAdapter  implements 
     this.subs.sink = this.translate.onLangChange.subscribe(({ lang }) => {
       this.updateCalendarLocale(lang);
     });
+    this.subs.sink = this.breakpointObserver
+      .observe(CalendarComponent.MOBILE_BREAKPOINT)
+      .subscribe(({ matches }) => {
+        if (matches !== this.isMobile) {
+          this.isMobile = matches;
+          this.applyResponsiveCalendarOptions(true);
+        }
+      });
     this.getAppointmentsData();
     this.tempEvents = this.calendarEvents;
     this.calendarOptions.initialEvents = this.calendarEvents;
@@ -334,15 +353,11 @@ export class CalendarComponent  extends UnsubscribeOnDestroyAdapter  implements 
     };
   }
 
-  private getInitialCalendarOptions(): CalendarOptions {
+  private getInitialCalendarOptions(isMobile: boolean): CalendarOptions {
     return {
       plugins: [dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin],
-      headerToolbar: {
-        left: 'prev,next today',
-        center: 'title',
-        right: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth',
-      },
-      initialView: 'timeGridWeek',
+      ...this.getResponsiveCalendarOptions(isMobile),
+      initialView: isMobile ? 'listWeek' : 'timeGridWeek',
       weekends: true,
       editable: true,
       selectable: false,
@@ -350,12 +365,80 @@ export class CalendarComponent  extends UnsubscribeOnDestroyAdapter  implements 
       dayMaxEvents: true,
       allDaySlot: false,
       slotEventOverlap: false,
-      slotMinTime: '07:00:00',
-      slotMaxTime: '24:00:00',
+      stickyHeaderDates: true,
+      nowIndicator: true,
+      height: isMobile ? 'auto' : undefined,
+      eventTimeFormat: { hour: 'numeric', minute: '2-digit', meridiem: 'short' },
+      views: {
+        listWeek: { buttonText: 'List' },
+        timeGridDay: {
+          dayHeaderFormat: { weekday: 'long', month: 'short', day: 'numeric' },
+        },
+      },
       select: this.handleDateSelect.bind(this),
       eventClick: this.goToProfilePage.bind(this),
       eventsSet: this.handleEvents.bind(this),
+      windowResize: () => this.handleCalendarResize(),
     };
+  }
+
+  private getResponsiveCalendarOptions(isMobile: boolean): Pick<
+    CalendarOptions,
+    'headerToolbar' | 'dayHeaderFormat' | 'slotMinTime' | 'slotMaxTime'
+  > {
+    return {
+      headerToolbar: isMobile
+        ? {
+            left: 'prev,next',
+            center: 'title',
+            right: 'listWeek,timeGridDay,dayGridMonth',
+          }
+        : {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth',
+          },
+      dayHeaderFormat: isMobile
+        ? { weekday: 'short' }
+        : { weekday: 'short', month: 'numeric', day: 'numeric' },
+      slotMinTime: isMobile ? '08:00:00' : '07:00:00',
+      slotMaxTime: isMobile ? '20:00:00' : '24:00:00',
+    };
+  }
+
+  private applyResponsiveCalendarOptions(changeView: boolean): void {
+    this.calendarOptions = {
+      ...this.calendarOptions,
+      ...this.getResponsiveCalendarOptions(this.isMobile),
+      height: this.isMobile ? 'auto' : undefined,
+    };
+
+    if (!changeView || !this.fullCalendar) {
+      return;
+    }
+
+    const api = this.fullCalendar.getApi();
+    const currentView = api.view.type;
+    const mobileFriendlyViews = ['listWeek', 'timeGridDay', 'dayGridMonth'];
+    const desktopOnlyViews = ['timeGridWeek', 'listMonth'];
+
+    if (this.isMobile && desktopOnlyViews.includes(currentView)) {
+      api.changeView('listWeek');
+    } else if (!this.isMobile && currentView === 'listWeek') {
+      api.changeView('timeGridWeek');
+    } else if (this.isMobile && !mobileFriendlyViews.includes(currentView)) {
+      api.changeView('listWeek');
+    }
+  }
+
+  private handleCalendarResize(): void {
+    const isMobile = this.breakpointObserver.isMatched(
+      CalendarComponent.MOBILE_BREAKPOINT
+    );
+    if (isMobile !== this.isMobile) {
+      this.isMobile = isMobile;
+      this.applyResponsiveCalendarOptions(true);
+    }
   }
 
   goToProfilePage(clickInfo: EventClickArg) {
