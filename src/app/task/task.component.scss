@@ -1,0 +1,35 @@
+@media (max-width: 767px) {
+  :host ::ng-deep {
+    .task-module .mat-drawer.mat-drawer-end {
+      width: 100%;
+      min-width: unset;
+      max-width: 100vw;
+    }
+
+    .task-container .register-form {
+      margin: 1rem !important;
+    }
+
+    .task-container .header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .task-container .header .header-title {
+      flex: 1;
+      min-width: 0;
+      font-size: 1.25rem;
+    }
+
+    .task-container .header .header-close {
+      position: static;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+  }
+}
