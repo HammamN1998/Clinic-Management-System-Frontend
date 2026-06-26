@@ -1,18 +1,10 @@
 /**
- * Dental chart page: a notation selector plus a vertical split with the
- * odontogram on the left and the tooth/bridge details on the right.
- *
- * The page owns the interaction state (selection, the bridge multi-select
- * buffer) and re-snapshots the diagram inputs (`toothStates` /
- * `spanningTreatments`) into new references whenever the underlying chart
- * changes, so the diagram's `ngOnChanges` recomputes the overlay.
+ * Dental chart page: odontogram (left) and tooth/bridge details (right).
+ * Notation is fixed from profile navigation state.
  */
 import { Component, HostListener, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslateModule } from '@ngx-translate/core';
@@ -30,17 +22,20 @@ import {
   SpanTreatment,
   ToothChartState,
 } from '@core/models/patient.model';
-import { canExtendBridge, DENTAL_NOTATIONS } from '@core/models/dental.constants';
+import { canExtendBridge } from '@core/models/dental.constants';
+
+const VALID_NOTATIONS: DentalNotation[] = ['fdi', 'universal', 'palmer'];
+
+function isDentalNotation(value: unknown): value is DentalNotation {
+  return typeof value === 'string' && VALID_NOTATIONS.includes(value as DentalNotation);
+}
 
 @Component({
   selector: 'app-dental-chart',
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule,
     BreadcrumbComponent,
-    MatFormFieldModule,
-    MatSelectModule,
     MatButtonModule,
     MatIconModule,
     TranslateModule,
@@ -53,9 +48,7 @@ import { canExtendBridge, DENTAL_NOTATIONS } from '@core/models/dental.constants
   styleUrl: './dental-chart.component.scss',
 })
 export class DentalChartComponent implements OnInit {
-  readonly notations = DENTAL_NOTATIONS;
-
-  activeNotation: DentalNotation = 'fdi';
+  activeNotation!: DentalNotation;
   mode: 'normal' | 'bridge' = 'normal';
 
   selectedToothId: string | null = null;
@@ -82,25 +75,18 @@ export class DentalChartComponent implements OnInit {
       this.router.navigate(['/admin/patients/all-patients']);
       return;
     }
-    // The notation is decided by the diagram the doctor opened this page from
-    // (passed via navigation state); fall back to the saved preference.
-    const navNotation = (history.state?.notation ?? null) as DentalNotation | null;
-    this.activeNotation = navNotation ?? this.dentalChartService.getPreferredNotation();
+    const navNotation = history.state?.notation;
+    if (!isDentalNotation(navNotation)) {
+      this.router.navigate(['/admin/patients/patient-profile']);
+      return;
+    }
+    this.activeNotation = navNotation;
     this.snapshot();
   }
 
   get patientName(): string {
     const p = this.patientService.getDialogData();
     return `${p.firstName} ${p.lastName}`.trim();
-  }
-
-  // ----- notation --------------------------------------------------------
-  changeNotation(notation: DentalNotation): void {
-    this.activeNotation = notation;
-    this.resetInteraction();
-    this.snapshot();
-    // Persist the doctor's preferred notation (best-effort).
-    void this.dentalChartService.setPreferredNotation(notation);
   }
 
   // ----- diagram events --------------------------------------------------

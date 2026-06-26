@@ -22,12 +22,18 @@ import {
 } from '@core/models/patient.model';
 import {
   DEFAULT_DENTAL_NOTATION,
+  DENTAL_NOTATIONS,
   getConditionColor,
   getOperationCondition,
 } from '@core/models/dental.constants';
 
+const ALL_DENTAL_NOTATIONS: DentalNotation[] = DENTAL_NOTATIONS.map((n) => n.value);
+
 @Injectable({ providedIn: 'root' })
 export class DentalChartService {
+  /** Session-local form activations; never written to Firestore. */
+  private activatedDentalForms = new Map<string, Set<DentalNotation>>();
+
   constructor(
     private patientService: PatientService,
     private doctorService: DoctorService,
@@ -40,6 +46,44 @@ export class DentalChartService {
 
   setPreferredNotation(notation: DentalNotation): Promise<void> {
     return this.doctorService.editDoctor({ preferredDentalNotation: notation });
+  }
+
+  // ----- profile form visibility (runtime + saved data) --------------------
+  hasFormData(notation: DentalNotation): boolean {
+    const chart = this.patient.dentalChart?.charts?.[notation];
+    if (!chart) {
+      return false;
+    }
+    return Object.keys(chart.teeth).length > 0 || chart.spanningTreatments.length > 0;
+  }
+
+  activateDentalForm(notation: DentalNotation): void {
+    const patientId = this.patient.id;
+    if (!patientId) {
+      return;
+    }
+    let set = this.activatedDentalForms.get(patientId);
+    if (!set) {
+      set = new Set();
+      this.activatedDentalForms.set(patientId, set);
+    }
+    set.add(notation);
+  }
+
+  isDentalFormActivated(notation: DentalNotation): boolean {
+    const patientId = this.patient.id;
+    if (!patientId) {
+      return false;
+    }
+    return this.activatedDentalForms.get(patientId)?.has(notation) ?? false;
+  }
+
+  isDentalFormTaken(notation: DentalNotation): boolean {
+    return this.isDentalFormActivated(notation) || this.hasFormData(notation);
+  }
+
+  getVisibleDentalForms(): DentalNotation[] {
+    return ALL_DENTAL_NOTATIONS.filter((n) => this.isDentalFormTaken(n));
   }
 
   // ----- chart access ----------------------------------------------------

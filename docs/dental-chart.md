@@ -11,7 +11,7 @@ The feature is currently labelled **BETA**.
 | Area | Change |
 |------|--------|
 | Page | New lazy-loaded page at `/admin/patients/dental-chart` with a vertical split: odontogram (left) + details panel (right) |
-| Notation | Universal / FDI / Palmer numbering, selectable on the page; doctor's last choice saved as preferred |
+| Notation | Universal / FDI / Palmer — chosen on the patient profile when creating or opening a form; fixed on the chart page |
 | Odontogram | SVG teeth diagrams via a shared base directive in chart mode |
 | Conditions | Color swatches set a tooth's condition; the fill reflects the condition color |
 | Treatments | Per-tooth treatment list with add/edit/status/delete; each treatment shown as a draggable SVG badge card connected to its tooth by a leader line |
@@ -24,9 +24,12 @@ The feature is currently labelled **BETA**.
 
 ## 1. Entry point
 
-From the **patient profile** (`patient-profile.component`), the *Specialized forms* section has an **Open dental chart** button (with a `BETA` badge).
+From the **patient profile** (*Specialized forms* section):
 
-- `openDentalChart(notation?)` navigates to the chart page. An optional notation can be passed via router state; otherwise the page falls back to the doctor's preferred notation.
+1. **Create** — pick a numbering system (Universal / FDI / Palmer) and click Create. This adds a session-local button under **Existing Forms** (no Firestore write, no navigation).
+2. **Existing Forms** — one button per form that is session-activated **or** already has saved chart data. Clicking opens the chart page with that notation locked via router `state.notation`.
+
+Direct navigation to `/admin/patients/dental-chart` without `state.notation` redirects back to the patient profile.
 
 ---
 
@@ -34,7 +37,7 @@ From the **patient profile** (`patient-profile.component`), the *Specialized for
 
 `dental-chart.component.ts` owns the interaction state and snapshots the chart into fresh references so the diagram re-renders on change.
 
-- **Notation:** read from `history.state.notation` (from the profile button) or `DentalChartService.getPreferredNotation()`. A small, compact selector on the opposite edge of the controls row lets the doctor switch; changing it persists the preferred notation.
+- **Notation:** read from `history.state.notation` (required). There is no notation switcher on this page.
 - **Controls row (`panel-controls`):** holds the **New bridge** button and the notation selector; separated from the panel by a divider. While creating/editing a bridge it becomes a highlighted active banner with a **Cancel** action.
 - **Selection model:** `selectedToothId`, `selectedBridgeId`, `highlightedTreatmentId`, plus a `bridgeDraft` buffer and `mode` (`normal` | `bridge`).
 - **Snapshots:** `toothStates` and `spanningTreatments` are re-copied on every change (`snapshot()`), and Escape cancels bridge mode.

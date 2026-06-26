@@ -705,13 +705,38 @@
             {{ 'PATIENTS.PROFILE.SPECIALIZED_FORMS_SECTION' | translate }}
           </div>
           <div class="body">
-            <div class="row">
-              <div class="col-12">
-                <button mat-raised-button color="primary" class="open-dental-chart-btn"
-                  (click)="openDentalChart()">
-                  <mat-icon>medical_services</mat-icon>
-                  {{ 'PATIENTS.DENTAL_CHART.OPEN' | translate }}
-                  <span class="beta-badge">BETA</span>
+            <div class="row dental-form-create-row">
+              <div class="col-lg-8 col-md-12">
+                <mat-form-field class="example-full-width" appearance="outline">
+                  <mat-label>{{ 'PATIENTS.PROFILE.AVAILABLE_FORMS' | translate }}</mat-label>
+                  <mat-select [(value)]="selectedDentalForm">
+                    <mat-optgroup [label]="'PATIENTS.PROFILE.DENTIST' | translate">
+                      <mat-option *ngFor="let n of dentalNotations" [value]="n.value"
+                        [disabled]="isDentalFormTaken(n.value)">
+                        {{ n.labelKey | translate }}
+                      </mat-option>
+                    </mat-optgroup>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+              <div class="col-lg-4 col-md-12 dental-form-create-action">
+                <button mat-raised-button color="primary" [disabled]="!canCreateDentalForm"
+                  (click)="createDentalForm()">
+                  {{ 'COMMON.CREATE' | translate }}
+                </button>
+              </div>
+            </div>
+
+            <div class="existing-dental-forms" *ngIf="visibleDentalForms.length > 0">
+              <h6 class="existing-dental-forms-title">
+                {{ 'PATIENTS.PROFILE.EXISTING_FORMS' | translate }}
+                <span class="beta-badge">BETA</span>
+              </h6>
+              <div class="existing-dental-forms-buttons">
+                <button *ngFor="let notation of visibleDentalForms" mat-stroked-button color="primary"
+                  class="existing-dental-form-btn" (click)="openDentalChart(notation)">
+                  <i class="fas fa-teeth-open existing-dental-form-icon" aria-hidden="true"></i>
+                  {{ dentalFormLabelKey(notation) | translate }}
                 </button>
               </div>
             </div>

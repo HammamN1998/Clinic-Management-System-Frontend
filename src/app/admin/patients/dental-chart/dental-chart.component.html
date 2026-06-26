@@ -71,15 +71,6 @@
                   {{ 'PATIENTS.DENTAL_CHART.BRIDGE.NEW' | translate }}
                 </button>
 
-                <!-- Small notation selector, pushed to the opposite edge. -->
-                <mat-form-field *ngIf="mode !== 'bridge'" appearance="outline"
-                  class="notation-select" subscriptSizing="dynamic">
-                  <mat-label>{{ 'PATIENTS.DENTAL_CHART.NOTATION' | translate }}</mat-label>
-                  <mat-select [ngModel]="activeNotation" (ngModelChange)="changeNotation($event)">
-                    <mat-option *ngFor="let n of notations" [value]="n.value">{{ n.labelKey | translate }}</mat-option>
-                  </mat-select>
-                </mat-form-field>
-
                 <ng-container *ngIf="mode === 'bridge'">
                   <span class="bridge-active-label">
                     <mat-icon>link</mat-icon>

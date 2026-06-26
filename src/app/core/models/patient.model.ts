@@ -3,9 +3,9 @@ import * as firestore from "firebase/firestore";
 /**
  * Dental chart model (the dedicated odontogram page).
  *
- * Per-notation data lives under `dentalChart.charts[notation]`; the *active*
- * notation is a doctor-level preference (see `User.preferredDentalNotation`),
- * not stored per patient.
+ * Per-notation data lives under `dentalChart.charts[notation]`. The profile
+ * page chooses notation when creating or opening a form; visibility in Existing
+ * Forms is session-local activation and/or saved chart data in that bucket.
  */
 export type DentalNotation = 'fdi' | 'universal' | 'palmer';
 

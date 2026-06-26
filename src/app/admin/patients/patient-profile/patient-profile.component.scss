@@ -3,18 +3,49 @@
   margin: 12px 0 8px;
 }
 
-/* BETA badge signals the dental chart feature is still under development. */
-.open-dental-chart-btn {
-  .beta-badge {
-    margin-left: 8px;
-    padding: 1px 6px;
-    border-radius: 8px;
-    background: #ff9800;
-    color: #fff;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    line-height: 1.4;
-    vertical-align: middle;
+.dental-form-create-row {
+  align-items: flex-start;
+}
+
+.dental-form-create-action {
+  display: flex;
+  align-items: center;
+  padding-top: 4px;
+}
+
+.existing-dental-forms {
+  margin-top: 8px;
+}
+
+.existing-dental-forms-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+.existing-dental-forms-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.existing-dental-form-btn {
+  .existing-dental-form-icon {
+    margin-right: 6px;
+    font-size: 1rem;
   }
+}
+
+.beta-badge {
+  padding: 1px 6px;
+  border-radius: 8px;
+  background: #ff9800;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  line-height: 1.4;
+  vertical-align: middle;
 }

@@ -7,6 +7,7 @@ import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatIconModule} from "@angular/material/icon";
 import {MatInputModule} from "@angular/material/input";
 import {MatTabsModule} from "@angular/material/tabs";
+import {MatSelectModule} from "@angular/material/select";
 import {Router} from "@angular/router";
 import {MatDialog} from "@angular/material/dialog";
 import { DeleteConfirmDialogService } from '@shared/components/delete-confirm-dialog/delete-confirm-dialog.service';
@@ -37,13 +38,15 @@ import {PrescriptionNoteDialogComponent} from "./dialog/prescription-note/prescr
 import {PatientLetterDialogComponent, PatientLetterResult} from "./dialog/patient-letter/patient-letter.component";
 import {PatientDocumentsDialogComponent, PatientDocumentAction} from "./dialog/patient-documents/patient-documents.component";
 import {buildBalanceLedger} from "@core/util/balance-ledger.util";
+import {DentalChartService} from "@core/service/dental-chart.service";
+import {DENTAL_NOTATIONS} from "@core/models/dental.constants";
 
 @Component({
   selector: 'app-patient-profile',
   templateUrl: './patient-profile.component.html',
   styleUrls: ['./patient-profile.component.scss'],
   standalone: true,
-  imports: [BreadcrumbComponent, MatButtonModule, MatCheckboxModule, MatFormFieldModule, MatIconModule, MatInputModule, MatTabsModule, MatDatepickerModule, OwlDateTimeModule, OwlNativeDateTimeModule, ReactiveFormsModule, SharedModule, FileUploadComponent, FullScreenImageComponent, EditableTextComponent, EditableTextCompactedComponent, TranslateModule],
+  imports: [BreadcrumbComponent, MatButtonModule, MatCheckboxModule, MatFormFieldModule, MatIconModule, MatInputModule, MatTabsModule, MatSelectModule, MatDatepickerModule, OwlDateTimeModule, OwlNativeDateTimeModule, ReactiveFormsModule, SharedModule, FileUploadComponent, FullScreenImageComponent, EditableTextComponent, EditableTextCompactedComponent, TranslateModule],
 })
 export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
 
@@ -57,8 +60,13 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
   /** Default on: smaller uploads; uncheck to keep full quality for medical images. */
   compressAttachments = true;
 
+  readonly dentalNotations = DENTAL_NOTATIONS;
+  selectedDentalForm: DentalNotation = 'universal';
+  visibleDentalForms: DentalNotation[] = [];
+
   constructor(
     private patientService: PatientService,
+    private dentalChartService: DentalChartService,
     private router: Router,
     private dialog: MatDialog,
     private deleteConfirmDialog: DeleteConfirmDialogService,
@@ -78,6 +86,8 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
     this.getPatientAppointments();
     this.getPatientPayments();
     this.getPatientTreatments();
+    this.refreshVisibleDentalForms();
+    this.selectedDentalForm = this.firstAvailableDentalForm();
   }
 
 
@@ -92,14 +102,45 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
     this.router.navigate(['/admin/patients/edit-patient']);
   }
 
-  /**
-   * Open the dental chart (BETA). An optional notation can be passed via router
-   * state to preselect the numbering system; otherwise the chart page falls
-   * back to the doctor's preferred notation and lets them switch it there.
-   */
-  openDentalChart(notation?: DentalNotation) {
-    const extras = notation ? { state: { notation } } : undefined;
-    this.router.navigate(['/admin/patients/dental-chart'], extras);
+  /** Open the dental chart for the given numbering-system form. */
+  openDentalChart(notation: DentalNotation): void {
+    this.router.navigate(['/admin/patients/dental-chart'], { state: { notation } });
+  }
+
+  isDentalFormTaken(notation: DentalNotation): boolean {
+    return this.dentalChartService.isDentalFormTaken(notation);
+  }
+
+  get canCreateDentalForm(): boolean {
+    return !this.dentalChartService.isDentalFormTaken(this.selectedDentalForm);
+  }
+
+  createDentalForm(): void {
+    if (!this.canCreateDentalForm) {
+      return;
+    }
+    this.dentalChartService.activateDentalForm(this.selectedDentalForm);
+    this.refreshVisibleDentalForms();
+    this.selectedDentalForm = this.firstAvailableDentalForm();
+  }
+
+  /** Short numbering-system label for Existing Forms buttons. */
+  dentalFormLabelKey(notation: DentalNotation): string {
+    const shortKeys: Record<DentalNotation, string> = {
+      fdi: 'PATIENTS.DENTAL_CHART.NOTATIONS.FDI',
+      universal: 'PATIENTS.DENTAL_CHART.NOTATIONS.UNIVERSAL',
+      palmer: 'PATIENTS.DENTAL_CHART.NOTATIONS.PALMER',
+    };
+    return shortKeys[notation];
+  }
+
+  private refreshVisibleDentalForms(): void {
+    this.visibleDentalForms = this.dentalChartService.getVisibleDentalForms();
+  }
+
+  private firstAvailableDentalForm(): DentalNotation {
+    const available = this.dentalNotations.find((n) => !this.dentalChartService.isDentalFormTaken(n.value));
+    return available?.value ?? 'universal';
   }
 
   deletePatient() {

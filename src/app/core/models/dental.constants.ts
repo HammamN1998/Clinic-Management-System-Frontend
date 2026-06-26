@@ -43,9 +43,9 @@ export const DENTAL_OPERATIONS: { value: string; labelKey: string }[] = [
 ];
 
 export const DENTAL_NOTATIONS: { value: DentalNotation; labelKey: string }[] = [
-  { value: 'fdi', labelKey: 'PATIENTS.DENTAL_CHART.NOTATIONS.FDI' },
-  { value: 'universal', labelKey: 'PATIENTS.DENTAL_CHART.NOTATIONS.UNIVERSAL' },
-  { value: 'palmer', labelKey: 'PATIENTS.DENTAL_CHART.NOTATIONS.PALMER' },
+  { value: 'universal', labelKey: 'PATIENTS.PROFILE.UNIVERSAL_TEETH_DIAGRAM' },
+  { value: 'fdi', labelKey: 'PATIENTS.PROFILE.FDI_TEETH_DIAGRAM' },
+  { value: 'palmer', labelKey: 'PATIENTS.PROFILE.PALMER_TEETH_DIAGRAM' },
 ];
 
 /** Status colours reused by badges and bridge bars (orange=pending, green=done). */
