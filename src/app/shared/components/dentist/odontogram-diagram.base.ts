@@ -9,7 +9,7 @@
  * Geometry note: anchors come straight from each tooth `<path>`'s `getBBox()`,
  * which is in SVG user space - the same space the overlay cards/lines live in -
  * so no manual coordinate mapping is needed. The root viewBox is widened by
- * `GUTTER` on each side to make room for the badge cards.
+ * `gutterWidth` on each side to make room for the badge cards.
  */
 import {
   AfterViewInit,
@@ -32,6 +32,7 @@ import {
 import {
   getOperationLabelKey,
   getToothShortLabel,
+  orderAdjacentTeeth,
   TOOTH_SEQUENCES,
   TREATMENT_STATUS_COLOR,
 } from '@core/models/dental.constants';
@@ -58,14 +59,24 @@ export interface BadgeCardVM {
   lineY2: number;
 }
 
+/** Circle cap at a bridge abutment (start or end). */
+export interface BridgeCapVM {
+  cx: number;
+  cy: number;
+  r: number;
+}
+
 /** A bridge bar drawn along the crowns of its teeth. */
 export interface BridgeBarVM {
   id: string;
   points: string;      // polyline points through each tooth anchor
   color: string;
   selected: boolean;
+  draft?: boolean;
   labelX: number;
   labelY: number;
+  startCap: BridgeCapVM;
+  endCap: BridgeCapVM;
 }
 
 interface Anchor { cx: number; cy: number; top: number; }
@@ -104,12 +115,19 @@ export abstract class OdontogramDiagramBase
   // viewBox + native size
   protected static readonly BASE_W = 442;
   protected static readonly BASE_H = 558;
-  // Gutters reserve just enough room for the badge cards; keeping them tight
-  // lets the teeth image (BASE_W wide) fill most of the rendered diagram.
-  protected static readonly GUTTER = 125;
-  private static readonly CARD_W = 115;
+  // Gutters reserve room for badge cards; widened automatically when a card
+  // needs more space for long operation names.
+  protected static readonly MIN_GUTTER = 125;
   private static readonly ROW_H = 16;
   private static readonly CARD_PAD = 6;
+  private static readonly CARD_MIN_W = 80;
+  /** Radius of the circle caps at bridge start/end. */
+  private static readonly BRIDGE_CAP_R = 7;
+
+  /** Side gutter width in SVG units; grows with the widest badge card. */
+  gutterWidth = OdontogramDiagramBase.MIN_GUTTER;
+
+  private textMeasureCtx: CanvasRenderingContext2D | null = null;
 
   private anchors: { [toothId: string]: Anchor } = {};
   private drag: { toothId: string; startX: number; startY: number; originX: number; originY: number; moved: boolean } | null = null;
@@ -172,7 +190,7 @@ export abstract class OdontogramDiagramBase
     if (!this.chartMode) {
       return `0 0 ${OdontogramDiagramBase.BASE_W} ${OdontogramDiagramBase.BASE_H}`;
     }
-    const g = OdontogramDiagramBase.GUTTER;
+    const g = this.gutterWidth;
     return `${-g} 0 ${OdontogramDiagramBase.BASE_W + 2 * g} ${OdontogramDiagramBase.BASE_H}`;
   }
 
@@ -186,7 +204,7 @@ export abstract class OdontogramDiagramBase
 
   private get viewBoxWidth(): number {
     return this.chartMode
-      ? OdontogramDiagramBase.BASE_W + 2 * OdontogramDiagramBase.GUTTER
+      ? OdontogramDiagramBase.BASE_W + 2 * this.gutterWidth
       : OdontogramDiagramBase.BASE_W;
   }
 
@@ -261,7 +279,6 @@ export abstract class OdontogramDiagramBase
   // Badge cards (one per tooth that has treatments)
   // =====================================================================
   private layoutBadges(): void {
-    const cards: BadgeCardVM[] = [];
     const left: { toothId: string; anchor: Anchor }[] = [];
     const right: { toothId: string; anchor: Anchor }[] = [];
 
@@ -277,16 +294,33 @@ export abstract class OdontogramDiagramBase
     left.sort((a, b) => a.anchor.cy - b.anchor.cy);
     right.sort((a, b) => a.anchor.cy - b.anchor.cy);
 
-    const g = OdontogramDiagramBase.GUTTER;
+    type BadgeEntry = { toothId: string; anchor: Anchor; rows: BadgeRowVM[]; width: number };
+    const toEntry = ({ toothId, anchor }: { toothId: string; anchor: Anchor }): BadgeEntry => {
+      const rows = this.buildRows(this.toothStates[toothId]);
+      return { toothId, anchor, rows, width: this.computeCardWidth(toothId, rows) };
+    };
+    const leftEntries = left.map(toEntry);
+    const rightEntries = right.map(toEntry);
+
+    const maxCardW = Math.max(
+      0,
+      ...leftEntries.map((e) => e.width),
+      ...rightEntries.map((e) => e.width),
+    );
+    // Keep cards in the gutter without overlapping the teeth (x >= 0).
+    this.gutterWidth = Math.max(OdontogramDiagramBase.MIN_GUTTER, Math.ceil(maxCardW) + 12);
+
+    const g = this.gutterWidth;
     const leftX = -g + 6;
     const rightX = OdontogramDiagramBase.BASE_W + 6;
-    cards.push(...this.stackSide(left, leftX, 'left'));
-    cards.push(...this.stackSide(right, rightX, 'right'));
-    this.badgeCards = cards;
+    this.badgeCards = [
+      ...this.stackSide(leftEntries, leftX, 'left'),
+      ...this.stackSide(rightEntries, rightX, 'right'),
+    ];
   }
 
   private stackSide(
-    entries: { toothId: string; anchor: Anchor }[],
+    entries: { toothId: string; anchor: Anchor; rows: BadgeRowVM[]; width: number }[],
     gutterX: number,
     side: 'left' | 'right',
   ): BadgeCardVM[] {
@@ -294,9 +328,8 @@ export abstract class OdontogramDiagramBase
     // Track the bottom of the last auto-placed card so cards spawn next to
     // their tooth (centered on it) and only shift down to avoid overlap.
     let lastBottom = -Infinity;
-    for (const { toothId, anchor } of entries) {
+    for (const { toothId, anchor, rows, width } of entries) {
       const state = this.toothStates[toothId];
-      const rows = this.buildRows(state);
       const height = rows.length * OdontogramDiagramBase.ROW_H + 2 * OdontogramDiagramBase.CARD_PAD + 14;
 
       // Persisted (dragged) position wins; otherwise place the card beside its
@@ -312,7 +345,7 @@ export abstract class OdontogramDiagramBase
       }
 
       const card: BadgeCardVM = {
-        toothId, x, y, width: OdontogramDiagramBase.CARD_W, height, rows,
+        toothId, x, y, width, height, rows,
         lineX1: anchor.cx, lineY1: anchor.cy, lineX2: 0, lineY2: 0,
       };
       this.updateConnector(card, side);
@@ -331,13 +364,36 @@ export abstract class OdontogramDiagramBase
   private buildRows(state: ToothChartState): BadgeRowVM[] {
     return state.treatments.map((t, i) => {
       const opLabel = this.translate.instant(getOperationLabelKey(t.operation));
-      const short = opLabel.length > 12 ? opLabel.slice(0, 11) + '…' : opLabel;
       return {
         treatmentId: t.id,
-        text: `${i + 1}. ${short}`,
+        text: `${i + 1}. ${opLabel}`,
         statusColor: TREATMENT_STATUS_COLOR[t.status],
       };
     });
+  }
+
+  /** Badge width follows the longest label (title or treatment row) inside the card. */
+  private computeCardWidth(toothId: string, rows: BadgeRowVM[]): number {
+    const titleW = this.measureText(this.toothShortLabel(toothId), 12, '700');
+    let maxRowW = 0;
+    for (const row of rows) {
+      maxRowW = Math.max(maxRowW, this.measureText(row.text, 13));
+    }
+    const contentW = Math.max(6 + titleW + 8, 20 + maxRowW + 8);
+    return Math.max(OdontogramDiagramBase.CARD_MIN_W, Math.ceil(contentW));
+  }
+
+  /** Canvas text measurement — mirrors badge-card-title / badge-row-text styles. */
+  private measureText(text: string, fontSize: number, fontWeight = 'normal'): number {
+    if (!this.textMeasureCtx) {
+      const canvas = document.createElement('canvas');
+      this.textMeasureCtx = canvas.getContext('2d');
+    }
+    if (!this.textMeasureCtx) {
+      return text.length * fontSize * 0.55;
+    }
+    this.textMeasureCtx.font = `${fontWeight} ${fontSize}px Roboto, "Helvetica Neue", sans-serif`;
+    return this.textMeasureCtx.measureText(text).width;
   }
 
   // =====================================================================
@@ -346,26 +402,70 @@ export abstract class OdontogramDiagramBase
   private computeBridges(): void {
     this.bridgeBars = [];
     for (const bridge of this.spanningTreatments || []) {
-      const pts = bridge.toothIds
-        .map((id) => this.anchors[id])
-        .filter((a): a is Anchor => !!a);
-      if (pts.length < 2) {
-        continue;
+      const bar = this.buildBridgeBar(
+        bridge.id,
+        bridge.toothIds,
+        TREATMENT_STATUS_COLOR[bridge.status],
+        this.selectedBridgeId === bridge.id,
+      );
+      if (bar) {
+        this.bridgeBars.push(bar);
       }
-      const points = pts.map((a) => `${a.cx},${a.cy}`).join(' ');
-      const mid = pts[Math.floor(pts.length / 2)];
-      this.bridgeBars.push({
-        id: bridge.id,
-        points,
-        color: TREATMENT_STATUS_COLOR[bridge.status],
-        selected: this.selectedBridgeId === bridge.id,
-        labelX: mid.cx,
-        labelY: mid.cy,
-      });
+    }
+    // Live preview while drawing a new bridge (not yet saved).
+    if (this.bridgeSelectMode && !this.selectedBridgeId) {
+      const ordered = orderAdjacentTeeth(this.notation, this.bridgeDraftToothIds);
+      if (ordered) {
+        const draft = this.buildBridgeBar(
+          '__draft__',
+          ordered,
+          TREATMENT_STATUS_COLOR.pending,
+          false,
+          true,
+        );
+        if (draft) {
+          this.bridgeBars.push(draft);
+        }
+      }
     }
   }
 
+  private bridgeCap(at: Anchor): BridgeCapVM {
+    return { cx: at.cx, cy: at.cy, r: OdontogramDiagramBase.BRIDGE_CAP_R };
+  }
+
+  private buildBridgeBar(
+    id: string,
+    toothIds: string[],
+    color: string,
+    selected: boolean,
+    draft = false,
+  ): BridgeBarVM | null {
+    const pts = toothIds
+      .map((tid) => this.anchors[tid])
+      .filter((a): a is Anchor => !!a);
+    if (pts.length < 2) {
+      return null;
+    }
+    const points = pts.map((a) => `${a.cx},${a.cy}`).join(' ');
+    const mid = pts[Math.floor(pts.length / 2)];
+    return {
+      id,
+      points,
+      color,
+      selected,
+      draft,
+      labelX: mid.cx,
+      labelY: mid.cy,
+      startCap: this.bridgeCap(pts[0]),
+      endCap: this.bridgeCap(pts[pts.length - 1]),
+    };
+  }
+
   onBridgeClick(bridgeId: string): void {
+    if (bridgeId === '__draft__') {
+      return;
+    }
     this.bridgeSelect.emit(bridgeId);
   }
 

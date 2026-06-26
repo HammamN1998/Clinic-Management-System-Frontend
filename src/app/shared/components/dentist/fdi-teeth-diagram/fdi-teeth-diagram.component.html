@@ -218,9 +218,15 @@
         
           <!-- Chart overlay: bridge bars + draggable per-tooth badge cards. -->
           <g class="chart-overlay" *ngIf="chartMode">
-            <polyline *ngFor="let b of bridgeBars" class="bridge-bar" [class.selected]="b.selected"
-              [attr.points]="b.points" [attr.stroke]="b.color"
-              (click)="onBridgeClick(b.id)"></polyline>
+            <g *ngFor="let b of bridgeBars" class="bridge-group"
+              [class.draft]="b.draft" (click)="onBridgeClick(b.id)">
+              <polyline class="bridge-bar" [class.selected]="b.selected"
+                [attr.points]="b.points" [attr.stroke]="b.color"></polyline>
+              <circle class="bridge-cap" [attr.cx]="b.startCap.cx" [attr.cy]="b.startCap.cy"
+                [attr.r]="b.startCap.r" [attr.stroke]="b.color"></circle>
+              <circle class="bridge-cap" [attr.cx]="b.endCap.cx" [attr.cy]="b.endCap.cy"
+                [attr.r]="b.endCap.r" [attr.stroke]="b.color"></circle>
+            </g>
             <g *ngFor="let card of badgeCards" class="badge-group">
               <line class="badge-leader" [attr.x1]="card.lineX1" [attr.y1]="card.lineY1"
                 [attr.x2]="card.lineX2" [attr.y2]="card.lineY2"></line>
