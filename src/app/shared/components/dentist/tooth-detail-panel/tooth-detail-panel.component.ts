@@ -42,10 +42,13 @@ import {
   TreatmentStatus,
 } from '@core/models/patient.model';
 import {
+  DENTAL_BRANCHES,
   DENTAL_CONDITION_OPTIONS,
-  DENTAL_OPERATIONS,
+  DentalBranch,
   getConditionOption,
+  getOperationBranch,
   getOperationLabelKey,
+  getOperationsForBranch,
   getToothShortLabel,
   orderAdjacentTeeth,
 } from '@core/models/dental.constants';
@@ -90,7 +93,23 @@ export class ToothDetailPanelComponent implements OnChanges {
   @Output() closePanel = new EventEmitter<void>();
 
   readonly conditionOptions = DENTAL_CONDITION_OPTIONS;
-  readonly operationOptions = DENTAL_OPERATIONS;
+  /** Branch selector options: "All" plus each dental specialty. */
+  readonly branchOptions: { value: DentalBranch | 'all'; labelKey: string }[] = [
+    { value: 'all', labelKey: 'PATIENTS.DENTAL_CHART.BRANCHES.ALL' },
+    ...DENTAL_BRANCHES,
+  ];
+
+  /** UI-only branch filter for the treatment and bridge operation combos. */
+  treatmentBranch: DentalBranch | 'all' = 'all';
+  bridgeBranch: DentalBranch | 'all' = 'all';
+
+  get treatmentOperations() {
+    return getOperationsForBranch(this.treatmentBranch);
+  }
+
+  get bridgeOperations() {
+    return getOperationsForBranch(this.bridgeBranch);
+  }
 
   // Tooth note + treatment form drafts.
   noteDraft = '';
@@ -208,12 +227,33 @@ export class ToothDetailPanelComponent implements OnChanges {
 
   editTreatment(treatment: ToothTreatmentStep): void {
     this.editingTreatmentId = treatment.id;
+    this.treatmentBranch = getOperationBranch(treatment.operation);
     this.treatmentForm = {
       operation: treatment.operation,
       date: this.parseDate(treatment.date),
       status: treatment.status,
       note: treatment.note ?? '',
     };
+  }
+
+  onTreatmentBranchChange(): void {
+    if (!this.treatmentForm.operation) {
+      return;
+    }
+    const stillVisible = this.treatmentOperations.some((op) => op.value === this.treatmentForm.operation);
+    if (!stillVisible) {
+      this.treatmentForm.operation = '';
+    }
+  }
+
+  onBridgeBranchChange(): void {
+    if (!this.bridgeForm.operation) {
+      return;
+    }
+    const stillVisible = this.bridgeOperations.some((op) => op.value === this.bridgeForm.operation);
+    if (!stillVisible) {
+      this.bridgeForm.operation = '';
+    }
   }
 
   cancelTreatmentEdit(): void {
@@ -373,6 +413,7 @@ export class ToothDetailPanelComponent implements OnChanges {
 
   private resetTreatmentForm(): void {
     this.editingTreatmentId = null;
+    this.treatmentBranch = 'all';
     this.treatmentForm = this.emptyTreatmentForm();
   }
 
@@ -388,6 +429,9 @@ export class ToothDetailPanelComponent implements OnChanges {
           note: existing.note ?? '',
         }
       : this.emptyBridgeForm();
+    this.bridgeBranch = existing
+      ? getOperationBranch(existing.operation)
+      : 'prosthodontics';
   }
 
   private emptyTreatmentForm() {

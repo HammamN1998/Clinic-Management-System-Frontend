@@ -112,6 +112,17 @@
       border-color: #263238;
       box-shadow: 0 0 0 2px #fff inset;
     }
+
+    /* None / clear condition: no fill on the tooth — show as an unfilled ring. */
+    &.swatch-none {
+      background: #fafafa !important;
+      border: 2px dashed #90a4ae;
+
+      &.active {
+        border-color: #263238;
+        border-style: dashed;
+      }
+    }
   }
 
   .condition-current {

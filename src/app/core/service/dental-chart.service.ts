@@ -236,7 +236,7 @@ export class DentalChartService {
   /**
    * Re-derive the tooth's condition/colour from its most recently created
    * `done` treatment whose operation maps to a condition (filling, crown,
-   * extraction, implant, rootCanal). Operations without a mapping leave the
+   * extraction, implant, rootCanal, ...). Operations without a mapping leave the
    * colour untouched, so a manually picked condition stays until such a
    * treatment is recorded.
    */

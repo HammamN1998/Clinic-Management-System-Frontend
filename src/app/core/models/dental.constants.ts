@@ -25,22 +25,110 @@ export const DENTAL_CONDITION_OPTIONS: DentalConditionOption[] = [
   { value: 'implant', color: '#00897b', labelKey: 'PATIENTS.DENTAL_CHART.CONDITIONS.IMPLANT' },
   { value: 'rootCanal', color: '#8e24aa', labelKey: 'PATIENTS.DENTAL_CHART.CONDITIONS.ROOT_CANAL' },
   { value: 'other', color: '#607d8b', labelKey: 'PATIENTS.DENTAL_CHART.CONDITIONS.OTHER' },
+  { value: 'none', color: '', labelKey: 'PATIENTS.DENTAL_CHART.CONDITIONS.NONE' },
 ];
 
-/** Treatment operations offered in the add/edit treatment form. */
-export const DENTAL_OPERATIONS: { value: string; labelKey: string }[] = [
-  { value: 'examination', labelKey: 'PATIENTS.DENTAL_CHART.OPERATIONS.EXAMINATION' },
-  { value: 'cleaning', labelKey: 'PATIENTS.DENTAL_CHART.OPERATIONS.CLEANING' },
-  { value: 'filling', labelKey: 'PATIENTS.DENTAL_CHART.OPERATIONS.FILLING' },
-  { value: 'extraction', labelKey: 'PATIENTS.DENTAL_CHART.OPERATIONS.EXTRACTION' },
-  { value: 'rootCanal', labelKey: 'PATIENTS.DENTAL_CHART.OPERATIONS.ROOT_CANAL' },
-  { value: 'crown', labelKey: 'PATIENTS.DENTAL_CHART.OPERATIONS.CROWN' },
-  { value: 'bridge', labelKey: 'PATIENTS.DENTAL_CHART.OPERATIONS.BRIDGE' },
-  { value: 'implant', labelKey: 'PATIENTS.DENTAL_CHART.OPERATIONS.IMPLANT' },
-  { value: 'whitening', labelKey: 'PATIENTS.DENTAL_CHART.OPERATIONS.WHITENING' },
-  { value: 'scaling', labelKey: 'PATIENTS.DENTAL_CHART.OPERATIONS.SCALING' },
-  { value: 'other', labelKey: 'PATIENTS.DENTAL_CHART.OPERATIONS.OTHER' },
+/** Dental specialty used to filter the operation list in the treatment form. */
+export type DentalBranch =
+  | 'general'
+  | 'endodontics'
+  | 'periodontics'
+  | 'prosthodontics'
+  | 'surgery'
+  | 'orthodontics'
+  | 'pediatric'
+  | 'cosmetic'
+  | 'other';
+
+export interface DentalOperationOption {
+  value: string;
+  labelKey: string;
+  branches: DentalBranch[];
+}
+
+/** Branches shown in the branch selector (UI filter only - not persisted). */
+export const DENTAL_BRANCHES: { value: DentalBranch; labelKey: string }[] = [
+  { value: 'general', labelKey: 'PATIENTS.DENTAL_CHART.BRANCHES.GENERAL' },
+  { value: 'endodontics', labelKey: 'PATIENTS.DENTAL_CHART.BRANCHES.ENDODONTICS' },
+  { value: 'periodontics', labelKey: 'PATIENTS.DENTAL_CHART.BRANCHES.PERIODONTICS' },
+  { value: 'prosthodontics', labelKey: 'PATIENTS.DENTAL_CHART.BRANCHES.PROSTHODONTICS' },
+  { value: 'surgery', labelKey: 'PATIENTS.DENTAL_CHART.BRANCHES.SURGERY' },
+  { value: 'orthodontics', labelKey: 'PATIENTS.DENTAL_CHART.BRANCHES.ORTHODONTICS' },
+  { value: 'pediatric', labelKey: 'PATIENTS.DENTAL_CHART.BRANCHES.PEDIATRIC' },
+  { value: 'cosmetic', labelKey: 'PATIENTS.DENTAL_CHART.BRANCHES.COSMETIC' },
+  { value: 'other', labelKey: 'PATIENTS.DENTAL_CHART.BRANCHES.OTHER' },
 ];
+
+const ALL_BRANCHES: DentalBranch[] = DENTAL_BRANCHES.map((b) => b.value);
+
+/** Treatment operations offered in the add/edit treatment form, grouped by branch. */
+export const DENTAL_OPERATIONS: DentalOperationOption[] = [
+  // General / restorative
+  { value: 'examination', labelKey: 'PATIENTS.DENTAL_CHART.OPERATIONS.EXAMINATION', branches: ['general'] },
+  { value: 'cleaning', labelKey: 'PATIENTS.DENTAL_CHART.OPERATIONS.CLEANING', branches: ['general'] },
+  { value: 'scaling', labelKey: 'PATIENTS.DENTAL_CHART.OPERATIONS.SCALING', branches: ['general', 'periodontics'] },
+  { value: 'filling', labelKey: 'PATIENTS.DENTAL_CHART.OPERATIONS.FILLING', branches: ['general'] },
+  { value: 'fluoride', labelKey: 'PATIENTS.DENTAL_CHART.OPERATIONS.FLUORIDE', branches: ['general', 'pediatric'] },
+  { value: 'sealant', labelKey: 'PATIENTS.DENTAL_CHART.OPERATIONS.SEALANT', branches: ['general', 'pediatric'] },
+  { value: 'inlay', labelKey: 'PATIENTS.DENTAL_CHART.OPERATIONS.INLAY', branches: ['general'] },
+  { value: 'onlay', labelKey: 'PATIENTS.DENTAL_CHART.OPERATIONS.ONLAY', branches: ['general'] },
+  // Endodontics
+  { value: 'rootCanal', labelKey: 'PATIENTS.DENTAL_CHART.OPERATIONS.ROOT_CANAL', branches: ['endodontics'] },
+  { value: 'pulpotomy', labelKey: 'PATIENTS.DENTAL_CHART.OPERATIONS.PULPOTOMY', branches: ['endodontics', 'pediatric'] },
+  { value: 'pulpectomy', labelKey: 'PATIENTS.DENTAL_CHART.OPERATIONS.PULPECTOMY', branches: ['endodontics', 'pediatric'] },
+  { value: 'retreatment', labelKey: 'PATIENTS.DENTAL_CHART.OPERATIONS.RETREATMENT', branches: ['endodontics'] },
+  { value: 'apicoectomy', labelKey: 'PATIENTS.DENTAL_CHART.OPERATIONS.APICOECTOMY', branches: ['endodontics'] },
+  { value: 'postCore', labelKey: 'PATIENTS.DENTAL_CHART.OPERATIONS.POST_CORE', branches: ['endodontics'] },
+  // Periodontics
+  { value: 'scalingRootPlaning', labelKey: 'PATIENTS.DENTAL_CHART.OPERATIONS.SCALING_ROOT_PLANING', branches: ['periodontics'] },
+  { value: 'gingivectomy', labelKey: 'PATIENTS.DENTAL_CHART.OPERATIONS.GINGIVECTOMY', branches: ['periodontics'] },
+  { value: 'flapSurgery', labelKey: 'PATIENTS.DENTAL_CHART.OPERATIONS.FLAP_SURGERY', branches: ['periodontics'] },
+  { value: 'gumGraft', labelKey: 'PATIENTS.DENTAL_CHART.OPERATIONS.GUM_GRAFT', branches: ['periodontics'] },
+  { value: 'crownLengthening', labelKey: 'PATIENTS.DENTAL_CHART.OPERATIONS.CROWN_LENGTHENING', branches: ['periodontics'] },
+  // Prosthodontics
+  { value: 'crown', labelKey: 'PATIENTS.DENTAL_CHART.OPERATIONS.CROWN', branches: ['prosthodontics'] },
+  { value: 'bridge', labelKey: 'PATIENTS.DENTAL_CHART.OPERATIONS.BRIDGE', branches: ['prosthodontics'] },
+  { value: 'veneer', labelKey: 'PATIENTS.DENTAL_CHART.OPERATIONS.VENEER', branches: ['prosthodontics', 'cosmetic'] },
+  { value: 'dentureComplete', labelKey: 'PATIENTS.DENTAL_CHART.OPERATIONS.DENTURE_COMPLETE', branches: ['prosthodontics'] },
+  { value: 'denturePartial', labelKey: 'PATIENTS.DENTAL_CHART.OPERATIONS.DENTURE_PARTIAL', branches: ['prosthodontics'] },
+  { value: 'recementation', labelKey: 'PATIENTS.DENTAL_CHART.OPERATIONS.RECEMENTATION', branches: ['prosthodontics'] },
+  // Oral & maxillofacial surgery
+  { value: 'extraction', labelKey: 'PATIENTS.DENTAL_CHART.OPERATIONS.EXTRACTION', branches: ['surgery'] },
+  { value: 'surgicalExtraction', labelKey: 'PATIENTS.DENTAL_CHART.OPERATIONS.SURGICAL_EXTRACTION', branches: ['surgery'] },
+  { value: 'wisdomExtraction', labelKey: 'PATIENTS.DENTAL_CHART.OPERATIONS.WISDOM_EXTRACTION', branches: ['surgery'] },
+  { value: 'implant', labelKey: 'PATIENTS.DENTAL_CHART.OPERATIONS.IMPLANT', branches: ['surgery', 'prosthodontics'] },
+  { value: 'frenectomy', labelKey: 'PATIENTS.DENTAL_CHART.OPERATIONS.FRENECTOMY', branches: ['surgery'] },
+  { value: 'biopsy', labelKey: 'PATIENTS.DENTAL_CHART.OPERATIONS.BIOPSY', branches: ['surgery'] },
+  // Orthodontics
+  { value: 'braces', labelKey: 'PATIENTS.DENTAL_CHART.OPERATIONS.BRACES', branches: ['orthodontics'] },
+  { value: 'aligners', labelKey: 'PATIENTS.DENTAL_CHART.OPERATIONS.ALIGNERS', branches: ['orthodontics'] },
+  { value: 'retainer', labelKey: 'PATIENTS.DENTAL_CHART.OPERATIONS.RETAINER', branches: ['orthodontics'] },
+  { value: 'spaceMaintainer', labelKey: 'PATIENTS.DENTAL_CHART.OPERATIONS.SPACE_MAINTAINER', branches: ['orthodontics', 'pediatric'] },
+  // Pediatric
+  { value: 'ssCrown', labelKey: 'PATIENTS.DENTAL_CHART.OPERATIONS.SS_CROWN', branches: ['pediatric'] },
+  // Cosmetic
+  { value: 'whitening', labelKey: 'PATIENTS.DENTAL_CHART.OPERATIONS.WHITENING', branches: ['cosmetic'] },
+  { value: 'bonding', labelKey: 'PATIENTS.DENTAL_CHART.OPERATIONS.BONDING', branches: ['cosmetic'] },
+  // Fallback - always visible under every branch filter
+  { value: 'other', labelKey: 'PATIENTS.DENTAL_CHART.OPERATIONS.OTHER', branches: ALL_BRANCHES },
+];
+
+/** Operations visible for the selected branch; "all" returns the full catalog. */
+export function getOperationsForBranch(branch: DentalBranch | 'all'): DentalOperationOption[] {
+  if (branch === 'all') {
+    return DENTAL_OPERATIONS;
+  }
+  return DENTAL_OPERATIONS.filter((op) => op.branches.includes(branch));
+}
+
+/** First branch that owns an operation - used to pre-select the branch when editing. */
+export function getOperationBranch(operation: string): DentalBranch | 'all' {
+  const match = DENTAL_OPERATIONS.find((op) => op.value === operation);
+  if (!match) {
+    return 'all';
+  }
+  return match.branches[0];
+}
 
 export const DENTAL_NOTATIONS: { value: DentalNotation; labelKey: string }[] = [
   { value: 'universal', labelKey: 'PATIENTS.PROFILE.UNIVERSAL_TEETH_DIAGRAM' },
@@ -72,15 +160,35 @@ export function getOperationLabelKey(operation: string): string {
 /**
  * Operations whose completion implies a resulting tooth condition. Used to
  * auto-update the tooth colour when such a treatment is marked done. Operations
- * not listed here (examination, cleaning, scaling, whitening, ...) intentionally
- * leave the condition/colour untouched.
+ * not listed here (examination, cleaning, scaling, whitening, orthodontics, ...)
+ * intentionally leave the condition/colour untouched.
  */
 export const OPERATION_CONDITION_MAP: Record<string, ToothCondition> = {
+  // Restorative
   filling: 'filled',
+  inlay: 'filled',
+  onlay: 'filled',
+  bonding: 'filled',
+  // Prosthodontics
   crown: 'crown',
-  extraction: 'missing',
-  implant: 'implant',
+  bridge: 'crown',
+  ssCrown: 'crown',
+  veneer: 'crown',
+  postCore: 'crown',
+  recementation: 'crown',
+  // Endodontics
   rootCanal: 'rootCanal',
+  pulpotomy: 'rootCanal',
+  pulpectomy: 'rootCanal',
+  retreatment: 'rootCanal',
+  apicoectomy: 'rootCanal',
+  // Oral surgery
+  extraction: 'missing',
+  surgicalExtraction: 'missing',
+  wisdomExtraction: 'missing',
+  implant: 'implant',
+  // Catch-all
+  other: 'other',
 };
 
 export function getOperationCondition(operation: string): ToothCondition | null {

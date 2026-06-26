@@ -25,9 +25,16 @@
     <div class="span-label" *ngIf="bridgeDraftToothIds.length >= 2">{{ draftTeethLabel }}</div>
 
     <mat-form-field class="full-width" appearance="outline">
+      <mat-label>{{ 'PATIENTS.DENTAL_CHART.BRANCH' | translate }}</mat-label>
+      <mat-select [(ngModel)]="bridgeBranch" (selectionChange)="onBridgeBranchChange()">
+        <mat-option *ngFor="let b of branchOptions" [value]="b.value">{{ b.labelKey | translate }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field class="full-width" appearance="outline">
       <mat-label>{{ 'PATIENTS.DENTAL_CHART.OPERATION' | translate }}</mat-label>
       <mat-select [(ngModel)]="bridgeForm.operation">
-        <mat-option *ngFor="let op of operationOptions" [value]="op.value">{{ op.labelKey | translate }}</mat-option>
+        <mat-option *ngFor="let op of bridgeOperations" [value]="op.value">{{ op.labelKey | translate }}</mat-option>
       </mat-select>
     </mat-form-field>
 
@@ -101,7 +108,8 @@
       <div class="condition-grid">
         <button type="button" class="swatch" *ngFor="let c of conditionOptions"
           [class.active]="currentCondition === c.value"
-          [style.background]="c.color"
+          [class.swatch-none]="c.value === 'none'"
+          [style.background]="c.color || null"
           [matTooltip]="c.labelKey | translate"
           (click)="selectCondition(c.value)"></button>
       </div>
@@ -120,9 +128,15 @@
         {{ (editingTreatmentId ? 'PATIENTS.DENTAL_CHART.EDIT_TREATMENT' : 'PATIENTS.DENTAL_CHART.ADD_TREATMENT') | translate }}
       </h5>
       <mat-form-field class="full-width" appearance="outline">
+        <mat-label>{{ 'PATIENTS.DENTAL_CHART.BRANCH' | translate }}</mat-label>
+        <mat-select [(ngModel)]="treatmentBranch" (selectionChange)="onTreatmentBranchChange()">
+          <mat-option *ngFor="let b of branchOptions" [value]="b.value">{{ b.labelKey | translate }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field class="full-width" appearance="outline">
         <mat-label>{{ 'PATIENTS.DENTAL_CHART.OPERATION' | translate }}</mat-label>
         <mat-select [(ngModel)]="treatmentForm.operation">
-          <mat-option *ngFor="let op of operationOptions" [value]="op.value">{{ op.labelKey | translate }}</mat-option>
+          <mat-option *ngFor="let op of treatmentOperations" [value]="op.value">{{ op.labelKey | translate }}</mat-option>
         </mat-select>
       </mat-form-field>
       <div class="form-row">

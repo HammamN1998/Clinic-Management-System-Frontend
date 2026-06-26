@@ -17,6 +17,7 @@ export type ToothCondition =
   | 'missing'
   | 'implant'
   | 'rootCanal'
+  | 'none'
   | 'other';
 
 export type TreatmentStatus = 'pending' | 'done';
