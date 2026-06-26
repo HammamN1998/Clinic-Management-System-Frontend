@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {from, Observable} from 'rxjs';
-import {Attachment, Patient, SpecialDiagrams} from '@core/models/patient.model';
+import {Attachment, Patient} from '@core/models/patient.model';
 import {UnsubscribeOnDestroyAdapter} from '@shared';
 import {FirebaseAuthenticationService} from "../../authentication/services/firebase-authentication.service";
 import {AngularFirestore} from "@angular/fire/compat/firestore";
@@ -419,34 +419,6 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
 
   deleteTreatment(id: string) {
     return this.firestore.collection('treatments').doc(id).delete();
-  }
-
-  /**
-   * Upsert a legacy per-tooth note in the given special-diagram array and
-   * persist it. Shared by the three notation diagrams (and their dual-mode base).
-   */
-  updateSpecialDiagramNote(diagramKey: keyof SpecialDiagrams, toothId: string, toothNote: string) {
-    const notes = this.getDialogData().specialDiagrams[diagramKey];
-    const foundToothIndex = notes.findIndex((tooth) => !isNullOrUndefined(tooth[toothId]));
-    if (!isNullOrUndefined(foundToothIndex) && foundToothIndex != -1) {
-      notes[foundToothIndex] = {[toothId]: toothNote};
-    } else {
-      notes.push({[toothId]: toothNote});
-    }
-    const newSpecialDiagrams: SpecialDiagrams = this.getDialogData().specialDiagrams;
-    return this.firestore.collection('patients').doc(this.getDialogData().id).ref.update( {specialDiagrams: newSpecialDiagrams} );
-  }
-
-  updateUniversalTeethDiagramToothNote(toothId: string, toothNote: string) {
-    return this.updateSpecialDiagramNote('universalTeethDiagram', toothId, toothNote);
-  }
-
-  updateFdiTeethDiagramToothNote(toothId: string, toothNote: string) {
-    return this.updateSpecialDiagramNote('fdiTeethDiagram', toothId, toothNote);
-  }
-
-  updatePalmerTeethDiagramToothNote(toothId: string, toothNote: string) {
-    return this.updateSpecialDiagramNote('palmerTeethDiagram', toothId, toothNote);
   }
 
   getPatientInfo(patientId: string) {

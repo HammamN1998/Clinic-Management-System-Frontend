@@ -1,18 +1,15 @@
 /**
  * Shared logic for the three notation odontograms (FDI / Universal / Palmer).
  *
- * The same SVG geometry powers two modes:
- *  - legacy "note" mode (patient profile): click a tooth, edit a free-text note;
- *    a tooth with a note is filled red. Nothing about this behaviour changes.
- *  - "chart" mode (dental chart page): teeth are filled by condition colour and
- *    each tooth's treatments are shown as a draggable badge card in the side
- *    gutters, connected to the tooth by a single leader line; bridges are drawn
- *    as a bar spanning their teeth.
+ * Used in chart mode on the dental chart page: teeth are filled by condition
+ * colour and each tooth's treatments are shown as a draggable badge card in
+ * the side gutters, connected to the tooth by a single leader line; bridges
+ * are drawn as a bar spanning their teeth.
  *
  * Geometry note: anchors come straight from each tooth `<path>`'s `getBBox()`,
  * which is in SVG user space - the same space the overlay cards/lines live in -
- * so no manual coordinate mapping is needed. In chart mode the root viewBox is
- * widened by `GUTTER` on each side to make room for the badge cards.
+ * so no manual coordinate mapping is needed. The root viewBox is widened by
+ * `GUTTER` on each side to make room for the badge cards.
  */
 import {
   AfterViewInit,
@@ -25,16 +22,11 @@ import {
   Output,
   ViewChild,
 } from '@angular/core';
-import { isNullOrUndefined } from '@swimlane/ngx-datatable';
-import { from } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
-import { PatientService } from '@core/service/patient.service';
-import { NotificationService } from '@core/service/notification.service';
 import { UnsubscribeOnDestroyAdapter } from '@shared';
 import {
   DentalNotation,
   SpanTreatment,
-  SpecialDiagrams,
   ToothChartState,
 } from '@core/models/patient.model';
 import {
@@ -83,9 +75,8 @@ export abstract class OdontogramDiagramBase
   extends UnsubscribeOnDestroyAdapter
   implements AfterViewInit, OnChanges {
 
-  // The notation this diagram renders + its legacy notes array key.
+  // The notation this diagram renders.
   abstract readonly notation: DentalNotation;
-  abstract readonly legacyArrayKey: keyof SpecialDiagrams;
 
   // ----- mode + chart inputs --------------------------------------------
   @Input() chartMode = false;
@@ -102,10 +93,6 @@ export abstract class OdontogramDiagramBase
   @Output() bridgeSelect = new EventEmitter<string>();
   @Output() badgeMoved = new EventEmitter<{ toothId: string; pos: { x: number; y: number } }>();
 
-  // ----- legacy note-mode state -----------------------------------------
-  selectedTooth!: string;
-  toothNote = '';
-
   // ----- view refs (provided by the transformed template) ---------------
   @ViewChild('odontogramSvg') svgRef?: ElementRef<SVGSVGElement>;
   @ViewChild('odontogramWrapper') wrapperRef?: ElementRef<HTMLElement>;
@@ -114,7 +101,7 @@ export abstract class OdontogramDiagramBase
   badgeCards: BadgeCardVM[] = [];
   bridgeBars: BridgeBarVM[] = [];
 
-  // viewBox + native size (legacy keeps the original fixed 442x558)
+  // viewBox + native size
   protected static readonly BASE_W = 442;
   protected static readonly BASE_H = 558;
   // Gutters reserve just enough room for the badge cards; keeping them tight
@@ -128,11 +115,7 @@ export abstract class OdontogramDiagramBase
   private drag: { toothId: string; startX: number; startY: number; originX: number; originY: number; moved: boolean } | null = null;
   private justDragged = false;
 
-  protected constructor(
-    protected patientService: PatientService,
-    protected notificationService: NotificationService,
-    protected translate: TranslateService,
-  ) {
+  protected constructor(protected translate: TranslateService) {
     super();
   }
 
@@ -141,8 +124,7 @@ export abstract class OdontogramDiagramBase
   // =====================================================================
   getToothStyle(toothId: string): { [k: string]: string } {
     if (!this.chartMode) {
-      const exists = this.isToothExist(toothId);
-      return { fill: exists ? 'red' : '', 'fill-opacity': exists ? '0.5' : '' };
+      return {};
     }
     // Selection (single tooth, bridge members, bridge draft) is shown via the
     // `.selected` border (see SCSS), not a fill, so the tooth keeps its
@@ -156,7 +138,7 @@ export abstract class OdontogramDiagramBase
 
   isSelected(toothId: string): boolean {
     if (!this.chartMode) {
-      return this.selectedTooth === toothId;
+      return false;
     }
     if (this.selectedToothId === toothId) {
       return true;
@@ -180,51 +162,7 @@ export abstract class OdontogramDiagramBase
     if (this.chartMode) {
       // The page owns selection / bridge-draft logic; just report the click.
       this.toothSelect.emit(toothId);
-    } else {
-      this.selectTooth(toothId);
     }
-  }
-
-  // =====================================================================
-  // Legacy note mode (patient profile)
-  // =====================================================================
-  selectTooth(toothId: string): void {
-    this.selectedTooth = toothId;
-    const notes = this.legacyNotes();
-    const idx = notes.findIndex((tooth) => !isNullOrUndefined(tooth[toothId]));
-    this.toothNote = idx !== -1 ? notes[idx][toothId] : '';
-  }
-
-  saveToothNote(): void {
-    this.subs.sink = from(
-      this.patientService.updateSpecialDiagramNote(this.legacyArrayKey, this.selectedTooth, this.toothNote),
-    ).subscribe({
-      next: () => {
-        this.notificationService.showSnackBarNotification(
-          'black',
-          this.translate.instant('PATIENTS.DENTAL_CHART.MESSAGES.NOTE_SAVED'),
-          'bottom',
-          'center',
-        );
-      },
-      error: (error) => console.log('error: ' + error),
-    });
-  }
-
-  isToothExist(toothId: string): boolean {
-    if (this.chartMode) {
-      return false; // chart fills are handled in getToothStyle
-    }
-    const notes = this.legacyNotes();
-    const idx = notes.findIndex(
-      (tooth) => !isNullOrUndefined(tooth[toothId]) && (tooth[toothId] ?? '').trim() !== '',
-    );
-    return idx !== -1;
-  }
-
-  private legacyNotes(): { [toothId: string]: string }[] {
-    const diagrams = this.patientService.getDialogData().specialDiagrams;
-    return (diagrams && diagrams[this.legacyArrayKey]) || [];
   }
 
   // =====================================================================

@@ -12,7 +12,7 @@ The feature is currently labelled **BETA**.
 |------|--------|
 | Page | New lazy-loaded page at `/admin/patients/dental-chart` with a vertical split: odontogram (left) + details panel (right) |
 | Notation | Universal / FDI / Palmer numbering, selectable on the page; doctor's last choice saved as preferred |
-| Odontogram | Existing SVG teeth diagrams reused in a new "chart mode" via a shared base directive |
+| Odontogram | SVG teeth diagrams via a shared base directive in chart mode |
 | Conditions | Color swatches set a tooth's condition; the fill reflects the condition color |
 | Treatments | Per-tooth treatment list with add/edit/status/delete; each treatment shown as a draggable SVG badge card connected to its tooth by a leader line |
 | Bridges | Multi-tooth (adjacent) treatments rendered as a bar spanning the teeth, with an editor |
@@ -24,7 +24,7 @@ The feature is currently labelled **BETA**.
 
 ## 1. Entry point
 
-From the **patient profile** (`patient-profile.component`), the *Specialized forms* section has a single **Open dental chart** button (with a `BETA` badge) above the *Available Diagrams* list.
+From the **patient profile** (`patient-profile.component`), the *Specialized forms* section has an **Open dental chart** button (with a `BETA` badge).
 
 - `openDentalChart(notation?)` navigates to the chart page. An optional notation can be passed via router state; otherwise the page falls back to the doctor's preferred notation.
 
@@ -43,10 +43,9 @@ From the **patient profile** (`patient-profile.component`), the *Specialized for
 
 ## 3. Odontogram rendering
 
-The three diagram components (`fdi`, `universal`, `palmer`) extend a shared abstract base, `OdontogramDiagramBase`, supporting two modes:
+The three diagram components (`fdi`, `universal`, `palmer`) extend a shared abstract base, `OdontogramDiagramBase`, used in chart mode on the dental chart page:
 
-- **Legacy note mode** (patient profile) — unchanged: click a tooth, edit a free-text note (red fill when noted).
-- **Chart mode** (this feature) — condition-colored fills, draggable per-tooth **badge cards**, and **bridge bars**.
+- Condition-colored fills, draggable per-tooth **badge cards**, and **bridge bars**.
 
 Key rendering details:
 

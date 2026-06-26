@@ -1,18 +1,11 @@
 import * as firestore from "firebase/firestore";
 
-export interface SpecialDiagrams {
-  universalTeethDiagram: {[toothId: string]: string}[],
-  fdiTeethDiagram: {[toothId: string]: string}[],
-  palmerTeethDiagram: {[toothId: string]: string}[],
-}
-
 /**
  * Dental chart model (the dedicated odontogram page).
  *
- * Kept separate from the legacy `specialDiagrams` notes so the existing patient
- * profile behaviour is untouched. Per-notation data lives under
- * `dentalChart.charts[notation]`; the *active* notation is a doctor-level
- * preference (see `User.preferredDentalNotation`), not stored per patient.
+ * Per-notation data lives under `dentalChart.charts[notation]`; the *active*
+ * notation is a doctor-level preference (see `User.preferredDentalNotation`),
+ * not stored per patient.
  */
 export type DentalNotation = 'fdi' | 'universal' | 'palmer';
 
@@ -103,11 +96,6 @@ export class Patient {
   imgSize: number = 0;
   doctorId: string = '';
   attachments: Attachment[] = [];
-  specialDiagrams: SpecialDiagrams = {
-    universalTeethDiagram: [],
-    fdiTeethDiagram: [],
-    palmerTeethDiagram: [],
-  };
   dentalChart: DentalChart = createEmptyDentalChart();
   createdAt: firestore.Timestamp = firestore.Timestamp.now();
   notes: string = '';

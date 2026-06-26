@@ -241,16 +241,5 @@
         </svg>
 
     </div>
-    <div class="body" *ngIf="selectedTooth && !chartMode">
-        <div dir="rtl">
-            <button mat-icon-button (click)="saveToothNote()" matTooltip="Save Note" dir="rtl">
-              <mat-icon>save</mat-icon>
-            </button>
-        </div>
-        <mat-form-field class="example-full-width mb-3" appearance="outline">
-            <mat-label>{{selectedTooth}} Note</mat-label>
-            <textarea matInput [(ngModel)]="toothNote" rows="6"></textarea>
-        </mat-form-field>
-    </div>
 </div>
 

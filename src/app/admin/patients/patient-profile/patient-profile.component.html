@@ -705,7 +705,7 @@
             {{ 'PATIENTS.PROFILE.SPECIALIZED_FORMS_SECTION' | translate }}
           </div>
           <div class="body">
-            <div class="row mb-4">
+            <div class="row">
               <div class="col-12">
                 <button mat-raised-button color="primary" class="open-dental-chart-btn"
                   (click)="openDentalChart()">
@@ -715,52 +715,6 @@
                 </button>
               </div>
             </div>
-            <div class="row">
-              <div class="col-lg-8 col-md-12">
-                <mat-form-field class="example-full-width " appearance="outline">
-                  <mat-label>{{ 'PATIENTS.PROFILE.AVAILABLE_DIAGRAMS' | translate }}</mat-label>
-                  <mat-select [(value)]="this.selectedDiagram">
-                    <mat-optgroup [label]="'PATIENTS.PROFILE.DENTIST' | translate">
-                      <mat-option [value]="'universalTeethDiagram'"    [disabled]="isNullOrUndefined(this.patient.specialDiagrams.universalTeethDiagram) ? false : this.patient.specialDiagrams.universalTeethDiagram.length > 0" >{{ 'PATIENTS.PROFILE.UNIVERSAL_TEETH_DIAGRAM' | translate }} </mat-option>
-                      <mat-option [value]="'fdiTeethDiagram'"    [disabled]="isNullOrUndefined(this.patient.specialDiagrams.fdiTeethDiagram) ? false : this.patient.specialDiagrams.fdiTeethDiagram.length > 0" >{{ 'PATIENTS.PROFILE.FDI_TEETH_DIAGRAM' | translate }} </mat-option>
-                      <mat-option [value]="'palmerTeethDiagram'"    [disabled]="isNullOrUndefined(this.patient.specialDiagrams.palmerTeethDiagram) ? false : this.patient.specialDiagrams.palmerTeethDiagram.length > 0" >{{ 'PATIENTS.PROFILE.PALMER_TEETH_DIAGRAM' | translate }} </mat-option>
-                    </mat-optgroup>
-                  </mat-select>
-                </mat-form-field>
-              </div>
-              <div class="col-lg-4 col-md-12">
-                <button mat-raised-button color="primary" (click)="this.addSpecialDiagram()">{{ 'COMMON.CREATE' | translate }}</button>
-              </div>
-            </div>
-            <mat-tab-group>
-              <mat-tab *ngIf="isNullOrUndefined(this.patient.specialDiagrams.universalTeethDiagram) ? false : this.patient.specialDiagrams.universalTeethDiagram.length > 0">
-                <ng-template mat-tab-label>
-                    <div class="icon-preview msr-2"><i class="fas fa-teeth-open"></i></div>
-                  {{ 'PATIENTS.PROFILE.UNIVERSAL_TEETH_DIAGRAM' | translate }}
-                </ng-template>
-                <div class="body" >
-                  <app-universal-teeth-diagram></app-universal-teeth-diagram>
-                </div>
-              </mat-tab>
-              <mat-tab *ngIf="isNullOrUndefined(this.patient.specialDiagrams.fdiTeethDiagram) ? false : this.patient.specialDiagrams.fdiTeethDiagram.length > 0">
-                <ng-template mat-tab-label>
-                    <div class="icon-preview msr-2"><i class="fas fa-teeth-open"></i></div>
-                  {{ 'PATIENTS.PROFILE.FDI_TEETH_DIAGRAM' | translate }}
-                </ng-template>
-                <div class="body" >
-                  <app-fdi-teeth-diagram></app-fdi-teeth-diagram>
-                </div>
-              </mat-tab>
-              <mat-tab *ngIf="isNullOrUndefined(this.patient.specialDiagrams.palmerTeethDiagram) ? false : this.patient.specialDiagrams.palmerTeethDiagram.length > 0">
-                <ng-template mat-tab-label>
-                    <div class="icon-preview msr-2"><i class="fas fa-teeth-open"></i></div>
-                  {{ 'PATIENTS.PROFILE.PALMER_TEETH_DIAGRAM' | translate }}
-                </ng-template>
-                <div class="body" >
-                  <app-palmer-teeth-diagram></app-palmer-teeth-diagram>
-                </div>
-              </mat-tab>
-            </mat-tab-group>
           </div>
         </div>
       </div>
