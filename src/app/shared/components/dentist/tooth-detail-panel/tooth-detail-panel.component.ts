@@ -49,9 +49,18 @@ import {
   getOperationBranch,
   getOperationLabelKey,
   getOperationsForBranch,
+  getSpanOperationsForBranch,
   getToothShortLabel,
-  orderAdjacentTeeth,
+  isSpanCapableOperation,
+  orderBridgeTeeth,
 } from '@core/models/dental.constants';
+
+export interface BridgeFormSeed {
+  operation: string;
+  date: Date;
+  status: TreatmentStatus;
+  note: string;
+}
 
 @Component({
   selector: 'app-tooth-detail-panel',
@@ -79,6 +88,7 @@ export class ToothDetailPanelComponent implements OnChanges {
   @Input() selectedToothId: string | null = null;
   @Input() bridgeMode = false;
   @Input() bridgeDraftToothIds: string[] = [];
+  @Input() bridgeFormSeed: BridgeFormSeed | null = null;
   @Input() editingBridgeId: string | null = null;
   @Input() selectedBridgeId: string | null = null;
   @Input() highlightedTreatmentId: string | null = null;
@@ -87,6 +97,8 @@ export class ToothDetailPanelComponent implements OnChanges {
   @Output() changed = new EventEmitter<void>();
   @Output() cancelBridge = new EventEmitter<void>();
   @Output() editBridge = new EventEmitter<SpanTreatment>();
+  /** User picked a bridge operation on a tooth — parent enters bridge mode. */
+  @Output() startBridge = new EventEmitter<BridgeFormSeed & { toothId: string }>();
   /** Bridge saved successfully - the page should leave bridge mode. */
   @Output() bridgeSaved = new EventEmitter<void>();
   /** Doctor closed the panel - the page should clear the selection. */
@@ -99,16 +111,14 @@ export class ToothDetailPanelComponent implements OnChanges {
     ...DENTAL_BRANCHES,
   ];
 
-  /** UI-only branch filter for the treatment and bridge operation combos. */
+  /** UI-only branch filter for the tooth treatment form. */
   treatmentBranch: DentalBranch | 'all' = 'all';
-  bridgeBranch: DentalBranch | 'all' = 'all';
+
+  /** Bridge types only (Zirconia / PFM / Maryland). */
+  readonly spanBridgeOperations = getSpanOperationsForBranch('all');
 
   get treatmentOperations() {
     return getOperationsForBranch(this.treatmentBranch);
-  }
-
-  get bridgeOperations() {
-    return getOperationsForBranch(this.bridgeBranch);
   }
 
   // Tooth note + treatment form drafts.
@@ -118,6 +128,7 @@ export class ToothDetailPanelComponent implements OnChanges {
 
   // Bridge form drafts.
   bridgeForm = this.emptyBridgeForm();
+  private consumedBridgeSeed = false;
 
   constructor(
     private dentalChartService: DentalChartService,
@@ -136,7 +147,7 @@ export class ToothDetailPanelComponent implements OnChanges {
     if (changes['highlightedTreatmentId']) {
       this.applyHighlightedTreatment();
     }
-    if (changes['editingBridgeId'] || changes['bridgeMode']) {
+    if (changes['editingBridgeId'] || changes['bridgeMode'] || changes['bridgeFormSeed']) {
       this.syncBridgeForm();
     }
   }
@@ -210,6 +221,10 @@ export class ToothDetailPanelComponent implements OnChanges {
     if (!this.selectedToothId || !this.treatmentForm.operation) {
       return;
     }
+    if (isSpanCapableOperation(this.treatmentForm.operation)) {
+      this.emitStartBridgeFromTreatment();
+      return;
+    }
     const data = {
       operation: this.treatmentForm.operation,
       date: this.formatDate(this.treatmentForm.date),
@@ -246,14 +261,24 @@ export class ToothDetailPanelComponent implements OnChanges {
     }
   }
 
-  onBridgeBranchChange(): void {
-    if (!this.bridgeForm.operation) {
+  onTreatmentOperationChange(): void {
+    if (isSpanCapableOperation(this.treatmentForm.operation)) {
+      this.emitStartBridgeFromTreatment();
+    }
+  }
+
+  private emitStartBridgeFromTreatment(): void {
+    if (!this.selectedToothId || !isSpanCapableOperation(this.treatmentForm.operation)) {
       return;
     }
-    const stillVisible = this.bridgeOperations.some((op) => op.value === this.bridgeForm.operation);
-    if (!stillVisible) {
-      this.bridgeForm.operation = '';
-    }
+    this.startBridge.emit({
+      toothId: this.selectedToothId,
+      operation: this.treatmentForm.operation,
+      date: this.treatmentForm.date,
+      status: this.treatmentForm.status,
+      note: this.treatmentForm.note?.trim() ?? '',
+    });
+    this.resetTreatmentForm();
   }
 
   cancelTreatmentEdit(): void {
@@ -285,8 +310,8 @@ export class ToothDetailPanelComponent implements OnChanges {
 
   // ----- bridges ---------------------------------------------------------
   saveBridge(): void {
-    const ordered = orderAdjacentTeeth(this.notation, this.bridgeDraftToothIds);
-    if (!ordered) {
+    const ordered = orderBridgeTeeth(this.notation, this.bridgeDraftToothIds);
+    if (!ordered?.length) {
       this.notify('PATIENTS.DENTAL_CHART.BRIDGE.INVALID_SELECTION', 'snackbar-danger');
       return;
     }
@@ -324,7 +349,7 @@ export class ToothDetailPanelComponent implements OnChanges {
   }
 
   get draftTeethLabel(): string {
-    const ordered = orderAdjacentTeeth(this.notation, this.bridgeDraftToothIds);
+    const ordered = orderBridgeTeeth(this.notation, this.bridgeDraftToothIds);
     return (ordered ?? this.bridgeDraftToothIds).map((id) => getToothShortLabel(id)).join('-');
   }
 
@@ -381,7 +406,7 @@ export class ToothDetailPanelComponent implements OnChanges {
         return false;
       }
       const teethChanged =
-        (orderAdjacentTeeth(this.notation, this.bridgeDraftToothIds) ?? this.bridgeDraftToothIds)
+        (orderBridgeTeeth(this.notation, this.bridgeDraftToothIds) ?? this.bridgeDraftToothIds)
           .join('-') !== existing.toothIds.join('-');
       const formChanged =
         this.bridgeForm.operation !== existing.operation ||
@@ -418,20 +443,35 @@ export class ToothDetailPanelComponent implements OnChanges {
   }
 
   private syncBridgeForm(): void {
+    if (!this.bridgeMode) {
+      this.consumedBridgeSeed = false;
+      return;
+    }
     const existing = this.editingBridgeId
       ? this.bridges.find((b) => b.id === this.editingBridgeId)
       : undefined;
-    this.bridgeForm = existing
-      ? {
-          operation: existing.operation,
-          date: this.parseDate(existing.date),
-          status: existing.status,
-          note: existing.note ?? '',
-        }
-      : this.emptyBridgeForm();
-    this.bridgeBranch = existing
-      ? getOperationBranch(existing.operation)
-      : 'prosthodontics';
+    if (existing) {
+      this.bridgeForm = {
+        operation: this.normalizeBridgeOperation(existing.operation),
+        date: this.parseDate(existing.date),
+        status: existing.status,
+        note: existing.note ?? '',
+      };
+      return;
+    }
+    if (this.bridgeFormSeed && !this.consumedBridgeSeed) {
+      this.bridgeForm = {
+        operation: this.bridgeFormSeed.operation,
+        date: this.bridgeFormSeed.date,
+        status: this.bridgeFormSeed.status,
+        note: this.bridgeFormSeed.note,
+      };
+      this.consumedBridgeSeed = true;
+      return;
+    }
+    if (!this.consumedBridgeSeed) {
+      this.bridgeForm = this.emptyBridgeForm();
+    }
   }
 
   private emptyTreatmentForm() {
@@ -439,7 +479,17 @@ export class ToothDetailPanelComponent implements OnChanges {
   }
 
   private emptyBridgeForm() {
-    return { operation: 'bridge', date: new Date(), status: 'pending' as TreatmentStatus, note: '' };
+    return { operation: '', date: new Date(), status: 'pending' as TreatmentStatus, note: '' };
+  }
+
+  /** Legacy span operation keys pre-refactor catalog. */
+  private normalizeBridgeOperation(operation: string): string {
+    if (operation === 'bridge') {
+      return '';
+    }
+    return getSpanOperationsForBranch('all').some((op) => op.value === operation)
+      ? operation
+      : '';
   }
 
   /** Datepicker Date -> persisted ISO day (yyyy-mm-dd), using local parts to avoid TZ shifts. */

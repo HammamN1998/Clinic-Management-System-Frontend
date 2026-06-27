@@ -32,7 +32,7 @@ import {
 import {
   getOperationLabelKey,
   getToothShortLabel,
-  orderAdjacentTeeth,
+  orderBridgeTeeth,
   TOOTH_SEQUENCES,
   TREATMENT_STATUS_COLOR,
 } from '@core/models/dental.constants';
@@ -161,11 +161,14 @@ export abstract class OdontogramDiagramBase
     if (this.selectedToothId === toothId) {
       return true;
     }
-    // Teeth being picked for a new/edited bridge get the same border highlight.
+    // While picking/editing a bridge, highlight only the current draft — not the
+    // last-saved span (otherwise removed teeth stay highlighted).
+    if (this.bridgeSelectMode) {
+      return this.bridgeDraftToothIds.includes(toothId);
+    }
     if (this.bridgeDraftToothIds.includes(toothId)) {
       return true;
     }
-    // When a bridge is selected, highlight its member teeth (not the bar line).
     if (this.selectedBridgeId) {
       const bridge = this.spanningTreatments.find((b) => b.id === this.selectedBridgeId);
       if (bridge?.toothIds.includes(toothId)) {
@@ -402,6 +405,10 @@ export abstract class OdontogramDiagramBase
   private computeBridges(): void {
     this.bridgeBars = [];
     for (const bridge of this.spanningTreatments || []) {
+      // While editing, the live draft replaces the saved bar for this bridge.
+      if (this.bridgeSelectMode && bridge.id === this.selectedBridgeId) {
+        continue;
+      }
       const bar = this.buildBridgeBar(
         bridge.id,
         bridge.toothIds,
@@ -412,9 +419,9 @@ export abstract class OdontogramDiagramBase
         this.bridgeBars.push(bar);
       }
     }
-    // Live preview while drawing a new bridge (not yet saved).
-    if (this.bridgeSelectMode && !this.selectedBridgeId) {
-      const ordered = orderAdjacentTeeth(this.notation, this.bridgeDraftToothIds);
+    // Live preview while composing or editing a bridge (draft not yet saved).
+    if (this.bridgeSelectMode) {
+      const ordered = orderBridgeTeeth(this.notation, this.bridgeDraftToothIds);
       if (ordered) {
         const draft = this.buildBridgeBar(
           '__draft__',

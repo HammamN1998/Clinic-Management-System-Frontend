@@ -12,7 +12,7 @@ import { BreadcrumbComponent } from '@shared/components/breadcrumb/breadcrumb.co
 import { FdiTeethDiagramComponent } from '@shared/components/dentist/fdi-teeth-diagram/fdi-teeth-diagram.component';
 import { UniversalTeethDiagramComponent } from '@shared/components/dentist/universal-teeth-diagram/universal-teeth-diagram.component';
 import { PalmerTeethDiagramComponent } from '@shared/components/dentist/palmer-teeth-diagram/palmer-teeth-diagram.component';
-import { ToothDetailPanelComponent } from '@shared/components/dentist/tooth-detail-panel/tooth-detail-panel.component';
+import { ToothDetailPanelComponent, BridgeFormSeed } from '@shared/components/dentist/tooth-detail-panel/tooth-detail-panel.component';
 import { PatientService } from '@core/service/patient.service';
 import { DentalChartService } from '@core/service/dental-chart.service';
 import { NotificationService } from '@core/service/notification.service';
@@ -23,6 +23,8 @@ import {
   ToothChartState,
 } from '@core/models/patient.model';
 import { canExtendBridge } from '@core/models/dental.constants';
+
+export type BridgeStartPayload = BridgeFormSeed & { toothId: string };
 
 const VALID_NOTATIONS: DentalNotation[] = ['fdi', 'universal', 'palmer'];
 
@@ -57,6 +59,7 @@ export class DentalChartComponent implements OnInit {
 
   bridgeDraft: string[] = [];
   editingBridgeId: string | null = null;
+  bridgeFormSeed: Omit<BridgeStartPayload, 'toothId'> | null = null;
 
   // Snapshots passed to the diagram (new references => re-render on change).
   toothStates: { [toothId: string]: ToothChartState } = {};
@@ -120,12 +123,19 @@ export class DentalChartComponent implements OnInit {
   }
 
   // ----- bridge flow -----------------------------------------------------
-  startBridge(): void {
+  onStartBridge(payload: BridgeStartPayload): void {
     this.mode = 'bridge';
-    this.bridgeDraft = [];
+    this.bridgeDraft = [payload.toothId];
     this.editingBridgeId = null;
-    this.selectedToothId = null;
     this.selectedBridgeId = null;
+    this.selectedToothId = null;
+    this.highlightedTreatmentId = null;
+    this.bridgeFormSeed = {
+      operation: payload.operation,
+      date: payload.date,
+      status: payload.status,
+      note: payload.note,
+    };
   }
 
   cancelBridge(): void {
@@ -138,6 +148,7 @@ export class DentalChartComponent implements OnInit {
     this.bridgeDraft = [...bridge.toothIds];
     this.selectedBridgeId = bridge.id;
     this.selectedToothId = null;
+    this.bridgeFormSeed = null;
   }
 
   onBridgeSaved(): void {
@@ -183,6 +194,7 @@ export class DentalChartComponent implements OnInit {
     this.mode = 'normal';
     this.bridgeDraft = [];
     this.editingBridgeId = null;
+    this.bridgeFormSeed = null;
     this.selectedToothId = null;
     this.selectedBridgeId = null;
     this.highlightedTreatmentId = null;

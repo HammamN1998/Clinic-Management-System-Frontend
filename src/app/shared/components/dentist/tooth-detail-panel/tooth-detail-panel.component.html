@@ -11,7 +11,7 @@
   <ng-container *ngIf="bridgeMode; else toothMode">
     <div class="bridge-editor-active">
     <h4 class="panel-title">
-      {{ (editingBridgeId ? 'PATIENTS.DENTAL_CHART.BRIDGE.EDIT' : 'PATIENTS.DENTAL_CHART.BRIDGE.NEW') | translate }}
+      {{ (editingBridgeId ? 'PATIENTS.DENTAL_CHART.BRIDGE.EDIT' : 'PATIENTS.DENTAL_CHART.BRIDGE.TITLE') | translate }}
       <span class="count-badge">{{ bridgeDraftToothIds.length }} {{ 'PATIENTS.DENTAL_CHART.BRIDGE.SELECTED' | translate }}</span>
     </h4>
     <p class="hint">{{ 'PATIENTS.DENTAL_CHART.BRIDGE.SELECT_HINT' | translate }}</p>
@@ -25,16 +25,9 @@
     <div class="span-label" *ngIf="bridgeDraftToothIds.length >= 2">{{ draftTeethLabel }}</div>
 
     <mat-form-field class="full-width" appearance="outline">
-      <mat-label>{{ 'PATIENTS.DENTAL_CHART.BRANCH' | translate }}</mat-label>
-      <mat-select [(ngModel)]="bridgeBranch" (selectionChange)="onBridgeBranchChange()">
-        <mat-option *ngFor="let b of branchOptions" [value]="b.value">{{ b.labelKey | translate }}</mat-option>
-      </mat-select>
-    </mat-form-field>
-
-    <mat-form-field class="full-width" appearance="outline">
       <mat-label>{{ 'PATIENTS.DENTAL_CHART.OPERATION' | translate }}</mat-label>
       <mat-select [(ngModel)]="bridgeForm.operation">
-        <mat-option *ngFor="let op of bridgeOperations" [value]="op.value">{{ op.labelKey | translate }}</mat-option>
+        <mat-option *ngFor="let op of spanBridgeOperations" [value]="op.value">{{ op.labelKey | translate }}</mat-option>
       </mat-select>
     </mat-form-field>
 
@@ -135,7 +128,7 @@
       </mat-form-field>
       <mat-form-field class="full-width" appearance="outline">
         <mat-label>{{ 'PATIENTS.DENTAL_CHART.OPERATION' | translate }}</mat-label>
-        <mat-select [(ngModel)]="treatmentForm.operation">
+        <mat-select [(ngModel)]="treatmentForm.operation" (selectionChange)="onTreatmentOperationChange()">
           <mat-option *ngFor="let op of treatmentOperations" [value]="op.value">{{ op.labelKey | translate }}</mat-option>
         </mat-select>
       </mat-form-field>
