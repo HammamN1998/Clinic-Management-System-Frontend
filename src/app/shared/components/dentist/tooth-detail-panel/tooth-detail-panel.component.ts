@@ -291,6 +291,9 @@ export class ToothDetailPanelComponent implements OnChanges {
     }
     const next: TreatmentStatus = treatment.status === 'done' ? 'pending' : 'done';
     this.dentalChartService.setTreatmentStatus(this.notation, this.selectedToothId, treatment.id, next);
+    if (this.editingTreatmentId === treatment.id) {
+      this.treatmentForm.status = next;
+    }
     this.afterChange();
   }
 
@@ -390,7 +393,6 @@ export class ToothDetailPanelComponent implements OnChanges {
       }
       return (
         this.treatmentForm.operation !== original.operation ||
-        this.treatmentForm.status !== original.status ||
         (this.treatmentForm.note?.trim() ?? '') !== (original.note ?? '') ||
         this.formatDate(this.treatmentForm.date) !== original.date
       );
