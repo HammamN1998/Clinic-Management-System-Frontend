@@ -102,6 +102,15 @@
     }
   },
   "AUTH": {
+    "GOOGLE": {
+      "CONTINUE": "Continue with Google",
+      "OR": "or",
+      "EMAIL_ALREADY_REGISTERED": "This email is already registered. Please sign in with your email and password.",
+      "GENERIC_ERROR": "Google sign-in failed. Please try again.",
+      "USE_EMAIL_SIGNIN": "Sign in with email instead",
+      "USE_EMAIL_SIGNUP": "Sign up with email instead",
+      "HIDE_EMAIL": "Hide email form"
+    },
     "SIGNIN": {
       "WELCOME": "Welcome to ClinicWell",
       "NEED_ACCOUNT": "Need an account?",

@@ -14,7 +14,19 @@
             </a>
           </p>
           <h2 class="login-title">{{ 'AUTH.SIGNIN.TITLE' | translate }}</h2>
-          <form class="validate-form" [formGroup]="authForm" (ngSubmit)="onSubmit()">
+          <button mat-stroked-button type="button" class="google-auth-btn" [disabled]="loading || googleLoading"
+            (click)="signInWithGoogle()">
+            <img src="assets/images/google-logo.svg" alt="" class="google-auth-logo" />
+            <span>{{ 'AUTH.GOOGLE.CONTINUE' | translate }}</span>
+          </button>
+          <div class="social-login-title">{{ 'AUTH.GOOGLE.OR' | translate }}</div>
+          <button mat-button type="button" class="email-auth-toggle" (click)="toggleEmailForm()">
+            {{ (showEmailForm ? 'AUTH.GOOGLE.HIDE_EMAIL' : 'AUTH.GOOGLE.USE_EMAIL_SIGNIN') | translate }}
+          </button>
+          @if (error) {
+          <div class="alert alert-danger mb-3">{{error}}</div>
+          }
+          <form class="validate-form" [formGroup]="authForm" (ngSubmit)="onSubmit()" *ngIf="showEmailForm">
             <div class="row">
               <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-2">
                 <mat-form-field class="example-full-width" appearance="outline">
@@ -48,13 +60,10 @@
             <div class="d-flex mb-5">
               <a class="txt1" routerLink="/authentication/forgot-password">{{ 'AUTH.SIGNIN.FORGOT_PASSWORD' | translate }}</a>
             </div>
-            @if (error) {
-            <div class="alert alert-danger mt-3 mb-0">{{error}}</div>
-            }
             <div class="container-auth-form-btn">
               <div style="text-align:center">
-                <button mat-raised-button color="primary" [class.auth-spinner]="loading" [disabled]="loading"
-                  class="auth-form-btn" [disabled]="!authForm.valid " type="submit">{{ 'COMMON.LOGIN' | translate }}</button>
+                <button mat-raised-button color="primary" [class.auth-spinner]="loading"
+                  class="auth-form-btn" [disabled]="!authForm.valid || loading || googleLoading" type="submit">{{ 'COMMON.LOGIN' | translate }}</button>
               </div>
             </div>
           </form>

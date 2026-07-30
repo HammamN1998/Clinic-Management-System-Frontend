@@ -50,6 +50,24 @@ export class FirebaseAuthenticationService {
     return from ( this.auth.signInWithEmailAndPassword( userName, password ) )
   }
 
+  loginWithGoogle() {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
+    return from ( this.auth.signInWithPopup( provider ) )
+  }
+
+  /** Translated Google sign-in failure, or null when the user simply closed the popup. */
+  googleSignInErrorMessage(error: unknown): string | null {
+    const code = (error as { code?: string } | null)?.code;
+    if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') {
+      return null;
+    }
+    if (code === 'auth/account-exists-with-different-credential') {
+      return this.translate.instant('AUTH.GOOGLE.EMAIL_ALREADY_REGISTERED');
+    }
+    return this.translate.instant('AUTH.GOOGLE.GENERIC_ERROR');
+  }
+
   private updateStripeCustomerEmail(doctorId: string, email: string): Observable<{ message: string }> {
     if (typeof doctorId !== 'string' || !doctorId.trim()) {
       return throwError(() => new Error('Invalid doctor id.'));
@@ -96,11 +114,32 @@ export class FirebaseAuthenticationService {
     return of({ success: false });
   }
 
+  private isGoogleUser(fireAuthUser: firebase.User): boolean {
+    return fireAuthUser.providerData.some(
+      (provider) => provider?.providerId === firebase.auth.GoogleAuthProvider.PROVIDER_ID
+    );
+  }
+
+  /**
+   * Google users never go through the signup form, so their doctor document is
+   * created on first sign-in. The name is left empty on purpose; the doctor can
+   * set it later from the profile page.
+   */
+  private async createMinimalDoctorProfile(fireAuthUser: firebase.User): Promise<void> {
+    const doctor = new User();
+    doctor.id = fireAuthUser.uid;
+    doctor.email = fireAuthUser.email ?? '';
+    doctor.name = '';
+    await this.firestore.collection('doctors').doc(fireAuthUser.uid).set({...doctor});
+    this.analytics.setDoctorUserId(fireAuthUser.uid);
+    this.analytics.signupComplete();
+  }
+
   fireAuthUserToUser(fireUser: firebase.User) : User {
     const doctor = new User();
     doctor.id = fireUser!.uid!;
     doctor.email = fireUser!.email!;
-    doctor.name = fireUser!.displayName!;
+    doctor.name = fireUser.displayName ?? '';
     return doctor
   }
 
@@ -142,9 +181,15 @@ export class FirebaseAuthenticationService {
       if (fireAuthUser) {
         try {
           // store user details local storage to keep user logged in between page refreshes
-          const firebaseUser = await firstValueFrom(
+          let firebaseUser = await firstValueFrom(
             this.firestore.collection('doctors').doc(fireAuthUser.uid).get()
           );
+          if (!firebaseUser.exists && this.isGoogleUser(fireAuthUser)) {
+            await this.createMinimalDoctorProfile(fireAuthUser);
+            firebaseUser = await firstValueFrom(
+              this.firestore.collection('doctors').doc(fireAuthUser.uid).get()
+            );
+          }
           const userSubscription = await firstValueFrom(
             this.firestore.collection('doctorSubscriptions').doc(fireAuthUser.uid).get()
           );

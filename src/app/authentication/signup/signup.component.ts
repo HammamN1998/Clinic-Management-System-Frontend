@@ -35,6 +35,9 @@ export class SignupComponent implements OnInit {
   hide = true;
   chide = true;
   loading = false;
+  googleLoading = false;
+  error = '';
+  showEmailForm = false;
 
   constructor(
     private formBuilder: UntypedFormBuilder,
@@ -58,6 +61,25 @@ export class SignupComponent implements OnInit {
   get f() {
     return this.authForm.controls;
   }
+  toggleEmailForm() {
+    this.showEmailForm = !this.showEmailForm;
+    this.error = '';
+  }
+
+  signUpWithGoogle() {
+    this.googleLoading = true;
+    this.error = '';
+    this.firebaseAuthenticationService.loginWithGoogle().subscribe({
+      next: () => {
+        // Navigation is handled by the auth state listener.
+      },
+      error: (error) => {
+        this.error = this.firebaseAuthenticationService.googleSignInErrorMessage(error) ?? '';
+        this.googleLoading = false;
+      },
+    });
+  }
+
   async onSubmit() {
     this.submitted = true;
     this.loading = true;

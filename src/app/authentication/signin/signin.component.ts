@@ -35,8 +35,10 @@ export class SigninComponent
   authForm!: UntypedFormGroup;
   submitted = false;
   loading = false;
+  googleLoading = false;
   error = '';
   hide = true;
+  showEmailForm = false;
   constructor(
     private formBuilder: UntypedFormBuilder,
     private route: ActivatedRoute,
@@ -67,6 +69,25 @@ export class SigninComponent
     this.authForm.get('username')?.setValue('patient@hospital.org');
     this.authForm.get('password')?.setValue('patient@123');
   }
+  toggleEmailForm() {
+    this.showEmailForm = !this.showEmailForm;
+    this.error = '';
+  }
+
+  signInWithGoogle() {
+    this.googleLoading = true;
+    this.error = '';
+    this.subs.sink = this.firebaseAuthenticationService.loginWithGoogle().subscribe({
+      next: () => {
+        // Navigation is handled by the auth state listener.
+      },
+      error: (error) => {
+        this.error = this.firebaseAuthenticationService.googleSignInErrorMessage(error) ?? '';
+        this.googleLoading = false;
+      },
+    });
+  }
+
   onSubmit() {
     this.submitted = true;
     this.loading = true;

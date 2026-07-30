@@ -9,7 +9,19 @@
         <div class="auth-wrapper">
           <h2 class="welcome-msg"> {{ 'AUTH.SIGNUP.TITLE' | translate }} </h2>
           <p class="auth-signup-text text-muted">{{ 'AUTH.SIGNUP.SUBTITLE' | translate }}</p>
-          <form class="validate-form" [formGroup]="authForm" (ngSubmit)="onSubmit()">
+          <button mat-stroked-button type="button" class="google-auth-btn" [disabled]="loading || googleLoading"
+            (click)="signUpWithGoogle()">
+            <img src="assets/images/google-logo.svg" alt="" class="google-auth-logo" />
+            <span>{{ 'AUTH.GOOGLE.CONTINUE' | translate }}</span>
+          </button>
+          <div class="social-login-title">{{ 'AUTH.GOOGLE.OR' | translate }}</div>
+          <button mat-button type="button" class="email-auth-toggle" (click)="toggleEmailForm()">
+            {{ (showEmailForm ? 'AUTH.GOOGLE.HIDE_EMAIL' : 'AUTH.GOOGLE.USE_EMAIL_SIGNUP') | translate }}
+          </button>
+          @if (error) {
+          <div class="alert alert-danger mb-3">{{error}}</div>
+          }
+          <form class="validate-form" [formGroup]="authForm" (ngSubmit)="onSubmit()" *ngIf="showEmailForm">
             <div class="row">
               <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-2">
                 <mat-form-field class="example-full-width" appearance="outline">
@@ -60,20 +72,20 @@
                 </mat-form-field>
               </div>
             </div>
-            <div class="flex-sb-m w-full  p-b-20">
-              <div>
-                <span>{{ 'AUTH.SIGNUP.ALREADY_REGISTERED' | translate }} <a routerLink="/authentication/signin">
-                    {{ 'COMMON.LOGIN' | translate }}
-                  </a></span>
-              </div>
-            </div>
             <div class="container-auth-form-btn">
-              <button mat-raised-button color="primary" class="auth-form-btn" [disabled]="!authForm.valid || loading" [class.auth-spinner]="loading"
+              <button mat-raised-button color="primary" class="auth-form-btn" [disabled]="!authForm.valid || loading || googleLoading" [class.auth-spinner]="loading"
                 type="submit">
                 {{ 'AUTH.SIGNUP.REGISTER' | translate }}
               </button>
             </div>
           </form>
+          <div class="flex-sb-m w-full mt-3">
+            <div>
+              <span>{{ 'AUTH.SIGNUP.ALREADY_REGISTERED' | translate }} <a routerLink="/authentication/signin">
+                  {{ 'COMMON.LOGIN' | translate }}
+                </a></span>
+            </div>
+          </div>
           <app-legal-policy-footer></app-legal-policy-footer>
         </div>
       </div>
