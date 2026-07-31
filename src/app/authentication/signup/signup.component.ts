@@ -5,6 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { UnsubscribeOnDestroyAdapter } from '@shared';
 import {FirebaseAuthenticationService} from "../services/firebase-authentication.service";
 import {NgIf} from "@angular/common";
 import { LegalPolicyFooterComponent } from '@shared/components/legal-policy-footer/legal-policy-footer.component';
@@ -28,7 +29,9 @@ import { TranslateModule } from '@ngx-translate/core';
     TranslateModule,
   ],
 })
-export class SignupComponent implements OnInit {
+export class SignupComponent
+  extends UnsubscribeOnDestroyAdapter
+  implements OnInit {
   authForm!: UntypedFormGroup;
   submitted = false;
   returnUrl!: string;
@@ -44,7 +47,9 @@ export class SignupComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private firebaseAuthenticationService: FirebaseAuthenticationService
-  ) { }
+  ) {
+    super();
+  }
   ngOnInit() {
     this.authForm = this.formBuilder.group({
       username: ['', Validators.required],
@@ -69,7 +74,7 @@ export class SignupComponent implements OnInit {
   signUpWithGoogle() {
     this.googleLoading = true;
     this.error = '';
-    this.firebaseAuthenticationService.loginWithGoogle().subscribe({
+    this.subs.sink = this.firebaseAuthenticationService.loginWithGoogle().subscribe({
       next: () => {
         // Navigation is handled by the auth state listener.
       },
