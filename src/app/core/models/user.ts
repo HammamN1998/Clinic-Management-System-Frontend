@@ -27,4 +27,6 @@ export class User {
   preferredDentalNotation?: DentalNotation;
   /** Firestore: "true" | "false". Omitted or non-"false" = reminders enabled. */
   religiousRemindersEnabled?: string;
+  /** Firestore: "true" | "false". Omitted or non-"false" = attended appointments stay on the calendar. */
+  calendarShowAttendedAppointments?: string;
 }

@@ -152,6 +152,21 @@
                   </div>
                 </form>
               </div>
+              <!--Calendar Preferences-->
+              <div class="header">
+                <h2>
+                  <strong>{{ 'DOCTORS.PROFILE.CALENDAR_PREFERENCES' | translate }}</strong>
+                </h2>
+              </div>
+              <div class="body">
+                <p class="text-muted">{{ 'DOCTORS.PROFILE.SHOW_ATTENDED_APPOINTMENTS_HINT' | translate }}</p>
+                <mat-slide-toggle
+                  [checked]="isShowAttendedAppointmentsEnabled"
+                  (change)="toggleShowAttendedAppointments($event.checked)"
+                >
+                  {{ 'DOCTORS.PROFILE.SHOW_ATTENDED_APPOINTMENTS' | translate }}
+                </mat-slide-toggle>
+              </div>
               <!--Religious Reminders-->
               <ng-container *ngIf="showReligiousReminders">
                 <div class="header">

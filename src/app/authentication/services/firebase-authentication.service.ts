@@ -207,6 +207,7 @@ export class FirebaseAuthenticationService {
             localUser.logoSize = firestoreUser.logoSize;
             localUser.preferredDentalNotation = firestoreUser.preferredDentalNotation;
             localUser.religiousRemindersEnabled = firestoreUser.religiousRemindersEnabled ?? 'true';
+            localUser.calendarShowAttendedAppointments = firestoreUser.calendarShowAttendedAppointments ?? 'true';
             if (userSubscription.exists) {
               const userSubscriptionData: UserSubscription = userSubscription.data() as UserSubscription;
               localUser.subscription = userSubscriptionData;

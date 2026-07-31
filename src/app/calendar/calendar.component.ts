@@ -1,12 +1,20 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
 import {BreakpointObserver} from '@angular/cdk/layout';
-import {CalendarOptions, DateSelectArg, EventApi, EventClickArg, EventInput,} from '@fullcalendar/core';
+import {
+  CalendarOptions,
+  DatesSetArg,
+  DateSelectArg,
+  EventApi,
+  EventClickArg,
+  EventInput,
+} from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
 import arLocale from '@fullcalendar/core/locales/ar';
 import {isArabicLang} from '@core/util/app-locale.util';
+import {isTruthyString} from '@core/util/boolean-string.util';
 
 import {MatDialog} from '@angular/material/dialog';
 import {UntypedFormBuilder, UntypedFormGroup, Validators,} from '@angular/forms';
@@ -21,7 +29,8 @@ import {FullCalendarComponent, FullCalendarModule} from '@fullcalendar/angular';
 import {MatButtonModule} from '@angular/material/button';
 import {BreadcrumbComponent} from '@shared/components/breadcrumb/breadcrumb.component';
 import {DoctorService} from "@core/service/doctor.service";
-import {from} from "rxjs";
+import {forkJoin, from, Observable, of, Subject} from "rxjs";
+import {catchError, map, switchMap, tap} from "rxjs/operators";
 import {AppointmentModel} from "@core/models/appointment.model";
 import {DateService} from "@core/service/date.service";
 import {PatientService} from "@core/service/patient.service";
@@ -64,9 +73,14 @@ export class CalendarComponent  extends UnsubscribeOnDestroyAdapter  implements 
   ];
 
   calendarEvents: EventInput[] = [];
-  tempEvents?: EventInput[];
 
   calendarOptions: CalendarOptions;
+
+  /** Every appointment loaded for the currently visible range, before filtering. */
+  private rangeEvents: EventInput[] = [];
+  private readonly rangeRequests = new Subject<{ start: Date; end: Date }>();
+  private readonly patientCache = new Map<string, Patient>();
+  private lastRequestedRangeKey = '';
 
   constructor(
     private fb: UntypedFormBuilder,
@@ -104,54 +118,89 @@ export class CalendarComponent  extends UnsubscribeOnDestroyAdapter  implements 
           this.applyResponsiveCalendarOptions(true);
         }
       });
-    this.getAppointmentsData();
-    this.tempEvents = this.calendarEvents;
-    this.calendarOptions.initialEvents = this.calendarEvents;
+    // Only the latest visible range wins, so fast navigation cannot be overwritten
+    // by a slower response for a range the doctor already left.
+    this.subs.sink = this.rangeRequests
+      .pipe(switchMap(({ start, end }) => this.fetchRangeEvents(start, end)))
+      .subscribe((events) => {
+        this.rangeEvents = events;
+        this.applyEventFilters();
+      });
   }
 
-  private getAppointmentsData() {
-    from(this.doctorService.getCurrentMonthAppointments())
-      .subscribe({
-        next: (appointments) => {
-          appointments.docs.forEach((appointment) => {
-            const appointmentData = appointment.data() as AppointmentModel;
-            if (appointmentData.attended) return;
-            from(this.patientService.getPatientInfo(appointmentData.patientId))
-              .subscribe({
-                next: (patient) => {
-                  const patientData = patient.data() as Patient;
-                  // const startTime: Date = new Date (appointmentData.date.toDate().getFullYear(), appointmentData.date.toDate().getMonth(), appointmentData.date.toDate().getDay(), appointmentData.time.toDate().getHours(), appointmentData.time.toDate().getMinutes(), appointmentData.time.toDate().getSeconds());
-                  const startTime: Date = new Date(appointmentData.date.toDate().getTime());
-                  startTime.setHours(appointmentData.time.toDate().getHours());
-                  startTime.setMinutes(appointmentData.time.toDate().getMinutes());
-                  const endTime= this.dateService.addMinutesToDate(startTime, 30);
-                  this.calendarEvents.push(
-                    {
-                      id: appointmentData.id,
-                      title: `${patientData.firstName} ${patientData.lastName}`,
-                      start: startTime,
-                      end: endTime,
-                      className: "fc-event-success",
-                      groupId: "work",
-                      details: appointmentData.details,
-                      patient: patientData,
-                    }
-                  )
-                  this.calendarOptions.events = [...this.calendarEvents];
-                },
-                error: (error) => {
-                  console.log('error: ' + error)
-                }
-              })
-          });
-        },
-        error: (error) => {
-          console.log('error: ' + error)
-        }
+  /** Fires on first render and whenever the doctor changes the view or navigates dates. */
+  private handleDatesSet(arg: DatesSetArg): void {
+    const rangeKey = `${arg.start.getTime()}-${arg.end.getTime()}`;
+    if (rangeKey === this.lastRequestedRangeKey) {
+      return;
+    }
+    this.lastRequestedRangeKey = rangeKey;
+    this.rangeRequests.next({ start: arg.start, end: arg.end });
+  }
+
+  private fetchRangeEvents(start: Date, end: Date): Observable<EventInput[]> {
+    return from(this.doctorService.getAppointmentsByRange(start, end)).pipe(
+      switchMap((snapshot) => {
+        const appointments = snapshot.docs.map((doc) => doc.data() as AppointmentModel);
+        return this.loadPatients(appointments).pipe(
+          map(() =>
+            appointments
+              .map((appointment) => this.toCalendarEvent(appointment))
+              .filter((event): event is EventInput => event !== null)
+          )
+        );
+      }),
+      catchError((error) => {
+        console.log('error: ' + error);
+        return of([] as EventInput[]);
       })
+    );
   }
 
+  private loadPatients(appointments: AppointmentModel[]): Observable<unknown> {
+    const missingIds = [...new Set(appointments.map((appointment) => appointment.patientId))]
+      .filter((patientId) => patientId && !this.patientCache.has(patientId));
+    if (!missingIds.length) {
+      return of(null);
+    }
+    return forkJoin(
+      missingIds.map((patientId) =>
+        from(this.patientService.getPatientInfo(patientId)).pipe(
+          tap((snapshot) => {
+            const patientData = snapshot.data() as Patient | undefined;
+            if (patientData) {
+              this.patientCache.set(patientId, { ...patientData, id: snapshot.id });
+            }
+          }),
+          catchError((error) => {
+            console.log('error: ' + error);
+            return of(null);
+          })
+        )
+      )
+    );
+  }
 
+  private toCalendarEvent(appointment: AppointmentModel): EventInput | null {
+    const patient = this.patientCache.get(appointment.patientId);
+    if (!patient) {
+      return null;
+    }
+    const startTime: Date = new Date(appointment.date.toDate().getTime());
+    startTime.setHours(appointment.time.toDate().getHours());
+    startTime.setMinutes(appointment.time.toDate().getMinutes());
+    return {
+      id: appointment.id,
+      title: `${patient.firstName} ${patient.lastName}`,
+      start: startTime,
+      end: this.dateService.addMinutesToDate(startTime, 30),
+      className: appointment.attended ? 'fc-event-success' : 'fc-event-danger',
+      groupId: 'work',
+      details: appointment.details,
+      patient: patient,
+      attended: appointment.attended,
+    };
+  }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   handleDateSelect(selectInfo: DateSelectArg) {
@@ -205,15 +254,22 @@ export class CalendarComponent  extends UnsubscribeOnDestroyAdapter  implements 
     } else {
       this.filterItems.splice(this.filterItems.indexOf(filter.name), 1);
     }
-    this.filterEvent(this.filterItems);
+    this.applyEventFilters();
   }
 
-  filterEvent(element: string[]) {
-    const list = this.calendarEvents?.filter((x) =>
-      element.map((y?: string) => y).includes(x.groupId)
-    );
+  /** Doctors hide attended appointments from their profile settings, not from the calendar page. */
+  private get showAttendedAppointments(): boolean {
+    return isTruthyString(this.doctorService.doctor?.calendarShowAttendedAppointments);
+  }
 
-    this.calendarOptions.events = list;
+  private applyEventFilters(): void {
+    let events = this.rangeEvents;
+    if (!this.showAttendedAppointments) {
+      events = events.filter((event) => !event['attended']);
+    }
+    events = events.filter((event) => this.filterItems.includes(event.groupId as string));
+    this.calendarEvents = events;
+    this.calendarOptions.events = [...events];
   }
 
   handleEventClick(clickInfo: EventClickArg) {
@@ -378,6 +434,7 @@ export class CalendarComponent  extends UnsubscribeOnDestroyAdapter  implements 
       select: this.handleDateSelect.bind(this),
       eventClick: this.goToProfilePage.bind(this),
       eventsSet: this.handleEvents.bind(this),
+      datesSet: this.handleDatesSet.bind(this),
       windowResize: () => this.handleCalendarResize(),
     };
   }

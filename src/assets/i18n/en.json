@@ -553,6 +553,9 @@
       "DELETE_IMAGE_CONFIRM_TEXT": "Your profile will use the default photo until you upload a new one.",
       "RELIGIOUS_REMINDERS": "Religious reminders",
       "RELIGIOUS_REMINDERS_HINT": "Short Arabic reminders while using the app in Arabic.",
+      "CALENDAR_PREFERENCES": "Calendar Preferences",
+      "SHOW_ATTENDED_APPOINTMENTS": "Show attended appointments",
+      "SHOW_ATTENDED_APPOINTMENTS_HINT": "Attended appointments appear in green and pending ones in red. Turn this off to show only pending appointments.",
       "MESSAGES": {
         "UPDATE_EDUCATION_SUCCESS": "Update Education Successfully...!!!",
         "UPDATE_EXPERIENCE_SUCCESS": "Update Experience Successfully...!!!",
@@ -562,7 +565,8 @@
         "DELETE_LOGO_SUCCESS": "Brand logo deleted successfully...!!!",
         "DELETE_IMAGE_SUCCESS": "Profile photo deleted successfully...!!!",
         "REPLACE_IMAGE_ERROR": "Could not replace the profile image. Please try again.",
-        "UPDATE_RELIGIOUS_REMINDERS_SUCCESS": "Reminder preference saved."
+        "UPDATE_RELIGIOUS_REMINDERS_SUCCESS": "Reminder preference saved.",
+        "UPDATE_CALENDAR_PREFERENCES_SUCCESS": "Calendar preference saved."
       }
     },
     "PLANS": {

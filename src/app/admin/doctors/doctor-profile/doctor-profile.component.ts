@@ -27,6 +27,7 @@ import {TranslateModule, TranslateService} from "@ngx-translate/core";
 import { OnboardingService } from '@core/service/onboarding.service';
 import { getDoctorTitlePrefix } from '@core/util/doctor-title.util';
 import { isArabicLang } from '@core/util/app-locale.util';
+import { isTruthyString } from '@core/util/boolean-string.util';
 import { ReligiousReminderService } from '@core/service/religious-reminder.service';
 
 @Component({
@@ -105,6 +106,27 @@ export class DoctorProfileComponent implements OnInit {
           this.notificationService.showSnackBarNotification(
             'snackbar-success',
             this.translate.instant('DOCTORS.PROFILE.MESSAGES.UPDATE_RELIGIOUS_REMINDERS_SUCCESS'),
+            'bottom',
+            'center'
+          );
+        },
+        error: (error) => {
+          console.log('error: ' + error)
+        }
+      });
+  }
+
+  get isShowAttendedAppointmentsEnabled(): boolean {
+    return isTruthyString(this.doctor.calendarShowAttendedAppointments);
+  }
+
+  toggleShowAttendedAppointments(checked: boolean) {
+    from(this.doctorService.editDoctor({ calendarShowAttendedAppointments: checked ? 'true' : 'false' }))
+      .subscribe({
+        next: () => {
+          this.notificationService.showSnackBarNotification(
+            'snackbar-success',
+            this.translate.instant('DOCTORS.PROFILE.MESSAGES.UPDATE_CALENDAR_PREFERENCES_SUCCESS'),
             'bottom',
             'center'
           );

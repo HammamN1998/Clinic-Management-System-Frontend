@@ -553,6 +553,9 @@
       "DELETE_IMAGE_CONFIRM_TEXT": "سيُستخدم الصورة الافتراضية حتى ترفع صورة جديدة.",
       "RELIGIOUS_REMINDERS": "تذكيرات إسلامية",
       "RELIGIOUS_REMINDERS_HINT": "تذكيرات إسلامية أثناء استخدام التطبيق.",
+      "CALENDAR_PREFERENCES": "إعدادات التقويم",
+      "SHOW_ATTENDED_APPOINTMENTS": "إظهار المواعيد التي تمت",
+      "SHOW_ATTENDED_APPOINTMENTS_HINT": "تظهر المواعيد التي تمت باللون الأخضر والمواعيد المعلّقة باللون الأحمر. أوقف هذا الخيار لعرض المواعيد المعلّقة فقط.",
       "MESSAGES": {
         "UPDATE_EDUCATION_SUCCESS": "تم تحديث التعليم بنجاح...!!!",
         "UPDATE_EXPERIENCE_SUCCESS": "تم تحديث الخبرة بنجاح...!!!",
@@ -562,7 +565,8 @@
         "DELETE_LOGO_SUCCESS": "تم حذف شعار العيادة بنجاح...!!!",
         "DELETE_IMAGE_SUCCESS": "تم حذف صورة الملف الشخصي بنجاح...!!!",
         "REPLACE_IMAGE_ERROR": "تعذّر استبدال صورة الملف الشخصي. يرجى المحاولة مرة أخرى.",
-        "UPDATE_RELIGIOUS_REMINDERS_SUCCESS": "تم حفظ إعداد التذكيرات."
+        "UPDATE_RELIGIOUS_REMINDERS_SUCCESS": "تم حفظ إعداد التذكيرات.",
+        "UPDATE_CALENDAR_PREFERENCES_SUCCESS": "تم حفظ إعداد التقويم."
       }
     },
     "PLANS": {
