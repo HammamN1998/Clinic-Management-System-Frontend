@@ -11,7 +11,7 @@ export interface UserSubscription {
 
 export class User {
   id!: string;
-  name!: string;
+  name: string = '';
   phoneNumber: string = '';
   email: string = '';
   address: string = '';
@@ -22,7 +22,14 @@ export class User {
   imgSize: number = 0;
   logo: string = '';
   logoSize: number = 0;
-  subscription: UserSubscription = {} as UserSubscription;
+  subscription: UserSubscription = {
+    status: 'active',
+    plan: 'free',
+    storageBytesUsed: 0,
+    patientsCount: 0,
+    maxPatientsLimit: 20,
+    maxStorageLimitBytes: 1024 * 1024 * 200, // 200MB
+  } as UserSubscription;
   /** Doctor's last-used dental notation; reused as the default on every chart. */
   preferredDentalNotation?: DentalNotation;
   /** Firestore: "true" | "false". Omitted or non-"false" = reminders enabled. */

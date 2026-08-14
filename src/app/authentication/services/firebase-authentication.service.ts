@@ -129,7 +129,7 @@ export class FirebaseAuthenticationService {
     const doctor = new User();
     doctor.id = fireAuthUser.uid;
     doctor.email = fireAuthUser.email ?? '';
-    doctor.name = '';
+    doctor.name = fireAuthUser.displayName ?? '';
     await this.firestore.collection('doctors').doc(fireAuthUser.uid).set({...doctor});
     this.analytics.setDoctorUserId(fireAuthUser.uid);
     this.analytics.signupComplete();
