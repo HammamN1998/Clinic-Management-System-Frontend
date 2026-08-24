@@ -12,6 +12,7 @@ import {DoctorService} from "@core/service/doctor.service";
 import { LegalPolicyFooterComponent } from '@shared/components/legal-policy-footer/legal-policy-footer.component';
 import {TranslateModule, TranslateService} from "@ngx-translate/core";
 import {AnalyticsService} from "@core/service/analytics.service";
+import {MetaPixelService} from "@core/service/meta-pixel.service";
 
 @Component({
   selector: 'app-doctor-plans',
@@ -40,6 +41,7 @@ export class DoctorPlansComponent {
     private doctorService: DoctorService,
     private translate: TranslateService,
     private analytics: AnalyticsService,
+    private metaPixel: MetaPixelService,
   ) {
 
   }
@@ -66,6 +68,11 @@ export class DoctorPlansComponent {
   ];
 
   pay(_plan: any, price: any) {
+    // Recorded on the press, before the network call, so purchase intent is
+    // captured even when creating the checkout session fails.
+    this.analytics.checkoutButtonPressed(price?.priceId, price?.price);
+    this.metaPixel.checkoutButtonPressed(price);
+
     this.loading = true;
     this.paymentService.createCheckoutSession(price.priceId).pipe(
       finalize(() => { this.loading = false; }),

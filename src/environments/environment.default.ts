@@ -14,4 +14,8 @@ export const defaultEnvironment = {
     whatsappNumber: '972592831998', // E.164 without the leading +
     email: 'hammam.najem@clinicwell.app',
   },
+  // Meta (Facebook) Pixel ID from Events Manager. A public identifier like
+  // measurementId above, not a secret. Empty disables the pixel entirely,
+  // which is why environment.development.ts blanks it.
+  metaPixelId: '1049041394393405',
 };

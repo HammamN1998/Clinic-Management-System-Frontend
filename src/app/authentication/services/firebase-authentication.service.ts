@@ -11,6 +11,7 @@ import {Router} from "@angular/router";
 import {NotificationService} from "@core/service/notification.service";
 import {TranslateService} from "@ngx-translate/core";
 import {AnalyticsService} from "@core/service/analytics.service";
+import {MetaPixelService} from "@core/service/meta-pixel.service";
 
 @Injectable({
   providedIn: 'root'
@@ -28,6 +29,7 @@ export class FirebaseAuthenticationService {
     private functions: AngularFireFunctions,
     private translate: TranslateService,
     private analytics: AnalyticsService,
+    private metaPixel: MetaPixelService,
   ) {
 
     this.currentUserSubject = new BehaviorSubject<User>(
@@ -102,6 +104,7 @@ export class FirebaseAuthenticationService {
       await this.firestore.collection('doctors').doc(uid).set({...localUser});
       this.analytics.setDoctorUserId(uid);
       this.analytics.signupComplete();
+      this.metaPixel.registrationCompleted();
       await this.sendEmailVerificationCode();
       this.router.navigate(['/authentication/verify-email']);
     } catch (err) {
@@ -133,6 +136,7 @@ export class FirebaseAuthenticationService {
     await this.firestore.collection('doctors').doc(fireAuthUser.uid).set({...doctor});
     this.analytics.setDoctorUserId(fireAuthUser.uid);
     this.analytics.signupComplete();
+    this.metaPixel.registrationCompleted();
   }
 
   fireAuthUserToUser(fireUser: firebase.User) : User {

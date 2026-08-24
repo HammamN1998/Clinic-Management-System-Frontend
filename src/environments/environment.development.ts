@@ -6,7 +6,10 @@ import {defaultEnvironment} from "./environment.default";
 export const environment = {
   ...defaultEnvironment,
   production: false,
-
+  // Off locally. Otherwise every test signup and every Buy Now press during
+  // development lands in Events Manager as a real conversion and skews the
+  // numbers the ad campaign is judged by.
+  metaPixelId: '',
 };
 
 /*

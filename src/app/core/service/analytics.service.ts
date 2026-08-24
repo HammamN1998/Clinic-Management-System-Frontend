@@ -104,6 +104,18 @@ export class AnalyticsService {
     this.log('onboarding_dismiss_permanent');
   }
 
+  /**
+   * Buy Now was pressed. Distinct from {@link checkoutStarted}, which only
+   * fires once the backend has returned a checkout URL: the gap between the
+   * two counts is how often the doctor wanted to pay and the flow failed.
+   */
+  checkoutButtonPressed(priceId?: string, price?: number): void {
+    this.log('checkout_button_pressed', {
+      price_id: priceId ?? 'unknown',
+      value: price ?? 0,
+    });
+  }
+
   checkoutStarted(priceId?: string): void {
     this.log('checkout_started', { price_id: priceId ?? 'unknown' });
   }
