@@ -13,21 +13,11 @@ import {
 /** Translator function (typically TranslateService.instant bound). */
 export type Translator = (key: string, params?: Record<string, unknown>) => string;
 
-export const PDF_CURRENCY = 'NIS';
-
 /** Public marketing domain shown in the footer "address bar". */
 export const CLINIC_WELL_DOMAIN = 'clinicwell.app';
 
 /** A4 content width with 40pt left/right page margins. */
 const CONTENT_WIDTH = 515;
-
-export function formatMoney(value: number): string {
-  return `${value} ${PDF_CURRENCY}`;
-}
-
-export function formatSignedMoney(value: number): string {
-  return value >= 0 ? `+${value} ${PDF_CURRENCY}` : `${value} ${PDF_CURRENCY}`;
-}
 
 export function fullPatientName(p: PatientPdfContext): string {
   return `${p.firstName ?? ''} ${p.lastName ?? ''}`.trim();

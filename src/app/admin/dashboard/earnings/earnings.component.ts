@@ -16,6 +16,7 @@ import {
   formatDashboardRangeLabel,
   getAppDateLocale,
 } from '@core/util/dashboard-range-label.util';
+import {AppCurrencyPipe} from '@core/pipe/app-currency.pipe';
 
 type RangePreset = 'today' | 'week' | 'month' | 'year';
 interface RangeOption {
@@ -37,7 +38,7 @@ interface EarningRow {
   templateUrl: './earnings.component.html',
   styleUrls: ['./earnings.component.scss'],
   standalone: true,
-  imports: [CommonModule, MatButtonModule, MatIconModule, BreadcrumbComponent, TranslateModule],
+  imports: [CommonModule, MatButtonModule, MatIconModule, BreadcrumbComponent, TranslateModule, AppCurrencyPipe],
 })
 export class EarningsComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);

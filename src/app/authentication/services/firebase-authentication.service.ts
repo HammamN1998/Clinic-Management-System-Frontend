@@ -12,6 +12,7 @@ import {NotificationService} from "@core/service/notification.service";
 import {TranslateService} from "@ngx-translate/core";
 import {AnalyticsService} from "@core/service/analytics.service";
 import {MetaPixelService} from "@core/service/meta-pixel.service";
+import {inferBrowserCurrency} from "@core/util/currency.util";
 
 @Injectable({
   providedIn: 'root'
@@ -100,6 +101,7 @@ export class FirebaseAuthenticationService {
       localUser.id = uid;
       localUser.name = name;
       localUser.email = email;
+      localUser.currency = inferBrowserCurrency();
       this.currentUserSubject.next(localUser);
       await this.firestore.collection('doctors').doc(uid).set({...localUser});
       this.analytics.setDoctorUserId(uid);
@@ -133,6 +135,7 @@ export class FirebaseAuthenticationService {
     doctor.id = fireAuthUser.uid;
     doctor.email = fireAuthUser.email ?? '';
     doctor.name = fireAuthUser.displayName ?? '';
+    doctor.currency = inferBrowserCurrency();
     await this.firestore.collection('doctors').doc(fireAuthUser.uid).set({...doctor});
     this.analytics.setDoctorUserId(fireAuthUser.uid);
     this.analytics.signupComplete();
@@ -212,6 +215,7 @@ export class FirebaseAuthenticationService {
             localUser.preferredDentalNotation = firestoreUser.preferredDentalNotation;
             localUser.religiousRemindersEnabled = firestoreUser.religiousRemindersEnabled ?? 'true';
             localUser.calendarShowAttendedAppointments = firestoreUser.calendarShowAttendedAppointments ?? 'true';
+            localUser.currency = firestoreUser.currency;
             if (userSubscription.exists) {
               const userSubscriptionData: UserSubscription = userSubscription.data() as UserSubscription;
               localUser.subscription = userSubscriptionData;

@@ -388,7 +388,6 @@
     },
     "BALANCE": {
       "TITLE": "Total Balance is",
-      "CURRENCY": "NIS",
       "CREATE_INVOICE": "Create Invoice",
       "DISCOUNT": "Discount",
       "PAYMENT": "Payment",
@@ -433,8 +432,8 @@
       "PATIENT_NOT_ATTENDED": "Patient did not attend",
       "PAID": "Paid",
       "UNPAID": "Unpaid",
-      "COST_PAID": "{{cost}} NIS Paid",
-      "COST_UNPAID": "{{cost}} NIS Unpaid",
+      "COST_PAID": "{{cost}} Paid",
+      "COST_UNPAID": "{{cost}} Unpaid",
       "ADD_APPOINTMENT": "Add Appointment",
       "CHOOSE_DATE": "Choose a date",
       "CHOOSE_TIME": "Choose a time",
@@ -449,7 +448,7 @@
       "PAYMENT_DETAILS": "Payment Details",
       "ALL_TREATMENTS": "All Treatments",
       "TREATMENT_DETAILS": "Treatment Details",
-      "TREATMENT_SUMMARY": "{{price}} NIS with {{discount}} discount",
+      "TREATMENT_SUMMARY": "{{price}} with {{discount}} discount",
       "ADD_PAYMENT_TREATMENT": "Add Payment/Treatment",
       "ADD_PAYMENT": "Add Payment",
       "AMOUNT": "Amount",
@@ -475,7 +474,7 @@
         "UPDATE_PAYMENT_DETAILS_SUCCESS": "Update Payment Details Successfully...!!!",
         "UPDATE_TREATMENT_DETAILS_SUCCESS": "Update Treatment Details Successfully...!!!",
         "DELETE_APPOINTMENT_CONFIRM": "Delete appointment on {{date}}?",
-        "DELETE_PAYMENT_CONFIRM": "Delete payment of {{amount}} NIS?",
+        "DELETE_PAYMENT_CONFIRM": "Delete payment of {{amount}}?",
         "DELETE_TREATMENT_CONFIRM": "Delete treatment on {{date}}?",
         "DELETE_ATTACHMENT_CONFIRM": "Delete attachment: {{name}}",
         "ATTACHMENT_DELETED_SUCCESS": "Attachment deleted successfully",
@@ -553,6 +552,10 @@
       "DELETE_IMAGE_CONFIRM_TEXT": "Your profile will use the default photo until you upload a new one.",
       "RELIGIOUS_REMINDERS": "Religious reminders",
       "RELIGIOUS_REMINDERS_HINT": "Short Arabic reminders while using the app in Arabic.",
+      "BILLING_PREFERENCES": "Billing Preferences",
+      "CURRENCY": "Currency",
+      "CURRENCY_HINT": "Choose the currency used for treatments, payments, balances and invoices.",
+      "CURRENCY_PREVIEW": "Amounts will look like {{example}}",
       "CALENDAR_PREFERENCES": "Calendar Preferences",
       "SHOW_ATTENDED_APPOINTMENTS": "Show attended appointments",
       "SHOW_ATTENDED_APPOINTMENTS_HINT": "Attended appointments appear in green and pending ones in red. Turn this off to show only pending appointments.",
@@ -566,7 +569,8 @@
         "DELETE_IMAGE_SUCCESS": "Profile photo deleted successfully...!!!",
         "REPLACE_IMAGE_ERROR": "Could not replace the profile image. Please try again.",
         "UPDATE_RELIGIOUS_REMINDERS_SUCCESS": "Reminder preference saved.",
-        "UPDATE_CALENDAR_PREFERENCES_SUCCESS": "Calendar preference saved."
+        "UPDATE_CALENDAR_PREFERENCES_SUCCESS": "Calendar preference saved.",
+        "UPDATE_CURRENCY_SUCCESS": "Currency saved."
       }
     },
     "PLANS": {
@@ -596,7 +600,6 @@
     "TREATMENTS": "Treatments",
     "OPERATIONS": "Operations",
     "EARNING": "Earning",
-    "EARNING_VALUE": "{{value}} NIS",
     "RANGE": {
       "TODAY": "Today",
       "WEEK": "Week",

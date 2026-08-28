@@ -73,7 +73,7 @@
                   </button>
                 </td>
                 <td>{{ ('DASHBOARD.EARNINGS.TYPE_' + row.type.toUpperCase()) | translate }}</td>
-                <td>{{ row.amount | number }}</td>
+                <td>{{ row.amount | appCurrency }}</td>
                 <td>{{ row.details || '-' }}</td>
               </tr>
             </tbody>

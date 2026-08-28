@@ -40,13 +40,15 @@ import {PatientDocumentsDialogComponent, PatientDocumentAction} from "./dialog/p
 import {buildBalanceLedger} from "@core/util/balance-ledger.util";
 import {DentalChartService} from "@core/service/dental-chart.service";
 import {DENTAL_NOTATIONS} from "@core/models/dental.constants";
+import {CurrencyService} from "@core/service/currency.service";
+import {AppCurrencyPipe} from "@core/pipe/app-currency.pipe";
 
 @Component({
   selector: 'app-patient-profile',
   templateUrl: './patient-profile.component.html',
   styleUrls: ['./patient-profile.component.scss'],
   standalone: true,
-  imports: [BreadcrumbComponent, MatButtonModule, MatCheckboxModule, MatFormFieldModule, MatIconModule, MatInputModule, MatTabsModule, MatSelectModule, MatDatepickerModule, OwlDateTimeModule, OwlNativeDateTimeModule, ReactiveFormsModule, SharedModule, FileUploadComponent, FullScreenImageComponent, EditableTextComponent, EditableTextCompactedComponent, TranslateModule],
+  imports: [BreadcrumbComponent, MatButtonModule, MatCheckboxModule, MatFormFieldModule, MatIconModule, MatInputModule, MatTabsModule, MatSelectModule, MatDatepickerModule, OwlDateTimeModule, OwlNativeDateTimeModule, ReactiveFormsModule, SharedModule, FileUploadComponent, FullScreenImageComponent, EditableTextComponent, EditableTextCompactedComponent, TranslateModule, AppCurrencyPipe],
 })
 export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
 
@@ -76,6 +78,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
     private firebaseAuthenticationService: FirebaseAuthenticationService,
     private translate: TranslateService,
     private pdfService: PdfService,
+    private currencyService: CurrencyService,
   ) {
     super();
     if (this.patientService.getDialogData().id === '' ) this.router.navigate(['/admin/patients/all-patients']);
@@ -96,6 +99,11 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
   }
   get doctor(): User {
     return this.firebaseAuthenticationService.currentUserValue;
+  }
+
+  /** Shown inside money inputs so it is clear which currency is being typed. */
+  get currencySymbol(): string {
+    return this.currencyService.symbol;
   }
 
   goToEditPage() {
@@ -501,7 +509,9 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
   }
 
   deletePayment(payment: PaymentModel) {
-    const message = this.translate.instant('PATIENTS.PROFILE.MESSAGES.DELETE_PAYMENT_CONFIRM', { amount: payment.amount });
+    const message = this.translate.instant('PATIENTS.PROFILE.MESSAGES.DELETE_PAYMENT_CONFIRM', {
+      amount: this.currencyService.format(payment.amount),
+    });
     const dialogRef = this.deleteConfirmDialog.open(message);
     this.subs.sink = dialogRef.afterClosed().subscribe((result) => {
       if (result !== 1) {

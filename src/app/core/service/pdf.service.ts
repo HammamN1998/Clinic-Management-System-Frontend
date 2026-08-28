@@ -28,11 +28,10 @@ import {
   Translator,
   buildBrandedDocument,
   formatDate,
-  formatMoney,
-  formatSignedMoney,
   fullPatientName,
 } from '@core/util/pdf-document-template.util';
 import { FirebaseAuthenticationService } from '../../authentication/services/firebase-authentication.service';
+import { CurrencyService } from '@core/service/currency.service';
 
 export interface PatientBalancePdfInput {
   treatments: TreatmentModel[];
@@ -110,7 +109,17 @@ export class PdfService {
     private readonly http: HttpClient,
     private readonly translate: TranslateService,
     private readonly auth: FirebaseAuthenticationService,
+    private readonly currency: CurrencyService,
   ) {}
+
+  /** Documents carry the ISO currency code so amounts stay unambiguous. */
+  private money(value: number): string {
+    return this.currency.formatForDocument(value);
+  }
+
+  private signedMoney(value: number): string {
+    return this.currency.formatSignedForDocument(value);
+  }
 
   async downloadPdf(
     definition: TDocumentDefinitions,
@@ -216,7 +225,7 @@ export class PdfService {
           body: [
             [
               pdfLabel(t('PATIENTS.BALANCE.PAYMENT'), { style: 'tableHeader' }),
-              { text: formatMoney(input.payment.amount), alignment: 'right' },
+              { text: this.money(input.payment.amount), alignment: 'right' },
             ],
             [
               pdfLabel(t('PATIENTS.BALANCE.DATE'), { style: 'tableHeader' }),
@@ -228,7 +237,7 @@ export class PdfService {
             ],
             [
               pdfLabel(t('PATIENTS.DOCUMENTS.REMAINING_BALANCE'), { style: 'tableHeader' }),
-              { text: formatMoney(input.remainingBalance), alignment: 'right' },
+              { text: this.money(input.remainingBalance), alignment: 'right' },
             ],
           ],
         }),
@@ -279,7 +288,7 @@ export class PdfService {
       ],
       [
         pdfLabel(t('PATIENTS.DOCUMENTS.COST'), { style: 'tableHeader' }),
-        { text: formatMoney(a.cost), alignment: 'right' },
+        { text: this.money(a.cost), alignment: 'right' },
       ],
       [
         pdfLabel(t('SHARED.INVOICE.STATUS'), { style: 'tableHeader' }),
@@ -456,11 +465,11 @@ export class PdfService {
       chargeRows.push([
         String(index),
         tr.discount
-          ? `${formatMoney(tr.price)} (-${formatMoney(tr.discount)})`
-          : formatMoney(tr.price),
+          ? `${this.money(tr.price)} (-${this.money(tr.discount)})`
+          : this.money(tr.price),
         pdfTextCell(tr.details ?? '', undefined),
         formatDate(tr.date.toDate()),
-        { text: formatMoney(net), alignment: 'right' },
+        { text: this.money(net), alignment: 'right' },
       ]);
     });
     appointments
@@ -472,7 +481,7 @@ export class PdfService {
           pdfTextCell(t('PATIENTS.DOCUMENTS.APPOINTMENT_TITLE'), undefined),
           pdfTextCell(a.details ?? '', undefined),
           formatDate(a.date.toDate()),
-          { text: formatMoney(a.cost), alignment: 'right' },
+          { text: this.money(a.cost), alignment: 'right' },
         ]);
       });
     chargeRows.push([
@@ -480,7 +489,7 @@ export class PdfService {
       this.emptyCell(),
       this.emptyCell(),
       pdfLabel(t('PATIENTS.DOCUMENTS.SUBTOTAL_CHARGES'), { style: 'totalLabel', alignment: 'right' }),
-      { text: formatMoney(ledger.totalCharges), style: 'totalValue', alignment: 'right' },
+      { text: this.money(ledger.totalCharges), style: 'totalValue', alignment: 'right' },
     ]);
 
     const paymentRows: Content[][] = [
@@ -496,14 +505,14 @@ export class PdfService {
         String(i + 1),
         pdfTextCell(p.details ?? '', undefined),
         formatDate(p.date.toDate()),
-        { text: formatMoney(p.amount), alignment: 'right' },
+        { text: this.money(p.amount), alignment: 'right' },
       ]);
     });
     paymentRows.push([
       this.emptyCell(),
       this.emptyCell(),
       pdfLabel(t('PATIENTS.DOCUMENTS.SUBTOTAL_PAYMENTS'), { style: 'totalLabel', alignment: 'right' }),
-      { text: formatMoney(ledger.totalPayments), style: 'totalValue', alignment: 'right' },
+      { text: this.money(ledger.totalPayments), style: 'totalValue', alignment: 'right' },
     ]);
 
     return [
@@ -531,7 +540,7 @@ export class PdfService {
     });
     const value: Content = {
       width: 90,
-      text: formatMoney(totalBalance),
+      text: this.money(totalBalance),
       style: 'totalValue',
       alignment: align,
     } as Content;
@@ -578,12 +587,12 @@ export class PdfService {
       const net = tr.price - tr.discount;
       return [
         String(n),
-        formatSignedMoney(tr.price),
-        tr.discount ? `-${formatMoney(tr.discount)}` : '-',
+        this.signedMoney(tr.price),
+        tr.discount ? `-${this.money(tr.discount)}` : '-',
         '-',
         pdfTextCell(details, undefined),
         dateStr,
-        formatSignedMoney(net),
+        this.signedMoney(net),
       ];
     }
 
@@ -591,12 +600,12 @@ export class PdfService {
       const a = line as AppointmentModel;
       return [
         String(n),
-        formatSignedMoney(a.cost),
+        this.signedMoney(a.cost),
         '-',
         '-',
         pdfTextCell(details, undefined),
         dateStr,
-        formatSignedMoney(a.cost),
+        this.signedMoney(a.cost),
       ];
     }
 
@@ -605,10 +614,10 @@ export class PdfService {
       String(n),
       '-',
       '-',
-      `-${formatMoney(p.amount)}`,
+      `-${this.money(p.amount)}`,
       pdfTextCell(details, undefined),
       dateStr,
-      `-${formatMoney(p.amount)}`,
+      `-${this.money(p.amount)}`,
     ];
   }
 
@@ -621,7 +630,7 @@ export class PdfService {
       this.emptyCell(),
       pdfLabel(t('PATIENTS.DOCUMENTS.BALANCE_DUE'), { style: 'totalLabel', alignment: 'right' }),
       {
-        text: formatSignedMoney(totalBalance),
+        text: this.signedMoney(totalBalance),
         style: 'totalValue',
         alignment: 'right',
       },
@@ -785,9 +794,9 @@ export class PdfService {
       ['Phone', patient?.phoneNumber],
       ['Address', patient?.address],
       ['Date', formatDate(generatedAt)],
-      ['Charges', formatMoney(ledger.totalCharges)],
-      ['Payments', formatMoney(ledger.totalPayments)],
-      ['Balance Due', formatMoney(ledger.totalBalance)],
+      ['Charges', this.money(ledger.totalCharges)],
+      ['Payments', this.money(ledger.totalPayments)],
+      ['Balance Due', this.money(ledger.totalBalance)],
       ['Status', this.statusLabelEn(status)],
     ]);
   }
@@ -808,8 +817,8 @@ export class PdfService {
       ['Patient', patientName],
       ['Phone', patient.phoneNumber],
       ['Date', formatDate(date)],
-      ['Amount Paid', formatMoney(amount)],
-      ['Remaining Balance', formatMoney(remainingBalance)],
+      ['Amount Paid', this.money(amount)],
+      ['Remaining Balance', this.money(remainingBalance)],
       ['Details', details],
     ]);
   }

@@ -152,6 +152,33 @@
                   </div>
                 </form>
               </div>
+              <!--Billing Preferences-->
+              <div class="header">
+                <h2>
+                  <strong>{{ 'DOCTORS.PROFILE.BILLING_PREFERENCES' | translate }}</strong>
+                </h2>
+              </div>
+              <div class="body">
+                <p class="text-muted">{{ 'DOCTORS.PROFILE.CURRENCY_HINT' | translate }}</p>
+                <div class="row clearfix">
+                  <div class="col-lg-6 col-md-12">
+                    <div class="form-group">
+                      <mat-form-field class="example-full-width" appearance="fill">
+                        <mat-label>{{ 'DOCTORS.PROFILE.CURRENCY' | translate }}</mat-label>
+                        <mat-select
+                          [value]="selectedCurrency"
+                          (selectionChange)="selectCurrency($event.value)"
+                        >
+                          <mat-option *ngFor="let option of currencyOptions" [value]="option.code">
+                            {{ option.name }} ({{ option.code }}) &nbsp;{{ option.symbol }}
+                          </mat-option>
+                        </mat-select>
+                        <mat-hint>{{ 'DOCTORS.PROFILE.CURRENCY_PREVIEW' | translate:{ example: currencyPreview } }}</mat-hint>
+                      </mat-form-field>
+                    </div>
+                  </div>
+                </div>
+              </div>
               <!--Calendar Preferences-->
               <div class="header">
                 <h2>

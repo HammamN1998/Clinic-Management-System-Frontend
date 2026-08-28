@@ -13,6 +13,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatIconModule } from '@angular/material/icon';
 import { PatientPdfContext } from '@core/models/pdf-document.model';
+import { AppCurrencyPipe } from '@core/pipe/app-currency.pipe';
 
 export interface DialogData {
   treatments: TreatmentModel[];
@@ -38,6 +39,7 @@ export interface DialogData {
     TranslateModule,
     MatMenuModule,
     MatIconModule,
+    AppCurrencyPipe,
   ],
 })
 export class BalanceDetailsComponent {

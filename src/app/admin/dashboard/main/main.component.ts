@@ -35,6 +35,7 @@ import {
   formatDashboardRangeLabel,
   getAppDateLocale,
 } from '@core/util/dashboard-range-label.util';
+import {AppCurrencyPipe} from '@core/pipe/app-currency.pipe';
 
 export type ChartOptions = {
   series: ApexAxisChartSeries;
@@ -77,6 +78,7 @@ interface RangeOption {
     MatIconModule,
     FeatherIconsComponent,
     TranslateModule,
+    AppCurrencyPipe,
   ],
 })
 

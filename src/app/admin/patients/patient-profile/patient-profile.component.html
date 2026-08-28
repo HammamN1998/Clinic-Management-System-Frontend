@@ -19,17 +19,17 @@
           </div>
           <div class="tab-pane body active" id="balance">
             <small class="text-muted">{{ 'PATIENTS.PROFILE.TREATMENTS_COST' | translate }} </small>
-            <p style="color: green;" >{{this.getTreatmentsCost()}}</p>
+            <p style="color: green;" >{{this.getTreatmentsCost() | appCurrency}}</p>
             <hr>
             <small class="text-muted">{{ 'PATIENTS.PROFILE.PAYMENTS_AMOUNT' | translate }} </small>
-            <p style="color: red;">-{{this.getPaymentsAmount()}}</p>
+            <p style="color: red;">-{{this.getPaymentsAmount() | appCurrency}}</p>
             <hr>
             <small class="text-muted">{{ 'PATIENTS.PROFILE.TOTAL_BALANCE' | translate }}</small>
             <p *ngIf="this.getTreatmentsCost() >= this.getPaymentsAmount()" style="color: green">
-              {{this.getTreatmentsCost() - this.getPaymentsAmount()}}
+              {{this.getTreatmentsCost() - this.getPaymentsAmount() | appCurrency}}
             </p>
             <p *ngIf="this.getTreatmentsCost() < this.getPaymentsAmount()" style="color: red">
-              {{this.getTreatmentsCost() - this.getPaymentsAmount()}}
+              {{this.getTreatmentsCost() - this.getPaymentsAmount() | appCurrency}}
             </p>
           </div>
           <button mat-button class="basic-btn" (click)="this.getBalanceDetails()" >{{ 'PATIENTS.PROFILE.MORE_DETAILS' | translate }}</button>
@@ -305,10 +305,10 @@
                         <div class="col-lg-6 col-md-12">
                           <mat-slide-toggle [checked]=appointment.costPaid (change)="changeAppointmentCostPaid($event, appointment); ">
                             <ng-container *ngIf="appointment.costPaid">
-                              {{ 'PATIENTS.PROFILE.COST_PAID' | translate:{ cost: appointment.cost } }}
+                              {{ 'PATIENTS.PROFILE.COST_PAID' | translate:{ cost: (appointment.cost | appCurrency) } }}
                             </ng-container>
                             <ng-container *ngIf="!appointment.costPaid">
-                              {{ 'PATIENTS.PROFILE.COST_UNPAID' | translate:{ cost: appointment.cost } }}
+                              {{ 'PATIENTS.PROFILE.COST_UNPAID' | translate:{ cost: (appointment.cost | appCurrency) } }}
                             </ng-container>
                           </mat-slide-toggle>
                         </div>
@@ -530,7 +530,7 @@
                         </mat-panel-title>
                         <mat-panel-description>
                           <mat-icon class="example-tab-icon msr-2">payment</mat-icon>
-                          {{ 'PATIENTS.PROFILE.TREATMENT_SUMMARY' | translate:{ price: treatment.price, discount: treatment.discount } }}
+                          {{ 'PATIENTS.PROFILE.TREATMENT_SUMMARY' | translate:{ price: (treatment.price | appCurrency), discount: (treatment.discount | appCurrency) } }}
                         </mat-panel-description>
                       </mat-expansion-panel-header>
                       <div class="row">
@@ -563,6 +563,7 @@
                         <mat-form-field class="example-full-width">
                           <mat-label>{{ 'PATIENTS.PROFILE.PRICE' | translate }}</mat-label>
                           <input matInput formControlName="price" type="number">
+                          <span matTextSuffix>{{ currencySymbol }}</span>
                           <mat-error *ngIf="this.treatmentForm.get('price')?.hasError('required')">
                             {{ 'VALIDATION.REQUIRED' | translate:{ field: ('PATIENTS.PROFILE.PRICE' | translate) } }}
                           </mat-error>
@@ -573,6 +574,7 @@
                         <mat-form-field class="example-full-width">
                           <mat-label>{{ 'PATIENTS.PROFILE.DISCOUNT' | translate }}</mat-label>
                           <input matInput formControlName="discount" type="number">
+                          <span matTextSuffix>{{ currencySymbol }}</span>
                         </mat-form-field>
                       </div>
                       <!--date-->
@@ -628,7 +630,7 @@
                         </mat-panel-title>
                         <mat-panel-description>
                           <mat-icon class="example-tab-icon msr-2">payment</mat-icon>
-                          {{payment.amount}}
+                          {{payment.amount | appCurrency}}
                         </mat-panel-description>
                       </mat-expansion-panel-header>
                       <div class="row">
@@ -664,6 +666,7 @@
                         <mat-form-field class="example-full-width">
                           <mat-label>{{ 'PATIENTS.PROFILE.AMOUNT' | translate }}</mat-label>
                           <input matInput  type="number" formControlName="amount">
+                          <span matTextSuffix>{{ currencySymbol }}</span>
                           <mat-error *ngIf="this.paymentForm.get('amount')?.hasError('required')">
                             {{ 'VALIDATION.REQUIRED' | translate:{ field: ('PATIENTS.PROFILE.AMOUNT' | translate) } }}
                           </mat-error>

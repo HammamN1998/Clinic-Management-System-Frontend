@@ -29,6 +29,8 @@ import { getDoctorTitlePrefix } from '@core/util/doctor-title.util';
 import { isArabicLang } from '@core/util/app-locale.util';
 import { isTruthyString } from '@core/util/boolean-string.util';
 import { ReligiousReminderService } from '@core/service/religious-reminder.service';
+import { CurrencyService } from '@core/service/currency.service';
+import { CurrencyOption } from '@core/util/currency.util';
 
 @Component({
   selector: 'app-doctor-profile',
@@ -71,6 +73,7 @@ export class DoctorProfileComponent implements OnInit {
     private translate: TranslateService,
     private onboardingService: OnboardingService,
     private religiousReminderService: ReligiousReminderService,
+    private currencyService: CurrencyService,
   ) {
     this.accountSettingsForm = this.createAccountSettingsForm();
     this.checkIfEmailVerified();
@@ -106,6 +109,39 @@ export class DoctorProfileComponent implements OnInit {
           this.notificationService.showSnackBarNotification(
             'snackbar-success',
             this.translate.instant('DOCTORS.PROFILE.MESSAGES.UPDATE_RELIGIOUS_REMINDERS_SUCCESS'),
+            'bottom',
+            'center'
+          );
+        },
+        error: (error) => {
+          console.log('error: ' + error)
+        }
+      });
+  }
+
+  get currencyOptions(): CurrencyOption[] {
+    return this.currencyService.options;
+  }
+
+  get selectedCurrency(): string {
+    return this.currencyService.code;
+  }
+
+  /** Example amount so the doctor can see how prices will be printed. */
+  get currencyPreview(): string {
+    return this.currencyService.format(1234.5);
+  }
+
+  selectCurrency(code: string) {
+    if (code === this.doctor.currency) {
+      return;
+    }
+    from(this.doctorService.editDoctor({ currency: code }))
+      .subscribe({
+        next: () => {
+          this.notificationService.showSnackBarNotification(
+            'snackbar-success',
+            this.translate.instant('DOCTORS.PROFILE.MESSAGES.UPDATE_CURRENCY_SUCCESS'),
             'bottom',
             'center'
           );

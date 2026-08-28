@@ -72,8 +72,8 @@
                     {{ row.patientName }}
                   </button>
                 </td>
-                <td>{{ row.price | number }}</td>
-                <td>{{ row.discount | number }}</td>
+                <td>{{ row.price | appCurrency }}</td>
+                <td>{{ row.discount | appCurrency }}</td>
                 <td>{{ row.details || '-' }}</td>
               </tr>
             </tbody>

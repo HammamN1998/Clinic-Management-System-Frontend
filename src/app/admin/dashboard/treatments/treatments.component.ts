@@ -15,6 +15,7 @@ import {
   formatDashboardRangeLabel,
   getAppDateLocale,
 } from '@core/util/dashboard-range-label.util';
+import {AppCurrencyPipe} from '@core/pipe/app-currency.pipe';
 
 type RangePreset = 'today' | 'week' | 'month' | 'year';
 interface RangeOption {
@@ -36,7 +37,7 @@ interface TreatmentRow {
   templateUrl: './treatments.component.html',
   styleUrls: ['./treatments.component.scss'],
   standalone: true,
-  imports: [CommonModule, MatButtonModule, MatIconModule, BreadcrumbComponent, TranslateModule],
+  imports: [CommonModule, MatButtonModule, MatIconModule, BreadcrumbComponent, TranslateModule, AppCurrencyPipe],
 })
 export class TreatmentsComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
