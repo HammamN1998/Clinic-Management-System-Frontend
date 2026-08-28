@@ -5,11 +5,14 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { UnsubscribeOnDestroyAdapter } from '@shared';
 import {FirebaseAuthenticationService} from "../services/firebase-authentication.service";
 import {NgIf} from "@angular/common";
 import { LegalPolicyFooterComponent } from '@shared/components/legal-policy-footer/legal-policy-footer.component';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+
+const GOOGLE_AUTH_TIMEOUT_MS = 25000;
 
 @Component({
     selector: 'app-signup',
@@ -22,6 +25,7 @@ import { TranslateModule } from '@ngx-translate/core';
     MatFormFieldModule,
     MatInputModule,
     MatIconModule,
+    MatProgressSpinnerModule,
     RouterLink,
     MatButtonModule,
     NgIf,
@@ -41,12 +45,14 @@ export class SignupComponent
   googleLoading = false;
   error = '';
   showEmailForm = false;
+  private googleAuthTimer?: ReturnType<typeof setTimeout>;
 
   constructor(
     private formBuilder: UntypedFormBuilder,
     private route: ActivatedRoute,
     private router: Router,
-    private firebaseAuthenticationService: FirebaseAuthenticationService
+    private firebaseAuthenticationService: FirebaseAuthenticationService,
+    private translate: TranslateService
   ) {
     super();
   }
@@ -74,15 +80,35 @@ export class SignupComponent
   signUpWithGoogle() {
     this.googleLoading = true;
     this.error = '';
+    // A successful sign-in navigates away and destroys this component, so the
+    // timer only ever fires when the flow stalls and would otherwise leave the
+    // button disabled forever.
+    this.googleAuthTimer = setTimeout(() => {
+      this.googleLoading = false;
+      this.error = this.translate.instant('AUTH.GOOGLE.TIMEOUT');
+    }, GOOGLE_AUTH_TIMEOUT_MS);
     this.subs.sink = this.firebaseAuthenticationService.loginWithGoogle().subscribe({
       next: () => {
         // Navigation is handled by the auth state listener.
       },
       error: (error) => {
+        this.clearGoogleAuthTimer();
         this.error = this.firebaseAuthenticationService.googleSignInErrorMessage(error) ?? '';
         this.googleLoading = false;
       },
     });
+  }
+
+  private clearGoogleAuthTimer() {
+    if (this.googleAuthTimer !== undefined) {
+      clearTimeout(this.googleAuthTimer);
+      this.googleAuthTimer = undefined;
+    }
+  }
+
+  override ngOnDestroy() {
+    this.clearGoogleAuthTimer();
+    super.ngOnDestroy();
   }
 
   async onSubmit() {

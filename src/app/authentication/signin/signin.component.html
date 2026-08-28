@@ -15,9 +15,10 @@
           </p>
           <h2 class="login-title">{{ 'AUTH.SIGNIN.TITLE' | translate }}</h2>
           <button mat-stroked-button type="button" class="google-auth-btn" [disabled]="loading || googleLoading"
-            (click)="signInWithGoogle()">
-            <img src="assets/images/google-logo.svg" alt="" class="google-auth-logo" />
-            <span>{{ 'AUTH.GOOGLE.CONTINUE' | translate }}</span>
+            [attr.aria-busy]="googleLoading" (click)="signInWithGoogle()">
+            <mat-spinner *ngIf="googleLoading" diameter="20" class="google-auth-spinner"></mat-spinner>
+            <img *ngIf="!googleLoading" src="assets/images/google-logo.svg" alt="" class="google-auth-logo" />
+            <span>{{ (googleLoading ? 'AUTH.GOOGLE.SIGNING_IN' : 'AUTH.GOOGLE.CONTINUE') | translate }}</span>
           </button>
           <div class="social-login-title">{{ 'AUTH.GOOGLE.OR' | translate }}</div>
           <button mat-button type="button" class="email-auth-toggle" (click)="toggleEmailForm()">

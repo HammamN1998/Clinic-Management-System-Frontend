@@ -95,6 +95,13 @@
   // Margin rather than gap: Material wraps the button content, so gap is unreliable.
   margin-inline-end: 14px;
 }
+.google-auth-spinner {
+  // Matches .google-auth-logo so the label does not shift between states.
+  margin-inline-end: 14px;
+  // The button is disabled while spinning, so pin the stroke to a visible color
+  // rather than inheriting the dimmed button palette.
+  --mdc-circular-progress-active-indicator-color: #3699ff;
+}
 .email-auth-toggle {
   width: 100%;
   color: #3699ff;
