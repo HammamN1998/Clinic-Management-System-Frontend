@@ -48,8 +48,9 @@ input[type='number'] {
     justify-content: flex-start;
   }
 
-  /* Icon-only mat-tab labels so they don't get cramped/truncated */
-  .mat-mdc-tab .mdc-tab__text-label {
+  /* Icon-only mat-tab labels so they don't get cramped/truncated.
+     Text-only labels must keep their font size or they become invisible. */
+  .mat-mdc-tab .mdc-tab__text-label:has(.mat-icon) {
     font-size: 0;
   }
 
