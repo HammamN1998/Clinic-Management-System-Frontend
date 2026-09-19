@@ -129,6 +129,20 @@
   }
 }
 
+// Flex items are laid out along the writing direction, so the amount stays on
+// the start side in both LTR and RTL instead of being reordered by bidi as part
+// of one mixed text run with the duration.
+.plan-price {
+  display: inline-flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+}
+
+.plan-price__amount {
+  flex: 0 0 auto;
+}
+
 @media (max-width: 600px) {
   // Both tab labels have to fit the narrow pricing card without paginating.
   .pricingTable ::ng-deep .mat-mdc-tab {
