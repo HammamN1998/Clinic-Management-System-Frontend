@@ -55,10 +55,18 @@ import { CurrencyOption } from '@core/util/currency.util';
 })
 export class DoctorProfileComponent implements OnInit {
   accountSettingsForm: UntypedFormGroup;
+  changeEmailForm: UntypedFormGroup;
   showUploadProfilePicture: boolean = false;
   showUploadLogo: boolean = false;
   isEmailVerified: boolean = false;
   selectedTabIndex = 0;
+  showChangeEmailForm = false;
+  changeEmailLoading = false;
+  changeEmailError = '';
+  /** Address awaiting confirmation, shown until the doctor opens the link we sent there. */
+  pendingEmail = '';
+  usesGoogleReauth = false;
+  hasGoogleLinked = false;
 
   constructor(
     private doctorService: DoctorService,
@@ -76,7 +84,9 @@ export class DoctorProfileComponent implements OnInit {
     private currencyService: CurrencyService,
   ) {
     this.accountSettingsForm = this.createAccountSettingsForm();
+    this.changeEmailForm = this.createChangeEmailForm();
     this.checkIfEmailVerified();
+    this.checkReauthMethod();
   }
 
   ngOnInit(): void {
@@ -457,6 +467,60 @@ export class DoctorProfileComponent implements OnInit {
   }
   sendEmailVerificationCode() {
     this.firebaseAuthenticationService.sendEmailVerificationCode();
+  }
+
+  private createChangeEmailForm() {
+    return this.fb.group({
+      newEmail: ['', [Validators.required, Validators.email]],
+      currentPassword: ['', [Validators.required]],
+    });
+  }
+
+  private async checkReauthMethod() {
+    this.usesGoogleReauth = await this.firebaseAuthenticationService.requiresGoogleReauth();
+    this.hasGoogleLinked = await this.firebaseAuthenticationService.isGoogleLinked();
+    if (this.usesGoogleReauth) {
+      const passwordControl = this.changeEmailForm.get('currentPassword');
+      passwordControl?.clearValidators();
+      passwordControl?.updateValueAndValidity();
+    }
+  }
+
+  toggleChangeEmailForm() {
+    this.showChangeEmailForm = !this.showChangeEmailForm;
+    this.changeEmailError = '';
+    if (!this.showChangeEmailForm) {
+      this.changeEmailForm.reset();
+    }
+  }
+
+  async submitEmailChange() {
+    if (this.changeEmailForm.invalid) {
+      return;
+    }
+
+    const newEmail = (this.changeEmailForm.value.newEmail as string).trim();
+    if (newEmail.toLowerCase() === this.doctor.email?.toLowerCase()) {
+      this.changeEmailError = this.translate.instant('DOCTORS.PROFILE.MESSAGES.EMAIL_UNCHANGED');
+      return;
+    }
+
+    this.changeEmailLoading = true;
+    this.changeEmailError = '';
+    try {
+      await this.firebaseAuthenticationService.changeEmail(newEmail, this.changeEmailForm.value.currentPassword);
+      this.pendingEmail = newEmail;
+      this.showChangeEmailForm = false;
+      this.changeEmailForm.reset();
+      this.notificationService.showSwalOkDialog(
+        this.translate.instant('DOCTORS.PROFILE.MESSAGES.CHANGE_EMAIL_SENT', { email: newEmail }),
+        'success',
+      );
+    } catch (error) {
+      this.changeEmailError = this.firebaseAuthenticationService.changeEmailErrorMessage(error) ?? '';
+    } finally {
+      this.changeEmailLoading = false;
+    }
   }
 
   get needsPhoneForSetup(): boolean {

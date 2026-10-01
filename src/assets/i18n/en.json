@@ -107,6 +107,7 @@
       "SIGNING_IN": "Signing you in...",
       "OR": "or",
       "EMAIL_ALREADY_REGISTERED": "This email is already registered. Please sign in with your email and password.",
+      "DIFFERENT_GOOGLE_ACCOUNT": "This Google account is not connected to your ClinicWell account. Sign in with the Google account you used originally, or with your email and password. To use this Google account instead, reset your password with your new email address using \"Forgot Password?\", then sign in with Google again.",
       "GENERIC_ERROR": "Google sign-in failed. Please try again.",
       "TIMEOUT": "This is taking longer than usual. Please check your connection and try again.",
       "USE_EMAIL_SIGNIN": "Sign in with email instead",
@@ -162,6 +163,8 @@
         "EMAIL_IN_USE": "This email is already in use.",
         "INVALID_EMAIL": "Invalid email address.",
         "OPERATION_NOT_ALLOWED": "Email update is not allowed until the new email is verified. Please use the verification link sent to your new email.",
+        "USER_MISMATCH": "That is a different account. Please choose the account you are currently signed in with.",
+        "TOO_MANY_REQUESTS": "Too many attempts. Please wait a few minutes and try again.",
         "UPDATE_EMAIL_ERROR": "Failed to update email. {{error}}"
       }
     },
@@ -561,7 +564,16 @@
       "CALENDAR_PREFERENCES": "Calendar Preferences",
       "SHOW_ATTENDED_APPOINTMENTS": "Show attended appointments",
       "SHOW_ATTENDED_APPOINTMENTS_HINT": "Attended appointments appear in green and pending ones in red. Turn this off to show only pending appointments.",
+      "CHANGE_EMAIL": "Change email",
+      "CHANGE_EMAIL_HINT": "We will send a confirmation link to your new address. Your email changes only after you open that link, and you will need to sign in again afterwards.",
+      "CHANGE_EMAIL_GOOGLE_REAUTH_HINT": "You will be asked to confirm with Google first.",
+      "CHANGE_EMAIL_GOOGLE_HINT": "Google sign-in stays on your current Google account and does not move to the new address. Keep choosing that same Google account, or sign in with your new email and password.",
+      "EMAIL_VERIFIED": "Verified",
+      "EMAIL_UNVERIFIED": "Not verified",
+      "EMAIL_PENDING": "Waiting for confirmation at {{email}}. Open the link we sent there to finish the change.",
       "MESSAGES": {
+        "CHANGE_EMAIL_SENT": "We sent a confirmation link to {{email}}. Open it to finish changing your email.",
+        "EMAIL_UNCHANGED": "This is already your current email address.",
         "UPDATE_EDUCATION_SUCCESS": "Update Education Successfully...!!!",
         "UPDATE_EXPERIENCE_SUCCESS": "Update Experience Successfully...!!!",
         "UPDATE_ABOUT_SUCCESS": "Update About Section Successfully...!!!",

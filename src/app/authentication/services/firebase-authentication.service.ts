@@ -68,6 +68,11 @@ export class FirebaseAuthenticationService {
     if (code === 'auth/account-exists-with-different-credential') {
       return this.translate.instant('AUTH.GOOGLE.EMAIL_ALREADY_REGISTERED');
     }
+    // Raised when the chosen Google account differs from the one already linked, which
+    // happens after an email change because the link stays on the original Google identity.
+    if (code === 'auth/provider-already-linked') {
+      return this.translate.instant('AUTH.GOOGLE.DIFFERENT_GOOGLE_ACCOUNT');
+    }
     return this.translate.instant('AUTH.GOOGLE.GENERIC_ERROR');
   }
 
@@ -123,6 +128,79 @@ export class FirebaseAuthenticationService {
     return fireAuthUser.providerData.some(
       (provider) => provider?.providerId === firebase.auth.GoogleAuthProvider.PROVIDER_ID
     );
+  }
+
+  private hasPasswordProvider(fireAuthUser: firebase.User): boolean {
+    return fireAuthUser.providerData.some(
+      (provider) => provider?.providerId === firebase.auth.EmailAuthProvider.PROVIDER_ID
+    );
+  }
+
+  /** Google-only accounts have no password to re-authenticate with, so they use the popup instead. */
+  async requiresGoogleReauth(): Promise<boolean> {
+    const fireAuthUser = await this.auth.currentUser;
+    return !!fireAuthUser && !this.hasPasswordProvider(fireAuthUser);
+  }
+
+  /**
+   * An email change never moves the Google link, which stays on the original Google
+   * identity. Callers warn the doctor so they keep picking that account at sign-in.
+   */
+  async isGoogleLinked(): Promise<boolean> {
+    const fireAuthUser = await this.auth.currentUser;
+    return !!fireAuthUser && this.isGoogleUser(fireAuthUser);
+  }
+
+  /**
+   * Starts an email change. Firebase keeps the old address until the doctor opens the link
+   * sent to `newEmail`, so Firestore and Stripe are only synced on the next sign-in.
+   */
+  async changeEmail(newEmail: string, currentPassword?: string): Promise<void> {
+    const fireAuthUser = await this.auth.currentUser;
+    if (!fireAuthUser?.email) {
+      await this.router.navigate(['/authentication/signin']);
+      return;
+    }
+
+    if (this.hasPasswordProvider(fireAuthUser)) {
+      const credential = firebase.auth.EmailAuthProvider.credential(fireAuthUser.email, currentPassword ?? '');
+      await fireAuthUser.reauthenticateWithCredential(credential);
+    } else {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: 'select_account' });
+      await fireAuthUser.reauthenticateWithPopup(provider);
+    }
+
+    await fireAuthUser.verifyBeforeUpdateEmail(newEmail);
+  }
+
+  /** Translated email-change failure, or null when the user simply closed the Google popup. */
+  changeEmailErrorMessage(error: unknown): string | null {
+    const code = (error as { code?: string } | null)?.code;
+    switch (code) {
+      case 'auth/popup-closed-by-user':
+      case 'auth/cancelled-popup-request':
+        return null;
+      case 'auth/wrong-password':
+      case 'auth/invalid-credential':
+        return this.translate.instant('AUTH.VERIFY.MESSAGES.WRONG_PASSWORD');
+      case 'auth/requires-recent-login':
+        return this.translate.instant('AUTH.VERIFY.MESSAGES.REQUIRES_RECENT_LOGIN');
+      case 'auth/email-already-in-use':
+        return this.translate.instant('AUTH.VERIFY.MESSAGES.EMAIL_IN_USE');
+      case 'auth/invalid-email':
+        return this.translate.instant('AUTH.VERIFY.MESSAGES.INVALID_EMAIL');
+      case 'auth/operation-not-allowed':
+        return this.translate.instant('AUTH.VERIFY.MESSAGES.OPERATION_NOT_ALLOWED');
+      case 'auth/user-mismatch':
+        return this.translate.instant('AUTH.VERIFY.MESSAGES.USER_MISMATCH');
+      case 'auth/too-many-requests':
+        return this.translate.instant('AUTH.VERIFY.MESSAGES.TOO_MANY_REQUESTS');
+      default:
+        return this.translate
+          .instant('AUTH.VERIFY.MESSAGES.UPDATE_EMAIL_ERROR', { error: (error as { message?: string } | null)?.message ?? '' })
+          .trim();
+    }
   }
 
   /**
@@ -226,6 +304,13 @@ export class FirebaseAuthenticationService {
             if (fireAuthUser.emailVerified) {
               this.analytics.emailVerified(fireAuthUser.uid);
             }
+            // Sync Firestore email with Firebase Auth email after verification. A doctor who
+            // changed their email from the profile page lands here on their next sign-in.
+            if (fireAuthUser.emailVerified && firestoreUser.email !== fireAuthUser.email) {
+              this.firestore.collection('doctors').doc(fireAuthUser.uid).update({ email: fireAuthUser.email });
+              firstValueFrom(this.updateStripeCustomerEmail(fireAuthUser.uid, fireAuthUser.email!));
+            }
+
             const isOnAuthPages =
               this.router.url === '/authentication/signup' ||
               this.router.url === '/authentication/signin' ||
@@ -233,11 +318,6 @@ export class FirebaseAuthenticationService {
 
             if (isOnAuthPages) {
               if (fireAuthUser.emailVerified) {
-                // Sync Firestore email with Firebase Auth email after verification.
-                if (firestoreUser.email !== fireAuthUser.email) {
-                  this.firestore.collection('doctors').doc(fireAuthUser.uid).update({ email: fireAuthUser.email });
-                  firstValueFrom(this.updateStripeCustomerEmail(fireAuthUser.uid, fireAuthUser.email!));
-                }
                 this.router.navigate(['/admin/dashboard/main']);
               } else {
                 this.router.navigate(['/authentication/verify-email']);

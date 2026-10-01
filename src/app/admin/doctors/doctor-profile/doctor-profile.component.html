@@ -152,6 +152,74 @@
                   </div>
                 </form>
               </div>
+              <!--Email-->
+              <div class="header">
+                <h2>
+                  <strong>{{ 'COMMON.EMAIL' | translate }}</strong>
+                </h2>
+              </div>
+              <div class="body">
+                <div class="email-row">
+                  <div>
+                    <p class="email-row__address">{{ this.doctor.email }}</p>
+                    <span class="email-chip" [class.email-chip--pending]="!isEmailVerified">
+                      {{ (isEmailVerified ? 'DOCTORS.PROFILE.EMAIL_VERIFIED' : 'DOCTORS.PROFILE.EMAIL_UNVERIFIED') | translate }}
+                    </span>
+                  </div>
+                  <button mat-stroked-button color="primary" type="button" (click)="toggleChangeEmailForm()">
+                    {{ (showChangeEmailForm ? 'COMMON.CANCEL' : 'DOCTORS.PROFILE.CHANGE_EMAIL') | translate }}
+                  </button>
+                </div>
+
+                <p class="email-pending" *ngIf="pendingEmail">
+                  <mat-icon class="email-pending__icon">mark_email_unread</mat-icon>
+                  {{ 'DOCTORS.PROFILE.EMAIL_PENDING' | translate:{ email: pendingEmail } }}
+                </p>
+
+                <form [formGroup]="changeEmailForm" (ngSubmit)="submitEmailChange()" *ngIf="showChangeEmailForm">
+                  <p class="text-muted">{{ 'DOCTORS.PROFILE.CHANGE_EMAIL_HINT' | translate }}</p>
+                  <p class="text-muted" *ngIf="usesGoogleReauth">{{ 'DOCTORS.PROFILE.CHANGE_EMAIL_GOOGLE_REAUTH_HINT' | translate }}</p>
+                  <p class="email-pending" *ngIf="hasGoogleLinked">
+                    <mat-icon class="email-pending__icon">info_outline</mat-icon>
+                    {{ 'DOCTORS.PROFILE.CHANGE_EMAIL_GOOGLE_HINT' | translate }}
+                  </p>
+                  <div class="row clearfix">
+                    <div class="col-lg-6 col-md-12">
+                      <div class="form-group">
+                        <mat-form-field class="example-full-width" appearance="fill">
+                          <mat-label>{{ 'AUTH.VERIFY.NEW_EMAIL' | translate }}</mat-label>
+                          <input matInput type="email" formControlName="newEmail" required>
+                          <mat-error *ngIf="changeEmailForm.get('newEmail')?.hasError('required')">
+                            {{ 'VALIDATION.REQUIRED' | translate:{ field: ('AUTH.VERIFY.NEW_EMAIL' | translate) } }}
+                          </mat-error>
+                          <mat-error *ngIf="changeEmailForm.get('newEmail')?.hasError('email')">
+                            {{ 'VALIDATION.EMAIL_INVALID' | translate }}
+                          </mat-error>
+                        </mat-form-field>
+                      </div>
+                    </div>
+                    <div class="col-lg-6 col-md-12" *ngIf="!usesGoogleReauth">
+                      <div class="form-group">
+                        <mat-form-field class="example-full-width" appearance="fill">
+                          <mat-label>{{ 'AUTH.VERIFY.CURRENT_PASSWORD' | translate }}</mat-label>
+                          <input matInput type="password" formControlName="currentPassword" required>
+                          <mat-error *ngIf="changeEmailForm.get('currentPassword')?.hasError('required')">
+                            {{ 'VALIDATION.REQUIRED' | translate:{ field: ('AUTH.VERIFY.CURRENT_PASSWORD' | translate) } }}
+                          </mat-error>
+                        </mat-form-field>
+                      </div>
+                    </div>
+                    <div class="col-md-12" *ngIf="changeEmailError">
+                      <p class="email-error">{{ changeEmailError }}</p>
+                    </div>
+                    <div class="col-md-12">
+                      <button mat-raised-button color="primary" type="submit" [disabled]="changeEmailForm.invalid || changeEmailLoading">
+                        {{ (changeEmailLoading ? 'COMMON.LOADING' : 'AUTH.VERIFY.UPDATE_EMAIL') | translate }}
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              </div>
               <!--Billing Preferences-->
               <div class="header">
                 <h2>

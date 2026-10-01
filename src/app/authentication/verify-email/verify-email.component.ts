@@ -7,8 +7,6 @@ import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { FirebaseAuthenticationService } from '../services/firebase-authentication.service';
 import { FormsModule } from '@angular/forms';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
-import firebase from 'firebase/compat/app';
-import 'firebase/compat/auth';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
@@ -113,26 +111,14 @@ export class VerifyEmailComponent {
     }
 
     try {
-      const user = await this.auth.currentUser;
-      if (!user || !user.email) {
-        await this.router.navigate(['/authentication/signin']);
-        return;
-      }
-
-      const cred = firebase.auth.EmailAuthProvider.credential(user.email, password);
-      await user.reauthenticateWithCredential(cred);
-      if (typeof (user as any).verifyBeforeUpdateEmail !== 'function') {
-        throw new Error('verifyBeforeUpdateEmail is not available.');
-      }
-
-      await (user as any).verifyBeforeUpdateEmail(newEmail);
+      await this.firebaseAuthenticationService.changeEmail(newEmail, password);
       this.info = this.translate.instant('AUTH.VERIFY.MESSAGES.CHANGE_EMAIL_SENT');
 
       this.newEmail = '';
       this.currentPassword = '';
       this.showChangeEmailForm = false;
     } catch (e: any) {
-      this.error = this.mapChangeEmailError(e);
+      this.error = this.firebaseAuthenticationService.changeEmailErrorMessage(e) ?? '';
     } finally {
       this.changeEmailLoading = false;
     }
@@ -145,24 +131,6 @@ export class VerifyEmailComponent {
     if (!this.showChangeEmailForm) {
       this.newEmail = '';
       this.currentPassword = '';
-    }
-  }
-
-  private mapChangeEmailError(error: any): string {
-    const code = error?.code as string | undefined;
-    switch (code) {
-      case 'auth/wrong-password':
-        return this.translate.instant('AUTH.VERIFY.MESSAGES.WRONG_PASSWORD');
-      case 'auth/requires-recent-login':
-        return this.translate.instant('AUTH.VERIFY.MESSAGES.REQUIRES_RECENT_LOGIN');
-      case 'auth/email-already-in-use':
-        return this.translate.instant('AUTH.VERIFY.MESSAGES.EMAIL_IN_USE');
-      case 'auth/invalid-email':
-        return this.translate.instant('AUTH.VERIFY.MESSAGES.INVALID_EMAIL');
-      case 'auth/operation-not-allowed':
-        return this.translate.instant('AUTH.VERIFY.MESSAGES.OPERATION_NOT_ALLOWED');
-      default:
-        return this.translate.instant('AUTH.VERIFY.MESSAGES.UPDATE_EMAIL_ERROR', { error: error?.message ?? '' }).trim();
     }
   }
 }
