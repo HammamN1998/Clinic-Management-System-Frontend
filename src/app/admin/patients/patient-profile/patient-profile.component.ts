@@ -45,6 +45,24 @@ import {NumericInputDirective} from "@core/directive/numeric-input.directive";
 
 const TIME_SLOT_MINUTES = 15;
 
+/** The parts of an appointment, each shown only once it has something in it. */
+type AppointmentTextSectionKey = 'details' | 'subjective' | 'objective' | 'assessment' | 'plan';
+type AppointmentSectionKey = AppointmentTextSectionKey | 'prescriptions';
+
+interface AppointmentSection {
+  key: AppointmentSectionKey;
+  labelKey: string;
+}
+
+const APPOINTMENT_SECTIONS: AppointmentSection[] = [
+  { key: 'details', labelKey: 'PATIENTS.PROFILE.APPOINTMENT_DETAILS' },
+  { key: 'subjective', labelKey: 'PATIENTS.PROFILE.SUBJECTIVE' },
+  { key: 'objective', labelKey: 'PATIENTS.PROFILE.OBJECTIVE' },
+  { key: 'assessment', labelKey: 'PATIENTS.PROFILE.ASSESSMENT' },
+  { key: 'plan', labelKey: 'PATIENTS.PROFILE.PLAN' },
+  { key: 'prescriptions', labelKey: 'PATIENTS.PROFILE.PRESCRIPTION' },
+];
+
 /**
  * Money read off a form control. An untouched field holds '' and a cleared one holds null,
  * and both have to become 0 before they reach the balance ledger, which sums with `+=`
@@ -97,6 +115,9 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
   compressAttachments = true;
 
   readonly timeSlots = buildTimeSlots();
+
+  /** Empty sections the doctor opened from the picker, keyed `appointmentId:sectionKey`. */
+  private readonly addedSections = new Set<string>();
 
   readonly dentalNotations = DENTAL_NOTATIONS;
   selectedDentalForm: DentalNotation = 'universal';
@@ -432,6 +453,71 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
         console.log('error: ' + JSON.stringify(error));
       }
     });
+  }
+
+  /** Sections holding content, plus any empty one the doctor just picked from the list. */
+  appointmentSections(appointment: AppointmentModel): AppointmentSection[] {
+    return APPOINTMENT_SECTIONS.filter(
+      (section) =>
+        this.hasSectionContent(appointment, section) ||
+        this.addedSections.has(this.sectionId(appointment, section)),
+    );
+  }
+
+  /** What the "add a section" list still has to offer for this appointment. */
+  missingAppointmentSections(appointment: AppointmentModel): AppointmentSection[] {
+    const shown = new Set(this.appointmentSections(appointment));
+    return APPOINTMENT_SECTIONS.filter((section) => !shown.has(section));
+  }
+
+  addAppointmentSection(appointment: AppointmentModel, section: AppointmentSection): void {
+    this.addedSections.add(this.sectionId(appointment, section));
+    if (section.key === 'prescriptions') {
+      // A prescription block with no drug in it is the same blank space we are removing.
+      this.addAppointmentDrug(appointment);
+    }
+  }
+
+  /** A just-added section has no content yet, so open it ready to type. */
+  isAddedAppointmentSection(appointment: AppointmentModel, section: AppointmentSection): boolean {
+    return (
+      !this.hasSectionContent(appointment, section) &&
+      this.addedSections.has(this.sectionId(appointment, section))
+    );
+  }
+
+  appointmentSectionText(appointment: AppointmentModel, section: AppointmentSection): string {
+    return section.key === 'prescriptions' ? '' : appointment[section.key] || '';
+  }
+
+  saveAppointmentSection(
+    appointment: AppointmentModel,
+    section: AppointmentSection,
+    text: string,
+  ): void {
+    if (section.key === 'prescriptions') {
+      return;
+    }
+    if (section.key === 'details') {
+      this.updateAppointmentDetails(appointment, text);
+      return;
+    }
+    this.patchAppointmentSoap(appointment, { [section.key]: text });
+  }
+
+  private hasSectionContent(appointment: AppointmentModel, section: AppointmentSection): boolean {
+    if (section.key === 'prescriptions') {
+      return (appointment.prescriptions || []).length > 0;
+    }
+    return !!appointment[section.key]?.trim();
+  }
+
+  trackSection(_index: number, section: AppointmentSection): string {
+    return section.key;
+  }
+
+  private sectionId(appointment: AppointmentModel, section: AppointmentSection): string {
+    return `${appointment.id}:${section.key}`;
   }
 
   patchAppointmentSoap(

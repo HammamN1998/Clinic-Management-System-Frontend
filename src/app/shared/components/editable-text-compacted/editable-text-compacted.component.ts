@@ -1,6 +1,7 @@
 import {CommonModule} from '@angular/common';
 import {
   AfterViewInit,
+  ChangeDetectorRef,
   Component,
   ElementRef,
   EventEmitter,
@@ -25,13 +26,22 @@ export class EditableTextCompactedComponent implements AfterViewInit, OnChanges 
 
   @Input() headerText = '';
   @Input() bodyText = '';
+  /** Opens ready to type, for a section the user has just chosen to add. */
+  @Input() startInEditMode = false;
 
   @Output() bodyTextEdited = new EventEmitter<string>();
 
   isEditing = false;
 
+  constructor(private readonly changeDetector: ChangeDetectorRef) {}
+
   ngAfterViewInit(): void {
     this.applyBodyTextFromInput();
+    if (this.startInEditMode) {
+      this.onBodyClick();
+      // Entering edit mode toggles the action buttons, which this view has already checked.
+      this.changeDetector.detectChanges();
+    }
   }
 
   ngOnChanges(changes: SimpleChanges): void {

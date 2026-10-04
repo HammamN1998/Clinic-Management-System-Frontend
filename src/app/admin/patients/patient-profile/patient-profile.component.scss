@@ -38,6 +38,13 @@
   }
 }
 
+// Narrow so it reads as a small "add" control rather than another content field.
+.appointment-section-picker {
+  width: 100%;
+  max-width: 260px;
+  margin-top: 8px;
+}
+
 .beta-badge {
   padding: 1px 6px;
   border-radius: 8px;

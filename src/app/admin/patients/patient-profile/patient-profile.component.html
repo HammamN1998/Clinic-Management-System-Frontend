@@ -210,87 +210,73 @@
                         </mat-panel-description>
                       </mat-expansion-panel-header>
                       <div class="row">
-                        <div class="col-lg-12 col-md-12">
-                          <editable-text-compacted
-                            [headerText]="'PATIENTS.PROFILE.APPOINTMENT_DETAILS' | translate"
-                            [bodyText]="appointment.details || ''"
-                            (bodyTextEdited)="updateAppointmentDetails(appointment, $event)">
-                          </editable-text-compacted>
-                        </div>
-                        <div class="col-lg-12 col-md-12">
-                          <editable-text-compacted
-                            [headerText]="'PATIENTS.PROFILE.SUBJECTIVE' | translate"
-                            [bodyText]="appointment.subjective || ''"
-                            (bodyTextEdited)="patchAppointmentSoap(appointment, { subjective: $event })">
-                          </editable-text-compacted>
-                        </div>
-                        <div class="col-lg-12 col-md-12">
-                          <editable-text-compacted
-                            [headerText]="'PATIENTS.PROFILE.OBJECTIVE' | translate"
-                            [bodyText]="appointment.objective || ''"
-                            (bodyTextEdited)="patchAppointmentSoap(appointment, { objective: $event })">
-                          </editable-text-compacted>
-                        </div>
-                        <div class="col-lg-12 col-md-12">
-                          <editable-text-compacted
-                            [headerText]="'PATIENTS.PROFILE.ASSESSMENT' | translate"
-                            [bodyText]="appointment.assessment || ''"
-                            (bodyTextEdited)="patchAppointmentSoap(appointment, { assessment: $event })">
-                          </editable-text-compacted>
-                        </div>
-                        <div class="col-lg-12 col-md-12">
-                          <editable-text-compacted
-                            [headerText]="'PATIENTS.PROFILE.PLAN' | translate"
-                            [bodyText]="appointment.plan || ''"
-                            (bodyTextEdited)="patchAppointmentSoap(appointment, { plan: $event })">
-                          </editable-text-compacted>
-                        </div>
-                        <div class="col-lg-12 col-md-12">
-                          <div class="d-flex justify-content-between align-items-center mb-1">
-                            <h4 class="mb-0">{{ 'PATIENTS.PROFILE.PRESCRIPTION' | translate }}</h4>
-                            <button type="button" mat-stroked-button color="primary" (click)="addAppointmentDrug(appointment)">
-                              <mat-icon class="me-1">add</mat-icon>
-                              {{ 'PATIENTS.PROFILE.ADD_DRUG' | translate }}
-                            </button>
+                        <ng-container *ngFor="let section of appointmentSections(appointment); trackBy: trackSection">
+                          <div class="col-lg-12 col-md-12" *ngIf="section.key !== 'prescriptions'">
+                            <editable-text-compacted
+                              [headerText]="section.labelKey | translate"
+                              [bodyText]="appointmentSectionText(appointment, section)"
+                              [startInEditMode]="isAddedAppointmentSection(appointment, section)"
+                              (bodyTextEdited)="saveAppointmentSection(appointment, section, $event)">
+                            </editable-text-compacted>
                           </div>
-                        </div>
-                        <div class="col-lg-12 col-md-12">
-                          <div class="card mb-1" *ngFor="let drug of appointment.prescriptions || []; let i = index">
-                            <div class="body py-2">
-                              <div class="d-flex justify-content-between align-items-center mb-1">
-                                <strong>{{ 'PATIENTS.PROFILE.DRUG' | translate:{ num: i + 1 } }}</strong>
-                                <button type="button" mat-icon-button color="warn" (click)="removeAppointmentDrug(appointment, i)">
-                                  <mat-icon>close</mat-icon>
-                                </button>
-                              </div>
-                              <div class="row clearfix">
-                                <div class="col-lg-3 col-md-6">
-                                  <mat-form-field class="example-full-width" appearance="outline">
-                                    <mat-label>{{ 'PATIENTS.PROFILE.NAME' | translate }}</mat-label>
-                                  <input matInput [value]="drug.name" (blur)="updateAppointmentDrugField(appointment, i, 'name', $any($event.target).value)">
-                                  </mat-form-field>
+                          <div class="col-lg-12 col-md-12" *ngIf="section.key === 'prescriptions'">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                              <h4 class="mb-0">{{ section.labelKey | translate }}</h4>
+                              <button type="button" mat-stroked-button color="primary" (click)="addAppointmentDrug(appointment)">
+                                <mat-icon class="me-1">add</mat-icon>
+                                {{ 'PATIENTS.PROFILE.ADD_DRUG' | translate }}
+                              </button>
+                            </div>
+                            <div class="card mb-1" *ngFor="let drug of appointment.prescriptions || []; let i = index">
+                              <div class="body py-2">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                  <strong>{{ 'PATIENTS.PROFILE.DRUG' | translate:{ num: i + 1 } }}</strong>
+                                  <button type="button" mat-icon-button color="warn" (click)="removeAppointmentDrug(appointment, i)">
+                                    <mat-icon>close</mat-icon>
+                                  </button>
                                 </div>
-                                <div class="col-lg-3 col-md-6">
-                                  <mat-form-field class="example-full-width" appearance="outline">
-                                    <mat-label>{{ 'PATIENTS.PROFILE.TYPE' | translate }}</mat-label>
-                                  <input matInput [value]="drug.type" (blur)="updateAppointmentDrugField(appointment, i, 'type', $any($event.target).value)">
-                                  </mat-form-field>
-                                </div>
-                                <div class="col-lg-3 col-md-6">
-                                  <mat-form-field class="example-full-width" appearance="outline">
-                                    <mat-label>{{ 'PATIENTS.PROFILE.DURATION' | translate }}</mat-label>
-                                  <input matInput [value]="drug.duration" (blur)="updateAppointmentDrugField(appointment, i, 'duration', $any($event.target).value)">
-                                  </mat-form-field>
-                                </div>
-                                <div class="col-lg-3 col-md-6">
-                                  <mat-form-field class="example-full-width" appearance="outline">
-                                    <mat-label>{{ 'PATIENTS.PROFILE.NOTES' | translate }}</mat-label>
-                                  <input matInput [value]="drug.notes" (blur)="updateAppointmentDrugField(appointment, i, 'notes', $any($event.target).value)">
-                                  </mat-form-field>
+                                <div class="row clearfix">
+                                  <div class="col-lg-3 col-md-6">
+                                    <mat-form-field class="example-full-width" appearance="outline">
+                                      <mat-label>{{ 'PATIENTS.PROFILE.NAME' | translate }}</mat-label>
+                                      <input matInput [value]="drug.name" (blur)="updateAppointmentDrugField(appointment, i, 'name', $any($event.target).value)">
+                                    </mat-form-field>
+                                  </div>
+                                  <div class="col-lg-3 col-md-6">
+                                    <mat-form-field class="example-full-width" appearance="outline">
+                                      <mat-label>{{ 'PATIENTS.PROFILE.TYPE' | translate }}</mat-label>
+                                      <input matInput [value]="drug.type" (blur)="updateAppointmentDrugField(appointment, i, 'type', $any($event.target).value)">
+                                    </mat-form-field>
+                                  </div>
+                                  <div class="col-lg-3 col-md-6">
+                                    <mat-form-field class="example-full-width" appearance="outline">
+                                      <mat-label>{{ 'PATIENTS.PROFILE.DURATION' | translate }}</mat-label>
+                                      <input matInput [value]="drug.duration" (blur)="updateAppointmentDrugField(appointment, i, 'duration', $any($event.target).value)">
+                                    </mat-form-field>
+                                  </div>
+                                  <div class="col-lg-3 col-md-6">
+                                    <mat-form-field class="example-full-width" appearance="outline">
+                                      <mat-label>{{ 'PATIENTS.PROFILE.NOTES' | translate }}</mat-label>
+                                      <input matInput [value]="drug.notes" (blur)="updateAppointmentDrugField(appointment, i, 'notes', $any($event.target).value)">
+                                    </mat-form-field>
+                                  </div>
                                 </div>
                               </div>
                             </div>
                           </div>
+                        </ng-container>
+                        <div class="col-lg-12 col-md-12" *ngIf="missingAppointmentSections(appointment).length">
+                          <mat-form-field appearance="outline" class="appointment-section-picker">
+                            <mat-label>{{ 'PATIENTS.PROFILE.ADD_SECTION' | translate }}</mat-label>
+                            <mat-select #sectionPicker
+                                        (selectionChange)="addAppointmentSection(appointment, $event.value); sectionPicker.value = null">
+                              <mat-option *ngFor="let section of missingAppointmentSections(appointment); trackBy: trackSection"
+                                          [value]="section">
+                                {{ section.labelKey | translate }}
+                              </mat-option>
+                            </mat-select>
+                            <mat-icon matSuffix>playlist_add</mat-icon>
+                          </mat-form-field>
                         </div>
                         <div class="col-lg-6 col-md-12">
                           <mat-slide-toggle [checked]=appointment.attended (change)="changeAppointmentAttended($event, appointment)">

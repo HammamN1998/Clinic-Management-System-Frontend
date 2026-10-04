@@ -427,6 +427,7 @@
       "OBJECTIVE": "Objective",
       "ASSESSMENT": "Assessment",
       "PLAN": "Plan",
+      "ADD_SECTION": "Add a section",
       "PRESCRIPTION": "Prescription",
       "ADD_DRUG": "Add Drug",
       "DRUG": "Drug {{num}}",
