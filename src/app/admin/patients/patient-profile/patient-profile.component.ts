@@ -41,8 +41,19 @@ import {DentalChartService} from "@core/service/dental-chart.service";
 import {DENTAL_NOTATIONS} from "@core/models/dental.constants";
 import {CurrencyService} from "@core/service/currency.service";
 import {AppCurrencyPipe} from "@core/pipe/app-currency.pipe";
+import {NumericInputDirective} from "@core/directive/numeric-input.directive";
 
 const TIME_SLOT_MINUTES = 15;
+
+/**
+ * Money read off a form control. An untouched field holds '' and a cleared one holds null,
+ * and both have to become 0 before they reach the balance ledger, which sums with `+=`
+ * and would otherwise concatenate strings instead of adding.
+ */
+function toAmount(value: unknown): number {
+  const amount = Number(value);
+  return Number.isFinite(amount) ? amount : 0;
+}
 
 interface TimeSlot {
   value: Date;
@@ -71,7 +82,7 @@ function buildTimeSlots(): TimeSlot[] {
   templateUrl: './patient-profile.component.html',
   styleUrls: ['./patient-profile.component.scss'],
   standalone: true,
-  imports: [BreadcrumbComponent, MatButtonModule, MatCheckboxModule, MatFormFieldModule, MatIconModule, MatInputModule, MatTabsModule, MatSelectModule, MatDatepickerModule, ReactiveFormsModule, SharedModule, FileUploadComponent, FullScreenImageComponent, EditableTextComponent, EditableTextCompactedComponent, TranslateModule, AppCurrencyPipe],
+  imports: [BreadcrumbComponent, MatButtonModule, MatCheckboxModule, MatFormFieldModule, MatIconModule, MatInputModule, MatTabsModule, MatSelectModule, MatDatepickerModule, ReactiveFormsModule, SharedModule, FileUploadComponent, FullScreenImageComponent, EditableTextComponent, EditableTextCompactedComponent, TranslateModule, AppCurrencyPipe, NumericInputDirective],
 })
 export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
 
@@ -209,7 +220,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
     newAppointment.time = firestore.Timestamp.fromDate(this.appointmentForm.get('time')?.value);
     newAppointment.details = this.appointmentForm.get('details')?.value;
     newAppointment.attended = this.appointmentForm.get('attended')?.value;
-    newAppointment.cost = this.appointmentForm.get('cost')?.value;
+    newAppointment.cost = toAmount(this.appointmentForm.get('cost')?.value);
     newAppointment.costPaid = this.appointmentForm.get('costPaid')?.value;
     newAppointment.prescriptions = this.appointmentDrugs.value;
     newAppointment.subjective = this.appointmentForm.get('subjective')?.value ?? '';
@@ -241,7 +252,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
 
   addPayment() {
     const newPayment = new PaymentModel();
-    newPayment.amount = this.paymentForm.get('amount')?.value;
+    newPayment.amount = toAmount(this.paymentForm.get('amount')?.value);
     newPayment.date = firestore.Timestamp.fromDate(this.paymentForm.get('date')?.value);
     newPayment.details = this.paymentForm.get('details')?.value;
 
@@ -266,8 +277,8 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
 
   addTreatment() {
     const newTreatment = new TreatmentModel();
-    newTreatment.price = this.treatmentForm.get('price')?.value;
-    newTreatment.discount = this.treatmentForm.get('discount')?.value;
+    newTreatment.price = toAmount(this.treatmentForm.get('price')?.value);
+    newTreatment.discount = toAmount(this.treatmentForm.get('discount')?.value);
     newTreatment.date = firestore.Timestamp.fromDate(this.treatmentForm.get('date')?.value);
     newTreatment.details = this.treatmentForm.get('details')?.value;
 
@@ -296,7 +307,9 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
     .subscribe({
       next: (appointments) => {
         appointments.docs.map((appointment) => {
-          this.patientAppointments.push(appointment.data() as AppointmentModel);
+          // Take the id from the document, not the stored field: a freshly added record is
+          // written before its id is backfilled, so the field can still be empty here.
+          this.patientAppointments.push({ ...(appointment.data() as AppointmentModel), id: appointment.id });
         })
       }
     });
@@ -308,7 +321,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
     .subscribe({
       next: (payments) => {
         payments.docs.map((payment) => {
-          this.patientPayments.push(payment.data() as PaymentModel);
+          this.patientPayments.push({ ...(payment.data() as PaymentModel), id: payment.id });
         })
       }
     });
@@ -320,7 +333,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
     .subscribe({
       next: (treatments) => {
         treatments.docs.map((treatment) => {
-          this.patientTreatments.push(treatment.data() as TreatmentModel);
+          this.patientTreatments.push({ ...(treatment.data() as TreatmentModel), id: treatment.id });
         })
       }
     });
@@ -348,7 +361,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
       objective: [''],
       assessment: [''],
       plan: [''],
-      cost: [0, [Validators.min(0), Validators.max(1000)]],
+      cost: ['', [Validators.min(0), Validators.max(1000)]],
       costPaid: [true],
       attended: [false],
       drugs: this.formBuilder.array([])
@@ -389,7 +402,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
     const now = new Date();
     return this.formBuilder.group({
       price: ['', [Validators.min(0), Validators.max(100000), Validators.required]],
-      discount: [0, [Validators.min(0), Validators.max(100000)]],
+      discount: ['', [Validators.min(0), Validators.max(100000)]],
       date: [now, [Validators.required]],
       details: [''],
     })
