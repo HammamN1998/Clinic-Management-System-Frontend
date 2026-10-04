@@ -513,6 +513,19 @@
     direction: rtl;
   }
 
+  // Clock time reads left-to-right in every language. Mirroring it swaps the hour
+  // and minute boxes and strands the ":" divider, which is positioned with a
+  // physical offset by the picker's own stylesheet.
+  .owl-dt-timer {
+    direction: ltr;
+  }
+
+  // Dates and times keep their original order but stay aligned to the RTL edge.
+  .ltr-value {
+    direction: ltr;
+    text-align: right;
+  }
+
   .owl-dt-control-arrow-button svg {
     transform: rotate(180deg);
   }

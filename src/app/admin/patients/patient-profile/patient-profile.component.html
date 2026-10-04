@@ -359,9 +359,10 @@
                             <div class="col-lg-6 col-md-12">
                               <mat-form-field class="example-full-width mb-3">
                                 <mat-label>{{ 'PATIENTS.PROFILE.CHOOSE_TIME' | translate }}</mat-label>
-                                <input matInput [owlDateTimeTrigger]="time1" [owlDateTime]="time1" formControlName="time">
-                                <mat-icon matSuffix [owlDateTimeTrigger]="time1" class="date-icon" >schedule</mat-icon>
-                                <owl-date-time [pickerType]="'timer'" #time1 [hour12Timer]="true"></owl-date-time>
+                                <mat-select formControlName="time" [compareWith]="compareTimeSlots" panelClass="ltr-value">
+                                  <mat-option *ngFor="let slot of timeSlots" [value]="slot.value">{{ slot.label }}</mat-option>
+                                </mat-select>
+                                <mat-icon matSuffix class="date-icon">schedule</mat-icon>
                                 <mat-error *ngIf="appointmentForm.get('time')?.hasError('required')">
                                   {{ 'VALIDATION.REQUIRED' | translate:{ field: ('PATIENTS.PROFILE.TIME_LABEL' | translate) } }}
                                 </mat-error>

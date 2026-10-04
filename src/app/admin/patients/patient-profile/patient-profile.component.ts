@@ -14,7 +14,6 @@ import { DeleteConfirmDialogService } from '@shared/components/delete-confirm-di
 import {NotificationService} from "@core/service/notification.service";
 import {SharedModule, UnsubscribeOnDestroyAdapter} from "@shared";
 import {MatDatepickerModule} from "@angular/material/datepicker";
-import { OwlDateTimeModule, OwlNativeDateTimeModule } from '@danielmoncada/angular-datetime-picker';
 import {ReactiveFormsModule, UntypedFormArray, UntypedFormBuilder, UntypedFormGroup, Validators} from "@angular/forms";
 import {AppointmentDrug, AppointmentModel} from "@core/models/appointment.model";
 import {from} from "rxjs";
@@ -43,12 +42,36 @@ import {DENTAL_NOTATIONS} from "@core/models/dental.constants";
 import {CurrencyService} from "@core/service/currency.service";
 import {AppCurrencyPipe} from "@core/pipe/app-currency.pipe";
 
+const TIME_SLOT_MINUTES = 15;
+
+interface TimeSlot {
+  value: Date;
+  label: string;
+}
+
+/** Appointment slots for a full day. Labels use en-US so the AM/PM reading never changes with the UI language. */
+function buildTimeSlots(): TimeSlot[] {
+  const midnight = new Date();
+  midnight.setHours(0, 0, 0, 0);
+
+  const slots: TimeSlot[] = [];
+  for (let minutes = 0; minutes < 24 * 60; minutes += TIME_SLOT_MINUTES) {
+    const value = new Date(midnight);
+    value.setMinutes(minutes);
+    slots.push({
+      value,
+      label: value.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
+    });
+  }
+  return slots;
+}
+
 @Component({
   selector: 'app-patient-profile',
   templateUrl: './patient-profile.component.html',
   styleUrls: ['./patient-profile.component.scss'],
   standalone: true,
-  imports: [BreadcrumbComponent, MatButtonModule, MatCheckboxModule, MatFormFieldModule, MatIconModule, MatInputModule, MatTabsModule, MatSelectModule, MatDatepickerModule, OwlDateTimeModule, OwlNativeDateTimeModule, ReactiveFormsModule, SharedModule, FileUploadComponent, FullScreenImageComponent, EditableTextComponent, EditableTextCompactedComponent, TranslateModule, AppCurrencyPipe],
+  imports: [BreadcrumbComponent, MatButtonModule, MatCheckboxModule, MatFormFieldModule, MatIconModule, MatInputModule, MatTabsModule, MatSelectModule, MatDatepickerModule, ReactiveFormsModule, SharedModule, FileUploadComponent, FullScreenImageComponent, EditableTextComponent, EditableTextCompactedComponent, TranslateModule, AppCurrencyPipe],
 })
 export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
 
@@ -61,6 +84,8 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
   patientTreatments: TreatmentModel[] = [];
   /** Default on: smaller uploads; uncheck to keep full quality for medical images. */
   compressAttachments = true;
+
+  readonly timeSlots = buildTimeSlots();
 
   readonly dentalNotations = DENTAL_NOTATIONS;
   selectedDentalForm: DentalNotation = 'universal';
@@ -301,11 +326,23 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
     });
   }
 
+  /** The control holds a Date, so the slot has to be matched on time of day rather than object identity. */
+  compareTimeSlots(a: Date, b: Date): boolean {
+    return !!a && !!b && a.getHours() === b.getHours() && a.getMinutes() === b.getMinutes();
+  }
+
+  /** Next slot at or after the current time, so a new appointment opens on a sensible default. */
+  private nextTimeSlot(): Date {
+    const now = new Date();
+    const index = Math.ceil((now.getHours() * 60 + now.getMinutes()) / TIME_SLOT_MINUTES);
+    return this.timeSlots[Math.min(index, this.timeSlots.length - 1)].value;
+  }
+
   private createAppointmentForm(): UntypedFormGroup {
     const now = new Date();
     return this.formBuilder.group({
       date: [now, [Validators.required]],
-      time: [now, [Validators.required]],
+      time: [this.nextTimeSlot(), [Validators.required]],
       details: [''],
       subjective: [''],
       objective: [''],
