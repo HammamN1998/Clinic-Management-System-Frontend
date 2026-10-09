@@ -36,7 +36,7 @@ import {PdfService} from "@core/service/pdf.service";
 import {PrescriptionNoteDialogComponent} from "./dialog/prescription-note/prescription-note.component";
 import {PatientLetterDialogComponent, PatientLetterResult} from "./dialog/patient-letter/patient-letter.component";
 import {PatientDocumentsDialogComponent, PatientDocumentAction} from "./dialog/patient-documents/patient-documents.component";
-import {buildBalanceLedger} from "@core/util/balance-ledger.util";
+import {BalanceLedgerResult, buildBalanceLedger} from "@core/util/balance-ledger.util";
 import {DentalChartService} from "@core/service/dental-chart.service";
 import {DENTAL_NOTATIONS} from "@core/models/dental.constants";
 import {CurrencyService} from "@core/service/currency.service";
@@ -111,6 +111,8 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
   patientAppointments: AppointmentModel[] = [];
   patientPayments: PaymentModel[] = [];
   patientTreatments: TreatmentModel[] = [];
+  /** Recomputed by `refreshBalance()` rather than from the template, which would re-run it every change detection cycle. */
+  balance: BalanceLedgerResult = buildBalanceLedger([], [], []);
   /** Default on: smaller uploads; uncheck to keep full quality for medical images. */
   compressAttachments = true;
 
@@ -332,6 +334,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
           // written before its id is backfilled, so the field can still be empty here.
           this.patientAppointments.push({ ...(appointment.data() as AppointmentModel), id: appointment.id });
         })
+        this.refreshBalance();
       }
     });
   }
@@ -344,6 +347,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
         payments.docs.map((payment) => {
           this.patientPayments.push({ ...(payment.data() as PaymentModel), id: payment.id });
         })
+        this.refreshBalance();
       }
     });
   }
@@ -356,6 +360,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
         treatments.docs.map((treatment) => {
           this.patientTreatments.push({ ...(treatment.data() as TreatmentModel), id: treatment.id });
         })
+        this.refreshBalance();
       }
     });
   }
@@ -435,6 +440,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
   }
   changeAppointmentCostPaid($event: MatSlideToggleChange, appointment: AppointmentModel) {
     appointment.costPaid = $event.checked;
+    this.refreshBalance();
     this.patientService.changeAppointmentCostPaid(appointment, $event.checked);
   }
 
@@ -640,6 +646,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
         ),
         1,
       );
+      this.refreshBalance();
       this.patientService.deleteAppointment(appointment.id);
     });
   }
@@ -657,6 +664,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
         this.patientPayments.findIndex((foundPayment) => foundPayment.id === payment.id),
         1,
       );
+      this.refreshBalance();
       this.patientService.deletePayment(payment.id);
     });
   }
@@ -673,29 +681,17 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
         this.patientTreatments.findIndex((foundTreatment) => foundTreatment.id === treatment.id),
         1,
       );
+      this.refreshBalance();
       this.patientService.deleteTreatment(treatment.id);
     });
   }
 
-  getTreatmentsCost(): number {
-    let treatmentsCost: number = 0;
-    // Get Treatments Costs
-    this.patientTreatments.forEach( (treatment)=>{
-      treatmentsCost += treatment.price - treatment.discount;
-    })
-    // Get Appointments Unpaid Fees
-    this.patientAppointments.forEach( (appointment)=>{
-      treatmentsCost += !appointment.costPaid ? appointment.cost : 0;
-    })
-    return treatmentsCost;
-  }
-
-  getPaymentsAmount(): number {
-    let paymentsAmount: number = 0;
-    this.patientPayments.forEach( (payment)=>{
-      paymentsAmount += payment.amount;
-    })
-    return paymentsAmount;
+  private refreshBalance() {
+    this.balance = buildBalanceLedger(
+      this.patientTreatments,
+      this.patientPayments,
+      this.patientAppointments,
+    );
   }
 
   getBalanceDetails() {
@@ -731,16 +727,11 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
   }
 
   downloadPaymentReceipt(payment: PaymentModel) {
-    const ledger = buildBalanceLedger(
-      this.patientTreatments,
-      this.patientPayments,
-      this.patientAppointments,
-    );
     void this.pdfService
       .downloadPaymentReceiptPdf({
         payment,
         patient: this.patient,
-        remainingBalance: ledger.totalBalance,
+        remainingBalance: this.balance.totalBalance,
       })
       .catch(() => {});
   }

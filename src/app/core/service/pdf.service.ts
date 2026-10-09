@@ -21,6 +21,7 @@ import { containsArabic, pdfLabel, pdfTextCell } from '@core/util/pdf-arabic.uti
 import {
   BalanceLedgerLine,
   BalanceLedgerResult,
+  amount,
   buildBalanceLedger,
 } from '@core/util/balance-ledger.util';
 import {
@@ -461,19 +462,21 @@ export class PdfService {
     let index = 0;
     treatments.forEach((tr) => {
       index++;
-      const net = tr.price - tr.discount;
+      const price = amount(tr.price);
+      const discount = amount(tr.discount);
+      const net = price - discount;
       chargeRows.push([
         String(index),
-        tr.discount
-          ? `${this.money(tr.price)} (-${this.money(tr.discount)})`
-          : this.money(tr.price),
+        discount
+          ? `${this.money(price)} (-${this.money(discount)})`
+          : this.money(price),
         pdfTextCell(tr.details ?? '', undefined),
         formatDate(tr.date.toDate()),
         { text: this.money(net), alignment: 'right' },
       ]);
     });
     appointments
-      .filter((a) => !a.costPaid)
+      .filter((a) => amount(a.cost) !== 0)
       .forEach((a) => {
         index++;
         chargeRows.push([
@@ -481,7 +484,7 @@ export class PdfService {
           pdfTextCell(t('PATIENTS.DOCUMENTS.APPOINTMENT_TITLE'), undefined),
           pdfTextCell(a.details ?? '', undefined),
           formatDate(a.date.toDate()),
-          { text: this.money(a.cost), alignment: 'right' },
+          { text: this.money(amount(a.cost)), alignment: 'right' },
         ]);
       });
     chargeRows.push([
@@ -500,14 +503,31 @@ export class PdfService {
         pdfLabel(t('PATIENTS.BALANCE.PAYMENT'), { style: 'tableHeader' }),
       ],
     ];
-    payments.forEach((p, i) => {
+    let paymentIndex = 0;
+    payments.forEach((p) => {
+      paymentIndex++;
       paymentRows.push([
-        String(i + 1),
+        String(paymentIndex),
         pdfTextCell(p.details ?? '', undefined),
         formatDate(p.date.toDate()),
-        { text: this.money(p.amount), alignment: 'right' },
+        { text: this.money(amount(p.amount)), alignment: 'right' },
       ]);
     });
+    // Appointments settled at the chair are real money in, so they belong here too.
+    appointments
+      .filter((a) => a.costPaid && amount(a.cost) !== 0)
+      .forEach((a) => {
+        paymentIndex++;
+        paymentRows.push([
+          String(paymentIndex),
+          pdfTextCell(
+            a.details?.trim() || t('PATIENTS.DOCUMENTS.APPOINTMENT_TITLE'),
+            undefined,
+          ),
+          formatDate(a.date.toDate()),
+          { text: this.money(amount(a.cost)), alignment: 'right' },
+        ]);
+      });
     paymentRows.push([
       this.emptyCell(),
       this.emptyCell(),
@@ -584,11 +604,13 @@ export class PdfService {
 
     if ('price' in line) {
       const tr = line as TreatmentModel;
-      const net = tr.price - tr.discount;
+      const price = amount(tr.price);
+      const discount = amount(tr.discount);
+      const net = price - discount;
       return [
         String(n),
-        this.signedMoney(tr.price),
-        tr.discount ? `-${this.money(tr.discount)}` : '-',
+        this.signedMoney(price),
+        discount ? `-${this.money(discount)}` : '-',
         '-',
         pdfTextCell(details, undefined),
         dateStr,
@@ -598,14 +620,16 @@ export class PdfService {
 
     if ('costPaid' in line) {
       const a = line as AppointmentModel;
+      const cost = amount(a.cost);
+      // Settled at the chair: charged and paid on one row, so the line total is nil.
       return [
         String(n),
-        this.signedMoney(a.cost),
+        this.signedMoney(cost),
         '-',
-        '-',
+        a.costPaid ? `-${this.money(cost)}` : '-',
         pdfTextCell(details, undefined),
         dateStr,
-        this.signedMoney(a.cost),
+        a.costPaid ? this.money(0) : this.signedMoney(cost),
       ];
     }
 

@@ -19,17 +19,14 @@
           </div>
           <div class="tab-pane body active" id="balance">
             <small class="text-muted">{{ 'PATIENTS.PROFILE.TREATMENTS_COST' | translate }} </small>
-            <p style="color: green;" >{{this.getTreatmentsCost() | appCurrency}}</p>
+            <p style="color: green;" >{{this.balance.totalCharges | appCurrency}}</p>
             <hr>
             <small class="text-muted">{{ 'PATIENTS.PROFILE.PAYMENTS_AMOUNT' | translate }} </small>
-            <p style="color: red;">-{{this.getPaymentsAmount() | appCurrency}}</p>
+            <p style="color: red;">-{{this.balance.totalPayments | appCurrency}}</p>
             <hr>
             <small class="text-muted">{{ 'PATIENTS.PROFILE.TOTAL_BALANCE' | translate }}</small>
-            <p *ngIf="this.getTreatmentsCost() >= this.getPaymentsAmount()" style="color: green">
-              {{this.getTreatmentsCost() - this.getPaymentsAmount() | appCurrency}}
-            </p>
-            <p *ngIf="this.getTreatmentsCost() < this.getPaymentsAmount()" style="color: red">
-              {{this.getTreatmentsCost() - this.getPaymentsAmount() | appCurrency}}
+            <p [style.color]="this.balance.totalBalance >= 0 ? 'green' : 'red'">
+              {{this.balance.totalBalance | appCurrency}}
             </p>
           </div>
           <button mat-button class="basic-btn" (click)="this.getBalanceDetails()" >{{ 'PATIENTS.PROFILE.MORE_DETAILS' | translate }}</button>

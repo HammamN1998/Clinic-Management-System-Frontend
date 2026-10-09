@@ -38,16 +38,19 @@
           <!--Treatment.discount-->
           <th *ngIf="!isNullOrUndefined(combinedItem.discount)" class="text-end" style="color: red">{{-combinedItem.discount | appCurrency:true}}</th>
           <th *ngIf=" isNullOrUndefined(combinedItem.discount)" class="text-center">-</th>
-          <!--Payment.amount-->
+          <!--Payment.amount, or the chair-side settlement of a paid appointment-->
           <th *ngIf="!isNullOrUndefined(combinedItem.amount)" class="text-end" style="color: red">{{-combinedItem.amount | appCurrency:true}}</th>
-          <th *ngIf=" isNullOrUndefined(combinedItem.amount)" class="text-center">-</th>
+          <th *ngIf=" isNullOrUndefined(combinedItem.amount) && combinedItem.costPaid" class="text-end" style="color: red">{{-combinedItem.cost | appCurrency:true}}</th>
+          <th *ngIf=" isNullOrUndefined(combinedItem.amount) && !combinedItem.costPaid" class="text-center">-</th>
           <!--details-->
           <th class="text-end">{{combinedItem.details}}</th>
           <!--date-->
           <th class="text-end">{{combinedItem.date.toDate().toLocaleDateString()}}</th>
           <!--total-->
           <th *ngIf="!isNullOrUndefined(combinedItem.price)" class="text-end" style="color: green">{{combinedItem.price - combinedItem.discount | appCurrency:true}}</th>
-          <th *ngIf="!isNullOrUndefined(combinedItem.cost) " class="text-end" style="color: green">{{combinedItem.cost | appCurrency:true}}</th>
+          <!--A paid appointment is charged and settled on the same row, so it nets to nothing-->
+          <th *ngIf="!isNullOrUndefined(combinedItem.cost) && !combinedItem.costPaid" class="text-end" style="color: green">{{combinedItem.cost | appCurrency:true}}</th>
+          <th *ngIf="!isNullOrUndefined(combinedItem.cost) &&  combinedItem.costPaid" class="text-end">{{0 | appCurrency}}</th>
           <th *ngIf="!isNullOrUndefined(combinedItem.amount)" class="text-end" style="color: red">{{-combinedItem.amount | appCurrency:true}}</th>
         </tr>
         <tr>
