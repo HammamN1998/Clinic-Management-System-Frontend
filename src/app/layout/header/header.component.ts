@@ -182,6 +182,8 @@ export class HeaderComponent
     this.flagvalue = flag;
     this.langStoreValue = lang;
     this.languageService.setLanguage(lang);
+    // Keep the doctor document in step so onboarding emails use the same language.
+    this.firebaseAuthenticationService.syncDoctorLocale(lang);
   }
   mobileMenuSidebarOpen(event: Event, className: string) {
     const hasClass = (event.target as HTMLInputElement).classList.contains(

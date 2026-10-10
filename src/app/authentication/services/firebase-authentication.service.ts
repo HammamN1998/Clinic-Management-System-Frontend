@@ -49,6 +49,29 @@ export class FirebaseAuthenticationService {
     localStorage.setItem('currentUser', JSON.stringify(this.currentUserSubject.value));
   }
 
+  /** Language the backend writes onboarding emails in. Only 'en' and 'ar' are supported. */
+  private currentLocale(): string {
+    const lang = this.translate.currentLang || localStorage.getItem('lang') || '';
+    return lang === 'ar' ? 'ar' : 'en';
+  }
+
+  /**
+   * Mirrors the UI language onto the doctor document so onboarding emails are sent in
+   * the right language. Fire-and-forget: a failed write must never block the language switch.
+   */
+  syncDoctorLocale(lang: string): void {
+    const doctorId = this.currentUserValue?.id;
+    if (!doctorId) return;
+    const locale = lang === 'ar' ? 'ar' : 'en';
+    this.currentUserSubject.value.locale = locale;
+    this.persistCurrentUser();
+    this.firestore
+      .collection('doctors')
+      .doc(doctorId)
+      .update({ locale })
+      .catch((err) => console.error('Failed to save locale', err));
+  }
+
   login(userName: string, password: string) {
     return from ( this.auth.signInWithEmailAndPassword( userName, password ) )
   }
@@ -108,7 +131,13 @@ export class FirebaseAuthenticationService {
       localUser.email = email;
       localUser.currency = inferBrowserCurrency();
       this.currentUserSubject.next(localUser);
-      await this.firestore.collection('doctors').doc(uid).set({...localUser});
+      // createdAt and locale go in the write payload, not on localUser: localUser is
+      // JSON-serialised into localStorage above and a serverTimestamp sentinel would not survive it.
+      await this.firestore.collection('doctors').doc(uid).set({
+        ...localUser,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        locale: this.currentLocale(),
+      });
       this.analytics.setDoctorUserId(uid);
       this.analytics.signupComplete();
       this.metaPixel.registrationCompleted();
@@ -214,7 +243,11 @@ export class FirebaseAuthenticationService {
     doctor.email = fireAuthUser.email ?? '';
     doctor.name = fireAuthUser.displayName ?? '';
     doctor.currency = inferBrowserCurrency();
-    await this.firestore.collection('doctors').doc(fireAuthUser.uid).set({...doctor});
+    await this.firestore.collection('doctors').doc(fireAuthUser.uid).set({
+      ...doctor,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      locale: this.currentLocale(),
+    });
     this.analytics.setDoctorUserId(fireAuthUser.uid);
     this.analytics.signupComplete();
     this.metaPixel.registrationCompleted();
@@ -294,6 +327,8 @@ export class FirebaseAuthenticationService {
             localUser.religiousRemindersEnabled = firestoreUser.religiousRemindersEnabled ?? 'true';
             localUser.calendarShowAttendedAppointments = firestoreUser.calendarShowAttendedAppointments ?? 'true';
             localUser.currency = firestoreUser.currency;
+            localUser.locale = firestoreUser.locale;
+            localUser.emailOptOut = firestoreUser.emailOptOut;
             if (userSubscription.exists) {
               const userSubscriptionData: UserSubscription = userSubscription.data() as UserSubscription;
               localUser.subscription = userSubscriptionData;
@@ -309,6 +344,10 @@ export class FirebaseAuthenticationService {
             if (fireAuthUser.emailVerified && firestoreUser.email !== fireAuthUser.email) {
               this.firestore.collection('doctors').doc(fireAuthUser.uid).update({ email: fireAuthUser.email });
               firstValueFrom(this.updateStripeCustomerEmail(fireAuthUser.uid, fireAuthUser.email!));
+            }
+            // Covers doctors created before the field existed, and any who never touch the switcher.
+            if (!firestoreUser.locale) {
+              this.syncDoctorLocale(this.currentLocale());
             }
 
             const isOnAuthPages =
