@@ -24,6 +24,18 @@ export const ROUTES: RouteInfo[] = [
     badgeClass: '',
     submenu: [],
   },
+  // All Patients
+  {
+    path: '/admin/patients/all-patients',
+    title: 'MENUITEMS.PATIENTS.LIST.ALL-PATIENT',
+    iconType: 'material-icons-two-tone',
+    icon: 'face',
+    class: '',
+    groupTitle: false,
+    badge: '',
+    badgeClass: '',
+    submenu: [],
+  },
   // Calendar
   {
     path: 'calendar',
@@ -35,41 +47,6 @@ export const ROUTES: RouteInfo[] = [
     badge: '',
     badgeClass: '',
     submenu: [],
-  },
-  // Patients
-  {
-    path: '',
-    title: 'MENUITEMS.PATIENTS.TEXT',
-    iconType: 'material-icons-two-tone',
-    icon: 'face',
-    class: 'menu-toggle',
-    groupTitle: false,
-    badge: '',
-    badgeClass: '',
-    submenu: [
-      {
-        path: '/admin/patients/all-patients',
-        title: 'MENUITEMS.PATIENTS.LIST.ALL-PATIENT',
-        iconType: '',
-        icon: '',
-        class: 'ml-menu',
-        groupTitle: false,
-        badge: '',
-        badgeClass: '',
-        submenu: [],
-      },
-      {
-        path: '/admin/patients/add-patient',
-        title: 'MENUITEMS.PATIENTS.LIST.ADD-PATIENT',
-        iconType: '',
-        icon: '',
-        class: 'ml-menu',
-        groupTitle: false,
-        badge: '',
-        badgeClass: '',
-        submenu: [],
-      },
-    ],
   },
   // Task
   {
