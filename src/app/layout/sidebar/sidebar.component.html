@@ -8,7 +8,11 @@
           <li class="sidebar-user-panel">
             <div class="user-panel">
               <div class=" image">
-                <img [src]=" isNullOrUndefined(this.firebaseAuthenticationService.currentUserValue.img) || this.firebaseAuthenticationService.currentUserValue.img === '' ? 'assets/images/patient/patient-default-profile.png' : this.firebaseAuthenticationService.currentUserValue.img" class="img-circle user-img-circle" alt="User Image" />
+                <a [routerLink]="['/admin/doctors/doctor-profile']" class="user-profile-link"
+                  [attr.title]="'MENUITEMS.DOCTORS.LIST.PROFILE' | translate"
+                  [attr.aria-label]="'MENUITEMS.DOCTORS.LIST.PROFILE' | translate">
+                  <img [src]=" isNullOrUndefined(this.firebaseAuthenticationService.currentUserValue.img) || this.firebaseAuthenticationService.currentUserValue.img === '' ? 'assets/images/patient/patient-default-profile.png' : this.firebaseAuthenticationService.currentUserValue.img" class="img-circle user-img-circle" alt="User Image" />
+                </a>
               </div>
             </div>
             <div class="profile-usertitle">

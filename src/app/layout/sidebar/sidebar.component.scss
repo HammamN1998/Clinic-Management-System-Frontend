@@ -1,0 +1,28 @@
+// Opt out of the global `.menu .list a` padding/margin so the avatar keeps its original size.
+.menu .list a.user-profile-link {
+  display: block;
+  padding: 0;
+  margin: 0;
+  line-height: 0;
+  border-radius: 0;
+  cursor: pointer;
+
+  &:hover,
+  &:active {
+    background-color: transparent;
+  }
+
+  img {
+    transition: box-shadow 0.2s ease-in-out, transform 0.2s ease-in-out;
+  }
+
+  &:hover img,
+  &:focus-visible img {
+    transform: scale(1.04);
+    box-shadow: 0 5px 25px 0 rgba(0, 0, 0, 0.35);
+  }
+}
+
+:host-context(.menu_dark) .menu .list a.user-profile-link:hover {
+  background-color: transparent;
+}

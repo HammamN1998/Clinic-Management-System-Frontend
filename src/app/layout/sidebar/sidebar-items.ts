@@ -60,40 +60,17 @@ export const ROUTES: RouteInfo[] = [
     badgeClass: '',
     submenu: [],
   },
-  // Profile
+  // Plans
   {
-    path: '',
-    title: 'MENUITEMS.DOCTORS.LIST.MY-ACCOUNT',
+    path: '/admin/doctors/doctor-plans',
+    title: 'MENUITEMS.DOCTORS.LIST.PLANS',
     iconType: 'material-icons-two-tone',
-    icon: 'supervised_user_circle',
-    class: 'menu-toggle',
+    icon: 'card_membership',
+    class: '',
     groupTitle: false,
     badge: '',
     badgeClass: '',
-    submenu: [
-      {
-        path: '/admin/doctors/doctor-profile',
-        title: 'MENUITEMS.DOCTORS.LIST.PROFILE',
-        iconType: '',
-        icon: '',
-        class: 'ml-menu',
-        groupTitle: false,
-        badge: '',
-        badgeClass: '',
-        submenu: [],
-      },
-      {
-        path: '/admin/doctors/doctor-plans',
-        title: 'MENUITEMS.DOCTORS.LIST.PLANS',
-        iconType: '',
-        icon: '',
-        class: 'ml-menu',
-        groupTitle: false,
-        badge: '',
-        badgeClass: '',
-        submenu: [],
-      },
-    ],
+    submenu: [],
   },
    // Contact Us
    {
