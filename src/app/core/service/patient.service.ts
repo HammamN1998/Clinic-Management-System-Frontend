@@ -230,9 +230,9 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
     await this.firestore.collection('patients').doc(patientId).delete();
   }
 
-  addPatientAppointment(appointment: AppointmentModel) {
-    appointment.patientId = this.getDialogData().id;
-    appointment.doctorId = this.getDialogData().doctorId;
+  addPatientAppointment(appointment: AppointmentModel, patient = this.getDialogData()) {
+    appointment.patientId = patient.id;
+    appointment.doctorId = patient.doctorId || this.doctor.id;
 
     const result = this.firestore.collection('appointments').add( {...appointment} );
     from(result).subscribe({

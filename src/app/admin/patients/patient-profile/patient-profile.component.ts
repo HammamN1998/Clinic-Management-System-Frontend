@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
 import { BreadcrumbComponent } from '@shared/components/breadcrumb/breadcrumb.component';
 import {PatientService} from "@core/service/patient.service";
 import {MatButtonModule} from "@angular/material/button";
@@ -42,8 +42,7 @@ import {DENTAL_NOTATIONS} from "@core/models/dental.constants";
 import {CurrencyService} from "@core/service/currency.service";
 import {AppCurrencyPipe} from "@core/pipe/app-currency.pipe";
 import {NumericInputDirective} from "@core/directive/numeric-input.directive";
-
-const TIME_SLOT_MINUTES = 15;
+import {buildTimeSlots, compareTimeSlots, nextTimeSlot, toAmount} from "@core/util/appointment-form.util";
 
 /** The parts of an appointment, each shown only once it has something in it. */
 type AppointmentTextSectionKey = 'details' | 'subjective' | 'objective' | 'assessment' | 'plan';
@@ -63,38 +62,6 @@ const APPOINTMENT_SECTIONS: AppointmentSection[] = [
   { key: 'prescriptions', labelKey: 'PATIENTS.PROFILE.PRESCRIPTION' },
 ];
 
-/**
- * Money read off a form control. An untouched field holds '' and a cleared one holds null,
- * and both have to become 0 before they reach the balance ledger, which sums with `+=`
- * and would otherwise concatenate strings instead of adding.
- */
-function toAmount(value: unknown): number {
-  const amount = Number(value);
-  return Number.isFinite(amount) ? amount : 0;
-}
-
-interface TimeSlot {
-  value: Date;
-  label: string;
-}
-
-/** Appointment slots for a full day. Labels use en-US so the AM/PM reading never changes with the UI language. */
-function buildTimeSlots(): TimeSlot[] {
-  const midnight = new Date();
-  midnight.setHours(0, 0, 0, 0);
-
-  const slots: TimeSlot[] = [];
-  for (let minutes = 0; minutes < 24 * 60; minutes += TIME_SLOT_MINUTES) {
-    const value = new Date(midnight);
-    value.setMinutes(minutes);
-    slots.push({
-      value,
-      label: value.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
-    });
-  }
-  return slots;
-}
-
 @Component({
   selector: 'app-patient-profile',
   templateUrl: './patient-profile.component.html',
@@ -102,7 +69,9 @@ function buildTimeSlots(): TimeSlot[] {
   standalone: true,
   imports: [BreadcrumbComponent, MatButtonModule, MatCheckboxModule, MatFormFieldModule, MatIconModule, MatInputModule, MatTabsModule, MatSelectModule, MatDatepickerModule, ReactiveFormsModule, SharedModule, FileUploadComponent, FullScreenImageComponent, EditableTextComponent, EditableTextCompactedComponent, TranslateModule, AppCurrencyPipe, NumericInputDirective],
 })
-export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
+export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter implements AfterViewInit {
+
+  @ViewChild('appointmentsSection') appointmentsSection?: ElementRef<HTMLElement>;
 
   appointmentForm: UntypedFormGroup;
   paymentForm: UntypedFormGroup;
@@ -152,6 +121,15 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
     this.selectedDentalForm = this.firstAvailableDentalForm();
   }
 
+
+  ngAfterViewInit(): void {
+    if (history.state?.openSection !== 'appointments') {
+      return;
+    }
+    setTimeout(() => {
+      this.appointmentsSection?.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }
 
   public get patient() {
     return this.patientService.getDialogData();
@@ -366,28 +344,19 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter{
   }
 
   /** The control holds a Date, so the slot has to be matched on time of day rather than object identity. */
-  compareTimeSlots(a: Date, b: Date): boolean {
-    return !!a && !!b && a.getHours() === b.getHours() && a.getMinutes() === b.getMinutes();
-  }
-
-  /** Next slot at or after the current time, so a new appointment opens on a sensible default. */
-  private nextTimeSlot(): Date {
-    const now = new Date();
-    const index = Math.ceil((now.getHours() * 60 + now.getMinutes()) / TIME_SLOT_MINUTES);
-    return this.timeSlots[Math.min(index, this.timeSlots.length - 1)].value;
-  }
+  compareTimeSlots = compareTimeSlots;
 
   private createAppointmentForm(): UntypedFormGroup {
     const now = new Date();
     return this.formBuilder.group({
       date: [now, [Validators.required]],
-      time: [this.nextTimeSlot(), [Validators.required]],
+      time: [nextTimeSlot(this.timeSlots), [Validators.required]],
       details: [''],
       subjective: [''],
       objective: [''],
       assessment: [''],
       plan: [''],
-      cost: ['', [Validators.min(0), Validators.max(1000)]],
+      cost: ['', [Validators.min(0)]],
       costPaid: [true],
       attended: [false],
       drugs: this.formBuilder.array([])

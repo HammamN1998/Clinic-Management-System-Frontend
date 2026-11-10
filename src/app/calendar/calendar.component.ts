@@ -20,6 +20,10 @@ import {MatDialog} from '@angular/material/dialog';
 import {UntypedFormBuilder, UntypedFormGroup, Validators,} from '@angular/forms';
 import {Calendar} from './calendar.model';
 import {FormDialogComponent} from './dialogs/form-dialog/form-dialog.component';
+import {
+  NewAppointmentDialogComponent,
+  NewAppointmentDialogResult,
+} from './dialogs/new-appointment-dialog/new-appointment-dialog.component';
 import {CalendarService} from './calendar.service';
 import {MatSnackBar, MatSnackBarHorizontalPosition, MatSnackBarVerticalPosition,} from '@angular/material/snack-bar';
 import {MatCheckboxChange, MatCheckboxModule} from '@angular/material/checkbox';
@@ -141,7 +145,10 @@ export class CalendarComponent  extends UnsubscribeOnDestroyAdapter  implements 
   private fetchRangeEvents(start: Date, end: Date): Observable<EventInput[]> {
     return from(this.doctorService.getAppointmentsByRange(start, end)).pipe(
       switchMap((snapshot) => {
-        const appointments = snapshot.docs.map((doc) => doc.data() as AppointmentModel);
+        const appointments = snapshot.docs.map((doc) => ({
+          ...(doc.data() as AppointmentModel),
+          id: doc.id,
+        }));
         return this.loadPatients(appointments).pipe(
           map(() =>
             appointments
@@ -199,6 +206,47 @@ export class CalendarComponent  extends UnsubscribeOnDestroyAdapter  implements 
       details: appointment.details,
       patient: patient,
       attended: appointment.attended,
+    };
+  }
+
+  openNewAppointmentDialog(): void {
+    const direction: Direction = localStorage.getItem('isRtl') === 'true' ? 'rtl' : 'ltr';
+    const dialogRef = this.dialog.open(NewAppointmentDialogComponent, {
+      direction,
+      disableClose: true,
+      width: this.isMobile ? '95vw' : '720px',
+      maxWidth: '95vw',
+      height: this.isMobile ? '90dvh' : undefined,
+      maxHeight: this.isMobile ? '90dvh' : '90vh',
+      panelClass: this.isMobile
+        ? ['new-appointment-dialog', 'new-appointment-dialog--mobile']
+        : 'new-appointment-dialog',
+      autoFocus: 'first-tabbable',
+    });
+
+    this.subs.sink = dialogRef.afterClosed().subscribe((result?: NewAppointmentDialogResult) => {
+      if (!result?.created) {
+        return;
+      }
+      this.patientCache.set(result.patient.id, result.patient);
+      this.reloadVisibleRange();
+    });
+  }
+
+  private reloadVisibleRange(): void {
+    const api = this.fullCalendar?.getApi();
+    if (!api) {
+      return;
+    }
+    this.lastRequestedRangeKey = '';
+    this.rangeRequests.next({ start: api.view.activeStart, end: api.view.activeEnd });
+  }
+
+  private addAppointmentButton() {
+    return {
+      text: '+',
+      hint: this.translate.instant('CALENDAR.NEW_APPOINTMENT.TOOLTIP'),
+      click: () => this.openNewAppointmentDialog(),
     };
   }
 
@@ -406,12 +454,18 @@ export class CalendarComponent  extends UnsubscribeOnDestroyAdapter  implements 
       locale: isArabic ? arLocale : 'en',
       direction: isArabic ? 'rtl' : 'ltr',
       firstDay: isArabic ? 6 : 0,
+      customButtons: {
+        addAppointment: this.addAppointmentButton(),
+      },
     };
   }
 
   private getInitialCalendarOptions(isMobile: boolean): CalendarOptions {
     return {
       plugins: [dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin],
+      customButtons: {
+        addAppointment: this.addAppointmentButton(),
+      },
       ...this.getResponsiveCalendarOptions(isMobile),
       initialView: isMobile ? 'listWeek' : 'timeGridWeek',
       weekends: true,
@@ -448,12 +502,12 @@ export class CalendarComponent  extends UnsubscribeOnDestroyAdapter  implements 
         ? {
             left: 'prev,next',
             center: 'title',
-            right: 'listWeek,timeGridDay,dayGridMonth',
+            right: 'listWeek,timeGridDay,dayGridMonth addAppointment',
           }
         : {
             left: 'prev,next today',
             center: 'title',
-            right: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth',
+            right: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth addAppointment',
           },
       dayHeaderFormat: isMobile
         ? { weekday: 'short' }

@@ -698,6 +698,19 @@
       "EDIT_SUCCESS": "Edit Record Successfully...!!!",
       "DELETE_SUCCESS": "Delete Record Successfully...!!!",
       "DELETE_CONFIRM": "Delete calendar event \"{{title}}\"?"
+    },
+    "NEW_APPOINTMENT": {
+      "TITLE": "New Appointment",
+      "TOOLTIP": "New appointment",
+      "STEP_SELECT_PATIENT": "Select a Patient",
+      "STEP_DETAILS": "Appointment Details",
+      "STEP_PATIENT_SHORT": "Patient",
+      "STEP_DETAILS_SHORT": "Details",
+      "SEARCH_PLACEHOLDER": "Search by name, phone, or location",
+      "CHANGE_PATIENT": "Change",
+      "CREATE": "Create Appointment",
+      "GO_TO_PROFILE": "Go to Patient Profile",
+      "SAVE_ERROR": "Could not create the appointment. Please try again."
     }
   },
   "TASK": {

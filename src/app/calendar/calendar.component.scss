@@ -5,9 +5,30 @@
   }
 
   :host ::ng-deep {
-    .fc .fc-toolbar {
-      flex-direction: column;
-      gap: 0.5rem;
+    .fc .fc-toolbar.fc-header-toolbar {
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.35rem 0.5rem;
+    }
+
+    .fc .fc-toolbar-chunk:nth-child(2) {
+      flex: 1;
+      min-width: 0;
+      justify-content: flex-end;
+    }
+
+    .fc .fc-toolbar-chunk:last-child {
+      flex: 1 1 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .fc-toolbar-title {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .fc .fc-toolbar-chunk {

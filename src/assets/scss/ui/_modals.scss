@@ -107,3 +107,28 @@
   margin: 0px !important;
   padding: 0px !important;
 }
+
+.cdk-overlay-pane.new-appointment-dialog {
+  max-width: 95vw !important;
+
+  .mat-mdc-dialog-container,
+  .mat-mdc-dialog-surface,
+  .mdc-dialog__surface {
+    overflow-x: hidden;
+  }
+}
+
+.cdk-overlay-pane.new-appointment-dialog--mobile {
+  max-width: 95vw !important;
+  width: 95vw !important;
+  height: 90dvh !important;
+
+  .mat-mdc-dialog-container,
+  .mat-mdc-dialog-surface,
+  .mdc-dialog__surface {
+    border-radius: 12px;
+    max-height: 90dvh;
+    height: 100%;
+    overflow-x: hidden;
+  }
+}

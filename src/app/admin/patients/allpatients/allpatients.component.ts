@@ -32,6 +32,7 @@ import * as firestore from "firebase/firestore";
 import {FirebaseAuthenticationService} from "../../../authentication/services/firebase-authentication.service";
 import {User} from "@core";
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { matchesPatientSearch } from '@core/util/patient-search.util';
 
 @Component({
   selector: 'app-allpatients',
@@ -290,19 +291,7 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
   }
 
   private filterPatient(patient: Patient, term: string): boolean {
-    const normalizedTerm = term.toLowerCase();
-    const haystack = [
-      patient.firstName,
-      patient.lastName,
-      patient.phoneNumber,
-      patient.email,
-      patient.address,
-      patient.gender,
-    ]
-      .filter(Boolean)
-      .join(' ')
-      .toLowerCase();
-    return haystack.includes(normalizedTerm);
+    return matchesPatientSearch(patient, term);
   }
 
   private loadSearchPage(): void {

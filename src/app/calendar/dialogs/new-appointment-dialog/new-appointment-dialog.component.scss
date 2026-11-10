@@ -1,0 +1,239 @@
+:host {
+  display: flex;
+  flex-direction: column;
+}
+
+:host-context(.new-appointment-dialog--mobile) {
+  height: 100%;
+}
+
+.new-appointment {
+  height: 100%;
+  min-height: 0;
+}
+
+.new-appointment-content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+:host ::ng-deep .new-appointment-content.mat-mdc-dialog-content {
+  max-height: none;
+}
+
+:host ::ng-deep .mat-stepper-horizontal,
+:host ::ng-deep .mat-horizontal-stepper-wrapper {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  background: transparent;
+}
+
+:host ::ng-deep .mat-horizontal-content-container {
+  flex: 1;
+  min-height: 0;
+  overflow-x: hidden;
+  /* Outline labels sit on the top border. The stepper's default top padding is 0, so the label gets clipped. */
+  padding: 16px 24px 24px;
+}
+
+:host ::ng-deep .mat-horizontal-stepper-content:not(.mat-horizontal-stepper-content-inactive) {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.step-label-short {
+  display: none;
+}
+
+.step-fill {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+}
+
+.search-field,
+:host ::ng-deep .mat-mdc-form-field {
+  width: 100%;
+  max-width: 100%;
+}
+
+.step-scroll .row {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.step-scroll .row > [class*='col-'] {
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+.results {
+  flex: 1;
+  min-height: 0;
+  max-height: 360px;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.result-row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  min-height: 56px;
+  padding: 8px 4px;
+  border: 0;
+  border-bottom: 1px solid color-mix(in srgb, currentColor 16%, transparent);
+  background: transparent;
+  color: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+.result-row:hover,
+.result-row:focus-visible {
+  background: color-mix(in srgb, currentColor 8%, transparent);
+}
+
+.result-name {
+  font-weight: 600;
+}
+
+.result-meta {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  opacity: 0.7;
+  font-size: 0.875rem;
+}
+
+.result-location {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.result-phone {
+  flex: none;
+  unicode-bidi: isolate;
+}
+
+.results-placeholder {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 220px;
+  margin: 0;
+  padding: 24px 12px;
+  opacity: 0.7;
+  text-align: center;
+}
+
+.results-placeholder p {
+  margin: 0;
+}
+
+.new-appointment-header {
+  align-items: center;
+  min-height: 48px;
+  margin: 0 8px;
+  padding: 4px 8px 0;
+  padding-inline-end: 40px;
+}
+
+.new-appointment-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.cost-toggle {
+  display: flex;
+  align-items: center;
+  min-height: 56px;
+  padding-bottom: 1.34375em;
+}
+
+.patient-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.patient-summary-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.step-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  /* Scrolling clips anything above the box, and outline labels float half above their field. */
+  padding-top: 10px;
+}
+
+.step-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 8px;
+}
+
+@media (max-width: 767px) {
+  .step-label-full {
+    display: none;
+  }
+
+  .step-label-short {
+    display: inline;
+  }
+
+  .results {
+    max-height: none;
+  }
+
+  .new-appointment-header {
+    margin: 0 4px;
+    padding: 0 4px;
+    padding-inline-end: 40px;
+  }
+
+  :host ::ng-deep .mat-horizontal-stepper-header {
+    height: 48px;
+    padding: 0 8px;
+  }
+
+  :host ::ng-deep .mat-horizontal-content-container {
+    padding: 16px 12px 12px;
+  }
+
+  .step-actions {
+    position: sticky;
+    bottom: 0;
+    flex-direction: column;
+    background: inherit;
+  }
+
+  .step-actions button {
+    width: 100%;
+  }
+}

@@ -698,6 +698,19 @@
       "EDIT_SUCCESS": "تم تعديل السجل بنجاح...!!!",
       "DELETE_SUCCESS": "تم حذف السجل بنجاح...!!!",
       "DELETE_CONFIRM": "حذف حدث التقويم \"{{title}}\"؟"
+    },
+    "NEW_APPOINTMENT": {
+      "TITLE": "موعد جديد",
+      "TOOLTIP": "موعد جديد",
+      "STEP_SELECT_PATIENT": "اختيار مريض",
+      "STEP_DETAILS": "تفاصيل الموعد",
+      "STEP_PATIENT_SHORT": "المريض",
+      "STEP_DETAILS_SHORT": "التفاصيل",
+      "SEARCH_PLACEHOLDER": "ابحث بالاسم أو الهاتف أو الموقع",
+      "CHANGE_PATIENT": "تغيير",
+      "CREATE": "إنشاء الموعد",
+      "GO_TO_PROFILE": "الذهاب إلى ملف المريض",
+      "SAVE_ERROR": "تعذر إنشاء الموعد. حاول مرة أخرى."
     }
   },
   "TASK": {
