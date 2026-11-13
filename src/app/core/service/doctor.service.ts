@@ -27,6 +27,13 @@ export class DoctorService {
     return this.firestore.collection('doctors').doc(this.doctor.id).update(data);
   }
 
+  /** Unlike `editDoctor`, local state changes only after Firestore accepts the write, so a failure never looks saved. */
+  async setDefaultAppointmentDuration(minutes: number): Promise<void> {
+    await this.firestore.collection('doctors').doc(this.doctor.id).update({ defaultAppointmentDuration: minutes });
+    this.doctor.defaultAppointmentDuration = minutes;
+    this.firebaseAuthenticationService.persistCurrentUser();
+  }
+
   getCurrentMonthAppointments() {
     const now = new Date();
     const startOfMonth = firestore.Timestamp.fromDate( new Date(now.getFullYear(), now.getMonth(), 1));

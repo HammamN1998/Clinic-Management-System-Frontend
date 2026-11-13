@@ -326,6 +326,7 @@ export class FirebaseAuthenticationService {
             localUser.preferredDentalNotation = firestoreUser.preferredDentalNotation;
             localUser.religiousRemindersEnabled = firestoreUser.religiousRemindersEnabled ?? 'true';
             localUser.calendarShowAttendedAppointments = firestoreUser.calendarShowAttendedAppointments ?? 'true';
+            localUser.defaultAppointmentDuration = firestoreUser.defaultAppointmentDuration ?? 30;
             localUser.currency = firestoreUser.currency;
             localUser.locale = firestoreUser.locale;
             localUser.emailOptOut = firestoreUser.emailOptOut;

@@ -476,6 +476,8 @@
         "ADD_PAYMENT_SUCCESS": "Add Payment Successfully...!!!",
         "ADD_TREATMENT_SUCCESS": "Add Treatment Successfully...!!!",
         "UPDATE_APPOINTMENT_DETAILS_SUCCESS": "Update Appointment Details Successfully...!!!",
+        "UPDATE_APPOINTMENT_DURATION_SUCCESS": "Appointment duration updated",
+        "UPDATE_APPOINTMENT_DURATION_ERROR": "Couldn't update the duration. Please try again.",
         "UPDATE_CLINICAL_NOTES_SUCCESS": "Update clinical notes successfully...!!!",
         "UPDATE_PAYMENT_DETAILS_SUCCESS": "Update Payment Details Successfully...!!!",
         "UPDATE_TREATMENT_DETAILS_SUCCESS": "Update Treatment Details Successfully...!!!",
@@ -565,6 +567,8 @@
       "CALENDAR_PREFERENCES": "Calendar Preferences",
       "SHOW_ATTENDED_APPOINTMENTS": "Show attended appointments",
       "SHOW_ATTENDED_APPOINTMENTS_HINT": "Attended appointments appear in green and pending ones in red. Turn this off to show only pending appointments.",
+      "DEFAULT_APPOINTMENT_DURATION": "Default appointment duration",
+      "DEFAULT_APPOINTMENT_DURATION_HINT": "Preselected for new appointments. Existing appointments keep their duration.",
       "CHANGE_EMAIL": "Change email",
       "CHANGE_EMAIL_HINT": "We will send a confirmation link to your new address. Your email changes only after you open that link, and you will need to sign in again afterwards.",
       "CHANGE_EMAIL_GOOGLE_REAUTH_HINT": "You will be asked to confirm with Google first.",
@@ -673,6 +677,17 @@
         "DESC": "Open a patient and book their first appointment."
       }
     }
+  },
+  "APPOINTMENT_DURATION": {
+    "LABEL": "Duration",
+    "MINUTES": "{{minutes}} min",
+    "HOURS": "{{hours}} h",
+    "HOURS_MINUTES": "{{hours}} h {{minutes}} min",
+    "SET_AS_DEFAULT": "Set as default",
+    "SET_AS_DEFAULT_ARIA": "Set {{duration}} as default duration",
+    "YOUR_DEFAULT": "Your default: {{duration}}",
+    "DEFAULT_SAVED": "Default duration saved",
+    "DEFAULT_SAVE_ERROR": "Couldn't save the default duration. Please try again."
   },
   "CALENDAR": {
     "ADD_NEW_EVENT": "Add New Event",

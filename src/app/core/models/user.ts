@@ -36,6 +36,8 @@ export class User {
   religiousRemindersEnabled?: string;
   /** Firestore: "true" | "false". Omitted or non-"false" = attended appointments stay on the calendar. */
   calendarShowAttendedAppointments?: string;
+  /** Minutes preselected for new appointments. Omitted = 30. */
+  defaultAppointmentDuration?: number;
   /** ISO 4217 code for every amount in the clinic. Omitted = guessed from the browser region. */
   currency?: string;
   /**

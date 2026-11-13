@@ -362,6 +362,10 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
     return this.firestore.collection('appointments').doc(appointment.id).update({attended: attended});
   }
 
+  updateAppointmentDuration(appointmentId: string, durationMinutes: number) {
+    return this.firestore.collection('appointments').doc(appointmentId).update({durationMinutes});
+  }
+
   changeAppointmentCostPaid(appointment: AppointmentModel, costPaid: boolean) {
     return this.firestore.collection('appointments').doc(appointment.id).update({costPaid: costPaid});
   }

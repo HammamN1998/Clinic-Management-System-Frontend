@@ -11,6 +11,8 @@ export class AppointmentModel {
   id: string = '';
   date: firestore.Timestamp = new firestore.Timestamp(0, 0);
   time: firestore.Timestamp = new firestore.Timestamp(0, 0);
+  /** Missing on appointments created before durations existed; read it through `resolveDuration`. */
+  durationMinutes: number = 30;
   details: string = '';
   cost: number = 0;
   costPaid: boolean = true;

@@ -22,17 +22,7 @@ export class DateService {
   }
 
   addMinutesToDate(date: Date, minutes: number): Date {
-    const newDate = new Date(date.getTime());
-    let minutesToAdd: number = date.getMinutes() + minutes;
-    let hoursToAdd: number = 0;
-    if (minutesToAdd >= 60) {
-      minutesToAdd = minutes % 60;
-      // hoursToAdd++;
-    }
-
-    newDate.setHours(newDate.getHours() + hoursToAdd);
-    newDate.setMinutes(newDate.getMinutes() + minutesToAdd);
-    return newDate;
+    return new Date(date.getTime() + minutes * 60_000);
   }
 
 }

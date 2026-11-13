@@ -14,7 +14,7 @@ import { DeleteConfirmDialogService } from '@shared/components/delete-confirm-di
 import {NotificationService} from "@core/service/notification.service";
 import {SharedModule, UnsubscribeOnDestroyAdapter} from "@shared";
 import {MatDatepickerModule} from "@angular/material/datepicker";
-import {ReactiveFormsModule, UntypedFormArray, UntypedFormBuilder, UntypedFormGroup, Validators} from "@angular/forms";
+import {FormControl, ReactiveFormsModule, UntypedFormArray, UntypedFormBuilder, UntypedFormGroup, Validators} from "@angular/forms";
 import {AppointmentDrug, AppointmentModel} from "@core/models/appointment.model";
 import {from} from "rxjs";
 import {MatSlideToggleChange} from "@angular/material/slide-toggle";
@@ -42,7 +42,9 @@ import {DENTAL_NOTATIONS} from "@core/models/dental.constants";
 import {CurrencyService} from "@core/service/currency.service";
 import {AppCurrencyPipe} from "@core/pipe/app-currency.pipe";
 import {NumericInputDirective} from "@core/directive/numeric-input.directive";
-import {buildTimeSlots, compareTimeSlots, nextTimeSlot, toAmount} from "@core/util/appointment-form.util";
+import {buildTimeSlots, compareTimeSlots, doctorDefaultDuration, nextTimeSlot, resolveDuration, toAmount} from "@core/util/appointment-form.util";
+import {AppDurationPipe} from "@core/pipe/app-duration.pipe";
+import {AppointmentDurationFieldComponent} from "@shared/components/appointment-duration-field/appointment-duration-field.component";
 
 /** The parts of an appointment, each shown only once it has something in it. */
 type AppointmentTextSectionKey = 'details' | 'subjective' | 'objective' | 'assessment' | 'plan';
@@ -67,7 +69,7 @@ const APPOINTMENT_SECTIONS: AppointmentSection[] = [
   templateUrl: './patient-profile.component.html',
   styleUrls: ['./patient-profile.component.scss'],
   standalone: true,
-  imports: [BreadcrumbComponent, MatButtonModule, MatCheckboxModule, MatFormFieldModule, MatIconModule, MatInputModule, MatTabsModule, MatSelectModule, MatDatepickerModule, ReactiveFormsModule, SharedModule, FileUploadComponent, FullScreenImageComponent, EditableTextComponent, EditableTextCompactedComponent, TranslateModule, AppCurrencyPipe, NumericInputDirective],
+  imports: [BreadcrumbComponent, MatButtonModule, MatCheckboxModule, MatFormFieldModule, MatIconModule, MatInputModule, MatTabsModule, MatSelectModule, MatDatepickerModule, ReactiveFormsModule, SharedModule, FileUploadComponent, FullScreenImageComponent, EditableTextComponent, EditableTextCompactedComponent, TranslateModule, AppCurrencyPipe, NumericInputDirective, AppDurationPipe, AppointmentDurationFieldComponent],
 })
 export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter implements AfterViewInit {
 
@@ -219,6 +221,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter impleme
     const newAppointment = new AppointmentModel();
     newAppointment.date = firestore.Timestamp.fromDate(this.appointmentForm.get('date')?.value);
     newAppointment.time = firestore.Timestamp.fromDate(this.appointmentForm.get('time')?.value);
+    newAppointment.durationMinutes = this.newAppointmentDurationControl.value;
     newAppointment.details = this.appointmentForm.get('details')?.value;
     newAppointment.attended = this.appointmentForm.get('attended')?.value;
     newAppointment.cost = toAmount(this.appointmentForm.get('cost')?.value);
@@ -351,6 +354,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter impleme
     return this.formBuilder.group({
       date: [now, [Validators.required]],
       time: [nextTimeSlot(this.timeSlots), [Validators.required]],
+      durationMinutes: [doctorDefaultDuration(this.doctor), [Validators.required]],
       details: [''],
       subjective: [''],
       objective: [''],
@@ -361,6 +365,51 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter impleme
       attended: [false],
       drugs: this.formBuilder.array([])
     })
+  }
+
+  get newAppointmentDurationControl(): FormControl<number> {
+    return this.appointmentForm.get('durationMinutes') as FormControl<number>;
+  }
+
+  /** One control per appointment, so each panel's select keeps its own value across change detection. */
+  private readonly appointmentDurationControls = new Map<string, FormControl<number>>();
+
+  appointmentDuration(appointment: AppointmentModel): number {
+    return resolveDuration(appointment, this.doctor);
+  }
+
+  appointmentDurationControl(appointment: AppointmentModel): FormControl<number> {
+    let control = this.appointmentDurationControls.get(appointment.id);
+    if (!control) {
+      control = new FormControl<number>(this.appointmentDuration(appointment), { nonNullable: true });
+      this.appointmentDurationControls.set(appointment.id, control);
+    }
+    return control;
+  }
+
+  changeAppointmentDuration(appointment: AppointmentModel, minutes: number) {
+    const previous = appointment.durationMinutes;
+    appointment.durationMinutes = minutes;
+    this.patientService.updateAppointmentDuration(appointment.id, minutes)
+      .then(() => {
+        this.notificationService.showSnackBarNotification(
+          'black',
+          this.translate.instant('PATIENTS.PROFILE.MESSAGES.UPDATE_APPOINTMENT_DURATION_SUCCESS'),
+          'bottom',
+          'center'
+        );
+      })
+      .catch((error) => {
+        console.log('error: ' + JSON.stringify(error));
+        appointment.durationMinutes = previous;
+        this.appointmentDurationControl(appointment).setValue(this.appointmentDuration(appointment));
+        this.notificationService.showSnackBarNotification(
+          'snackbar-danger',
+          this.translate.instant('PATIENTS.PROFILE.MESSAGES.UPDATE_APPOINTMENT_DURATION_ERROR'),
+          'bottom',
+          'center'
+        );
+      });
   }
 
   get appointmentDrugs(): UntypedFormArray {

@@ -1,0 +1,86 @@
+:host {
+  display: block;
+  width: 100%;
+  container-type: inline-size;
+}
+
+.duration-field {
+  width: 100%;
+}
+
+/* Our own arrow sits after the action, so the action reads "value, Set as default, arrow". */
+:host ::ng-deep .duration-field .mat-mdc-select-arrow-wrapper {
+  display: none;
+}
+
+.duration-suffix {
+  display: flex;
+  align-items: center;
+  padding-inline-end: 4px;
+}
+
+.duration-arrow {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* Always rendered at full width so showing the action never resizes the field. */
+.set-default-slot {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 150ms ease, visibility 0s linear 150ms;
+}
+
+.set-default-slot--visible {
+  visibility: visible;
+  opacity: 1;
+  transition: opacity 150ms ease, visibility 0s;
+}
+
+.set-default-button {
+  min-width: 0;
+  height: 40px;
+  padding: 0 8px;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.set-default-button mat-progress-spinner {
+  display: inline-block;
+  margin-inline-end: 6px;
+}
+
+.set-default-icon {
+  width: 16px;
+  height: 16px;
+  font-size: 16px;
+  margin-inline-end: 4px;
+}
+
+/* Kept in place while the check shows, so the slot keeps its width. */
+.set-default-button--hidden {
+  visibility: hidden;
+}
+
+.set-default-saved {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #2e7d32;
+}
+
+@container (max-width: 260px) {
+  .set-default-text {
+    display: none;
+  }
+
+  .set-default-icon {
+    margin-inline-end: 0;
+  }
+}

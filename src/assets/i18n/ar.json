@@ -476,6 +476,8 @@
         "ADD_PAYMENT_SUCCESS": "تمت إضافة الدفعة بنجاح...!!!",
         "ADD_TREATMENT_SUCCESS": "تمت إضافة العلاج بنجاح...!!!",
         "UPDATE_APPOINTMENT_DETAILS_SUCCESS": "تم تحديث تفاصيل الموعد بنجاح...!!!",
+        "UPDATE_APPOINTMENT_DURATION_SUCCESS": "تم تحديث مدة الموعد",
+        "UPDATE_APPOINTMENT_DURATION_ERROR": "تعذّر تحديث المدة. يرجى المحاولة مرة أخرى.",
         "UPDATE_CLINICAL_NOTES_SUCCESS": "تم تحديث الملاحظات السريرية بنجاح...!!!",
         "UPDATE_PAYMENT_DETAILS_SUCCESS": "تم تحديث تفاصيل الدفعة بنجاح...!!!",
         "UPDATE_TREATMENT_DETAILS_SUCCESS": "تم تحديث تفاصيل العلاج بنجاح...!!!",
@@ -565,6 +567,8 @@
       "CALENDAR_PREFERENCES": "إعدادات التقويم",
       "SHOW_ATTENDED_APPOINTMENTS": "إظهار المواعيد التي تمت",
       "SHOW_ATTENDED_APPOINTMENTS_HINT": "تظهر المواعيد التي تمت باللون الأخضر والمواعيد المعلّقة باللون الأحمر. أوقف هذا الخيار لعرض المواعيد المعلّقة فقط.",
+      "DEFAULT_APPOINTMENT_DURATION": "المدة الافتراضية للموعد",
+      "DEFAULT_APPOINTMENT_DURATION_HINT": "تُختار تلقائياً للمواعيد الجديدة. المواعيد الحالية تحتفظ بمدتها.",
       "CHANGE_EMAIL": "تغيير البريد الإلكتروني",
       "CHANGE_EMAIL_HINT": "سنرسل رابط تأكيد إلى بريدك الجديد. لن يتغيّر بريدك الإلكتروني إلا بعد فتح ذلك الرابط، وستحتاج إلى تسجيل الدخول مرة أخرى بعدها.",
       "CHANGE_EMAIL_GOOGLE_REAUTH_HINT": "سيُطلب منك التأكيد عبر Google أولاً.",
@@ -673,6 +677,17 @@
         "DESC": "افتح ملف مريض واحجز أول موعد له."
       }
     }
+  },
+  "APPOINTMENT_DURATION": {
+    "LABEL": "المدة",
+    "MINUTES": "{{minutes}} دقيقة",
+    "HOURS": "{{hours}} ساعة",
+    "HOURS_MINUTES": "{{hours}} ساعة و{{minutes}} دقيقة",
+    "SET_AS_DEFAULT": "تعيين كافتراضي",
+    "SET_AS_DEFAULT_ARIA": "تعيين {{duration}} كمدة افتراضية",
+    "YOUR_DEFAULT": "الافتراضي: {{duration}}",
+    "DEFAULT_SAVED": "تم حفظ المدة الافتراضية",
+    "DEFAULT_SAVE_ERROR": "تعذّر حفظ المدة الافتراضية. يرجى المحاولة مرة أخرى."
   },
   "CALENDAR": {
     "ADD_NEW_EVENT": "إضافة حدث جديد",

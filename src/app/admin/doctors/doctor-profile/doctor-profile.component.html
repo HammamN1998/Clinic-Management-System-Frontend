@@ -261,6 +261,17 @@
                 >
                   {{ 'DOCTORS.PROFILE.SHOW_ATTENDED_APPOINTMENTS' | translate }}
                 </mat-slide-toggle>
+                <div class="row m-t-20">
+                  <div class="col-12 col-sm-12 col-md-6 col-lg-6">
+                    <mat-form-field class="example-full-width" appearance="outline">
+                      <mat-label>{{ 'DOCTORS.PROFILE.DEFAULT_APPOINTMENT_DURATION' | translate }}</mat-label>
+                      <mat-select [value]="defaultAppointmentDuration" (selectionChange)="changeDefaultAppointmentDuration($event)">
+                        <mat-option *ngFor="let minutes of durationOptions" [value]="minutes">{{ minutes | appDuration }}</mat-option>
+                      </mat-select>
+                      <mat-hint>{{ 'DOCTORS.PROFILE.DEFAULT_APPOINTMENT_DURATION_HINT' | translate }}</mat-hint>
+                    </mat-form-field>
+                  </div>
+                </div>
               </div>
               <!--Religious Reminders-->
               <ng-container *ngIf="showReligiousReminders">

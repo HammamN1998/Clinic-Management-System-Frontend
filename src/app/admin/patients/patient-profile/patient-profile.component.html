@@ -204,6 +204,7 @@
                         <mat-panel-description>
                           <mat-icon class="example-tab-icon msr-2">access_time</mat-icon>
                           {{appointment.time.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}}
+                          · {{ appointmentDuration(appointment) | appDuration }}
                         </mat-panel-description>
                       </mat-expansion-panel-header>
                       <div class="row">
@@ -276,6 +277,14 @@
                           </mat-form-field>
                         </div>
                         <div class="col-lg-6 col-md-12">
+                          <app-appointment-duration-field
+                            [control]="appointmentDurationControl(appointment)"
+                            [allowSetDefault]="false"
+                            (durationChange)="changeAppointmentDuration(appointment, $event)">
+                          </app-appointment-duration-field>
+                        </div>
+                        <div class="col-lg-6 col-md-12"></div>
+                        <div class="col-lg-6 col-md-12">
                           <mat-slide-toggle [checked]=appointment.attended (change)="changeAppointmentAttended($event, appointment)">
                             <ng-container *ngIf="appointment.attended">
                               {{ 'PATIENTS.PROFILE.PATIENT_ATTENDED' | translate }}
@@ -327,7 +336,7 @@
                         <div class="body">
                           <div class="row clearfix">
                             <!--date-->
-                            <div class="col-lg-6 col-md-12">
+                            <div class="col-lg-4 col-md-12">
                               <mat-form-field class="example-full-width">
                                 <mat-label>{{ 'PATIENTS.PROFILE.CHOOSE_DATE' | translate }}</mat-label>
                                 <input matInput  [matDatepicker]="picker1" formControlName="date">
@@ -339,7 +348,7 @@
                               </mat-form-field>
                             </div>
                             <!--time-->
-                            <div class="col-lg-6 col-md-12">
+                            <div class="col-lg-4 col-md-12">
                               <mat-form-field class="example-full-width mb-3">
                                 <mat-label>{{ 'PATIENTS.PROFILE.CHOOSE_TIME' | translate }}</mat-label>
                                 <mat-select formControlName="time" [compareWith]="compareTimeSlots" panelClass="ltr-value">
@@ -350,6 +359,10 @@
                                   {{ 'VALIDATION.REQUIRED' | translate:{ field: ('PATIENTS.PROFILE.TIME_LABEL' | translate) } }}
                                 </mat-error>
                               </mat-form-field>
+                            </div>
+                            <!--duration-->
+                            <div class="col-lg-4 col-md-12 mb-3">
+                              <app-appointment-duration-field appearance="fill" [control]="newAppointmentDurationControl"></app-appointment-duration-field>
                             </div>
                             <!--details-->
                             <div class="col-lg-12 col-md-12">

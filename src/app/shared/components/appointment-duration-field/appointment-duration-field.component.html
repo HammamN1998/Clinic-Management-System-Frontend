@@ -1,0 +1,37 @@
+<mat-form-field class="duration-field" [appearance]="appearance" [class.duration-field--with-action]="allowSetDefault">
+  <mat-label>{{ 'APPOINTMENT_DURATION.LABEL' | translate }}</mat-label>
+  <mat-select [formControl]="control" (selectionChange)="onSelectionChange($event)">
+    <mat-option *ngFor="let minutes of options" [value]="minutes">{{ minutes | appDuration }}</mat-option>
+  </mat-select>
+
+  <div matSuffix class="duration-suffix">
+    <div class="set-default-slot" *ngIf="allowSetDefault" [class.set-default-slot--visible]="isActionVisible"
+         (click)="$event.stopPropagation()" (mousedown)="$event.stopPropagation()">
+      <button
+        mat-button
+        type="button"
+        color="primary"
+        class="set-default-button"
+        [class.set-default-button--hidden]="saveState === 'saved'"
+        [disabled]="saveState !== 'idle' || !isActionVisible"
+        [attr.tabindex]="isActionVisible && saveState === 'idle' ? null : -1"
+        [attr.aria-hidden]="isActionVisible && saveState !== 'saved' ? null : true"
+        [attr.aria-label]="'APPOINTMENT_DURATION.SET_AS_DEFAULT_ARIA' | translate:{ duration: (control.value | appDuration) }"
+        [matTooltip]="'APPOINTMENT_DURATION.SET_AS_DEFAULT' | translate"
+        (click)="setAsDefault($event)"
+        (mousedown)="$event.stopPropagation()">
+        <mat-progress-spinner *ngIf="saveState === 'saving'" mode="indeterminate" diameter="14"></mat-progress-spinner>
+        <mat-icon *ngIf="saveState !== 'saving'" class="set-default-icon">push_pin</mat-icon>
+        <span class="set-default-text">{{ 'APPOINTMENT_DURATION.SET_AS_DEFAULT' | translate }}</span>
+      </button>
+      <span *ngIf="saveState === 'saved'" class="set-default-saved" aria-hidden="true">
+        <mat-icon>check_circle</mat-icon>
+      </span>
+    </div>
+    <mat-icon class="duration-arrow" aria-hidden="true">arrow_drop_down</mat-icon>
+  </div>
+
+  <mat-hint *ngIf="allowSetDefault">
+    {{ 'APPOINTMENT_DURATION.YOUR_DEFAULT' | translate:{ duration: (defaultMinutes | appDuration) } }}
+  </mat-hint>
+</mat-form-field>

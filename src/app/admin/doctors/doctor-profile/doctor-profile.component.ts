@@ -31,6 +31,9 @@ import { isTruthyString } from '@core/util/boolean-string.util';
 import { ReligiousReminderService } from '@core/service/religious-reminder.service';
 import { CurrencyService } from '@core/service/currency.service';
 import { CurrencyOption } from '@core/util/currency.util';
+import { DURATION_OPTIONS, doctorDefaultDuration } from '@core/util/appointment-form.util';
+import { AppDurationPipe } from '@core/pipe/app-duration.pipe';
+import { MatSelectChange } from '@angular/material/select';
 
 @Component({
   selector: 'app-doctor-profile',
@@ -51,6 +54,7 @@ import { CurrencyOption } from '@core/util/currency.util';
     SharedModule,
     FileUploadComponent,
     TranslateModule,
+    AppDurationPipe,
   ],
 })
 export class DoctorProfileComponent implements OnInit {
@@ -164,6 +168,34 @@ export class DoctorProfileComponent implements OnInit {
 
   get isShowAttendedAppointmentsEnabled(): boolean {
     return isTruthyString(this.doctor.calendarShowAttendedAppointments);
+  }
+
+  readonly durationOptions = DURATION_OPTIONS;
+
+  get defaultAppointmentDuration(): number {
+    return doctorDefaultDuration(this.doctor);
+  }
+
+  changeDefaultAppointmentDuration(change: MatSelectChange) {
+    this.doctorService.setDefaultAppointmentDuration(change.value)
+      .then(() => {
+        this.notificationService.showSnackBarNotification(
+          'snackbar-success',
+          this.translate.instant('DOCTORS.PROFILE.MESSAGES.UPDATE_CALENDAR_PREFERENCES_SUCCESS'),
+          'bottom',
+          'center'
+        );
+      })
+      .catch((error) => {
+        console.log('error: ' + error);
+        change.source.value = this.defaultAppointmentDuration;
+        this.notificationService.showSnackBarNotification(
+          'snackbar-danger',
+          this.translate.instant('APPOINTMENT_DURATION.DEFAULT_SAVE_ERROR'),
+          'bottom',
+          'center'
+        );
+      });
   }
 
   toggleShowAttendedAppointments(checked: boolean) {

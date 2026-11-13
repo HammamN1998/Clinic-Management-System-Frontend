@@ -1,5 +1,24 @@
 export const TIME_SLOT_MINUTES = 15;
 
+export const DURATION_OPTIONS = [15, 30, 45, 60, 90, 120];
+
+export const DEFAULT_APPOINTMENT_DURATION = 30;
+
+/** The doctor's saved default, or 30 when they never picked one. */
+export function doctorDefaultDuration(doctor?: { defaultAppointmentDuration?: number } | null): number {
+  const minutes = Number(doctor?.defaultAppointmentDuration);
+  return minutes > 0 ? minutes : DEFAULT_APPOINTMENT_DURATION;
+}
+
+/** Older appointments have no stored duration, so they take the doctor's default. */
+export function resolveDuration(
+  appointment: { durationMinutes?: number },
+  doctor?: { defaultAppointmentDuration?: number } | null,
+): number {
+  const minutes = Number(appointment.durationMinutes);
+  return minutes > 0 ? minutes : doctorDefaultDuration(doctor);
+}
+
 export interface TimeSlot {
   value: Date;
   label: string;

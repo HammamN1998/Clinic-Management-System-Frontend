@@ -37,6 +37,7 @@ import {forkJoin, from, Observable, of, Subject} from "rxjs";
 import {catchError, map, switchMap, tap} from "rxjs/operators";
 import {AppointmentModel} from "@core/models/appointment.model";
 import {DateService} from "@core/service/date.service";
+import {resolveDuration} from "@core/util/appointment-form.util";
 import {PatientService} from "@core/service/patient.service";
 import {Patient} from "@core/models/patient.model";
 import {Router} from "@angular/router";
@@ -200,7 +201,7 @@ export class CalendarComponent  extends UnsubscribeOnDestroyAdapter  implements 
       id: appointment.id,
       title: `${patient.firstName} ${patient.lastName}`,
       start: startTime,
-      end: this.dateService.addMinutesToDate(startTime, 30),
+      end: this.dateService.addMinutesToDate(startTime, resolveDuration(appointment, this.doctorService.doctor)),
       className: appointment.attended ? 'fc-event-success' : 'fc-event-danger',
       groupId: 'work',
       details: appointment.details,
@@ -469,7 +470,8 @@ export class CalendarComponent  extends UnsubscribeOnDestroyAdapter  implements 
       ...this.getResponsiveCalendarOptions(isMobile),
       initialView: isMobile ? 'listWeek' : 'timeGridWeek',
       weekends: true,
-      editable: true,
+      // Drag and resize are not persisted to Firestore, so moving an event would only fake a change.
+      editable: false,
       selectable: false,
       selectMirror: true,
       dayMaxEvents: true,

@@ -23,7 +23,9 @@ import { Patient } from '@core/models/patient.model';
 import { NumericInputDirective } from '@core/directive/numeric-input.directive';
 import { NotificationService } from '@core/service/notification.service';
 import { PatientService } from '@core/service/patient.service';
-import { buildTimeSlots, compareTimeSlots, nextTimeSlot, toAmount } from '@core/util/appointment-form.util';
+import { buildTimeSlots, compareTimeSlots, doctorDefaultDuration, nextTimeSlot, toAmount } from '@core/util/appointment-form.util';
+import { DoctorService } from '@core/service/doctor.service';
+import { AppointmentDurationFieldComponent } from '@shared/components/appointment-duration-field/appointment-duration-field.component';
 import { matchesPatientSearch } from '@core/util/patient-search.util';
 import { UnsubscribeOnDestroyAdapter } from '@shared';
 
@@ -57,6 +59,7 @@ const RESULT_LIMIT = 50;
     MatButtonModule,
     TranslateModule,
     NumericInputDirective,
+    AppointmentDurationFieldComponent,
   ],
 })
 export class NewAppointmentDialogComponent extends UnsubscribeOnDestroyAdapter implements OnInit {
@@ -81,6 +84,7 @@ export class NewAppointmentDialogComponent extends UnsubscribeOnDestroyAdapter i
     private notificationService: NotificationService,
     private translate: TranslateService,
     private router: Router,
+    doctorService: DoctorService,
     formBuilder: UntypedFormBuilder,
   ) {
     super();
@@ -88,10 +92,15 @@ export class NewAppointmentDialogComponent extends UnsubscribeOnDestroyAdapter i
     this.appointmentForm = formBuilder.group({
       date: [now, [Validators.required]],
       time: [nextTimeSlot(this.timeSlots), [Validators.required]],
+      durationMinutes: [doctorDefaultDuration(doctorService.doctor), [Validators.required]],
       details: [''],
       cost: ['', [Validators.min(0)]],
       costPaid: [true],
     });
+  }
+
+  get durationControl(): FormControl<number> {
+    return this.appointmentForm.get('durationMinutes') as FormControl<number>;
   }
 
   ngOnInit(): void {
@@ -129,6 +138,7 @@ export class NewAppointmentDialogComponent extends UnsubscribeOnDestroyAdapter i
     const appointment = new AppointmentModel();
     appointment.date = firestore.Timestamp.fromDate(this.appointmentForm.get('date')?.value);
     appointment.time = firestore.Timestamp.fromDate(this.appointmentForm.get('time')?.value);
+    appointment.durationMinutes = this.durationControl.value;
     appointment.details = this.appointmentForm.get('details')?.value ?? '';
     appointment.cost = toAmount(this.appointmentForm.get('cost')?.value);
     appointment.costPaid = !!this.appointmentForm.get('costPaid')?.value;
