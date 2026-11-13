@@ -94,6 +94,14 @@
                 <mat-form-field class="example-full-width" appearance="outline">
                   <mat-label>{{ 'PATIENTS.PROFILE.APPOINTMENT_COST' | translate }}</mat-label>
                   <input matInput formControlName="cost" appNumericInput>
+                  <mat-slide-toggle formControlName="costPaid">
+                    <ng-container *ngIf="appointmentForm.get('costPaid')?.value">
+                      {{ 'PATIENTS.PROFILE.PAID' | translate }}
+                    </ng-container>
+                    <ng-container *ngIf="!appointmentForm.get('costPaid')?.value">
+                      {{ 'PATIENTS.PROFILE.UNPAID' | translate }}
+                    </ng-container>
+                  </mat-slide-toggle>
                 </mat-form-field>
               </div>
               <div class="col-12 col-sm-12 col-md-12 col-lg-12">
@@ -101,11 +109,6 @@
                   <mat-label>{{ 'PATIENTS.PROFILE.APPOINTMENT_DETAILS' | translate }}</mat-label>
                   <textarea matInput formControlName="details" cdkTextareaAutosize cdkAutosizeMinRows="2" cdkAutosizeMaxRows="6"></textarea>
                 </mat-form-field>
-              </div>
-              <div class="col-12 col-sm-12 col-md-12 col-lg-12 cost-toggle">
-                <mat-slide-toggle formControlName="costPaid">
-                  {{ (appointmentForm.get('costPaid')?.value ? 'PATIENTS.PROFILE.PAID' : 'PATIENTS.PROFILE.UNPAID') | translate }}
-                </mat-slide-toggle>
               </div>
             </div>
           </div>
