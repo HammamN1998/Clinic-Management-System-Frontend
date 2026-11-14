@@ -16,8 +16,12 @@ export class TaskService {
   constructor(
     private firestore: AngularFirestore,
     private doctorService: DoctorService,
-  ) {
-    this.getTasks();
+  ) {}
+
+  /** Empties the cached list before loading, so tasks from a previous sign-in never show. */
+  async reloadTasks() {
+    this.tasksSubject.next([]);
+    return this.getTasks();
   }
 
   async addTask(task: Task) {

@@ -68,6 +68,8 @@ export class TaskComponent {
 
     this.taskForm = this.createFormGroup(new Task());
 
+    // getTasks already logs a failed load; the list then stays empty.
+    this.taskService.reloadTasks().catch(() => undefined);
     this.taskService.tasks$.subscribe(tasks => this.tasks = tasks);
   }
 
