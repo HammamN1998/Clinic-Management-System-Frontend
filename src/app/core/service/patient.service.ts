@@ -16,6 +16,7 @@ import {Router} from "@angular/router";
 import {TranslateService} from "@ngx-translate/core";
 import {NotificationService} from "@core/service/notification.service";
 import {OnboardingService} from "@core/service/onboarding.service";
+import {DoctorService} from "@core/service/doctor.service";
 import {Direction} from "@angular/cdk/bidi";
 import {MatDialog} from "@angular/material/dialog";
 import {
@@ -44,9 +45,11 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
     private translate: TranslateService,
     private onboardingService: OnboardingService,
     private dialog: MatDialog,
+    private doctorService: DoctorService,
   ) {
     super();
   }
+  /** The signed-in user, recorded as `lastModifiedBy`. Records belong to `doctorService.activeDoctorId`. */
   get doctor(): User {
     return this.firebaseAuthenticationService.currentUserValue;
   }
@@ -67,7 +70,7 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
 
   async getAllPatientsForExport(): Promise<Patient[]> {
     const snapshot = await this.firestore.collection('patients').ref
-      .where('doctorId', '==', this.doctor.id)
+      .where('doctorId', '==', this.doctorService.activeDoctorId)
       .get();
     return snapshot.docs.map((doc) => doc.data() as Patient);
   }
@@ -78,7 +81,7 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
   ): Promise<PatientsPageResult> {
     const safePageSize = Math.max(1, pageSize || 10);
     let query = this.firestore.collection('patients').ref
-      .where('doctorId', '==', this.doctor.id)
+      .where('doctorId', '==', this.doctorService.activeDoctorId)
       .orderBy('createdAt', 'desc')
       .limit(safePageSize);
     if (startAfterDoc) {
@@ -139,7 +142,7 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
     }
 
     const snapshot = await this.firestore.collection('patients').ref
-      .where('doctorId', '==', this.doctor.id)
+      .where('doctorId', '==', this.doctorService.activeDoctorId)
       .where('phoneNumber', '==', normalized)
       .limit(20)
       .get();
@@ -180,14 +183,14 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
   }
 
   async addPatient(patient: Patient): Promise<void> {
-    patient.doctorId = this.doctor.id;
+    patient.doctorId = this.doctorService.activeDoctorId;
     patient.createdAt = firestore.Timestamp.now();
     this.dialogData = patient;
 
     try {
       const wasFirstPatient = (this.doctor.subscription?.patientsCount ?? 0) === 0;
-      const result = await this.firestore.collection('patients').add({...patient});
-      await this.firestore.collection('patients').doc(result.id).ref.update({id: result.id});
+      const result = await this.firestore.collection('patients').add({...patient, lastModifiedBy: this.doctor.id});
+      await this.firestore.collection('patients').doc(result.id).ref.update({id: result.id, lastModifiedBy: this.doctor.id});
       patient.id = result.id;
       this.dialogData = patient;
       this.doctor.subscription.patientsCount++;
@@ -203,7 +206,7 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
     patient.doctorId = this.getDialogData().doctorId;
     this.dialogData = patient;
 
-    from(this.firestore.collection('patients').doc(patient.id).ref.update({...patient}))
+    from(this.firestore.collection('patients').doc(patient.id).ref.update({...patient, lastModifiedBy: this.doctor.id}))
       .subscribe({
         error: (error) => {
           console.log('error: ' + JSON.stringify(error));
@@ -232,12 +235,12 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
 
   addPatientAppointment(appointment: AppointmentModel, patient = this.getDialogData()) {
     appointment.patientId = patient.id;
-    appointment.doctorId = patient.doctorId || this.doctor.id;
+    appointment.doctorId = patient.doctorId || this.doctorService.activeDoctorId;
 
-    const result = this.firestore.collection('appointments').add( {...appointment} );
+    const result = this.firestore.collection('appointments').add( {...appointment, lastModifiedBy: this.doctor.id} );
     from(result).subscribe({
         next: (result) => {
-          this.firestore.collection('appointments').doc(result.id).update({id: result.id});
+          this.firestore.collection('appointments').doc(result.id).update({id: result.id, lastModifiedBy: this.doctor.id});
           this.onboardingService.recordAppointmentCreated();
         },
         error: (error) => {
@@ -252,10 +255,10 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
     payment.patientId = this.getDialogData().id;
     payment.doctorId = this.getDialogData().doctorId;
 
-    const result = this.firestore.collection('payments').add( {...payment} );
+    const result = this.firestore.collection('payments').add( {...payment, lastModifiedBy: this.doctor.id} );
     from(result).subscribe({
         next: (result) => {
-          this.firestore.collection('payments').doc(result.id).update({id: result.id});
+          this.firestore.collection('payments').doc(result.id).update({id: result.id, lastModifiedBy: this.doctor.id});
         },
         error: (error) => {
           console.log('error: ' + error)
@@ -269,10 +272,10 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
     treatment.patientId = this.getDialogData().id;
     treatment.doctorId = this.getDialogData().doctorId;
 
-    const result = this.firestore.collection('treatments').add( {...treatment} );
+    const result = this.firestore.collection('treatments').add( {...treatment, lastModifiedBy: this.doctor.id} );
     from(result).subscribe({
         next: (result) => {
-          this.firestore.collection('treatments').doc(result.id).update({id: result.id});
+          this.firestore.collection('treatments').doc(result.id).update({id: result.id, lastModifiedBy: this.doctor.id});
         },
         error: (error) => {
           console.log('error: ' + error)
@@ -284,7 +287,7 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
 
   getPatientAppointments() {
     return this.firestore.collection('appointments').ref
-    .where('doctorId', '==', this.doctor.id)
+    .where('doctorId', '==', this.doctorService.activeDoctorId)
     .where('patientId', '==', this.getDialogData().id)
     .orderBy('date', 'desc')
     .orderBy('time', 'desc')
@@ -298,7 +301,7 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
       const snapshot = await this.firestore
         .collection('appointments')
         .ref
-        .where('doctorId', '==', this.doctor.id)
+        .where('doctorId', '==', this.doctorService.activeDoctorId)
         .where('patientId', '==', patientId)
         .get();
       appointmentsByPatientId[patientId] = snapshot.docs.map(
@@ -315,7 +318,7 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
       const snapshot = await this.firestore
         .collection('payments')
         .ref
-        .where('doctorId', '==', this.doctor.id)
+        .where('doctorId', '==', this.doctorService.activeDoctorId)
         .where('patientId', '==', patientId)
         .get();
       paymentsByPatientId[patientId] = snapshot.docs.map(
@@ -332,7 +335,7 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
       const snapshot = await this.firestore
         .collection('treatments')
         .ref
-        .where('doctorId', '==', this.doctor.id)
+        .where('doctorId', '==', this.doctorService.activeDoctorId)
         .where('patientId', '==', patientId)
         .get();
       treatmentsByPatientId[patientId] = snapshot.docs.map(
@@ -344,7 +347,7 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
 
   getPatientPayments() {
     return this.firestore.collection('payments').ref
-    .where('doctorId', '==', this.doctor.id)
+    .where('doctorId', '==', this.doctorService.activeDoctorId)
     .where('patientId', '==', this.getDialogData().id)
     .orderBy('date', 'desc')
     .get();
@@ -352,29 +355,29 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
 
   getPatientTreatments() {
     return this.firestore.collection('treatments').ref
-    .where('doctorId', '==', this.doctor.id)
+    .where('doctorId', '==', this.doctorService.activeDoctorId)
     .where('patientId', '==', this.getDialogData().id)
     .orderBy('date', 'desc')
     .get();
   }
 
   changeAppointmentAttended(appointment: AppointmentModel, attended: boolean) {
-    return this.firestore.collection('appointments').doc(appointment.id).update({attended: attended});
+    return this.firestore.collection('appointments').doc(appointment.id).update({attended: attended, lastModifiedBy: this.doctor.id});
   }
 
   updateAppointmentDuration(appointmentId: string, durationMinutes: number) {
-    return this.firestore.collection('appointments').doc(appointmentId).update({durationMinutes});
+    return this.firestore.collection('appointments').doc(appointmentId).update({durationMinutes, lastModifiedBy: this.doctor.id});
   }
 
   changeAppointmentCostPaid(appointment: AppointmentModel, costPaid: boolean) {
-    return this.firestore.collection('appointments').doc(appointment.id).update({costPaid: costPaid});
+    return this.firestore.collection('appointments').doc(appointment.id).update({costPaid: costPaid, lastModifiedBy: this.doctor.id});
   }
 
   updateAppointmentDetails(appointment: AppointmentModel) {
     return from(
       this.firestore.collection('appointments')
         .doc(appointment.id)
-        .update({details: appointment.details})
+        .update({details: appointment.details, lastModifiedBy: this.doctor.id})
     );
   }
 
@@ -382,7 +385,7 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
     return from(
       this.firestore.collection('appointments')
         .doc(appointment.id)
-        .update({prescriptions: appointment.prescriptions || []})
+        .update({prescriptions: appointment.prescriptions || [], lastModifiedBy: this.doctor.id})
     );
   }
 
@@ -393,7 +396,7 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
     >
   ) {
     return from(
-      this.firestore.collection('appointments').doc(appointmentId).update(patch)
+      this.firestore.collection('appointments').doc(appointmentId).update({...patch, lastModifiedBy: this.doctor.id})
     );
   }
 
@@ -401,7 +404,7 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
     return from(
       this.firestore.collection('payments')
         .doc(payment.id)
-        .update({details: payment.details})
+        .update({details: payment.details, lastModifiedBy: this.doctor.id})
     );
   }
 
@@ -409,7 +412,7 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
     return from(
       this.firestore.collection('treatments')
         .doc(treatment.id)
-        .update({details: treatment.details})
+        .update({details: treatment.details, lastModifiedBy: this.doctor.id})
     );
   }
 
@@ -433,7 +436,7 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
     const patientID = this.getDialogData().id;
 
     // Update patient on Firestore
-    from (this.firestore.collection('patients').doc(patientID).ref.update({'notes': notes}))
+    from (this.firestore.collection('patients').doc(patientID).ref.update({'notes': notes, lastModifiedBy: this.doctor.id}))
       .subscribe( {
           error: (error) => {
             console.log('error: ' + JSON.stringify(error))

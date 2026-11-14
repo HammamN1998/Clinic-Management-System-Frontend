@@ -23,7 +23,7 @@ export class TaskService {
   async addTask(task: Task) {
     try {
 
-      task.doctorId = this.doctorService.doctor.id;
+      task.doctorId = this.doctorService.activeDoctorId;
       const payload = this.taskToDoc(task);
       await this.firestore.collection('tasks').add(payload);
 
@@ -68,7 +68,7 @@ export class TaskService {
   async getTasks() {
     try {
       const snapshot = await this.firestore.collection('tasks').ref
-        .where('doctorId', '==', this.doctorService.doctor.id)
+        .where('doctorId', '==', this.doctorService.activeDoctorId)
         .orderBy('createdAt', 'desc')
         .get();
 

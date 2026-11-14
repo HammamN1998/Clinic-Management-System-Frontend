@@ -12,6 +12,7 @@ import {NotificationService} from "@core/service/notification.service";
 import {TranslateService} from "@ngx-translate/core";
 import {AnalyticsService} from "@core/service/analytics.service";
 import {MetaPixelService} from "@core/service/meta-pixel.service";
+import {ClinicContextService} from "@core/service/clinic-context.service";
 import {inferBrowserCurrency} from "@core/util/currency.util";
 
 @Injectable({
@@ -31,6 +32,7 @@ export class FirebaseAuthenticationService {
     private translate: TranslateService,
     private analytics: AnalyticsService,
     private metaPixel: MetaPixelService,
+    private clinicContext: ClinicContextService,
   ) {
 
     this.currentUserSubject = new BehaviorSubject<User>(
@@ -372,6 +374,7 @@ export class FirebaseAuthenticationService {
         // remove user from local storage to log user out
         this.analytics.clearDoctorUserId();
         localStorage.removeItem('currentUser');
+        this.clinicContext.clear();
         this.router.navigate(['/authentication/signin']);
         console.log('user not logged in');
       }
