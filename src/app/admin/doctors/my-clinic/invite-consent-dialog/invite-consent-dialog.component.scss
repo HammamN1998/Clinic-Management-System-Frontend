@@ -1,0 +1,19 @@
+.consent {
+  &__title {
+    font-size: 15px;
+    font-weight: 600;
+    margin: 16px 0 6px;
+  }
+
+  &__rules {
+    padding-inline-start: 20px;
+
+    li {
+      margin-bottom: 6px;
+    }
+  }
+
+  &__error {
+    margin: 12px 0 0;
+  }
+}

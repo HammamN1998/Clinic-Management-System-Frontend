@@ -85,3 +85,29 @@ export const ROUTES: RouteInfo[] = [
     submenu: [],
   },
 ];
+
+/** Shown after Task to clinic admins. */
+export const CLINIC_ROUTE: RouteInfo = {
+  path: '/clinic/doctors',
+  title: 'MENUITEMS.CLINIC.TEXT',
+  iconType: 'material-icons-two-tone',
+  icon: 'domain',
+  class: '',
+  groupTitle: false,
+  badge: '',
+  badgeClass: '',
+  submenu: [],
+};
+
+/** Shown after Task to linked doctors and to doctors with an open invitation. */
+export const MY_CLINIC_ROUTE: RouteInfo = {
+  path: '/admin/doctors/my-clinic',
+  title: 'MENUITEMS.MY_CLINIC.TEXT',
+  iconType: 'material-icons-two-tone',
+  icon: 'apartment',
+  class: '',
+  groupTitle: false,
+  badge: '',
+  badgeClass: '',
+  submenu: [],
+};

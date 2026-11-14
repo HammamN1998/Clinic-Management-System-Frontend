@@ -1,0 +1,72 @@
+<h2 mat-dialog-title>
+  {{ (isInvite ? 'CLINIC.TERMS_DIALOG.INVITE_TITLE' : 'CLINIC.TERMS_DIALOG.PROPOSE_TITLE') | translate: { name: doctorName } }}
+</h2>
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <div mat-dialog-content class="terms-dialog">
+    <p class="terms-dialog__hint">
+      {{ (isInvite ? 'CLINIC.TERMS_DIALOG.INVITE_HINT' : 'CLINIC.TERMS_DIALOG.PROPOSE_HINT') | translate }}
+    </p>
+
+    @if (isInvite) {
+      <mat-form-field appearance="outline" class="terms-dialog__field">
+        <mat-label>{{ 'CLINIC.TERMS_DIALOG.EMAIL' | translate }}</mat-label>
+        <input matInput type="email" formControlName="email" autocomplete="off">
+        @if (form.controls.email.hasError('required')) {
+          <mat-error>{{ 'VALIDATION.REQUIRED' | translate: { field: ('CLINIC.TERMS_DIALOG.EMAIL' | translate) } }}</mat-error>
+        } @else if (form.controls.email.invalid) {
+          <mat-error>{{ 'VALIDATION.EMAIL_INVALID' | translate }}</mat-error>
+        }
+      </mat-form-field>
+    }
+
+    <div class="terms-dialog__access">
+      <span class="terms-dialog__label">{{ 'CLINIC.TERMS.ACCESS' | translate }}</span>
+      <mat-radio-group formControlName="access" class="terms-dialog__radios">
+        <mat-radio-button value="view">{{ 'CLINIC.TERMS.ACCESS_VIEW' | translate }}</mat-radio-button>
+        <mat-radio-button value="edit">{{ 'CLINIC.TERMS.ACCESS_EDIT' | translate }}</mat-radio-button>
+      </mat-radio-group>
+      <span class="terms-dialog__small">
+        {{ (form.controls.access.value === 'edit' ? 'CLINIC.TERMS.ACCESS_EDIT_HINT' : 'CLINIC.TERMS.ACCESS_VIEW_HINT') | translate }}
+      </span>
+    </div>
+
+    <mat-form-field appearance="outline" class="terms-dialog__field">
+      <mat-label>{{ 'CLINIC.TERMS.NOTICE' | translate }}</mat-label>
+      <mat-select formControlName="noticeDays">
+        @for (days of noticeDays; track days) {
+          <mat-option [value]="days">{{ ('CLINIC.TERMS.NOTICE_' + days) | translate }}</mat-option>
+        }
+      </mat-select>
+      <mat-hint>{{ 'CLINIC.TERMS.NOTICE_HINT' | translate }}</mat-hint>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="terms-dialog__field">
+      <mat-label>{{ 'CLINIC.TERMS.COMMISSION' | translate }}</mat-label>
+      <input matInput type="number" formControlName="commissionPercent" min="0" max="100" step="0.01">
+      <span matTextSuffix>%</span>
+      <mat-hint>{{ 'CLINIC.TERMS.COMMISSION_HINT' | translate }}</mat-hint>
+      @if (form.controls.commissionPercent.invalid) {
+        <mat-error>{{ 'CLINIC.TERMS_DIALOG.COMMISSION_RANGE' | translate }}</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="terms-dialog__field">
+      <mat-label>{{ 'CLINIC.TERMS.NOTES' | translate }}</mat-label>
+      <textarea matInput formControlName="notes" rows="3" [attr.maxlength]="notesMaxLength"></textarea>
+      <mat-hint>{{ 'CLINIC.TERMS.NOTES_HINT' | translate }}</mat-hint>
+      <mat-hint align="end">{{ form.controls.notes.value.length }} / {{ notesMaxLength }}</mat-hint>
+    </mat-form-field>
+
+    @if (error) {
+      <div class="alert alert-danger terms-dialog__error" role="alert">{{ error }}</div>
+    }
+  </div>
+  <div mat-dialog-actions align="end">
+    <button mat-button type="button" mat-dialog-close [disabled]="sending">{{ 'COMMON.CANCEL' | translate }}</button>
+    <button mat-flat-button color="primary" type="submit"
+            [class.auth-spinner]="sending"
+            [disabled]="sending || (!isInvite && form.pristine)">
+      {{ (isInvite ? 'CLINIC.TERMS_DIALOG.SEND_INVITE' : 'CLINIC.TERMS_DIALOG.SEND_TERMS') | translate }}
+    </button>
+  </div>
+</form>

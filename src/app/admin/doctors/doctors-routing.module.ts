@@ -3,6 +3,7 @@ import { Routes, RouterModule } from "@angular/router";
 import { DoctorProfileComponent } from "./doctor-profile/doctor-profile.component";
 import { Page404Component } from "../../authentication/page404/page404.component";
 import {DoctorPlansComponent} from "./doctor-plans/doctor-plans.component";
+import { MyClinicComponent } from "./my-clinic/my-clinic.component";
 const routes: Routes = [
 
   {
@@ -12,6 +13,10 @@ const routes: Routes = [
   {
     path: "doctor-plans",
     component: DoctorPlansComponent,
+  },
+  {
+    path: "my-clinic",
+    component: MyClinicComponent,
   },
   { path: "**", component: Page404Component },
 ];

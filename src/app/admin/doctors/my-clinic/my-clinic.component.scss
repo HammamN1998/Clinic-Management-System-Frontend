@@ -1,0 +1,62 @@
+.my-clinic {
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  &__logo {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    object-fit: contain;
+  }
+
+  &__muted {
+    display: block;
+    font-size: 13px;
+    color: #888;
+  }
+
+  &__title {
+    font-size: 15px;
+    font-weight: 600;
+    margin: 18px 0 6px;
+  }
+
+  &__invite {
+    padding: 14px 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  &__proposal {
+    margin-top: 16px;
+    padding: 4px 14px 14px;
+    border-radius: 6px;
+    background-color: rgba(4, 142, 251, 0.06);
+  }
+
+  &__leaving {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  &__facts {
+    padding-inline-start: 20px;
+    margin-bottom: 16px;
+  }
+}

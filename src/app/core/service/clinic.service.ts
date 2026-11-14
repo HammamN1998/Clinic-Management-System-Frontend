@@ -1,0 +1,357 @@
+import { Injectable } from '@angular/core';
+import { AngularFireAuth } from '@angular/fire/compat/auth';
+import { AngularFirestore } from '@angular/fire/compat/firestore';
+import { AngularFireFunctions } from '@angular/fire/compat/functions';
+import { TranslateService } from '@ngx-translate/core';
+import { Observable, firstValueFrom, of } from 'rxjs';
+import { catchError, distinctUntilChanged, map, shareReplay, switchMap } from 'rxjs/operators';
+import { FirebaseAuthenticationService } from '../../authentication/services/firebase-authentication.service';
+import { UserSubscription } from '@core/models/user';
+import {
+  AgreementStatus,
+  ClinicAccess,
+  ClinicAgreement,
+  ClinicInvite,
+  ClinicMembership,
+  ClinicProfile,
+  ClinicTerms,
+  InviteStatus,
+  LinkedDoctor,
+  isOpenInvite,
+} from '@core/models/clinic.model';
+
+interface StoredTimestamp {
+  toDate(): Date;
+}
+
+interface DoctorDoc {
+  name?: string;
+  email?: string;
+  img?: string;
+  isAdmin?: boolean;
+  maxSeats?: number;
+  clinicAdminId?: string;
+  linkedAt?: StoredTimestamp;
+  clinicAccess?: ClinicAccess;
+  currentAgreementId?: string;
+  pendingAgreementId?: string;
+  unlinkEffectiveAt?: StoredTimestamp;
+  unlinkRequestedBy?: 'doctor' | 'admin';
+}
+
+interface ClinicDoc {
+  name?: string;
+  adminName?: string;
+  logo?: string;
+}
+
+interface InviteDoc {
+  adminId: string;
+  doctorId: string;
+  email?: string;
+  adminName?: string;
+  clinicName?: string;
+  doctorName?: string;
+  status: InviteStatus;
+  terms: ClinicTerms;
+  sentAt?: StoredTimestamp;
+  sendCount?: number;
+  expiresAt?: StoredTimestamp;
+}
+
+interface AgreementDoc {
+  adminId: string;
+  doctorId: string;
+  status: AgreementStatus;
+  terms: ClinicTerms;
+  proposedAt?: StoredTimestamp;
+  acceptedAt?: StoredTimestamp;
+}
+
+function toDate(value: StoredTimestamp | undefined): Date | null {
+  return value && typeof value.toDate === 'function' ? value.toDate() : null;
+}
+
+function toMembership(doctorId: string, doc: DoctorDoc): ClinicMembership {
+  return {
+    doctorId,
+    isAdmin: doc.isAdmin === true,
+    // Read the way the functions read it: anything but a positive number means no seats.
+    maxSeats: typeof doc.maxSeats === 'number' && doc.maxSeats > 0 ? Math.floor(doc.maxSeats) : 0,
+    clinicAdminId: doc.clinicAdminId || null,
+    linkedAt: toDate(doc.linkedAt),
+    clinicAccess: doc.clinicAccess ?? null,
+    currentAgreementId: doc.currentAgreementId || null,
+    pendingAgreementId: doc.pendingAgreementId || null,
+    unlinkEffectiveAt: toDate(doc.unlinkEffectiveAt),
+    unlinkRequestedBy: doc.unlinkRequestedBy ?? null,
+  };
+}
+
+function toLinkedDoctor(doc: DoctorDoc & { id: string }): LinkedDoctor {
+  return { ...toMembership(doc.id, doc), name: doc.name ?? '', email: doc.email ?? '', img: doc.img ?? '' };
+}
+
+function toProfile(adminId: string, doc: ClinicDoc): ClinicProfile {
+  return { adminId, name: doc.name ?? '', adminName: doc.adminName ?? '', logo: doc.logo ?? '' };
+}
+
+function toInvite(doc: InviteDoc & { id: string }): ClinicInvite {
+  return {
+    id: doc.id,
+    adminId: doc.adminId,
+    doctorId: doc.doctorId,
+    email: doc.email ?? '',
+    adminName: doc.adminName ?? '',
+    clinicName: doc.clinicName ?? '',
+    doctorName: doc.doctorName ?? '',
+    status: doc.status,
+    terms: doc.terms,
+    sentAt: toDate(doc.sentAt),
+    sendCount: doc.sendCount ?? 1,
+    expiresAt: toDate(doc.expiresAt),
+  };
+}
+
+function toAgreement(id: string, doc: AgreementDoc): ClinicAgreement {
+  return {
+    id,
+    adminId: doc.adminId,
+    doctorId: doc.doctorId,
+    status: doc.status,
+    terms: doc.terms,
+    proposedAt: toDate(doc.proposedAt),
+    acceptedAt: toDate(doc.acceptedAt),
+  };
+}
+
+const newestFirst = (a: ClinicInvite, b: ClinicInvite) => (b.sentAt?.getTime() ?? 0) - (a.sentAt?.getTime() ?? 0);
+
+/**
+ * Clinic state and actions. Only Cloud Functions write clinic data, so this service reads
+ * it live (the functions change it while the app is open) and calls the clinic callables.
+ */
+@Injectable({ providedIn: 'root' })
+export class ClinicService {
+  /** The signed-in doctor's clinic fields. Null while signed out. */
+  readonly membership$: Observable<ClinicMembership | null>;
+  /** Invitations the signed-in doctor can still answer, newest first. Always empty for an admin, who cannot join a clinic. */
+  readonly pendingInvites$: Observable<ClinicInvite[]>;
+  /** The clinic the signed-in doctor belongs to. Null when he is not linked. */
+  readonly clinic$: Observable<ClinicProfile | null>;
+  /** The signed-in doctor's agreement in force. */
+  readonly currentAgreement$: Observable<ClinicAgreement | null>;
+  /** New terms waiting for the signed-in doctor's answer. */
+  readonly pendingAgreement$: Observable<ClinicAgreement | null>;
+
+  constructor(
+    private auth: AngularFireAuth,
+    private firestore: AngularFirestore,
+    private functions: AngularFireFunctions,
+    private translate: TranslateService,
+    private authService: FirebaseAuthenticationService,
+  ) {
+    const uid$ = this.auth.authState.pipe(
+      map((user) => user?.uid ?? null),
+      distinctUntilChanged(),
+    );
+    this.membership$ = uid$.pipe(
+      switchMap((uid) => (uid ? this.watchMembership(uid) : of(null))),
+      shareReplay({ bufferSize: 1, refCount: true }),
+    );
+    this.pendingInvites$ = this.membership$.pipe(
+      map((membership) => (membership && !membership.isAdmin ? membership.doctorId : null)),
+      distinctUntilChanged(),
+      switchMap((doctorId) => (doctorId ? this.watchPendingInvites(doctorId) : of([]))),
+      shareReplay({ bufferSize: 1, refCount: true }),
+    );
+    this.clinic$ = this.followMembership((m) => m.clinicAdminId, (id) => this.clinicProfile$(id));
+    this.currentAgreement$ = this.followMembership((m) => m.currentAgreementId, (id) => this.agreement$(id));
+    this.pendingAgreement$ = this.followMembership((m) => m.pendingAgreementId, (id) => this.agreement$(id));
+    this.reloadSubscriptionOnLinkChange();
+  }
+
+  clinicProfile$(adminId: string): Observable<ClinicProfile | null> {
+    return this.firestore
+      .collection('clinics')
+      .doc<ClinicDoc>(adminId)
+      .valueChanges()
+      .pipe(
+        map((doc) => (doc ? toProfile(adminId, doc) : null)),
+        catchError((err) => this.readFailed('clinic', err, null)),
+      );
+  }
+
+  agreement$(agreementId: string): Observable<ClinicAgreement | null> {
+    return this.firestore
+      .collection('clinicAgreements')
+      .doc<AgreementDoc>(agreementId)
+      .valueChanges()
+      .pipe(
+        map((doc) => (doc ? toAgreement(agreementId, doc) : null)),
+        catchError((err) => this.readFailed('agreement', err, null)),
+      );
+  }
+
+  /** The admin's linked doctors, by name. */
+  linkedDoctors$(adminId: string): Observable<LinkedDoctor[]> {
+    return this.firestore
+      .collection<DoctorDoc>('doctors', (ref) => ref.where('clinicAdminId', '==', adminId))
+      .valueChanges({ idField: 'id' })
+      .pipe(
+        map((docs) => docs.map(toLinkedDoctor).sort((a, b) => (a.name || a.email).localeCompare(b.name || b.email))),
+        catchError((err) => this.readFailed('linked doctors', err, [])),
+      );
+  }
+
+  /** Every invitation the admin sent, in any status, newest first. */
+  adminInvites$(adminId: string): Observable<ClinicInvite[]> {
+    return this.firestore
+      .collection<InviteDoc>('clinicInvites', (ref) => ref.where('adminId', '==', adminId))
+      .valueChanges({ idField: 'id' })
+      .pipe(
+        map((docs) => docs.map(toInvite).sort(newestFirst)),
+        catchError((err) => this.readFailed('clinic invites', err, [])),
+      );
+  }
+
+  /** Every agreement of the admin's clinic, in any status. */
+  adminAgreements$(adminId: string): Observable<ClinicAgreement[]> {
+    return this.firestore
+      .collection<AgreementDoc>('clinicAgreements', (ref) => ref.where('adminId', '==', adminId))
+      .valueChanges({ idField: 'id' })
+      .pipe(
+        map((docs) => docs.map((doc) => toAgreement(doc.id, doc))),
+        catchError((err) => this.readFailed('clinic agreements', err, [])),
+      );
+  }
+
+  inviteDoctor(email: string, terms: ClinicTerms): Promise<{ inviteId: string }> {
+    return this.call('inviteDoctor', { email, terms });
+  }
+
+  resendInvite(inviteId: string): Promise<{ inviteId: string }> {
+    return this.call('resendInvite', { inviteId });
+  }
+
+  cancelInvite(inviteId: string): Promise<{ inviteId: string }> {
+    return this.call('cancelInvite', { inviteId });
+  }
+
+  respondToInvite(inviteId: string, accept: boolean): Promise<{ accepted: boolean }> {
+    return this.call('respondToInvite', { inviteId, accept });
+  }
+
+  proposeTerms(doctorId: string, terms: ClinicTerms): Promise<{ agreementId: string }> {
+    return this.call('proposeTerms', { doctorId, terms });
+  }
+
+  respondToTerms(agreementId: string, accept: boolean): Promise<{ accepted: boolean }> {
+    return this.call('respondToTerms', { agreementId, accept });
+  }
+
+  /** Without `doctorId` the signed-in doctor leaves his clinic. Resolves to when the unlink takes effect. */
+  async requestUnlink(doctorId?: string): Promise<Date> {
+    const { effectiveAt } = await this.call<{ effectiveAt: number }>('requestUnlink', doctorId ? { doctorId } : {});
+    return new Date(effectiveAt);
+  }
+
+  /** Without `doctorId` the signed-in doctor withdraws his own leave request. */
+  cancelUnlink(doctorId?: string): Promise<{ withdrawn: boolean }> {
+    return this.call('cancelUnlink', doctorId ? { doctorId } : {});
+  }
+
+  completeUnlink(doctorId: string): Promise<{ unlinked: boolean }> {
+    return this.call('completeUnlink', { doctorId });
+  }
+
+  /** Translated message for a failed clinic call, from the `reason` the functions attach. */
+  errorMessage(err: unknown): string {
+    const reason = (err as { details?: { reason?: unknown } } | null)?.details?.reason;
+    if (typeof reason === 'string') {
+      const key = `CLINIC.ERRORS.${reason.toUpperCase().replace(/-/g, '_')}`;
+      const message = this.translate.instant(key);
+      if (message !== key) {
+        return message;
+      }
+    }
+    console.error('Clinic call failed', err);
+    return this.translate.instant('CLINIC.ERRORS.GENERIC');
+  }
+
+  private call<T>(name: string, data: object): Promise<T> {
+    return firstValueFrom(this.functions.httpsCallable<object, T>(name)(data));
+  }
+
+  private watchMembership(doctorId: string): Observable<ClinicMembership | null> {
+    return this.firestore
+      .collection('doctors')
+      .doc<DoctorDoc>(doctorId)
+      .valueChanges()
+      .pipe(
+        map((doc) => (doc ? toMembership(doctorId, doc) : null)),
+        catchError((err) => this.readFailed('doctor', err, null)),
+      );
+  }
+
+  /** Expiry is checked when the list changes, so an invite that expires while the app is open stays listed until then. */
+  private watchPendingInvites(doctorId: string): Observable<ClinicInvite[]> {
+    return this.firestore
+      .collection<InviteDoc>('clinicInvites', (ref) =>
+        ref.where('doctorId', '==', doctorId).where('status', '==', 'pending'),
+      )
+      .valueChanges({ idField: 'id' })
+      .pipe(
+        map((docs) => {
+          const now = Date.now();
+          return docs.map(toInvite).filter((invite) => isOpenInvite(invite, now)).sort(newestFirst);
+        }),
+        catchError((err) => this.readFailed('invitations', err, [])),
+      );
+  }
+
+  /** Watches the document whose id a field of the signed-in doctor's membership holds, or emits null. */
+  private followMembership<T>(
+    idOf: (membership: ClinicMembership) => string | null,
+    watch: (id: string) => Observable<T | null>,
+  ): Observable<T | null> {
+    return this.membership$.pipe(
+      map((membership) => (membership ? idOf(membership) : null)),
+      distinctUntilChanged(),
+      switchMap((id) => (id ? watch(id) : of(null))),
+      shareReplay({ bufferSize: 1, refCount: true }),
+    );
+  }
+
+  /**
+   * Linking and unlinking rewrite the doctor's limits in the same transaction as his link
+   * fields, so a change of `clinicAdminId` means the subscription cached at sign-in is stale.
+   */
+  private reloadSubscriptionOnLinkChange(): void {
+    let previous: ClinicMembership | null = null;
+    this.membership$.subscribe((current) => {
+      if (current && previous?.doctorId === current.doctorId && previous.clinicAdminId !== current.clinicAdminId) {
+        this.reloadSubscription(current.doctorId);
+      }
+      previous = current;
+    });
+  }
+
+  private async reloadSubscription(doctorId: string): Promise<void> {
+    try {
+      const snapshot = await firstValueFrom(this.firestore.collection('doctorSubscriptions').doc(doctorId).get());
+      const user = this.authService.currentUserValue;
+      if (snapshot.exists && user?.id === doctorId) {
+        user.subscription = snapshot.data() as UserSubscription;
+        this.authService.persistCurrentUser();
+      }
+    } catch (err) {
+      console.error('Failed to reload the subscription', err);
+    }
+  }
+
+  private readFailed<T>(what: string, err: unknown, fallback: T): Observable<T> {
+    console.error(`Failed to read ${what}`, err);
+    return of(fallback);
+  }
+}

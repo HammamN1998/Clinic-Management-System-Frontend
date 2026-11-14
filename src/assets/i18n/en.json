@@ -747,6 +747,175 @@
       "DELETE_CONFIRM": "Delete task \"{{title}}\"?"
     }
   },
+  "CLINIC": {
+    "SOMEONE": "A clinic admin",
+    "UNNAMED_CLINIC": "the clinic",
+    "HEADER": {
+      "INVITE_TEXT": "You have a clinic invitation.",
+      "INVITE_ACTION": "Review?"
+    },
+    "TERMS": {
+      "TITLE": "Terms",
+      "ACCESS": "Access",
+      "ACCESS_VIEW": "View only",
+      "ACCESS_EDIT": "View and edit",
+      "ACCESS_VIEW_HINT": "The clinic admin can see the patients and their records.",
+      "ACCESS_EDIT_HINT": "The clinic admin can also add, change, and delete records.",
+      "NOTICE": "Notice period",
+      "NOTICE_HINT": "How long an unlink takes to take effect after either side asks for it.",
+      "NOTICE_0": "None, takes effect at once",
+      "NOTICE_7": "7 days",
+      "NOTICE_14": "14 days",
+      "NOTICE_30": "30 days",
+      "COMMISSION": "Commission",
+      "COMMISSION_VALUE": "{{percent}}% of collected payments",
+      "COMMISSION_HINT": "Percent of the payments the doctor collects. Used in reports only.",
+      "NOTES": "Notes",
+      "NOTES_HINT": "Optional. The doctor sees them with the terms."
+    },
+    "STATUS": {
+      "PENDING": "Pending",
+      "EXPIRED": "Expired",
+      "ACCEPTED": "Accepted",
+      "DECLINED": "Declined",
+      "CANCELLED": "Cancelled"
+    },
+    "DOCTORS": {
+      "TITLE": "Doctors",
+      "SEATS": "Linked: {{linked}} · Invited: {{invited}} · Free seats: {{free}} of {{max}}",
+      "SEATS_HINT": "A pending invitation holds a seat until it is answered or expires.",
+      "NO_SEATS": "No free seats.",
+      "INVITE": "Invite doctor",
+      "LINKED_TITLE": "Linked doctors",
+      "EMPTY": "No doctors yet. Invite a doctor by email to get started.",
+      "LINKED_SINCE": "Linked since {{date}}",
+      "LEAVING": "Leaves on {{date}}",
+      "LEAVING_BY_DOCTOR": "The doctor asked to leave.",
+      "LEAVING_BY_ADMIN": "You started the unlink.",
+      "PROPOSAL_PENDING": "New terms waiting for the doctor's answer",
+      "ACTIONS": {
+        "CHANGE_TERMS": "Change terms",
+        "START_UNLINK": "Start unlink",
+        "WITHDRAW_UNLINK": "Withdraw unlink",
+        "UNLINK_NOW": "Unlink now"
+      },
+      "CONFIRM": {
+        "START_UNLINK": "Start unlinking {{name}}? It takes effect on {{date}}, at the end of the notice period. Until then you keep access to the doctor's records.",
+        "START_UNLINK_IMMEDIATE": "Unlink {{name}}? The terms have no notice period, so the doctor is unlinked right away and you lose access to their records.",
+        "UNLINK_NOW": "Unlink {{name}} now? The doctor leaves your clinic at once and you lose access to their records."
+      },
+      "MESSAGES": {
+        "INVITED": "Invitation sent.",
+        "TERMS_PROPOSED": "New terms sent to the doctor.",
+        "UNLINK_STARTED": "Unlink started. It takes effect on {{date}}.",
+        "UNLINK_WITHDRAWN": "Unlink withdrawn.",
+        "UNLINKED": "{{name}} is no longer linked to your clinic."
+      }
+    },
+    "INVITES": {
+      "TITLE": "Invitations",
+      "EMPTY": "No invitations yet.",
+      "SENT_ON": "Sent {{date}}",
+      "EXPIRES_ON": "Expires {{date}}",
+      "RESEND": "Resend",
+      "CANCEL": "Cancel invitation",
+      "CONFIRM_CANCEL": "Cancel the invitation to {{email}}?",
+      "MESSAGES": {
+        "RESENT": "Invitation sent again.",
+        "CANCELLED": "Invitation cancelled."
+      }
+    },
+    "TERMS_DIALOG": {
+      "INVITE_TITLE": "Invite a doctor",
+      "INVITE_HINT": "The doctor needs a ClinicWell account with a verified email. The invitation expires after 14 days.",
+      "PROPOSE_TITLE": "Change terms for {{name}}",
+      "PROPOSE_HINT": "The current terms stay in force until the doctor accepts the new ones. Sending new terms replaces any still waiting for an answer.",
+      "EMAIL": "Doctor's email",
+      "COMMISSION_RANGE": "Enter a number from 0 to 100.",
+      "SEND_INVITE": "Send invitation",
+      "SEND_TERMS": "Send to doctor"
+    },
+    "MY_CLINIC": {
+      "TITLE": "My clinic",
+      "INVITES_TITLE": "Invitations",
+      "INVITED_BY": "Invited by {{admin}}",
+      "REVIEW": "Review and join",
+      "DECLINE": "Decline",
+      "EMPTY": "You are not part of a clinic. When a clinic invites you, the invitation appears here and in your email.",
+      "ADMIN": "You manage a clinic, so you cannot join another one.",
+      "OPEN_CLINIC": "Open your clinic",
+      "MANAGED_BY": "Managed by {{admin}}",
+      "MEMBER_SINCE": "Member since {{date}}",
+      "CURRENT_TERMS": "Your terms",
+      "ACCEPTED_ON": "Accepted on {{date}}",
+      "PROPOSAL_TITLE": "New terms proposed",
+      "PROPOSAL_HINT": "Your current terms stay in force until you accept these.",
+      "ACCEPT_TERMS": "Accept new terms",
+      "LEAVING_BY_DOCTOR": "You asked to leave. Your membership ends on {{date}}.",
+      "LEAVING_BY_ADMIN": "The clinic is ending your membership. It ends on {{date}}.",
+      "WITHDRAW": "Stay in the clinic",
+      "LEAVE": "Leave clinic",
+      "FACTS_TITLE": "While you are a member",
+      "FACT_LIMITS": "The clinic covers your plan limits.",
+      "FACT_ACCOUNT": "You keep your account, your login, and all your patients.",
+      "FACT_COPY": "When your membership ends, the clinic may keep a copy of the patients added to your account since {{date}}.",
+      "CONFIRM": {
+        "DECLINE_INVITE": "Decline the invitation from {{clinic}}?",
+        "DECLINE_TERMS": "Decline the new terms? Your current terms stay in force.",
+        "LEAVE": "Leave {{clinic}}? You leave on {{date}}, at the end of your notice period. Until then the clinic keeps access to your records.",
+        "LEAVE_IMMEDIATE": "Leave {{clinic}}? Your terms have no notice period, so you leave right away."
+      },
+      "MESSAGES": {
+        "JOINED": "You joined {{clinic}}.",
+        "INVITE_DECLINED": "Invitation declined.",
+        "TERMS_ACCEPTED": "New terms accepted.",
+        "TERMS_DECLINED": "New terms declined.",
+        "LEAVE_STARTED": "You leave the clinic on {{date}}.",
+        "LEFT": "You left {{clinic}}.",
+        "LEAVE_WITHDRAWN": "You are staying in the clinic."
+      }
+    },
+    "CONSENT": {
+      "TITLE": "Join {{clinic}}?",
+      "INTRO": "{{admin}} invited you to join {{clinic}} on ClinicWell. Please read what joining means before you accept.",
+      "RULES_TITLE": "What joining means",
+      "ACCOUNT": "You keep your own account, login, and patients. Neither you nor the clinic can delete the other's account.",
+      "LIMITS": "While you are a member, the clinic covers your plan limits.",
+      "COPY": "When your membership ends, the clinic may keep a copy of the patients added to your account while you were a member: their profile, dental chart, notes, all appointments (including future ones), treatments, payments, and files.",
+      "LEAVING": "Either side can end the membership. It takes effect at the end of the notice period, and the clinic can also end it at once.",
+      "OWN_PLAN": "Joining does not cancel a plan you pay for yourself. If you no longer need it, cancel it in the billing portal on the Plans page.",
+      "AGREE": "I have read these terms and agree to them.",
+      "JOIN": "Join clinic"
+    },
+    "PLANS_NOTE": "{{clinic}} covers your plan limits while you are a member. A plan you pay for yourself keeps renewing until you cancel it in the billing portal.",
+    "ERRORS": {
+      "GENERIC": "Something went wrong. Please try again.",
+      "INVALID_EMAIL": "Enter a valid email address.",
+      "INVALID_TERMS": "Check the terms and try again.",
+      "NOT_ADMIN": "Only clinic admins can do this.",
+      "ADMIN_LINKED": "A clinic admin cannot belong to another clinic.",
+      "NO_ACCOUNT": "No ClinicWell account uses this email.",
+      "SELF_INVITE": "You cannot invite yourself.",
+      "EMAIL_NOT_VERIFIED": "This doctor has not verified their email address yet.",
+      "INVITEE_IS_ADMIN": "This doctor runs a clinic and cannot join another.",
+      "ALREADY_LINKED": "This doctor already belongs to a clinic.",
+      "INVITE_PENDING": "This doctor already has a pending invitation.",
+      "CLINIC_FULL": "All the clinic's seats are taken.",
+      "INVITE_TOO_SOON": "This doctor was invited less than an hour ago. Try again later.",
+      "INVITE_NOT_FOUND": "Invitation not found.",
+      "INVITE_CLOSED": "This invitation was already answered or cancelled.",
+      "INVITE_EXPIRED": "This invitation has expired. Ask the clinic to send it again.",
+      "CLINIC_UNAVAILABLE": "This clinic is no longer accepting doctors.",
+      "SUBSCRIPTION_MISSING": "Your account is still being set up. Try again shortly.",
+      "NOT_LINKED": "This membership has already ended.",
+      "UNLINK_PENDING": "An unlink is already pending.",
+      "UNLINK_NOT_PENDING": "There is no pending unlink to withdraw.",
+      "UNLINK_DUE": "This unlink has already taken effect.",
+      "NOT_REQUESTER": "Only the side that started the unlink can withdraw it.",
+      "CLINIC_CLOSED": "This clinic is closing, so leaving cannot be withdrawn.",
+      "PROPOSAL_CLOSED": "These terms are no longer open."
+    }
+  },
   "MENUITEMS": {
     "MAIN": {
       "TEXT": "Main"
@@ -773,6 +942,12 @@
     },
     "TASK": {
       "TEXT": "Task"
+    },
+    "CLINIC": {
+      "TEXT": "Clinic"
+    },
+    "MY_CLINIC": {
+      "TEXT": "My clinic"
     },
     "CONTACT": {
       "TEXT": "Contact Us"

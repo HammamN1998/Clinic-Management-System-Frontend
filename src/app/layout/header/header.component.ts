@@ -1,4 +1,4 @@
-import {DOCUMENT, NgClass, NgIf, NgFor} from '@angular/common';
+import {AsyncPipe, DOCUMENT, NgClass, NgIf, NgFor} from '@angular/common';
 import {
   Component,
   Inject,
@@ -21,9 +21,12 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatButtonModule } from '@angular/material/button';
 import { PaymentService } from '@core/service/payment.service';
 import { AnalyticsService } from '@core/service/analytics.service';
+import { Observable } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { TranslateModule } from '@ngx-translate/core';
 import { getDoctorTitlePrefix } from '@core/util/doctor-title.util';
+import { ClinicService } from '@core/service/clinic.service';
+import { ClinicInvite, ClinicProfile } from '@core/models/clinic.model';
 
 interface Notifications {
   message: string;
@@ -47,6 +50,7 @@ interface Notifications {
     FeatherIconsComponent,
     NgIf,
     NgFor,
+    AsyncPipe,
     TranslateModule,
   ],
 })
@@ -66,6 +70,8 @@ export class HeaderComponent
   isFullScreen = false;
   isEmailVerified: boolean = false;
   billingPortalLoading = false;
+  readonly clinic$: Observable<ClinicProfile | null>;
+  readonly pendingInvites$: Observable<ClinicInvite[]>;
   
   constructor(
     @Inject(DOCUMENT) private document: Document,
@@ -78,8 +84,11 @@ export class HeaderComponent
     public languageService: LanguageService,
     private paymentService: PaymentService,
     private analytics: AnalyticsService,
+    clinicService: ClinicService,
   ) {
     super();
+    this.clinic$ = clinicService.clinic$;
+    this.pendingInvites$ = clinicService.pendingInvites$;
     this.checkIfEmailVerified()
   }
 

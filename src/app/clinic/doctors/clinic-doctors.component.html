@@ -1,0 +1,168 @@
+<section class="content">
+  <div class="content-block">
+    <div class="block-header">
+      <app-breadcrumb
+        [title]="'CLINIC.DOCTORS.TITLE' | translate"
+        [items]="[('MENUITEMS.CLINIC.TEXT' | translate)]"
+        [active_item]="'CLINIC.DOCTORS.TITLE' | translate"
+      ></app-breadcrumb>
+    </div>
+
+    <!-- Clinic and seats -->
+    <div class="card">
+      <div class="header clinic-doctors__header">
+        <div class="clinic-doctors__identity">
+          @if (clinic?.logo; as logo) {
+            <img class="clinic-doctors__logo" [src]="logo" alt="" />
+          }
+          <div>
+            <h2><strong>{{ clinic?.name || ('MENUITEMS.CLINIC.TEXT' | translate) }}</strong></h2>
+            <span class="clinic-doctors__muted">
+              {{ 'CLINIC.DOCTORS.SEATS' | translate: {
+                linked: doctors.length,
+                invited: openInviteCount,
+                free: freeSeats,
+                max: membership?.maxSeats ?? 0
+              } }}
+            </span>
+          </div>
+        </div>
+        <button mat-raised-button color="primary" (click)="openInviteDialog()" [disabled]="busy || freeSeats === 0">
+          <mat-icon>person_add</mat-icon>
+          {{ 'CLINIC.DOCTORS.INVITE' | translate }}
+        </button>
+      </div>
+      <div class="body">
+        @if (freeSeats === 0) {
+          <span class="clinic-doctors__muted">{{ 'CLINIC.DOCTORS.NO_SEATS' | translate }}</span>
+        }
+        <span class="clinic-doctors__muted">{{ 'CLINIC.DOCTORS.SEATS_HINT' | translate }}</span>
+      </div>
+    </div>
+
+    <!-- Linked doctors -->
+    <div class="card">
+      <div class="header">
+        <h2><strong>{{ 'CLINIC.DOCTORS.LINKED_TITLE' | translate }}</strong></h2>
+      </div>
+      <div class="body">
+        @for (doctor of doctors; track doctor.doctorId) {
+          <div class="clinic-doctors__item">
+            <div class="clinic-doctors__item-head">
+              <img class="clinic-doctors__avatar"
+                   [src]="doctor.img || 'assets/images/patient/patient-default-profile.png'" alt="" />
+              <div class="clinic-doctors__item-title">
+                <strong>{{ displayName(doctor) }}</strong>
+                @if (doctor.name) {
+                  <span class="clinic-doctors__muted">{{ doctor.email }}</span>
+                }
+                @if (doctor.linkedAt; as linkedAt) {
+                  <span class="clinic-doctors__muted">
+                    {{ 'CLINIC.DOCTORS.LINKED_SINCE' | translate: { date: (linkedAt | date: 'mediumDate' : undefined : dateLocale) } }}
+                  </span>
+                }
+              </div>
+              <button mat-icon-button [matMenuTriggerFor]="doctorMenu" [disabled]="busy"
+                      [attr.aria-label]="'COMMON.ACTIONS' | translate">
+                <mat-icon>more_vert</mat-icon>
+              </button>
+              <mat-menu #doctorMenu="matMenu">
+                <button mat-menu-item (click)="changeTerms(doctor)"
+                        [disabled]="!!doctor.unlinkEffectiveAt || !currentAgreement(doctor)">
+                  <mat-icon>edit_note</mat-icon>
+                  <span>{{ 'CLINIC.DOCTORS.ACTIONS.CHANGE_TERMS' | translate }}</span>
+                </button>
+                @if (!doctor.unlinkEffectiveAt) {
+                  <button mat-menu-item (click)="startUnlink(doctor)" [disabled]="!currentAgreement(doctor)">
+                    <mat-icon>schedule</mat-icon>
+                    <span>{{ 'CLINIC.DOCTORS.ACTIONS.START_UNLINK' | translate }}</span>
+                  </button>
+                } @else if (canWithdrawUnlink(doctor)) {
+                  <button mat-menu-item (click)="withdrawUnlink(doctor)">
+                    <mat-icon>undo</mat-icon>
+                    <span>{{ 'CLINIC.DOCTORS.ACTIONS.WITHDRAW_UNLINK' | translate }}</span>
+                  </button>
+                }
+                <button mat-menu-item (click)="unlinkNow(doctor)">
+                  <mat-icon color="warn">link_off</mat-icon>
+                  <span>{{ 'CLINIC.DOCTORS.ACTIONS.UNLINK_NOW' | translate }}</span>
+                </button>
+              </mat-menu>
+            </div>
+
+            @if (doctor.unlinkEffectiveAt; as effectiveAt) {
+              <div class="clinic-doctors__notice">
+                <span class="badge badge-solid-orange">
+                  {{ 'CLINIC.DOCTORS.LEAVING' | translate: { date: (effectiveAt | date: 'mediumDate' : undefined : dateLocale) } }}
+                </span>
+                <span class="clinic-doctors__muted">
+                  {{ (doctor.unlinkRequestedBy === 'doctor' ? 'CLINIC.DOCTORS.LEAVING_BY_DOCTOR' : 'CLINIC.DOCTORS.LEAVING_BY_ADMIN') | translate }}
+                </span>
+              </div>
+            }
+
+            @if (currentAgreement(doctor); as agreement) {
+              <app-clinic-terms [terms]="agreement.terms"></app-clinic-terms>
+            }
+
+            @if (proposal(doctor); as proposed) {
+              <div class="clinic-doctors__proposal">
+                <span class="badge badge-solid-blue">{{ 'CLINIC.DOCTORS.PROPOSAL_PENDING' | translate }}</span>
+                <app-clinic-terms [terms]="proposed.terms"></app-clinic-terms>
+              </div>
+            }
+          </div>
+        } @empty {
+          <span class="clinic-doctors__muted">{{ 'CLINIC.DOCTORS.EMPTY' | translate }}</span>
+        }
+      </div>
+    </div>
+
+    <!-- Invitations -->
+    <div class="card">
+      <div class="header">
+        <h2><strong>{{ 'CLINIC.INVITES.TITLE' | translate }}</strong></h2>
+      </div>
+      <div class="body">
+        @for (invite of invites; track invite.id) {
+          <div class="clinic-doctors__item">
+            <div class="clinic-doctors__item-head">
+              <div class="clinic-doctors__item-title">
+                <strong>{{ invite.doctorName || invite.email }}</strong>
+                @if (invite.doctorName) {
+                  <span class="clinic-doctors__muted">{{ invite.email }}</span>
+                }
+                <span class="clinic-doctors__muted">
+                  {{ 'CLINIC.INVITES.SENT_ON' | translate: { date: (invite.sentAt | date: 'mediumDate' : undefined : dateLocale) } }}
+                  @if (inviteStatus(invite) === 'pending') {
+                    · {{ 'CLINIC.INVITES.EXPIRES_ON' | translate: { date: (invite.expiresAt | date: 'mediumDate' : undefined : dateLocale) } }}
+                  }
+                </span>
+              </div>
+              <span class="badge" [ngClass]="statusBadge(invite)">{{ statusLabel(invite) | translate }}</span>
+              @if (isInviteOpenToChange(invite)) {
+                <button mat-icon-button [matMenuTriggerFor]="inviteMenu" [disabled]="busy"
+                        [attr.aria-label]="'COMMON.ACTIONS' | translate">
+                  <mat-icon>more_vert</mat-icon>
+                </button>
+                <mat-menu #inviteMenu="matMenu">
+                  <button mat-menu-item (click)="resendInvite(invite)">
+                    <mat-icon>send</mat-icon>
+                    <span>{{ 'CLINIC.INVITES.RESEND' | translate }}</span>
+                  </button>
+                  <button mat-menu-item (click)="cancelInvite(invite)">
+                    <mat-icon color="warn">cancel</mat-icon>
+                    <span>{{ 'CLINIC.INVITES.CANCEL' | translate }}</span>
+                  </button>
+                </mat-menu>
+              }
+            </div>
+            <app-clinic-terms [terms]="invite.terms"></app-clinic-terms>
+          </div>
+        } @empty {
+          <span class="clinic-doctors__muted">{{ 'CLINIC.INVITES.EMPTY' | translate }}</span>
+        }
+      </div>
+    </div>
+  </div>
+</section>

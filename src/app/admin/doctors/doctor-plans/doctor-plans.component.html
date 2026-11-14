@@ -25,6 +25,9 @@
               </div>
             </div>
             <div class="body">
+              <div *ngIf="clinic$ | async as clinic" class="alert alert-info" role="note">
+                {{ 'CLINIC.PLANS_NOTE' | translate:{ clinic: clinic.name } }}
+              </div>
               <div class="doctor-plans-subscription__stats">
                 <div class="doctor-plans-subscription__line">
                   <span class="doctor-plans-subscription__label">{{ 'DOCTORS.PLANS.STATUS' | translate }}</span>

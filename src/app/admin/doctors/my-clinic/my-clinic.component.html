@@ -1,0 +1,144 @@
+<section class="content">
+  <div class="content-block">
+    <div class="block-header">
+      <app-breadcrumb
+        [title]="'CLINIC.MY_CLINIC.TITLE' | translate"
+        [items]="[]"
+        [active_item]="'CLINIC.MY_CLINIC.TITLE' | translate"
+      ></app-breadcrumb>
+    </div>
+
+    @if (!loaded) {
+      <div class="card">
+        <div class="body">
+          <span class="my-clinic__muted">{{ 'COMMON.LOADING' | translate }}</span>
+        </div>
+      </div>
+    } @else if (membership?.isAdmin) {
+      <div class="card">
+        <div class="body">
+          <p>{{ 'CLINIC.MY_CLINIC.ADMIN' | translate }}</p>
+          <a mat-raised-button color="primary" routerLink="/clinic/doctors">{{ 'CLINIC.MY_CLINIC.OPEN_CLINIC' | translate }}</a>
+        </div>
+      </div>
+    } @else {
+      <!-- Invitations -->
+      @if (invites.length) {
+        <div class="card">
+          <div class="header">
+            <h2><strong>{{ 'CLINIC.MY_CLINIC.INVITES_TITLE' | translate }}</strong></h2>
+          </div>
+          <div class="body">
+            @for (invite of invites; track invite.id) {
+              <div class="my-clinic__invite">
+                <strong>{{ inviteClinicName(invite) }}</strong>
+                <span class="my-clinic__muted">
+                  {{ 'CLINIC.MY_CLINIC.INVITED_BY' | translate: { admin: inviteAdminName(invite) } }}
+                </span>
+                <span class="my-clinic__muted">
+                  {{ 'CLINIC.INVITES.EXPIRES_ON' | translate: { date: (invite.expiresAt | date: 'mediumDate' : undefined : dateLocale) } }}
+                </span>
+                <app-clinic-terms [terms]="invite.terms"></app-clinic-terms>
+                <div class="my-clinic__actions">
+                  <button mat-raised-button color="primary" (click)="reviewInvite(invite)" [disabled]="busy">
+                    {{ 'CLINIC.MY_CLINIC.REVIEW' | translate }}
+                  </button>
+                  <button mat-stroked-button color="warn" (click)="declineInvite(invite)" [disabled]="busy">
+                    {{ 'CLINIC.MY_CLINIC.DECLINE' | translate }}
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Membership -->
+      @if (membership?.clinicAdminId) {
+        <div class="card">
+          <div class="header my-clinic__header">
+            @if (clinic?.logo; as logo) {
+              <img class="my-clinic__logo" [src]="logo" alt="" />
+            }
+            <div>
+              <h2><strong>{{ clinicName }}</strong></h2>
+              @if (clinic?.adminName; as adminName) {
+                <span class="my-clinic__muted">{{ 'CLINIC.MY_CLINIC.MANAGED_BY' | translate: { admin: adminName } }}</span>
+              }
+              @if (membership?.linkedAt; as linkedAt) {
+                <span class="my-clinic__muted">
+                  {{ 'CLINIC.MY_CLINIC.MEMBER_SINCE' | translate: { date: (linkedAt | date: 'mediumDate' : undefined : dateLocale) } }}
+                </span>
+              }
+            </div>
+          </div>
+          <div class="body">
+            @if (membership?.unlinkEffectiveAt; as effectiveAt) {
+              <div class="alert alert-warning my-clinic__leaving" role="status">
+                <span>
+                  {{ (membership?.unlinkRequestedBy === 'doctor' ? 'CLINIC.MY_CLINIC.LEAVING_BY_DOCTOR' : 'CLINIC.MY_CLINIC.LEAVING_BY_ADMIN')
+                    | translate: { date: (effectiveAt | date: 'mediumDate' : undefined : dateLocale) } }}
+                </span>
+                @if (canWithdrawLeave) {
+                  <button mat-stroked-button (click)="withdrawLeave()" [disabled]="busy">
+                    {{ 'CLINIC.MY_CLINIC.WITHDRAW' | translate }}
+                  </button>
+                }
+              </div>
+            }
+
+            @if (currentAgreement; as agreement) {
+              <h3 class="my-clinic__title">{{ 'CLINIC.MY_CLINIC.CURRENT_TERMS' | translate }}</h3>
+              <app-clinic-terms [terms]="agreement.terms" [explainAccess]="true"></app-clinic-terms>
+              @if (agreement.acceptedAt; as acceptedAt) {
+                <span class="my-clinic__muted">
+                  {{ 'CLINIC.MY_CLINIC.ACCEPTED_ON' | translate: { date: (acceptedAt | date: 'mediumDate' : undefined : dateLocale) } }}
+                </span>
+              }
+            }
+
+            @if (proposal; as proposed) {
+              <div class="my-clinic__proposal">
+                <h3 class="my-clinic__title">{{ 'CLINIC.MY_CLINIC.PROPOSAL_TITLE' | translate }}</h3>
+                <span class="my-clinic__muted">{{ 'CLINIC.MY_CLINIC.PROPOSAL_HINT' | translate }}</span>
+                <app-clinic-terms [terms]="proposed.terms" [explainAccess]="true"></app-clinic-terms>
+                <div class="my-clinic__actions">
+                  <button mat-raised-button color="primary" (click)="acceptTerms(proposed)" [disabled]="busy">
+                    {{ 'CLINIC.MY_CLINIC.ACCEPT_TERMS' | translate }}
+                  </button>
+                  <button mat-stroked-button color="warn" (click)="declineTerms(proposed)" [disabled]="busy">
+                    {{ 'CLINIC.MY_CLINIC.DECLINE' | translate }}
+                  </button>
+                </div>
+              </div>
+            }
+
+            <h3 class="my-clinic__title">{{ 'CLINIC.MY_CLINIC.FACTS_TITLE' | translate }}</h3>
+            <ul class="my-clinic__facts">
+              <li>{{ 'CLINIC.MY_CLINIC.FACT_LIMITS' | translate }}</li>
+              <li>{{ 'CLINIC.MY_CLINIC.FACT_ACCOUNT' | translate }}</li>
+              @if (membership?.linkedAt; as linkedAt) {
+                <li>{{ 'CLINIC.MY_CLINIC.FACT_COPY' | translate: { date: (linkedAt | date: 'mediumDate' : undefined : dateLocale) } }}</li>
+              }
+            </ul>
+
+            @if (!membership?.unlinkEffectiveAt) {
+              @if (currentAgreement; as agreement) {
+                <button mat-stroked-button color="warn" (click)="leave(agreement)" [disabled]="busy">
+                  <mat-icon>logout</mat-icon>
+                  {{ 'CLINIC.MY_CLINIC.LEAVE' | translate }}
+                </button>
+              }
+            }
+          </div>
+        </div>
+      } @else if (!invites.length) {
+        <div class="card">
+          <div class="body">
+            <span>{{ 'CLINIC.MY_CLINIC.EMPTY' | translate }}</span>
+          </div>
+        </div>
+      }
+    }
+  </div>
+</section>

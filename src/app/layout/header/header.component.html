@@ -21,6 +21,22 @@
         </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
+        <!-- Clinic invitation -->
+        <li *ngIf="(pendingInvites$ | async)?.length">
+          <span>
+            {{ 'CLINIC.HEADER.INVITE_TEXT' | translate }}
+            <a class="clinic-invite-action" routerLink="/admin/doctors/my-clinic">
+              <u>{{ 'CLINIC.HEADER.INVITE_ACTION' | translate }}</u>
+            </a>
+          </span>
+        </li>
+        <!-- Clinic badge -->
+        <li *ngIf="clinic$ | async as clinic">
+          <a class="clinic-badge" routerLink="/admin/doctors/my-clinic" [attr.title]="clinic.name">
+            <img *ngIf="clinic.logo" class="clinic-badge__logo" [src]="clinic.logo" alt="" />
+            <span class="clinic-badge__name">{{ clinic.name }}</span>
+          </a>
+        </li>
         <!-- Email Verification -->
         <li *ngIf="!isEmailVerified">
           <span style="color: red">

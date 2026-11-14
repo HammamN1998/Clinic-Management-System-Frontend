@@ -2,14 +2,17 @@
 import {NavigationEnd, Router, RouterLink, RouterLinkActive} from '@angular/router';
 import {DOCUMENT, NgClass} from '@angular/common';
 import {Component, ElementRef, HostListener, Inject, OnDestroy, OnInit, Renderer2,} from '@angular/core';
-import {ROUTES} from './sidebar-items';
+import {CLINIC_ROUTE, MY_CLINIC_ROUTE, ROUTES} from './sidebar-items';
 import {RouteInfo} from './sidebar.metadata';
 import {TranslateModule} from '@ngx-translate/core';
 import {NgScrollbar} from 'ngx-scrollbar';
+import {combineLatest} from 'rxjs';
 import {UnsubscribeOnDestroyAdapter} from '@shared';
 import {FirebaseAuthenticationService} from "../../authentication/services/firebase-authentication.service";
 import {isNullOrUndefined} from "@swimlane/ngx-datatable";
 import { getDoctorTitlePrefix } from '@core/util/doctor-title.util';
+import { ClinicService } from '@core/service/clinic.service';
+import { ClinicMembership } from '@core/models/clinic.model';
 
 @Component({
   selector: 'app-sidebar',
@@ -40,7 +43,8 @@ export class SidebarComponent extends UnsubscribeOnDestroyAdapter implements OnI
     private renderer: Renderer2,
     public elementRef: ElementRef,
     public firebaseAuthenticationService: FirebaseAuthenticationService,
-    private router: Router
+    private router: Router,
+    private clinicService: ClinicService,
   ) {
     super();
     this.elementRef.nativeElement.closest('body');
@@ -89,10 +93,25 @@ export class SidebarComponent extends UnsubscribeOnDestroyAdapter implements OnI
       this.userImg = this.doctor.img;
 
       this.sidebarItems = ROUTES;
+      this.subs.sink = combineLatest([this.clinicService.membership$, this.clinicService.pendingInvites$])
+        .subscribe(([membership, invites]) => {
+          this.sidebarItems = this.withClinicRoutes(membership, invites.length > 0);
+        });
     }
 
     this.initLeftSidebar();
     this.bodyTag = this.document.body;
+  }
+  private withClinicRoutes(membership: ClinicMembership | null, hasOpenInvite: boolean): RouteInfo[] {
+    const clinicRoutes: RouteInfo[] = [];
+    if (membership?.isAdmin) {
+      clinicRoutes.push(CLINIC_ROUTE);
+    }
+    if (membership?.clinicAdminId || hasOpenInvite) {
+      clinicRoutes.push(MY_CLINIC_ROUTE);
+    }
+    const afterTask = ROUTES.findIndex((route) => route.path === 'task') + 1;
+    return [...ROUTES.slice(0, afterTask), ...clinicRoutes, ...ROUTES.slice(afterTask)];
   }
   initLeftSidebar() {
     // eslint-disable-next-line @typescript-eslint/no-this-alias

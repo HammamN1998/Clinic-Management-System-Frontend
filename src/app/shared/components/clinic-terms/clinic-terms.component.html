@@ -1,0 +1,27 @@
+<dl class="clinic-terms">
+  <div class="clinic-terms__row">
+    <dt>{{ 'CLINIC.TERMS.ACCESS' | translate }}</dt>
+    <dd>
+      {{ (terms.access === 'edit' ? 'CLINIC.TERMS.ACCESS_EDIT' : 'CLINIC.TERMS.ACCESS_VIEW') | translate }}
+      @if (explainAccess) {
+        <span class="clinic-terms__hint">
+          {{ (terms.access === 'edit' ? 'CLINIC.TERMS.ACCESS_EDIT_HINT' : 'CLINIC.TERMS.ACCESS_VIEW_HINT') | translate }}
+        </span>
+      }
+    </dd>
+  </div>
+  <div class="clinic-terms__row">
+    <dt>{{ 'CLINIC.TERMS.NOTICE' | translate }}</dt>
+    <dd>{{ ('CLINIC.TERMS.NOTICE_' + terms.noticeDays) | translate }}</dd>
+  </div>
+  <div class="clinic-terms__row">
+    <dt>{{ 'CLINIC.TERMS.COMMISSION' | translate }}</dt>
+    <dd>{{ 'CLINIC.TERMS.COMMISSION_VALUE' | translate: { percent: terms.commissionPercent } }}</dd>
+  </div>
+  @if (terms.notes) {
+    <div class="clinic-terms__row">
+      <dt>{{ 'CLINIC.TERMS.NOTES' | translate }}</dt>
+      <dd class="clinic-terms__notes">{{ terms.notes }}</dd>
+    </div>
+  }
+</dl>
