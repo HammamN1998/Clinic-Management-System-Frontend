@@ -37,7 +37,11 @@
           <mat-option [value]="days">{{ ('CLINIC.TERMS.NOTICE_' + days) | translate }}</mat-option>
         }
       </mat-select>
-      <mat-hint>{{ 'CLINIC.TERMS.NOTICE_HINT' | translate }}</mat-hint>
+      @if (form.controls.noticeDays.value === 0) {
+        <mat-hint class="terms-dialog__warning">{{ 'CLINIC.TERMS.NOTICE_NONE_HINT' | translate }}</mat-hint>
+      } @else {
+        <mat-hint>{{ 'CLINIC.TERMS.NOTICE_HINT' | translate }}</mat-hint>
+      }
     </mat-form-field>
 
     <mat-form-field appearance="outline" class="terms-dialog__field">

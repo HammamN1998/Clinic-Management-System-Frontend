@@ -1,0 +1,102 @@
+.history {
+  &__hint {
+    color: #777;
+    margin-bottom: 8px;
+  }
+
+  &__entry {
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  }
+
+  &__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 10px;
+  }
+
+  &__patient {
+    word-break: break-word;
+  }
+
+  &__spacer {
+    flex: 1;
+  }
+
+  &__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px 14px;
+    margin-top: 4px;
+    font-size: 13px;
+    color: #888;
+  }
+
+  &__summary {
+    margin-top: 4px;
+    font-size: 13px;
+    word-break: break-word;
+  }
+
+  &__muted {
+    margin: 4px 0 0;
+    font-size: 13px;
+    color: #888;
+  }
+
+  &__toggle {
+    margin-top: 4px;
+  }
+
+  &__table {
+    width: 100%;
+    margin-top: 4px;
+    font-size: 13px;
+    border-collapse: collapse;
+
+    th,
+    td {
+      padding: 4px 8px;
+      text-align: start;
+      vertical-align: top;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+      white-space: pre-line;
+      word-break: break-word;
+    }
+
+    th {
+      font-weight: 600;
+    }
+  }
+
+  &__fields {
+    margin: 4px 0 0;
+    font-size: 13px;
+  }
+
+  &__field {
+    display: flex;
+    gap: 10px;
+    padding: 2px 0;
+
+    dt {
+      flex: 0 0 150px;
+      font-weight: 600;
+    }
+
+    dd {
+      margin: 0;
+      white-space: pre-line;
+      word-break: break-word;
+    }
+  }
+
+  &__error {
+    margin: 12px 0 8px;
+  }
+
+  &__more {
+    margin-top: 12px;
+  }
+}

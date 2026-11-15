@@ -69,4 +69,19 @@
     border-radius: 6px;
     background-color: rgba(4, 142, 251, 0.06);
   }
+
+  &__requests {
+    margin-top: 10px;
+    padding: 10px 12px;
+    border-radius: 6px;
+    background-color: rgba(244, 67, 54, 0.06);
+  }
+
+  &__request {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+    padding: 8px 0 0;
+  }
 }

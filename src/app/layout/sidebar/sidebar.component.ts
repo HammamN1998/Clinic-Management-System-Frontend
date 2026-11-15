@@ -93,21 +93,24 @@ export class SidebarComponent extends UnsubscribeOnDestroyAdapter implements OnI
       this.userImg = this.doctor.img;
 
       this.sidebarItems = ROUTES;
-      this.subs.sink = combineLatest([this.clinicService.membership$, this.clinicService.pendingInvites$])
-        .subscribe(([membership, invites]) => {
-          this.sidebarItems = this.withClinicRoutes(membership, invites.length > 0);
-        });
+      this.subs.sink = combineLatest([
+        this.clinicService.membership$,
+        this.clinicService.pendingInvites$,
+        this.clinicService.pastHistory$,
+      ]).subscribe(([membership, invites, pastHistory]) => {
+        this.sidebarItems = this.withClinicRoutes(membership, invites.length > 0, pastHistory);
+      });
     }
 
     this.initLeftSidebar();
     this.bodyTag = this.document.body;
   }
-  private withClinicRoutes(membership: ClinicMembership | null, hasOpenInvite: boolean): RouteInfo[] {
+  private withClinicRoutes(membership: ClinicMembership | null, hasOpenInvite: boolean, hasPastHistory: boolean): RouteInfo[] {
     const clinicRoutes: RouteInfo[] = [];
     if (membership?.isAdmin) {
       clinicRoutes.push(CLINIC_ROUTE);
     }
-    if (membership?.clinicAdminId || hasOpenInvite) {
+    if (membership?.clinicAdminId || hasOpenInvite || hasPastHistory) {
       clinicRoutes.push(MY_CLINIC_ROUTE);
     }
     const afterTask = ROUTES.findIndex((route) => route.path === 'task') + 1;

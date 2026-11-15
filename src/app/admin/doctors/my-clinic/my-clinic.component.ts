@@ -15,7 +15,17 @@ import { DeleteConfirmDialogService } from '@shared/components/delete-confirm-di
 import { ClinicService } from '@core/service/clinic.service';
 import { NotificationService } from '@core/service/notification.service';
 import { getAppDateLocale } from '@core/util/app-locale.util';
-import { ClinicAgreement, ClinicInvite, ClinicMembership, ClinicProfile } from '@core/models/clinic.model';
+import {
+  ClinicAgreement,
+  ClinicInvite,
+  ClinicMembership,
+  ClinicProfile,
+  PatientDeletionRequest,
+} from '@core/models/clinic.model';
+import {
+  RecordHistoryDialogComponent,
+  RecordHistoryDialogData,
+} from '@shared/components/record-history-dialog/record-history-dialog.component';
 import {
   InviteConsentData,
   InviteConsentDialogComponent,
@@ -45,6 +55,8 @@ export class MyClinicComponent extends UnsubscribeOnDestroyAdapter implements On
   clinic: ClinicProfile | null = null;
   currentAgreement: ClinicAgreement | null = null;
   pendingAgreement: ClinicAgreement | null = null;
+  deletionRequests: PatientDeletionRequest[] = [];
+  hasPastHistory = false;
   loaded = false;
   busy = false;
 
@@ -70,6 +82,8 @@ export class MyClinicComponent extends UnsubscribeOnDestroyAdapter implements On
     this.subs.sink = this.clinicService.clinic$.subscribe((clinic) => (this.clinic = clinic));
     this.subs.sink = this.clinicService.currentAgreement$.subscribe((agreement) => (this.currentAgreement = agreement));
     this.subs.sink = this.clinicService.pendingAgreement$.subscribe((agreement) => (this.pendingAgreement = agreement));
+    this.subs.sink = this.clinicService.deletionRequests$.subscribe((requests) => (this.deletionRequests = requests));
+    this.subs.sink = this.clinicService.pastHistory$.subscribe((has) => (this.hasPastHistory = has));
   }
 
   get dateLocale(): string {
@@ -174,6 +188,41 @@ export class MyClinicComponent extends UnsubscribeOnDestroyAdapter implements On
     await this.run(async () => {
       await this.clinicService.cancelUnlink();
       return this.translate.instant('CLINIC.MY_CLINIC.MESSAGES.LEAVE_WITHDRAWN');
+    });
+  }
+
+  /** Withdraws a pending request, or dismisses a rejected one. */
+  async clearDeletionRequest(request: PatientDeletionRequest): Promise<void> {
+    const pending = request.status === 'pending';
+    await this.run(async () => {
+      await this.clinicService.cancelPatientDeletion(request.patientId);
+      return this.translate.instant(pending ? 'CLINIC.DELETION.MESSAGES.WITHDRAWN' : 'CLINIC.DELETION.MESSAGES.DISMISSED');
+    });
+  }
+
+  openHistory(): void {
+    const membership = this.membership;
+    if (!membership) {
+      return;
+    }
+    const names: Record<string, string> = { [membership.doctorId]: this.translate.instant('CLINIC.HISTORY.YOU') };
+    if (membership.clinicAdminId && this.clinic?.adminName) {
+      names[membership.clinicAdminId] = this.clinic.adminName;
+    }
+    this.dialog.open<RecordHistoryDialogComponent, RecordHistoryDialogData>(RecordHistoryDialogComponent, {
+      data: {
+        title: this.translate.instant('CLINIC.HISTORY.TITLE'),
+        hint: this.translate.instant('CLINIC.HISTORY.MY_HINT'),
+        doctorId: membership.doctorId,
+        adminId: null,
+        canRestore: true,
+        names,
+        otherName: this.translate.instant('CLINIC.SOMEONE'),
+      },
+      direction: this.direction,
+      width: '760px',
+      maxWidth: '95vw',
+      maxHeight: '90vh',
     });
   }
 

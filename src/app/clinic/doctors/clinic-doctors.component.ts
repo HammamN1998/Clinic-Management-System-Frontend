@@ -7,6 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
+import { distinctUntilChanged, map, shareReplay, switchMap } from 'rxjs/operators';
 import { FirebaseAuthenticationService } from '@core';
 import { UnsubscribeOnDestroyAdapter } from '@shared';
 import { BreadcrumbComponent } from '@shared/components/breadcrumb/breadcrumb.component';
@@ -22,9 +23,14 @@ import {
   ClinicProfile,
   InviteStatus,
   LinkedDoctor,
+  PatientDeletionRequest,
   inviteDisplayStatus,
   isOpenInvite,
 } from '@core/models/clinic.model';
+import {
+  RecordHistoryDialogComponent,
+  RecordHistoryDialogData,
+} from '@shared/components/record-history-dialog/record-history-dialog.component';
 import { TermsDialogComponent, TermsDialogData } from '../terms-dialog/terms-dialog.component';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -61,6 +67,8 @@ export class ClinicDoctorsComponent extends UnsubscribeOnDestroyAdapter implemen
   invites: ClinicInvite[] = [];
   busy = false;
   private agreements = new Map<string, ClinicAgreement>();
+  /** Pending requests to delete patients, by doctor. */
+  private deletionRequests = new Map<string, PatientDeletionRequest[]>();
 
   constructor(
     private clinicService: ClinicService,
@@ -77,7 +85,21 @@ export class ClinicDoctorsComponent extends UnsubscribeOnDestroyAdapter implemen
     const adminId = this.authService.currentUserValue.id;
     this.subs.sink = this.clinicService.membership$.subscribe((membership) => (this.membership = membership));
     this.subs.sink = this.clinicService.clinicProfile$(adminId).subscribe((clinic) => (this.clinic = clinic));
-    this.subs.sink = this.clinicService.linkedDoctors$(adminId).subscribe((doctors) => (this.doctors = doctors));
+    const doctors$ = this.clinicService.linkedDoctors$(adminId).pipe(shareReplay({ bufferSize: 1, refCount: true }));
+    this.subs.sink = doctors$.subscribe((doctors) => (this.doctors = doctors));
+    this.subs.sink = doctors$
+      .pipe(
+        map((doctors) => doctors.map((doctor) => doctor.doctorId).sort()),
+        distinctUntilChanged((a, b) => a.join() === b.join()),
+        switchMap((doctorIds) => this.clinicService.clinicDeletionRequests$(adminId, doctorIds)),
+      )
+      .subscribe((requests) => {
+        const byDoctor = new Map<string, PatientDeletionRequest[]>();
+        for (const request of requests) {
+          byDoctor.set(request.doctorId, [...(byDoctor.get(request.doctorId) ?? []), request]);
+        }
+        this.deletionRequests = byDoctor;
+      });
     this.subs.sink = this.clinicService.adminInvites$(adminId).subscribe((invites) => (this.invites = invites));
     this.subs.sink = this.clinicService.adminAgreements$(adminId).subscribe((agreements) => {
       this.agreements = new Map(agreements.map((agreement) => [agreement.id, agreement]));
@@ -109,6 +131,14 @@ export class ClinicDoctorsComponent extends UnsubscribeOnDestroyAdapter implemen
   proposal(doctor: LinkedDoctor): ClinicAgreement | null {
     const proposal = doctor.pendingAgreementId ? this.agreements.get(doctor.pendingAgreementId) : undefined;
     return proposal?.status === 'proposed' ? proposal : null;
+  }
+
+  deletionRequestsOf(doctor: LinkedDoctor): PatientDeletionRequest[] {
+    return this.deletionRequests.get(doctor.doctorId) ?? [];
+  }
+
+  patientName(request: PatientDeletionRequest): string {
+    return request.patientName || this.translate.instant('CLINIC.DELETION.UNNAMED_PATIENT');
   }
 
   /** Only the side that started an unlink can withdraw it, and only before it takes effect. */
@@ -188,6 +218,48 @@ export class ClinicDoctorsComponent extends UnsubscribeOnDestroyAdapter implemen
     await this.run(async () => {
       await this.clinicService.completeUnlink(doctor.doctorId);
       return this.translate.instant('CLINIC.DOCTORS.MESSAGES.UNLINKED', { name });
+    });
+  }
+
+  async approveDeletion(doctor: LinkedDoctor, request: PatientDeletionRequest): Promise<void> {
+    const patient = this.patientName(request);
+    const message = this.translate.instant('CLINIC.DELETION.CONFIRM_APPROVE', {
+      patient,
+      doctor: this.displayName(doctor),
+    });
+    if (!(await this.confirm(message, 'CLINIC.DELETION.APPROVE'))) {
+      return;
+    }
+    await this.run(async () => {
+      await this.clinicService.answerPatientDeletion(request.patientId, true);
+      return this.translate.instant('CLINIC.DELETION.MESSAGES.APPROVED', { patient });
+    });
+  }
+
+  async rejectDeletion(request: PatientDeletionRequest): Promise<void> {
+    await this.run(async () => {
+      await this.clinicService.answerPatientDeletion(request.patientId, false);
+      return this.translate.instant('CLINIC.DELETION.MESSAGES.REJECTED');
+    });
+  }
+
+  openHistory(doctor: LinkedDoctor): void {
+    const adminId = this.authService.currentUserValue.id;
+    const name = this.displayName(doctor);
+    this.dialog.open<RecordHistoryDialogComponent, RecordHistoryDialogData>(RecordHistoryDialogComponent, {
+      data: {
+        title: this.translate.instant('CLINIC.HISTORY.DOCTOR_TITLE', { name }),
+        hint: this.translate.instant('CLINIC.HISTORY.ADMIN_HINT'),
+        doctorId: doctor.doctorId,
+        adminId,
+        canRestore: doctor.clinicAccess === 'edit',
+        names: { [adminId]: this.translate.instant('CLINIC.HISTORY.YOU'), [doctor.doctorId]: name },
+        otherName: this.translate.instant('CLINIC.HISTORY.UNKNOWN'),
+      },
+      direction: this.direction,
+      width: '760px',
+      maxWidth: '95vw',
+      maxHeight: '90vh',
     });
   }
 

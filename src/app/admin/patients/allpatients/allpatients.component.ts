@@ -1,5 +1,6 @@
-import { Component, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
+import { Component, AfterViewInit, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { PatientService } from '@core/service/patient.service';
+import { ClinicService } from '@core/service/clinic.service';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
@@ -55,7 +56,7 @@ import { matchesPatientSearch } from '@core/util/patient-search.util';
     TranslateModule,
   ],
 })
-export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements AfterViewInit {
+export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements OnInit, AfterViewInit {
 
   readonly defaultPageSize = 10;
 
@@ -76,6 +77,8 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
   isExportingAll = false;
   isSearchMode = false;
   paginatorLength = 0;
+  /** Null until known. While linked, deleting patients asks the clinic to approve it. */
+  linkedToClinic: boolean | null = null;
   private searchTerm = '';
   private searchPatientsCache: Patient[] | null = null;
   private lastPageSize = this.defaultPageSize;
@@ -88,6 +91,7 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
     private router: Router,
     private firebaseAuthenticationService: FirebaseAuthenticationService,
     private translate: TranslateService,
+    private clinicService: ClinicService,
   ) {
     super();
   }
@@ -96,6 +100,12 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
 
   @ViewChild('filter')
   filterInput!: ElementRef<HTMLInputElement>;
+
+  ngOnInit() {
+    this.subs.sink = this.clinicService.membership$.subscribe((membership) => {
+      this.linkedToClinic = !!membership?.clinicAdminId;
+    });
+  }
 
   ngAfterViewInit() {
     setTimeout(() => {
@@ -211,39 +221,78 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
       );
   }
   removeSelectedRows() {
-    if (!this.selection.hasValue()) {
+    const linked = this.linkedToClinic;
+    if (!this.selection.hasValue() || linked === null) {
       return;
     }
 
-    const selected = this.selection.selected;
+    const selected = [...this.selection.selected];
     const n = selected.length;
-    const message = this.translate.instant('PATIENTS.MESSAGES.DELETE_MANY_CONFIRM', { count: n });
-    const dialogRef = this.deleteConfirmDialog.open(message);
+    const message = linked
+      ? this.translate.instant('CLINIC.DELETION.CONFIRM_REQUEST_MANY', { count: n })
+      : this.translate.instant('PATIENTS.MESSAGES.DELETE_MANY_CONFIRM', { count: n });
+    const dialogRef = this.deleteConfirmDialog.open(message, linked ? 'CLINIC.DELETION.REQUEST' : undefined);
 
     this.subs.sink = dialogRef.afterClosed().subscribe((result) => {
       if (result === 1) {
-        const totalSelect = n;
-        const deletePromises = selected.map((row) =>
-          this.patientService.deletePatient(row.id)
-        );
-
-        void Promise.all(deletePromises).then(() => {
-          this.invalidateSearchCache();
-          if (!this.isSearchMode) {
-            this.patientService.clearPatientsPageCursors();
-          }
-          this.selection.clear();
-          this.loadCurrentPage();
-        });
-
-        this.notificationService.showSnackBarNotification(
-          'snackbar-danger',
-          this.translate.instant('PATIENTS.MESSAGES.DELETE_MANY_SUCCESS', { count: totalSelect }),
-          'bottom',
-          'center'
-        );
+        void (linked ? this.requestDeletions(selected) : this.deletePatients(selected));
       }
     });
+  }
+
+  private async deletePatients(patients: Patient[]): Promise<void> {
+    const results = await Promise.allSettled(patients.map((patient) => this.patientService.deletePatient(patient.id)));
+    const failed = results.filter((result) => result.status === 'rejected').length;
+    this.invalidateSearchCache();
+    if (!this.isSearchMode) {
+      this.patientService.clearPatientsPageCursors();
+    }
+    this.selection.clear();
+    this.loadCurrentPage();
+
+    if (failed < patients.length) {
+      this.notificationService.showSnackBarNotification(
+        'snackbar-danger',
+        this.translate.instant('PATIENTS.MESSAGES.DELETE_MANY_SUCCESS', { count: patients.length - failed }),
+        'bottom',
+        'center'
+      );
+    }
+    if (failed) {
+      this.notificationService.showSwalOkDialog(
+        this.translate.instant('PATIENTS.MESSAGES.DELETE_MANY_FAILED', { failed, count: patients.length }),
+        'error',
+        'center',
+        this.translate.instant('COMMON.OK'),
+      );
+    }
+  }
+
+  private async requestDeletions(patients: Patient[]): Promise<void> {
+    const results = await Promise.allSettled(patients.map((patient) => this.clinicService.requestPatientDeletion(patient.id)));
+    const failures = results.filter((result): result is PromiseRejectedResult => result.status === 'rejected');
+    this.selection.clear();
+
+    if (failures.length < patients.length) {
+      this.notificationService.showSnackBarNotification(
+        'snackbar-success',
+        this.translate.instant('CLINIC.DELETION.MESSAGES.REQUESTED_MANY', { count: patients.length - failures.length }),
+        'bottom',
+        'center'
+      );
+    }
+    if (failures.length) {
+      this.notificationService.showSwalOkDialog(
+        this.translate.instant('CLINIC.DELETION.MESSAGES.SOME_NOT_SENT', {
+          failed: failures.length,
+          count: patients.length,
+          message: this.clinicService.errorMessage(failures[0].reason),
+        }),
+        'error',
+        'center',
+        this.translate.instant('COMMON.OK'),
+      );
+    }
   }
 
   public loadData() {

@@ -227,10 +227,10 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
       totalSize += attachment.size;
     });
     totalSize += foundPatient.imgSize ?? 0;
-    this.doctor.subscription.storageBytesUsed -= totalSize;
-    this.doctor.subscription.patientsCount--;
 
     await this.firestore.collection('patients').doc(patientId).delete();
+    this.doctor.subscription.storageBytesUsed -= totalSize;
+    this.doctor.subscription.patientsCount--;
   }
 
   addPatientAppointment(appointment: AppointmentModel, patient = this.getDialogData()) {

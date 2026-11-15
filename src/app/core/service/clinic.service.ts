@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
-import { AngularFirestore } from '@angular/fire/compat/firestore';
+import { AngularFirestore, QueryFn } from '@angular/fire/compat/firestore';
 import { AngularFireFunctions } from '@angular/fire/compat/functions';
 import { TranslateService } from '@ngx-translate/core';
-import { Observable, firstValueFrom, of } from 'rxjs';
+import firebase from 'firebase/compat/app';
+import { Observable, combineLatest, firstValueFrom, from, of } from 'rxjs';
 import { catchError, distinctUntilChanged, map, shareReplay, switchMap } from 'rxjs/operators';
 import { FirebaseAuthenticationService } from '../../authentication/services/firebase-authentication.service';
 import { UserSubscription } from '@core/models/user';
@@ -15,8 +16,13 @@ import {
   ClinicMembership,
   ClinicProfile,
   ClinicTerms,
+  FieldChange,
+  HistoryAction,
+  HistoryCollection,
+  HistoryEntry,
   InviteStatus,
   LinkedDoctor,
+  PatientDeletionRequest,
   isOpenInvite,
 } from '@core/models/clinic.model';
 
@@ -66,6 +72,40 @@ interface AgreementDoc {
   terms: ClinicTerms;
   proposedAt?: StoredTimestamp;
   acceptedAt?: StoredTimestamp;
+}
+
+interface DeletionRequestDoc {
+  doctorId: string;
+  adminId: string;
+  patientId: string;
+  patientName?: string;
+  status: 'pending' | 'rejected';
+  requestedAt?: StoredTimestamp;
+  answeredAt?: StoredTimestamp;
+}
+
+interface HistoryDoc {
+  doctorId: string;
+  adminId: string;
+  collection: HistoryCollection;
+  recordId: string;
+  patientId?: string | null;
+  patientName?: string;
+  action: HistoryAction;
+  actorId?: string | null;
+  at?: StoredTimestamp;
+  data?: Record<string, unknown>;
+  changed?: Record<string, FieldChange>;
+  dentalChartChanged?: boolean;
+  tooLarge?: boolean;
+  approvedBy?: string;
+  requestedAt?: StoredTimestamp;
+}
+
+export interface HistoryPage {
+  entries: HistoryEntry[];
+  /** Pass it back to read the page after this one. */
+  last: firebase.firestore.QueryDocumentSnapshot<unknown> | null;
 }
 
 function toDate(value: StoredTimestamp | undefined): Date | null {
@@ -125,7 +165,43 @@ function toAgreement(id: string, doc: AgreementDoc): ClinicAgreement {
   };
 }
 
+function toDeletionRequest(doc: DeletionRequestDoc): PatientDeletionRequest {
+  return {
+    patientId: doc.patientId,
+    doctorId: doc.doctorId,
+    adminId: doc.adminId,
+    patientName: doc.patientName ?? '',
+    status: doc.status,
+    requestedAt: toDate(doc.requestedAt),
+    answeredAt: toDate(doc.answeredAt),
+  };
+}
+
+function toHistoryEntry(id: string, doc: HistoryDoc): HistoryEntry {
+  return {
+    id,
+    doctorId: doc.doctorId,
+    adminId: doc.adminId,
+    collection: doc.collection,
+    recordId: doc.recordId,
+    patientId: doc.patientId ?? null,
+    patientName: doc.patientName ?? '',
+    action: doc.action,
+    actorId: doc.actorId ?? null,
+    at: toDate(doc.at),
+    data: doc.data ?? null,
+    changed: doc.changed ?? null,
+    dentalChartChanged: doc.dentalChartChanged === true,
+    tooLarge: doc.tooLarge === true,
+    approvedBy: doc.approvedBy ?? null,
+    requestedAt: toDate(doc.requestedAt),
+  };
+}
+
 const newestFirst = (a: ClinicInvite, b: ClinicInvite) => (b.sentAt?.getTime() ?? 0) - (a.sentAt?.getTime() ?? 0);
+
+const newestRequestFirst = (a: PatientDeletionRequest, b: PatientDeletionRequest) =>
+  (b.requestedAt?.getTime() ?? 0) - (a.requestedAt?.getTime() ?? 0);
 
 /**
  * Clinic state and actions. Only Cloud Functions write clinic data, so this service reads
@@ -143,6 +219,10 @@ export class ClinicService {
   readonly currentAgreement$: Observable<ClinicAgreement | null>;
   /** New terms waiting for the signed-in doctor's answer. */
   readonly pendingAgreement$: Observable<ClinicAgreement | null>;
+  /** The signed-in doctor's requests to delete patients, pending or rejected, newest first. Always empty for an admin. */
+  readonly deletionRequests$: Observable<PatientDeletionRequest[]>;
+  /** Whether the signed-in doctor, no longer linked, still has history from the clinic he left. It outlasts the link by 90 days. */
+  readonly pastHistory$: Observable<boolean>;
 
   constructor(
     private auth: AngularFireAuth,
@@ -168,6 +248,20 @@ export class ClinicService {
     this.clinic$ = this.followMembership((m) => m.clinicAdminId, (id) => this.clinicProfile$(id));
     this.currentAgreement$ = this.followMembership((m) => m.currentAgreementId, (id) => this.agreement$(id));
     this.pendingAgreement$ = this.followMembership((m) => m.pendingAgreementId, (id) => this.agreement$(id));
+    this.deletionRequests$ = this.membership$.pipe(
+      map((membership) => (membership && !membership.isAdmin ? membership.doctorId : null)),
+      distinctUntilChanged(),
+      switchMap((doctorId) =>
+        doctorId ? this.watchDeletionRequests((ref) => ref.where('doctorId', '==', doctorId)) : of([]),
+      ),
+      shareReplay({ bufferSize: 1, refCount: true }),
+    );
+    this.pastHistory$ = this.membership$.pipe(
+      map((membership) => (membership && !membership.isAdmin && !membership.clinicAdminId ? membership.doctorId : null)),
+      distinctUntilChanged(),
+      switchMap((doctorId) => (doctorId ? from(this.hasHistory(doctorId)) : of(false))),
+      shareReplay({ bufferSize: 1, refCount: true }),
+    );
     this.reloadSubscriptionOnLinkChange();
   }
 
@@ -226,6 +320,46 @@ export class ClinicService {
       );
   }
 
+  /**
+   * Pending requests to delete patients from the given doctors, all linked to the admin. The
+   * rules let him read them one doctor at a time.
+   */
+  clinicDeletionRequests$(adminId: string, doctorIds: string[]): Observable<PatientDeletionRequest[]> {
+    if (!doctorIds.length) {
+      return of([]);
+    }
+    return combineLatest(
+      doctorIds.map((doctorId) =>
+        this.watchDeletionRequests((ref) => ref.where('doctorId', '==', doctorId).where('adminId', '==', adminId)),
+      ),
+    ).pipe(map((lists) => lists.flat().filter((request) => request.status === 'pending')));
+  }
+
+  /**
+   * One page of a doctor's history, newest first. The clinic admin passes his own id, since
+   * the rules let him read only his clinic's entries, and only while the doctor is linked.
+   */
+  async historyPage(
+    doctorId: string,
+    adminId: string | null,
+    pageSize: number,
+    after: firebase.firestore.QueryDocumentSnapshot<unknown> | null,
+  ): Promise<HistoryPage> {
+    let query = this.firestore.collection('recordHistory').ref.where('doctorId', '==', doctorId);
+    if (adminId) {
+      query = query.where('adminId', '==', adminId);
+    }
+    query = query.orderBy('at', 'desc').limit(pageSize);
+    if (after) {
+      query = query.startAfter(after);
+    }
+    const snapshot = await query.get();
+    return {
+      entries: snapshot.docs.map((doc) => toHistoryEntry(doc.id, doc.data() as HistoryDoc)),
+      last: snapshot.docs[snapshot.docs.length - 1] ?? null,
+    };
+  }
+
   inviteDoctor(email: string, terms: ClinicTerms): Promise<{ inviteId: string }> {
     return this.call('inviteDoctor', { email, terms });
   }
@@ -263,6 +397,26 @@ export class ClinicService {
 
   completeUnlink(doctorId: string): Promise<{ unlinked: boolean }> {
     return this.call('completeUnlink', { doctorId });
+  }
+
+  /** The signed-in doctor asks his clinic to delete a patient. Asking again after a rejection reopens it. */
+  requestPatientDeletion(patientId: string): Promise<{ requested: boolean }> {
+    return this.call('requestPatientDeletion', { patientId });
+  }
+
+  /** The signed-in doctor withdraws his request, or clears a rejected one. */
+  cancelPatientDeletion(patientId: string): Promise<{ withdrawn: boolean }> {
+    return this.call('cancelPatientDeletion', { patientId });
+  }
+
+  /** The clinic admin's answer. Approving deletes the patient for good. */
+  answerPatientDeletion(patientId: string, approve: boolean): Promise<{ approved: boolean }> {
+    return this.call('answerPatientDeletion', { patientId, approve });
+  }
+
+  /** Recreates the deleted appointment, treatment, or payment a history entry kept. */
+  restoreRecord(historyId: string): Promise<{ restored: boolean }> {
+    return this.call('restoreRecord', { historyId });
   }
 
   /** Translated message for a failed clinic call, from the `reason` the functions attach. */
@@ -307,6 +461,26 @@ export class ClinicService {
           return docs.map(toInvite).filter((invite) => isOpenInvite(invite, now)).sort(newestFirst);
         }),
         catchError((err) => this.readFailed('invitations', err, [])),
+      );
+  }
+
+  private async hasHistory(doctorId: string): Promise<boolean> {
+    try {
+      const snapshot = await this.firestore.collection('recordHistory').ref.where('doctorId', '==', doctorId).limit(1).get();
+      return !snapshot.empty;
+    } catch (err) {
+      console.error('Failed to read the record history', err);
+      return false;
+    }
+  }
+
+  private watchDeletionRequests(query: QueryFn): Observable<PatientDeletionRequest[]> {
+    return this.firestore
+      .collection<DeletionRequestDoc>('patientDeletionRequests', query)
+      .valueChanges()
+      .pipe(
+        map((docs) => docs.map(toDeletionRequest).sort(newestRequestFirst)),
+        catchError((err) => this.readFailed('deletion requests', err, [])),
       );
   }
 

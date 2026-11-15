@@ -1,6 +1,7 @@
 /**
  * Clinic data as the app reads it. Cloud Functions write all of it; the client never does.
- * Firestore timestamps are converted to Dates on read.
+ * Firestore timestamps are converted to Dates on read, except inside a history entry's
+ * `data` and `changed`, which hold record fields as stored.
  */
 
 export type ClinicAccess = 'view' | 'edit';
@@ -73,6 +74,51 @@ export interface ClinicAgreement {
   terms: ClinicTerms;
   proposedAt: Date | null;
   acceptedAt: Date | null;
+}
+
+/** `patientDeletionRequests/{patientId}`: a linked doctor asking his clinic to delete a patient. */
+export interface PatientDeletionRequest {
+  patientId: string;
+  doctorId: string;
+  adminId: string;
+  patientName: string;
+  status: 'pending' | 'rejected';
+  requestedAt: Date | null;
+  answeredAt: Date | null;
+}
+
+export type HistoryCollection = 'patients' | 'appointments' | 'treatments' | 'payments';
+
+/** `delete-rejected` is the clinic rejecting a request to delete a patient. */
+export type HistoryAction = 'create' | 'update' | 'delete' | 'delete-rejected';
+
+export interface FieldChange {
+  before: unknown;
+  after: unknown;
+}
+
+/** `recordHistory/{id}`: one change to a linked doctor's patient, appointment, treatment, or payment. */
+export interface HistoryEntry {
+  id: string;
+  doctorId: string;
+  adminId: string;
+  collection: HistoryCollection;
+  recordId: string;
+  patientId: string | null;
+  patientName: string;
+  action: HistoryAction;
+  actorId: string | null;
+  at: Date | null;
+  /** The record as created, or as it was when deleted. */
+  data: Record<string, unknown> | null;
+  /** The fields an update changed. */
+  changed: Record<string, FieldChange> | null;
+  dentalChartChanged: boolean;
+  /** Too large to keep, so only who, what, and when were stored. */
+  tooLarge: boolean;
+  /** For a patient's approved deletion: the admin who approved it. */
+  approvedBy: string | null;
+  requestedAt: Date | null;
 }
 
 /** Pending and not yet past `expiresAt`: the only invites the functions let a doctor answer. */

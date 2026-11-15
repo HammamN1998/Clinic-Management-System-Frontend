@@ -99,7 +99,7 @@ export const CLINIC_ROUTE: RouteInfo = {
   submenu: [],
 };
 
-/** Shown after Task to linked doctors and to doctors with an open invitation. */
+/** Shown after Task to linked doctors, doctors with an open invitation, and doctors with history from a clinic they left. */
 export const MY_CLINIC_ROUTE: RouteInfo = {
   path: '/admin/doctors/my-clinic',
   title: 'MENUITEMS.MY_CLINIC.TEXT',

@@ -37,7 +37,8 @@
                   </div>
                 </li>
                 <li class="tbl-header-btn">
-                  <div class="m-l-10" [hidden]=!selection.hasValue() [matTooltip]="'PATIENTS.LIST.TOOLTIP_DELETE' | translate">
+                  <div class="m-l-10" [hidden]=!selection.hasValue()
+                    [matTooltip]="(linkedToClinic ? 'CLINIC.DELETION.TOOLTIP_REQUEST' : 'PATIENTS.LIST.TOOLTIP_DELETE') | translate">
                     <button mat-mini-fab color="warn" (click)="removeSelectedRows()">
                       <mat-icon class="col-white">delete
                       </mat-icon>

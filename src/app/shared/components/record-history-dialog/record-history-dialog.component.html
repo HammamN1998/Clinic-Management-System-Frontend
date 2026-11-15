@@ -1,0 +1,107 @@
+<h2 mat-dialog-title>{{ data.title }}</h2>
+<div mat-dialog-content class="history">
+  <p class="history__hint">{{ data.hint }}</p>
+  @if (data.canRestore) {
+    <p class="history__hint">{{ 'CLINIC.HISTORY.RESTORE_HINT' | translate }}</p>
+  }
+
+  @for (row of rows; track row.entry.id) {
+    <div class="history__entry">
+      <div class="history__head">
+        <span class="badge" [ngClass]="row.badge">{{ row.actionKey | translate }}</span>
+        <strong>{{ row.collectionKey | translate }}</strong>
+        @if (row.entry.patientName) {
+          <span class="history__patient">{{ row.entry.patientName }}</span>
+        }
+        <span class="history__spacer"></span>
+        @if (row.restored) {
+          <span class="badge badge-solid-green">{{ 'CLINIC.HISTORY.RESTORED' | translate }}</span>
+        } @else if (row.restorable) {
+          <button mat-stroked-button color="primary" type="button" (click)="restore(row)"
+                  [disabled]="restoringId !== null">
+            <mat-icon>restore</mat-icon>
+            {{ 'CLINIC.HISTORY.RESTORE' | translate }}
+          </button>
+        }
+      </div>
+
+      <div class="history__meta">
+        <span>{{ row.entry.at | date: 'medium' : undefined : dateLocale }}</span>
+        @if (row.requester; as requester) {
+          <span>{{ 'CLINIC.HISTORY.REQUESTED_BY' | translate: { name: requester } }}</span>
+          @if (row.entry.requestedAt; as requestedAt) {
+            <span>{{ 'CLINIC.HISTORY.REQUESTED_ON' | translate: { date: (requestedAt | date: 'medium' : undefined : dateLocale) } }}</span>
+          }
+          <span>
+            {{ (row.entry.action === 'delete' ? 'CLINIC.HISTORY.APPROVED_BY' : 'CLINIC.HISTORY.REJECTED_BY') | translate: { name: row.actor } }}
+          </span>
+        } @else {
+          <span>{{ 'CLINIC.HISTORY.BY' | translate: { name: row.actor } }}</span>
+        }
+      </div>
+
+      @if (row.changedSummary) {
+        <div class="history__summary">{{ 'CLINIC.HISTORY.CHANGED_FIELDS' | translate: { fields: row.changedSummary } }}</div>
+      }
+      @if (row.entry.tooLarge) {
+        <div class="history__muted">{{ 'CLINIC.HISTORY.TOO_LARGE' | translate }}</div>
+      }
+
+      @if (row.fields.length || row.changes.length) {
+        <button mat-button type="button" class="history__toggle" (click)="row.open = !row.open"
+                [attr.aria-expanded]="row.open">
+          {{ (row.open ? 'CLINIC.HISTORY.HIDE_DETAILS' : 'CLINIC.HISTORY.DETAILS') | translate }}
+        </button>
+        @if (row.open) {
+          @if (row.changes.length) {
+            <table class="history__table">
+              <thead>
+                <tr>
+                  <th>{{ 'CLINIC.HISTORY.FIELD' | translate }}</th>
+                  <th>{{ 'CLINIC.HISTORY.BEFORE' | translate }}</th>
+                  <th>{{ 'CLINIC.HISTORY.AFTER' | translate }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (change of row.changes; track $index) {
+                  <tr>
+                    <td>{{ change.label }}</td>
+                    <td>{{ change.before }}</td>
+                    <td>{{ change.after }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          } @else {
+            <dl class="history__fields">
+              @for (field of row.fields; track $index) {
+                <div class="history__field">
+                  <dt>{{ field.label }}</dt>
+                  <dd>{{ field.value }}</dd>
+                </div>
+              }
+            </dl>
+          }
+        }
+      }
+    </div>
+  } @empty {
+    @if (!loading && !failed) {
+      <p class="history__muted">{{ 'CLINIC.HISTORY.EMPTY' | translate }}</p>
+    }
+  }
+
+  @if (failed) {
+    <div class="alert alert-danger history__error" role="alert">{{ 'CLINIC.HISTORY.LOAD_FAILED' | translate }}</div>
+  }
+  @if (loading) {
+    <p class="history__muted">{{ 'COMMON.LOADING' | translate }}</p>
+  } @else if (failed || hasMore) {
+    <button mat-stroked-button type="button" class="history__more" (click)="loadMore()">
+      {{ (failed ? 'CLINIC.HISTORY.RETRY' : 'CLINIC.HISTORY.LOAD_MORE') | translate }}
+    </button>
+  }
+</div>
+<div mat-dialog-actions align="end">
+  <button mat-button type="button" mat-dialog-close>{{ 'COMMON.CLOSE' | translate }}</button>
+</div>

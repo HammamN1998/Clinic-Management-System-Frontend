@@ -67,6 +67,10 @@
                 <mat-icon>more_vert</mat-icon>
               </button>
               <mat-menu #doctorMenu="matMenu">
+                <button mat-menu-item (click)="openHistory(doctor)">
+                  <mat-icon>history</mat-icon>
+                  <span>{{ 'CLINIC.DOCTORS.ACTIONS.HISTORY' | translate }}</span>
+                </button>
                 <button mat-menu-item (click)="changeTerms(doctor)"
                         [disabled]="!!doctor.unlinkEffectiveAt || !currentAgreement(doctor)">
                   <mat-icon>edit_note</mat-icon>
@@ -109,6 +113,29 @@
               <div class="clinic-doctors__proposal">
                 <span class="badge badge-solid-blue">{{ 'CLINIC.DOCTORS.PROPOSAL_PENDING' | translate }}</span>
                 <app-clinic-terms [terms]="proposed.terms"></app-clinic-terms>
+              </div>
+            }
+
+            @if (deletionRequestsOf(doctor).length) {
+              <div class="clinic-doctors__requests">
+                <strong>{{ 'CLINIC.DELETION.ADMIN_TITLE' | translate }}</strong>
+                <span class="clinic-doctors__muted">{{ 'CLINIC.DELETION.ADMIN_HINT' | translate }}</span>
+                @for (request of deletionRequestsOf(doctor); track request.patientId) {
+                  <div class="clinic-doctors__request">
+                    <div class="clinic-doctors__item-title">
+                      <span>{{ patientName(request) }}</span>
+                      <span class="clinic-doctors__muted">
+                        {{ 'CLINIC.DELETION.REQUESTED_ON' | translate: { date: (request.requestedAt | date: 'mediumDate' : undefined : dateLocale) } }}
+                      </span>
+                    </div>
+                    <button mat-stroked-button color="warn" (click)="approveDeletion(doctor, request)" [disabled]="busy">
+                      {{ 'CLINIC.DELETION.APPROVE' | translate }}
+                    </button>
+                    <button mat-stroked-button (click)="rejectDeletion(request)" [disabled]="busy">
+                      {{ 'CLINIC.DELETION.REJECT' | translate }}
+                    </button>
+                  </div>
+                }
               </div>
             }
           </div>

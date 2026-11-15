@@ -167,12 +167,25 @@
                   </h2>
                 </div>
                 <div class="body">
+                  <div class="alert alert-warning" role="status" *ngIf="deletionRequest?.status === 'pending'">
+                    {{ 'CLINIC.DELETION.PENDING' | translate: { date: (deletionRequest?.requestedAt | date: 'mediumDate' : undefined : dateLocale) } }}
+                  </div>
+                  <div class="alert alert-info" role="status" *ngIf="deletionRequest?.status === 'rejected'">
+                    {{ 'CLINIC.DELETION.REJECTED' | translate: { date: (deletionRequest?.answeredAt | date: 'mediumDate' : undefined : dateLocale) } }}
+                  </div>
                   <div class="row">
                     <div class="col-lg-4 col-md-12">
                       <button mat-raised-button color="primary" (click)='goToEditPage()' >{{ 'PATIENTS.EDIT.TITLE' | translate }}</button>
                     </div>
-                    <div class="col-lg-4 col-md-12">
-                      <button mat-raised-button color="warn" (click)="deletePatient()" >{{ 'PATIENTS.PROFILE.DELETE_PATIENT' | translate }}</button>
+                    <div class="col-lg-4 col-md-12" *ngIf="deletionRequest?.status !== 'pending'">
+                      <button mat-raised-button color="warn" (click)="deletePatient()" [disabled]="linkedToClinic === null || deletionBusy">
+                        {{ (linkedToClinic ? 'CLINIC.DELETION.REQUEST' : 'PATIENTS.PROFILE.DELETE_PATIENT') | translate }}
+                      </button>
+                    </div>
+                    <div class="col-lg-4 col-md-12" *ngIf="deletionRequest as request">
+                      <button mat-stroked-button (click)="clearDeletionRequest()" [disabled]="deletionBusy">
+                        {{ (request.status === 'pending' ? 'CLINIC.DELETION.WITHDRAW' : 'CLINIC.DELETION.DISMISS') | translate }}
+                      </button>
                     </div>
                   </div>
                 </div>
