@@ -42,7 +42,7 @@ export class ActingBannerComponent extends UnsubscribeOnDestroyAdapter implement
 
   backToMyAccount(): void {
     this.clinicContext.clear();
-    void this.router.navigate(['/clinic/doctors']);
+    void this.router.navigate(['/clinic/dashboard']);
   }
 
   override ngOnDestroy(): void {

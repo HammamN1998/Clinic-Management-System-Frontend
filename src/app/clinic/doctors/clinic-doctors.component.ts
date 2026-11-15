@@ -15,6 +15,7 @@ import { BreadcrumbComponent } from '@shared/components/breadcrumb/breadcrumb.co
 import { ClinicTermsComponent } from '@shared/components/clinic-terms/clinic-terms.component';
 import { DeleteConfirmDialogService } from '@shared/components/delete-confirm-dialog/delete-confirm-dialog.service';
 import { ClinicService } from '@core/service/clinic.service';
+import { ClinicContextService } from '@core/service/clinic-context.service';
 import { NotificationService } from '@core/service/notification.service';
 import { getAppDateLocale } from '@core/util/app-locale.util';
 import {
@@ -73,6 +74,7 @@ export class ClinicDoctorsComponent extends UnsubscribeOnDestroyAdapter implemen
 
   constructor(
     private clinicService: ClinicService,
+    private clinicContext: ClinicContextService,
     private authService: FirebaseAuthenticationService,
     private dialog: MatDialog,
     private deleteConfirmDialog: DeleteConfirmDialogService,
@@ -84,6 +86,8 @@ export class ClinicDoctorsComponent extends UnsubscribeOnDestroyAdapter implemen
   }
 
   ngOnInit(): void {
+    // The Clinic pages are the admin's own, so opening one leaves the doctor's account he was in.
+    this.clinicContext.clear();
     const adminId = this.authService.currentUserValue.id;
     this.subs.sink = this.clinicService.membership$.subscribe((membership) => (this.membership = membership));
     this.subs.sink = this.clinicService.clinicProfile$(adminId).subscribe((clinic) => (this.clinic = clinic));

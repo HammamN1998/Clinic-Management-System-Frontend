@@ -755,6 +755,7 @@
   "CLINIC": {
     "SOMEONE": "A clinic admin",
     "UNNAMED_CLINIC": "the clinic",
+    "SELF_NAME": "{{name}} (you)",
     "HEADER": {
       "INVITE_TEXT": "You have a clinic invitation.",
       "INVITE_ACTION": "Review?"
@@ -1023,6 +1024,46 @@
       "ADD_PATIENT_FAILED": "Could not add the patient. The doctor's plan may be inactive or at its patient limit.",
       "UPLOAD_FAILED": "Could not upload the file. The doctor's plan may be inactive or out of storage."
     },
+    "DASHBOARD": {
+      "TITLE": "Clinic dashboard",
+      "ALL_DOCTORS": "All doctors",
+      "COMMISSION": "Clinic commission",
+      "COMMISSION_HINT": "At each doctor's current rate, on the money collected since they joined.",
+      "OUTSTANDING": "Outstanding balance",
+      "OUTSTANDING_HINT": "All time. A patient who paid ahead lowers it.",
+      "COMPARISON_TITLE": "By doctor",
+      "DOCTOR": "Doctor",
+      "TOTAL": "Total",
+      "TIME": "Time",
+      "ATTENDED": "Attended",
+      "SCHEDULE_TITLE": "Today's appointments",
+      "SCHEDULE_EMPTY": "No appointments today.",
+      "SCHEDULE_FAILED": "Could not load today's appointments. Please try again later.",
+      "LOAD_FAILED": "Some figures could not be loaded. Please try again later.",
+      "CURRENCY_MIXED": "{{names}} use another currency. Their amounts are added here as if they were in {{currency}}.",
+      "ATTENTION": {
+        "TITLE": "Needs attention",
+        "DELETION": "{{doctor}} asks you to delete the patient {{patient}}.",
+        "LEAVING_BY_DOCTOR": "{{doctor}} is leaving the clinic on {{date}}.",
+        "LEAVING_BY_ADMIN": "{{doctor}} will be unlinked on {{date}}.",
+        "PROPOSAL": "{{doctor}} has not answered your new terms yet.",
+        "INVITE_EXPIRED": "The invitation to {{name}} expired. Resend or cancel it."
+      }
+    },
+    "CALENDAR": {
+      "TITLE": "Clinic calendar",
+      "HINT": "Every doctor's appointments, view only. Click one to open the patient in their doctor's account.",
+      "LOAD_FAILED": "Could not load the appointments. Please try again later."
+    },
+    "PATIENTS": {
+      "TITLE": "Clinic patients",
+      "HEADING": "Patients of all doctors",
+      "PROMPT": "Search by name, phone, email, or address to find a patient of any of your doctors.",
+      "NO_MATCH": "No patients match your search.",
+      "LOAD_FAILED": "Could not load the patients. Please try again later.",
+      "DOCTOR": "Doctor",
+      "ADDED_ON": "Added on"
+    },
     "ERRORS": {
       "GENERIC": "Something went wrong. Please try again.",
       "INVALID_EMAIL": "Enter a valid email address.",
@@ -1090,7 +1131,13 @@
       "TEXT": "Task"
     },
     "CLINIC": {
-      "TEXT": "Clinic"
+      "TEXT": "Clinic",
+      "LIST": {
+        "DASHBOARD": "Dashboard",
+        "CALENDAR": "Calendar",
+        "PATIENTS": "Patients",
+        "DOCTORS": "Doctors"
+      }
     },
     "MY_CLINIC": {
       "TEXT": "My clinic"

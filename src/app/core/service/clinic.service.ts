@@ -10,12 +10,14 @@ import { catchError, distinctUntilChanged, map, shareReplay, switchMap } from 'r
 import { FirebaseAuthenticationService } from '../../authentication/services/firebase-authentication.service';
 import { ActingContext, ClinicContextService } from '@core/service/clinic-context.service';
 import { NotificationService } from '@core/service/notification.service';
-import { DentalNotation } from '@core/models/patient.model';
+import { PatientService } from '@core/service/patient.service';
+import { DentalNotation, Patient } from '@core/models/patient.model';
 import { User, UserSubscription } from '@core/models/user';
 import {
   AgreementStatus,
   ClinicAccess,
   ClinicAgreement,
+  ClinicDoctor,
   ClinicInvite,
   ClinicMembership,
   ClinicProfile,
@@ -140,7 +142,14 @@ function toMembership(doctorId: string, doc: DoctorDoc): ClinicMembership {
 }
 
 function toLinkedDoctor(doc: DoctorDoc & { id: string }): LinkedDoctor {
-  return { ...toMembership(doc.id, doc), name: doc.name ?? '', email: doc.email ?? '', img: doc.img ?? '' };
+  return {
+    ...toMembership(doc.id, doc),
+    name: doc.name ?? '',
+    email: doc.email ?? '',
+    img: doc.img ?? '',
+    currency: doc.currency,
+    defaultAppointmentDuration: doc.defaultAppointmentDuration,
+  };
 }
 
 /** What the app reads of a doctor's profile while his clinic admin works in his account, with the defaults sign-in applies. */
@@ -261,6 +270,7 @@ export class ClinicService {
     private clinicContext: ClinicContextService,
     private router: Router,
     private notificationService: NotificationService,
+    private patientService: PatientService,
   ) {
     const uid$ = this.auth.authState.pipe(
       map((user) => user?.uid ?? null),
@@ -314,6 +324,27 @@ export class ClinicService {
     }
   }
 
+  /**
+   * Opens a patient's profile in the account he belongs to: the signed-in admin's own, or a
+   * linked doctor's. Says so when that doctor is no longer linked to the admin.
+   */
+  async openPatient(patient: Patient): Promise<void> {
+    if (patient.doctorId === this.authService.currentUserValue?.id) {
+      this.clinicContext.clear();
+    } else if (!(await this.openDoctorAccount(patient.doctorId))) {
+      this.notificationService.showSwalOkDialog(
+        this.translate.instant('CLINIC.ACTING.OPEN_FAILED'),
+        'error',
+        'center',
+        this.translate.instant('COMMON.OK'),
+      );
+      return;
+    }
+    // Switching accounts closes the patient open in the previous one, so he is set after the switch.
+    this.patientService.dialogData = patient;
+    await this.router.navigate(['/admin/patients/patient-profile']);
+  }
+
   clinicProfile$(adminId: string): Observable<ClinicProfile | null> {
     return this.firestore
       .collection('clinics')
@@ -345,6 +376,36 @@ export class ClinicService {
         map((docs) => docs.map(toLinkedDoctor).sort((a, b) => (a.name || a.email).localeCompare(b.name || b.email))),
         catchError((err) => this.readFailed('linked doctors', err, [])),
       );
+  }
+
+  /** The doctors the Clinic pages cover: the signed-in admin first, then his linked doctors by name. */
+  clinicDoctors$(): Observable<ClinicDoctor[]> {
+    const admin = this.authService.currentUserValue;
+    if (!admin) {
+      return of([]);
+    }
+    return this.linkedDoctors$(admin.id).pipe(
+      map((linked) => [
+        {
+          doctorId: admin.id,
+          name: admin.name || admin.email,
+          isSelf: true,
+          currency: admin.currency,
+          defaultAppointmentDuration: admin.defaultAppointmentDuration,
+          currentAgreementId: null,
+          linkedAt: null,
+        },
+        ...linked.map((doctor) => ({
+          doctorId: doctor.doctorId,
+          name: doctor.name || doctor.email,
+          isSelf: false,
+          currency: doctor.currency,
+          defaultAppointmentDuration: doctor.defaultAppointmentDuration,
+          currentAgreementId: doctor.currentAgreementId,
+          linkedAt: doctor.linkedAt,
+        })),
+      ]),
+    );
   }
 
   /** Every invitation the admin sent, in any status, newest first. */

@@ -35,6 +35,7 @@ import {TranslateModule, TranslateService} from "@ngx-translate/core";
 import {
   formatDashboardRangeLabel,
   getAppDateLocale,
+  getDashboardRangeDates,
 } from '@core/util/dashboard-range-label.util';
 import {AppCurrencyPipe} from '@core/pipe/app-currency.pipe';
 
@@ -192,7 +193,7 @@ export class MainComponent implements OnInit {
   }
 
   get selectedRangeLabel(): string {
-    const {start, end} = this.getRangeDates(this.selectedRange, this.rangeOffset);
+    const {start, end} = getDashboardRangeDates(this.selectedRange, this.rangeOffset);
     return formatDashboardRangeLabel(
       this.selectedRange,
       start,
@@ -202,7 +203,7 @@ export class MainComponent implements OnInit {
   }
 
   private loadDashboardData() {
-    const {start, end} = this.getRangeDates(this.selectedRange, this.rangeOffset);
+    const {start, end} = getDashboardRangeDates(this.selectedRange, this.rangeOffset);
     this.resetDashboardData();
     setTimeout(() => {
       this.getAppointmentsData(start, end);
@@ -229,35 +230,6 @@ export class MainComponent implements OnInit {
     this.numberOfNewPatients = 0;
     this.numberOfEarning = 0;
     this.initializeCharts();
-  }
-
-  private getRangeDates(preset: RangePreset, offset: number = 0): {start: Date; end: Date} {
-    const now = new Date();
-    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    if (preset === 'today') {
-      const start = new Date(startOfToday);
-      start.setDate(start.getDate() + offset);
-      const end = new Date(start);
-      end.setDate(end.getDate() + 1);
-      return {start, end};
-    }
-    if (preset === 'week') {
-      const day = startOfToday.getDay();
-      const diff = day === 0 ? -6 : 1 - day;
-      const start = new Date(startOfToday);
-      start.setDate(start.getDate() + diff + offset * 7);
-      const end = new Date(start);
-      end.setDate(start.getDate() + 7);
-      return {start, end};
-    }
-    if (preset === 'year') {
-      const start = new Date(now.getFullYear() + offset, 0, 1);
-      const end = new Date(now.getFullYear() + offset + 1, 0, 1);
-      return {start, end};
-    }
-    const start = new Date(now.getFullYear(), now.getMonth() + offset, 1);
-    const end = new Date(now.getFullYear(), now.getMonth() + offset + 1, 1);
-    return {start, end};
   }
 
   private appointmentsChart() {

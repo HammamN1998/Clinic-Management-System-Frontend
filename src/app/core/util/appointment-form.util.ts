@@ -19,6 +19,14 @@ export function resolveDuration(
   return minutes > 0 ? minutes : doctorDefaultDuration(doctor);
 }
 
+/** An appointment stores its day in `date` and its time of day in `time`. */
+export function appointmentStart(appointment: { date: { toDate(): Date }; time: { toDate(): Date } }): Date {
+  const start = appointment.date.toDate();
+  const time = appointment.time.toDate();
+  start.setHours(time.getHours(), time.getMinutes());
+  return start;
+}
+
 export interface TimeSlot {
   value: Date;
   label: string;

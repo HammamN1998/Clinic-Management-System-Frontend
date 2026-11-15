@@ -37,6 +37,24 @@ export interface LinkedDoctor extends ClinicMembership {
   name: string;
   email: string;
   img: string;
+  /** Unset until the doctor picks one. */
+  currency?: string;
+  /** Minutes. Unset until the doctor picks one. */
+  defaultAppointmentDuration?: number;
+}
+
+/** A doctor whose records the Clinic pages show: the signed-in admin himself, or one of his linked doctors. */
+export interface ClinicDoctor {
+  doctorId: string;
+  /** The doctor's name, or his email when he has none. */
+  name: string;
+  isSelf: boolean;
+  currency?: string;
+  defaultAppointmentDuration?: number;
+  /** Null for the admin himself, who has no agreement with his own clinic. */
+  currentAgreementId: string | null;
+  /** When the doctor joined the clinic. Null for the admin himself. */
+  linkedAt: Date | null;
 }
 
 /** `clinics/{adminId}`: what linked doctors see of their clinic. */

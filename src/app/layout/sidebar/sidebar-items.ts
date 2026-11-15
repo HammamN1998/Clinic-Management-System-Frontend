@@ -92,15 +92,60 @@ export const ROUTES: RouteInfo[] = [
 
 /** Shown after Task to clinic admins. */
 export const CLINIC_ROUTE: RouteInfo = {
-  path: '/clinic/doctors',
+  path: '',
   title: 'MENUITEMS.CLINIC.TEXT',
   iconType: 'material-icons-two-tone',
   icon: 'domain',
-  class: '',
+  class: 'menu-toggle',
   groupTitle: false,
   badge: '',
   badgeClass: '',
-  submenu: [],
+  submenu: [
+    {
+      path: '/clinic/dashboard',
+      title: 'MENUITEMS.CLINIC.LIST.DASHBOARD',
+      iconType: '',
+      icon: '',
+      class: 'ml-menu',
+      groupTitle: false,
+      badge: '',
+      badgeClass: '',
+      submenu: [],
+    },
+    {
+      path: '/clinic/calendar',
+      title: 'MENUITEMS.CLINIC.LIST.CALENDAR',
+      iconType: '',
+      icon: '',
+      class: 'ml-menu',
+      groupTitle: false,
+      badge: '',
+      badgeClass: '',
+      submenu: [],
+    },
+    {
+      path: '/clinic/patients',
+      title: 'MENUITEMS.CLINIC.LIST.PATIENTS',
+      iconType: '',
+      icon: '',
+      class: 'ml-menu',
+      groupTitle: false,
+      badge: '',
+      badgeClass: '',
+      submenu: [],
+    },
+    {
+      path: '/clinic/doctors',
+      title: 'MENUITEMS.CLINIC.LIST.DOCTORS',
+      iconType: '',
+      icon: '',
+      class: 'ml-menu',
+      groupTitle: false,
+      badge: '',
+      badgeClass: '',
+      submenu: [],
+    },
+  ],
 };
 
 /** Shown after Task to linked doctors, doctors with an open invitation, and doctors with history from a clinic they left. */

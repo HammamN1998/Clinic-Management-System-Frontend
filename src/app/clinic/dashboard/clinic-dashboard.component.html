@@ -1,0 +1,266 @@
+<section class="content">
+  <div class="content-block">
+    <div class="block-header">
+      <app-breadcrumb
+        [title]="'CLINIC.DASHBOARD.TITLE' | translate"
+        [items]="[('MENUITEMS.CLINIC.TEXT' | translate)]"
+        [active_item]="'CLINIC.DASHBOARD.TITLE' | translate"
+      ></app-breadcrumb>
+    </div>
+
+    <!-- Needs attention -->
+    @if (attentionItems.length) {
+      <div class="card">
+        <div class="header">
+          <h2><strong>{{ 'CLINIC.DASHBOARD.ATTENTION.TITLE' | translate }}</strong></h2>
+        </div>
+        <div class="body">
+          @for (item of attentionItems; track $index) {
+            <a
+              class="clinic-dashboard__attention d-flex align-items-center gap-2 py-2 text-decoration-none"
+              [class.border-top]="!$first"
+              routerLink="/clinic/doctors"
+            >
+              <mat-icon class="flex-shrink-0">{{ item.icon }}</mat-icon>
+              <span>{{ item.key | translate: item.params }}</span>
+            </a>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Doctor and range -->
+    <div class="dashboard-filters">
+      <button type="button" class="range-display doctor-filter" [matMenuTriggerFor]="doctorMenu">
+        <mat-icon class="flex-shrink-0">person</mat-icon>
+        <span class="range-label">{{ selectedDoctorLabel }}</span>
+        <mat-icon class="flex-shrink-0">arrow_drop_down</mat-icon>
+      </button>
+      <mat-menu #doctorMenu="matMenu">
+        <button mat-menu-item type="button" (click)="selectDoctor(null)">
+          {{ 'CLINIC.DASHBOARD.ALL_DOCTORS' | translate }}
+        </button>
+        @for (doctor of doctors; track doctor.doctorId) {
+          <button mat-menu-item type="button" (click)="selectDoctor(doctor.doctorId)">{{ doctorLabel(doctor) }}</button>
+        }
+      </mat-menu>
+      <div class="range-display">
+        <span class="range-label" dir="auto">{{ selectedRangeLabel }}</span>
+        @if (!isCurrentRange) {
+          <span class="range-divider"></span>
+          <button mat-button type="button" class="current-range-button" (click)="resetToCurrentRange()">
+            <mat-icon>restore</mat-icon>
+            <span>{{ currentRangeButtonLabel | translate }}</span>
+          </button>
+        }
+      </div>
+      <div class="filter-controls">
+        <button mat-icon-button type="button" (click)="prevRange()" aria-label="Previous range">
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+        @for (range of rangeOptions; track range.id) {
+          <button mat-button type="button" class="filter-button" [class.active]="selectedRange === range.id" (click)="setRange(range.id)">
+            {{ range.label | translate }}
+          </button>
+        }
+        <button
+          mat-icon-button
+          type="button"
+          class="nav-range-button"
+          [class.nav-range-button--hidden]="!canGoNext"
+          (click)="nextRange()"
+          aria-label="Next range"
+          [attr.aria-hidden]="!canGoNext"
+          [tabindex]="canGoNext ? 0 : -1"
+        >
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    @if (totalsFailed || outstandingFailed) {
+      <div class="clinic-dashboard__warning d-flex align-items-center gap-2 mb-3 px-3 py-2 rounded small">
+        <mat-icon class="flex-shrink-0">error_outline</mat-icon>
+        <span>{{ 'CLINIC.DASHBOARD.LOAD_FAILED' | translate }}</span>
+      </div>
+    }
+    @if (otherCurrencyDoctors; as names) {
+      <div class="clinic-dashboard__warning d-flex align-items-center gap-2 mb-3 px-3 py-2 rounded small">
+        <mat-icon class="flex-shrink-0">warning_amber</mat-icon>
+        <span>{{ 'CLINIC.DASHBOARD.CURRENCY_MIXED' | translate: { names: names, currency: currencyCode } }}</span>
+      </div>
+    }
+
+    <!-- Totals -->
+    <div class="row">
+      @for (card of cards; track card.label) {
+        <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12">
+          <div class="card card-statistic-2">
+            <div class="clearfix">
+              <div class="card-icon shadow-primary" [ngClass]="card.color">
+                <i class="material-icons align-middle">{{ card.icon }}</i>
+              </div>
+              <div class="card-right">
+                <div>
+                  <h3 class="float-end">{{ card.label | translate }}</h3>
+                </div>
+                <div class="m-r-10 m-l-10">
+                  <h1 class="font-weight-bold float-end mb-0">
+                    @if (card.value === null) {
+                      –
+                    } @else if (card.money) {
+                      {{ card.value | appCurrency }}
+                    } @else {
+                      {{ card.value }}
+                    }
+                  </h1>
+                </div>
+              </div>
+            </div>
+            @if (card.hint) {
+              <span class="d-block px-3 pb-2 small text-muted">{{ card.hint | translate }}</span>
+            }
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- By doctor -->
+    <div class="card">
+      <div class="header">
+        <h2><strong>{{ 'CLINIC.DASHBOARD.COMPARISON_TITLE' | translate }}</strong></h2>
+      </div>
+      <div class="body">
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>{{ 'CLINIC.DASHBOARD.DOCTOR' | translate }}</th>
+                <th>{{ 'DASHBOARD.APPOINTMENTS' | translate }}</th>
+                <th>{{ 'DASHBOARD.TREATMENTS' | translate }}</th>
+                <th>{{ 'DASHBOARD.NEW_PATIENTS' | translate }}</th>
+                <th>{{ 'DASHBOARD.EARNING' | translate }}</th>
+                <th>{{ 'CLINIC.DASHBOARD.COMMISSION' | translate }}</th>
+                <th>{{ 'CLINIC.DASHBOARD.OUTSTANDING' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (doctor of shownDoctors; track doctor.doctorId) {
+                <tr>
+                  <td>{{ doctorLabel(doctor) }}</td>
+                  @if (totalsOf(doctor); as totals) {
+                    <td>{{ totals.appointments }}</td>
+                    <td>{{ totals.treatments }}</td>
+                    <td>{{ totals.newPatients }}</td>
+                    <td>{{ totals.collected | appCurrency }}</td>
+                  } @else {
+                    <td>–</td>
+                    <td>–</td>
+                    <td>–</td>
+                    <td>–</td>
+                  }
+                  <td>
+                    @if (commissionOf(doctor) === null) {
+                      –
+                    } @else {
+                      {{ commissionPercent(doctor) }}% · {{ commissionOf(doctor) | appCurrency }}
+                    }
+                  </td>
+                  <td>
+                    @if (outstandingOf(doctor) === null) {
+                      –
+                    } @else {
+                      {{ outstandingOf(doctor) | appCurrency }}
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+            @if (shownDoctors.length > 1) {
+              <tfoot>
+                <tr>
+                  <th>{{ 'CLINIC.DASHBOARD.TOTAL' | translate }}</th>
+                  @if (shownTotals; as totals) {
+                    <th>{{ totals.appointments }}</th>
+                    <th>{{ totals.treatments }}</th>
+                    <th>{{ totals.newPatients }}</th>
+                    <th>{{ totals.collected | appCurrency }}</th>
+                    <th>
+                      @if (shownCommission === null) {
+                        –
+                      } @else {
+                        {{ shownCommission | appCurrency }}
+                      }
+                    </th>
+                  } @else {
+                    <th>–</th>
+                    <th>–</th>
+                    <th>–</th>
+                    <th>–</th>
+                    <th>–</th>
+                  }
+                  <th>
+                    @if (shownOutstanding === null) {
+                      –
+                    } @else {
+                      {{ shownOutstanding | appCurrency }}
+                    }
+                  </th>
+                </tr>
+              </tfoot>
+            }
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Today -->
+    <div class="card">
+      <div class="header">
+        <h2><strong>{{ 'CLINIC.DASHBOARD.SCHEDULE_TITLE' | translate }}</strong></h2>
+      </div>
+      <div class="body">
+        @if (scheduleFailed) {
+          <span class="small text-muted">{{ 'CLINIC.DASHBOARD.SCHEDULE_FAILED' | translate }}</span>
+        } @else if (schedule === null) {
+          <span class="small text-muted">{{ 'COMMON.LOADING' | translate }}</span>
+        } @else {
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>{{ 'CLINIC.DASHBOARD.TIME' | translate }}</th>
+                  <th>{{ 'DASHBOARD.EARNINGS.PATIENT' | translate }}</th>
+                  <th>{{ 'CLINIC.DASHBOARD.DOCTOR' | translate }}</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of shownSchedule; track row.id) {
+                  <tr>
+                    <td dir="auto">{{ row.start | date: 'shortTime' : undefined : dateLocale }}</td>
+                    <td>
+                      <button mat-button type="button" class="link-button" (click)="openPatient(row.patient)" [disabled]="opening">
+                        {{ patientName(row.patient) }}
+                      </button>
+                    </td>
+                    <td>{{ doctorName(row.doctorId) }}</td>
+                    <td>
+                      @if (row.attended) {
+                        <span class="badge badge-solid-green">{{ 'CLINIC.DASHBOARD.ATTENDED' | translate }}</span>
+                      }
+                    </td>
+                  </tr>
+                } @empty {
+                  <tr>
+                    <td colspan="4" class="text-center">{{ 'CLINIC.DASHBOARD.SCHEDULE_EMPTY' | translate }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</section>
