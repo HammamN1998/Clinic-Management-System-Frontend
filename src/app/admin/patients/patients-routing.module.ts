@@ -6,6 +6,7 @@ import { DentalChartComponent } from "./dental-chart/dental-chart.component";
 import { Page404Component } from "./../../authentication/page404/page404.component";
 import { NgModule } from "@angular/core";
 import { Routes, RouterModule } from "@angular/router";
+import { EditAccessGuard } from "@core/guard/edit-access.guard";
 
 const routes: Routes = [
   {
@@ -15,10 +16,12 @@ const routes: Routes = [
   {
     path: "add-patient",
     component: AddPatientComponent,
+    canActivate: [EditAccessGuard],
   },
   {
     path: "edit-patient",
     component: EditPatientComponent,
+    canActivate: [EditAccessGuard],
   },
   {
     path: "patient-profile",

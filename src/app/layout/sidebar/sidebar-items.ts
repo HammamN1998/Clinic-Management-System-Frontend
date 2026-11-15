@@ -1,4 +1,8 @@
 import { RouteInfo } from './sidebar.metadata';
+
+/** The doctor's own billing, left out of the menu inside another doctor's account. */
+export const PLANS_PATH = '/admin/doctors/doctor-plans';
+
 export const ROUTES: RouteInfo[] = [
   {
     path: '',
@@ -62,7 +66,7 @@ export const ROUTES: RouteInfo[] = [
   },
   // Plans
   {
-    path: '/admin/doctors/doctor-plans',
+    path: PLANS_PATH,
     title: 'MENUITEMS.DOCTORS.LIST.PLANS',
     iconType: 'material-icons-two-tone',
     icon: 'card_membership',

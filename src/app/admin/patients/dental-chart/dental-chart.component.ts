@@ -16,6 +16,7 @@ import { ToothDetailPanelComponent, BridgeFormSeed } from '@shared/components/de
 import { PatientService } from '@core/service/patient.service';
 import { DentalChartService } from '@core/service/dental-chart.service';
 import { NotificationService } from '@core/service/notification.service';
+import { ClinicContextService } from '@core/service/clinic-context.service';
 import { TranslateService } from '@ngx-translate/core';
 import {
   DentalNotation,
@@ -71,7 +72,16 @@ export class DentalChartComponent implements OnInit {
     private notificationService: NotificationService,
     private translate: TranslateService,
     private router: Router,
+    private clinicContext: ClinicContextService,
   ) {}
+
+  get canEdit(): boolean {
+    return this.clinicContext.canEdit;
+  }
+
+  get canDelete(): boolean {
+    return this.clinicContext.canDelete;
+  }
 
   ngOnInit(): void {
     if (!this.patientService.getDialogData().id) {
@@ -95,7 +105,9 @@ export class DentalChartComponent implements OnInit {
   // ----- diagram events --------------------------------------------------
   onToothSelect(toothId: string): void {
     if (this.mode === 'bridge') {
-      this.toggleBridgeTooth(toothId);
+      if (this.canEdit) {
+        this.toggleBridgeTooth(toothId);
+      }
       return;
     }
     this.selectedToothId = toothId;

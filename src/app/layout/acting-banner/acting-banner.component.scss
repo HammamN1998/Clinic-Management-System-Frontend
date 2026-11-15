@@ -1,0 +1,48 @@
+// Fixed under the 60px header; styles.scss moves the sidebar and the page down by the same 40px.
+.acting-banner {
+  position: fixed;
+  top: 60px;
+  left: 0;
+  right: 0;
+  height: 40px;
+  z-index: 998;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 16px;
+  background-color: #fff4e5;
+  border-bottom: 1px solid #ffd8a8;
+  color: #663c00;
+  font-size: 14px;
+
+  &__icon {
+    flex-shrink: 0;
+  }
+
+  &__text {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  &__access {
+    flex-shrink: 0;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background-color: rgba(102, 60, 0, 0.1);
+    font-size: 12px;
+  }
+
+  &__back {
+    flex-shrink: 0;
+    height: 30px;
+  }
+}
+
+@media (max-width: 600px) {
+  .acting-banner__access {
+    display: none;
+  }
+}

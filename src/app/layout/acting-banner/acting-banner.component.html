@@ -1,0 +1,10 @@
+<div class="acting-banner" *ngIf="acting as context" role="status">
+  <mat-icon class="acting-banner__icon">supervisor_account</mat-icon>
+  <span class="acting-banner__text">{{ 'CLINIC.ACTING.BANNER' | translate: { name: doctorName } }}</span>
+  <span class="acting-banner__access">
+    {{ (context.access === 'edit' ? 'CLINIC.ACTING.CAN_EDIT' : 'CLINIC.ACTING.VIEW_ONLY') | translate }}
+  </span>
+  <button mat-stroked-button type="button" class="acting-banner__back" (click)="backToMyAccount()">
+    {{ 'CLINIC.ACTING.BACK' | translate }}
+  </button>
+</div>

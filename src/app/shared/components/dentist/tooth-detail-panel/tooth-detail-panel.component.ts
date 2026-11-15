@@ -92,6 +92,9 @@ export class ToothDetailPanelComponent implements OnChanges {
   @Input() editingBridgeId: string | null = null;
   @Input() selectedBridgeId: string | null = null;
   @Input() highlightedTreatmentId: string | null = null;
+  /** Shows the chart without the controls that change it. */
+  @Input() readOnly = false;
+  @Input() canDelete = true;
 
   /** A mutation was persisted - the page should re-snapshot diagram inputs. */
   @Output() changed = new EventEmitter<void>();

@@ -33,7 +33,9 @@
     "PASSWORD": "Password",
     "USERNAME": "Username",
     "CONFIRM_PASSWORD": "Confirm Password",
-    "LOGIN": "Login"
+    "LOGIN": "Login",
+    "SAVE_FAILED": "Could not save your changes. Please try again.",
+    "DELETE_FAILED": "Could not delete it. Please try again."
   },
   "VALIDATION": {
     "REQUIRED": "{{field}} is required",
@@ -374,6 +376,7 @@
       "UPGRADE_BODY": "You have reached the maximum number of patients for your plan ({{count}} patients). \nYou can upgrade your plan to add more patients.",
       "GO_TO_PLAN": "Go to plan page",
       "ADD_SUCCESS": "Add Record Successfully...!!!",
+      "ADD_FAILED": "Could not add the patient. Please try again.",
       "UPDATE_SUCCESS": "Edit Record Successfully...!!!",
       "DELETE_SUCCESS": "Delete Record Successfully...!!!",
       "DELETE_MANY_SUCCESS": "{{count}} Record Delete Successfully...!!!",
@@ -797,6 +800,7 @@
       "LEAVING_BY_ADMIN": "You started the unlink.",
       "PROPOSAL_PENDING": "New terms waiting for the doctor's answer",
       "ACTIONS": {
+        "OPEN_ACCOUNT": "Open account",
         "HISTORY": "History",
         "CHANGE_TERMS": "Change terms",
         "START_UNLINK": "Start unlink",
@@ -1009,6 +1013,16 @@
       }
     },
     "PLANS_NOTE": "{{clinic}} covers your plan limits while you are a member. A plan you pay for yourself keeps renewing until you cancel it in the billing portal.",
+    "ACTING": {
+      "BANNER": "You are working in {{name}}'s account",
+      "VIEW_ONLY": "View only",
+      "CAN_EDIT": "View and edit",
+      "BACK": "Back to my account",
+      "ACCESS_ENDED": "Your access to this doctor's account has ended.",
+      "OPEN_FAILED": "Could not open this doctor's account. They may no longer be linked to your clinic.",
+      "ADD_PATIENT_FAILED": "Could not add the patient. The doctor's plan may be inactive or at its patient limit.",
+      "UPLOAD_FAILED": "Could not upload the file. The doctor's plan may be inactive or out of storage."
+    },
     "ERRORS": {
       "GENERIC": "Something went wrong. Please try again.",
       "INVALID_EMAIL": "Enter a valid email address.",

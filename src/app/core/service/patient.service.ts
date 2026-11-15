@@ -1,5 +1,6 @@
 import {Injectable} from '@angular/core';
 import {from, Observable} from 'rxjs';
+import {distinctUntilChanged, map, skip} from 'rxjs/operators';
 import {Attachment, Patient} from '@core/models/patient.model';
 import {UnsubscribeOnDestroyAdapter} from '@shared';
 import {FirebaseAuthenticationService} from "../../authentication/services/firebase-authentication.service";
@@ -17,6 +18,7 @@ import {TranslateService} from "@ngx-translate/core";
 import {NotificationService} from "@core/service/notification.service";
 import {OnboardingService} from "@core/service/onboarding.service";
 import {DoctorService} from "@core/service/doctor.service";
+import {ClinicContextService} from "@core/service/clinic-context.service";
 import {Direction} from "@angular/cdk/bidi";
 import {MatDialog} from "@angular/material/dialog";
 import {
@@ -46,8 +48,17 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
     private onboardingService: OnboardingService,
     private dialog: MatDialog,
     private doctorService: DoctorService,
+    private clinicContext: ClinicContextService,
   ) {
     super();
+    // The patient on screen belongs to the account he was opened in.
+    this.subs.sink = this.clinicContext.acting$
+      .pipe(
+        map((acting) => acting?.doctor.id ?? null),
+        distinctUntilChanged(),
+        skip(1),
+      )
+      .subscribe(() => (this.dialogData = new Patient()));
   }
   /** The signed-in user, recorded as `lastModifiedBy`. Records belong to `doctorService.activeDoctorId`. */
   get doctor(): User {
@@ -73,6 +84,16 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
       .where('doctorId', '==', this.doctorService.activeDoctorId)
       .get();
     return snapshot.docs.map((doc) => doc.data() as Patient);
+  }
+
+  /** Counted by the server. The stored count sits on the doctor's subscription, which only he can read. */
+  async countPatients(): Promise<number> {
+    const patients = firestore.query(
+      firestore.collection(firestore.getFirestore(), 'patients'),
+      firestore.where('doctorId', '==', this.doctorService.activeDoctorId),
+    );
+    const snapshot = await firestore.getCountFromServer(patients);
+    return snapshot.data().count;
   }
 
   private async fetchPatientsPageRaw(
@@ -187,31 +208,28 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
     patient.createdAt = firestore.Timestamp.now();
     this.dialogData = patient;
 
-    try {
-      const wasFirstPatient = (this.doctor.subscription?.patientsCount ?? 0) === 0;
-      const result = await this.firestore.collection('patients').add({...patient, lastModifiedBy: this.doctor.id});
-      await this.firestore.collection('patients').doc(result.id).ref.update({id: result.id, lastModifiedBy: this.doctor.id});
-      patient.id = result.id;
-      this.dialogData = patient;
+    const wasFirstPatient = (this.doctor.subscription?.patientsCount ?? 0) === 0;
+    const result = await this.firestore.collection('patients').add({...patient, lastModifiedBy: this.doctor.id});
+    await this.firestore.collection('patients').doc(result.id).ref.update({id: result.id, lastModifiedBy: this.doctor.id});
+    patient.id = result.id;
+    this.dialogData = patient;
+    // The cached count and the onboarding progress are the signed-in doctor's own.
+    if (!this.clinicContext.isActing) {
       this.doctor.subscription.patientsCount++;
       this.onboardingService.recordPatientAdded(wasFirstPatient);
-      console.log('patient ID: ' + JSON.stringify(result.id));
-    } catch (error) {
-      console.log('error: ' + JSON.stringify(error));
     }
+    console.log('patient ID: ' + JSON.stringify(result.id));
   }
 
-  updatePatient(patient: Patient): void {
+  async updatePatient(patient: Patient): Promise<void> {
     patient.id = this.getDialogData().id;
     patient.doctorId = this.getDialogData().doctorId;
-    this.dialogData = patient;
 
-    from(this.firestore.collection('patients').doc(patient.id).ref.update({...patient, lastModifiedBy: this.doctor.id}))
-      .subscribe({
-        error: (error) => {
-          console.log('error: ' + JSON.stringify(error));
-        },
-      });
+    await this.firestore.collection('patients').doc(patient.id).ref.update({...patient, lastModifiedBy: this.doctor.id});
+    // An edited copy becomes the open patient only once stored, and never replaces a patient opened since.
+    if (this.dialogData.id === patient.id) {
+      this.dialogData = patient;
+    }
   }
 
   async deletePatient(patientId: string): Promise<void> {
@@ -241,7 +259,9 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
     from(result).subscribe({
         next: (result) => {
           this.firestore.collection('appointments').doc(result.id).update({id: result.id, lastModifiedBy: this.doctor.id});
-          this.onboardingService.recordAppointmentCreated();
+          if (!this.clinicContext.isActing) {
+            this.onboardingService.recordAppointmentCreated();
+          }
         },
         error: (error) => {
           console.log('error: ' + error)
@@ -432,16 +452,8 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
     return this.firestore.collection('patients').doc(patientId).get();
   }
 
-  updatePatientNotes(notes: string) {
+  updatePatientNotes(notes: string): Promise<void> {
     const patientID = this.getDialogData().id;
-
-    // Update patient on Firestore
-    from (this.firestore.collection('patients').doc(patientID).ref.update({'notes': notes, lastModifiedBy: this.doctor.id}))
-      .subscribe( {
-          error: (error) => {
-            console.log('error: ' + JSON.stringify(error))
-          }
-        }
-      );
+    return this.firestore.collection('patients').doc(patientID).ref.update({'notes': notes, lastModifiedBy: this.doctor.id});
   }
 }

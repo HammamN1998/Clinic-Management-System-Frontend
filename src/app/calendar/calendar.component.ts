@@ -33,6 +33,7 @@ import {FullCalendarComponent, FullCalendarModule} from '@fullcalendar/angular';
 import {MatButtonModule} from '@angular/material/button';
 import {BreadcrumbComponent} from '@shared/components/breadcrumb/breadcrumb.component';
 import {DoctorService} from "@core/service/doctor.service";
+import {ClinicContextService} from "@core/service/clinic-context.service";
 import {forkJoin, from, Observable, of, Subject} from "rxjs";
 import {catchError, map, switchMap, tap} from "rxjs/operators";
 import {AppointmentModel} from "@core/models/appointment.model";
@@ -93,6 +94,7 @@ export class CalendarComponent  extends UnsubscribeOnDestroyAdapter  implements 
     public calendarService: CalendarService,
     private snackBar: MatSnackBar,
     private doctorService: DoctorService,
+    private clinicContext: ClinicContextService,
     private patientService: PatientService,
     private dateService: DateService,
     private router: Router,
@@ -201,7 +203,7 @@ export class CalendarComponent  extends UnsubscribeOnDestroyAdapter  implements 
       id: appointment.id,
       title: `${patient.firstName} ${patient.lastName}`,
       start: startTime,
-      end: this.dateService.addMinutesToDate(startTime, resolveDuration(appointment, this.doctorService.doctor)),
+      end: this.dateService.addMinutesToDate(startTime, resolveDuration(appointment, this.doctorService.activeDoctor)),
       className: appointment.attended ? 'fc-event-success' : 'fc-event-danger',
       groupId: 'work',
       details: appointment.details,
@@ -308,7 +310,7 @@ export class CalendarComponent  extends UnsubscribeOnDestroyAdapter  implements 
 
   /** Doctors hide attended appointments from their profile settings, not from the calendar page. */
   private get showAttendedAppointments(): boolean {
-    return isTruthyString(this.doctorService.doctor?.calendarShowAttendedAppointments);
+    return isTruthyString(this.doctorService.activeDoctor?.calendarShowAttendedAppointments);
   }
 
   private applyEventFilters(): void {
@@ -499,17 +501,18 @@ export class CalendarComponent  extends UnsubscribeOnDestroyAdapter  implements 
     CalendarOptions,
     'headerToolbar' | 'dayHeaderFormat' | 'slotMinTime' | 'slotMaxTime'
   > {
+    const addButton = this.clinicContext.canEdit ? ' addAppointment' : '';
     return {
       headerToolbar: isMobile
         ? {
             left: 'prev,next',
             center: 'title',
-            right: 'listWeek,timeGridDay,dayGridMonth addAppointment',
+            right: `listWeek,timeGridDay,dayGridMonth${addButton}`,
           }
         : {
             left: 'prev,next today',
             center: 'title',
-            right: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth addAppointment',
+            right: `dayGridMonth,timeGridWeek,timeGridDay,listMonth${addButton}`,
           },
       dayHeaderFormat: isMobile
         ? { weekday: 'short' }

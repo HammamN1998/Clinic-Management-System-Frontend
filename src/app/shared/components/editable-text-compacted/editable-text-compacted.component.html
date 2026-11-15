@@ -7,7 +7,7 @@
       #bodyTxtElement
       class="editable-text-compacted__content"
       [class.editable-text-compacted__content--editing]="isEditing"
-      [class.editable-text-compacted__content--idle]="!isEditing"
+      [class.editable-text-compacted__content--idle]="!isEditing && !readonly"
       (click)="onBodyClick()">
     </div>
   </div>

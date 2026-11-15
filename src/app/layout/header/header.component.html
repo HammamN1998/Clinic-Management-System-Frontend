@@ -94,7 +94,7 @@
             <div class="noti-list">
               <div class="menu ">
                 <div class="user_dw_menu">
-                  <button mat-menu-item class="user-item-list" (click)="goToDoctorProfilePage()">
+                  <button *ngIf="!isActing" mat-menu-item class="user-item-list" (click)="goToDoctorProfilePage()">
                     <app-feather-icons [icon]="'user'" [class]="'user-menu-icons'"></app-feather-icons>{{ 'HEADER.ACCOUNT' | translate }}
                   </button>
                   <button mat-menu-item (click)="logout()" class="user-item-list">

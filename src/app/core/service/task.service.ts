@@ -70,9 +70,10 @@ export class TaskService {
   }
 
   async getTasks() {
+    const doctorId = this.doctorService.activeDoctorId;
     try {
       const snapshot = await this.firestore.collection('tasks').ref
-        .where('doctorId', '==', this.doctorService.activeDoctorId)
+        .where('doctorId', '==', doctorId)
         .orderBy('createdAt', 'desc')
         .get();
 
@@ -90,7 +91,10 @@ export class TaskService {
         });
       });
 
-      this.tasksSubject.next(tasks);
+      // A load started in an account the user has since left must not replace the current list.
+      if (doctorId === this.doctorService.activeDoctorId) {
+        this.tasksSubject.next(tasks);
+      }
       return tasks;
     } catch (error) {
       console.error(error);

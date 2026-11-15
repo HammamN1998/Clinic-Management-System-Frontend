@@ -10,6 +10,7 @@ import { Attachment } from '@core/models/patient.model';
 import { NotificationService } from '@core/service/notification.service';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
+import { ClinicContextService } from '@core/service/clinic-context.service';
 
 @Component({
   selector: 'app-full-screen-image',
@@ -37,6 +38,7 @@ export class FullScreenImageComponent {
     private notificationService: NotificationService,
     private router: Router,
     private translate: TranslateService,
+    private clinicContext: ClinicContextService,
   ) {
   }
 
@@ -46,6 +48,11 @@ export class FullScreenImageComponent {
 
   get doctor() {
     return this.patientService.doctor;
+  }
+
+  /** Replacing or removing the photo deletes its file, which only the doctor himself may do. */
+  get canChangePhoto(): boolean {
+    return !this.clinicContext.isActing;
   }
 
   openFullscreen() {
@@ -69,7 +76,7 @@ export class FullScreenImageComponent {
         const removedSize = this.patient.imgSize ?? 0;
         this.patient.img = '';
         this.patient.imgSize = 0;
-        this.patientService.updatePatient(this.patient);
+        this.patientService.updatePatient(this.patient).catch((error) => this.notifySaveFailed(error));
         this.doctor.subscription.storageBytesUsed = Math.max(
           0,
           this.doctor.subscription.storageBytesUsed - removedSize,
@@ -114,7 +121,7 @@ export class FullScreenImageComponent {
     if (this.patient.img === '') {
       this.patient.img = attachment.url;
       this.patient.imgSize = attachment.size;
-      this.patientService.updatePatient(this.patient);
+      this.patientService.updatePatient(this.patient).catch((error) => this.notifySaveFailed(error));
       this.showUploadPictureArea = !this.showUploadPictureArea;
       this.doctor.subscription.storageBytesUsed += attachment.size;
     } else {
@@ -124,7 +131,7 @@ export class FullScreenImageComponent {
         next: () => {
           this.patient.img = attachment.url;
           this.patient.imgSize = attachment.size;
-          this.patientService.updatePatient(this.patient);
+          this.patientService.updatePatient(this.patient).catch((error) => this.notifySaveFailed(error));
           this.doctor.subscription.storageBytesUsed += attachment.size - oldImgSize;
         },
         error: (error) => {
@@ -149,6 +156,16 @@ export class FullScreenImageComponent {
       this.showEditIcon = false;
       this.showDeleteIcon = false;
     }, 10000);
+  }
+
+  private notifySaveFailed(error: unknown): void {
+    console.log('error: ' + error);
+    this.notificationService.showSnackBarNotification(
+      'snackbar-danger',
+      this.translate.instant('COMMON.SAVE_FAILED'),
+      'bottom',
+      'center',
+    );
   }
 
 }

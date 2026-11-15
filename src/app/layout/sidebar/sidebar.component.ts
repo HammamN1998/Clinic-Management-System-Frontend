@@ -2,7 +2,7 @@
 import {NavigationEnd, Router, RouterLink, RouterLinkActive} from '@angular/router';
 import {DOCUMENT, NgClass} from '@angular/common';
 import {Component, ElementRef, HostListener, Inject, OnDestroy, OnInit, Renderer2,} from '@angular/core';
-import {CLINIC_ROUTE, MY_CLINIC_ROUTE, ROUTES} from './sidebar-items';
+import {CLINIC_ROUTE, MY_CLINIC_ROUTE, PLANS_PATH, ROUTES} from './sidebar-items';
 import {RouteInfo} from './sidebar.metadata';
 import {TranslateModule} from '@ngx-translate/core';
 import {NgScrollbar} from 'ngx-scrollbar';
@@ -12,6 +12,7 @@ import {FirebaseAuthenticationService} from "../../authentication/services/fireb
 import {isNullOrUndefined} from "@swimlane/ngx-datatable";
 import { getDoctorTitlePrefix } from '@core/util/doctor-title.util';
 import { ClinicService } from '@core/service/clinic.service';
+import { ClinicContextService } from '@core/service/clinic-context.service';
 import { ClinicMembership } from '@core/models/clinic.model';
 
 @Component({
@@ -36,6 +37,9 @@ export class SidebarComponent extends UnsubscribeOnDestroyAdapter implements OnI
   userFullName?: string;
   userImg?: string;
   headerHeight = 60;
+  /** Height of the banner shown under the header inside a doctor's account. */
+  actingBannerHeight = 40;
+  isActing = false;
   currentRoute?: string;
 
   constructor(
@@ -45,6 +49,7 @@ export class SidebarComponent extends UnsubscribeOnDestroyAdapter implements OnI
     public firebaseAuthenticationService: FirebaseAuthenticationService,
     private router: Router,
     private clinicService: ClinicService,
+    private clinicContext: ClinicContextService,
   ) {
     super();
     this.elementRef.nativeElement.closest('body');
@@ -62,6 +67,11 @@ export class SidebarComponent extends UnsubscribeOnDestroyAdapter implements OnI
 
   get doctorTitlePrefix(): string {
     return getDoctorTitlePrefix(this.userFullName ?? '');
+  }
+
+  get userImageUrl(): string {
+    const img = this.firebaseAuthenticationService.currentUserValue.img;
+    return isNullOrUndefined(img) || img === '' ? 'assets/images/patient/patient-default-profile.png' : img;
   }
   @HostListener('window:resize', ['$event'])
   windowResizecall() {
@@ -92,13 +102,17 @@ export class SidebarComponent extends UnsubscribeOnDestroyAdapter implements OnI
       this.userFullName = this.doctor.name
       this.userImg = this.doctor.img;
 
-      this.sidebarItems = ROUTES;
+      this.isActing = this.clinicContext.isActing;
+      this.sidebarItems = this.withClinicRoutes(null, false, false);
       this.subs.sink = combineLatest([
         this.clinicService.membership$,
         this.clinicService.pendingInvites$,
         this.clinicService.pastHistory$,
-      ]).subscribe(([membership, invites, pastHistory]) => {
+        this.clinicContext.acting$,
+      ]).subscribe(([membership, invites, pastHistory, acting]) => {
+        this.isActing = acting !== null;
         this.sidebarItems = this.withClinicRoutes(membership, invites.length > 0, pastHistory);
+        this.setMenuHeight();
       });
     }
 
@@ -110,11 +124,13 @@ export class SidebarComponent extends UnsubscribeOnDestroyAdapter implements OnI
     if (membership?.isAdmin) {
       clinicRoutes.push(CLINIC_ROUTE);
     }
-    if (membership?.clinicAdminId || hasOpenInvite || hasPastHistory) {
+    // Inside a doctor's account the menu is his, apart from the way back to the clinic.
+    if (!this.isActing && (membership?.clinicAdminId || hasOpenInvite || hasPastHistory)) {
       clinicRoutes.push(MY_CLINIC_ROUTE);
     }
-    const afterTask = ROUTES.findIndex((route) => route.path === 'task') + 1;
-    return [...ROUTES.slice(0, afterTask), ...clinicRoutes, ...ROUTES.slice(afterTask)];
+    const accountRoutes = this.isActing ? ROUTES.filter((route) => route.path !== PLANS_PATH) : ROUTES;
+    const afterTask = accountRoutes.findIndex((route) => route.path === 'task') + 1;
+    return [...accountRoutes.slice(0, afterTask), ...clinicRoutes, ...accountRoutes.slice(afterTask)];
   }
   initLeftSidebar() {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
@@ -125,7 +141,7 @@ export class SidebarComponent extends UnsubscribeOnDestroyAdapter implements OnI
   }
   setMenuHeight() {
     this.innerHeight = window.innerHeight;
-    const height = this.innerHeight - this.headerHeight;
+    const height = this.innerHeight - this.headerHeight - (this.isActing ? this.actingBannerHeight : 0);
     this.listMaxHeight = height + '';
     this.listMaxWidth = '500px';
   }
@@ -161,6 +177,4 @@ export class SidebarComponent extends UnsubscribeOnDestroyAdapter implements OnI
       }
     });
   }
-
-  protected readonly isNullOrUndefined = isNullOrUndefined;
 }

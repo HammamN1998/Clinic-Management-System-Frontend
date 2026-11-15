@@ -26,6 +26,7 @@ import { finalize } from 'rxjs/operators';
 import { TranslateModule } from '@ngx-translate/core';
 import { getDoctorTitlePrefix } from '@core/util/doctor-title.util';
 import { ClinicService } from '@core/service/clinic.service';
+import { ClinicContextService } from '@core/service/clinic-context.service';
 import { ClinicInvite, ClinicProfile } from '@core/models/clinic.model';
 
 interface Notifications {
@@ -85,11 +86,16 @@ export class HeaderComponent
     private paymentService: PaymentService,
     private analytics: AnalyticsService,
     clinicService: ClinicService,
+    private clinicContext: ClinicContextService,
   ) {
     super();
     this.clinic$ = clinicService.clinic$;
     this.pendingInvites$ = clinicService.pendingInvites$;
     this.checkIfEmailVerified()
+  }
+
+  get isActing(): boolean {
+    return this.clinicContext.isActing;
   }
 
   listLang = [

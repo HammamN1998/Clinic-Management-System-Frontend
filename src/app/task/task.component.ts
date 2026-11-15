@@ -18,6 +18,8 @@ import { BreadcrumbComponent } from '@shared/components/breadcrumb/breadcrumb.co
 import {TaskService} from "@core/service/task.service";
 import { DeleteConfirmDialogService } from '@shared/components/delete-confirm-dialog/delete-confirm-dialog.service';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { ClinicContextService } from '@core/service/clinic-context.service';
+import { NotificationService } from '@core/service/notification.service';
 
 @Component({
   selector: 'app-task',
@@ -64,6 +66,8 @@ export class TaskComponent {
     private taskService: TaskService,
     private deleteConfirmDialog: DeleteConfirmDialogService,
     private translate: TranslateService,
+    private clinicContext: ClinicContextService,
+    private notificationService: NotificationService,
   ){
 
     this.taskForm = this.createFormGroup(new Task());
@@ -73,6 +77,14 @@ export class TaskComponent {
     this.taskService.tasks$.subscribe(tasks => this.tasks = tasks);
   }
 
+  get canEdit(): boolean {
+    return this.clinicContext.canEdit;
+  }
+
+  get canDelete(): boolean {
+    return this.clinicContext.canDelete;
+  }
+
   drop(event: CdkDragDrop<string[]>) {
     moveItemInArray(this.tasks, event.previousIndex, event.currentIndex);
   }
@@ -80,11 +92,14 @@ export class TaskComponent {
     nav.close();
     task.done = !task.done;
     this.taskForm = this.createFormGroup(task);
-    this.editTask();
+    if (!(await this.editTask())) {
+      task.done = !task.done;
+    }
   }
   addNewTask(nav: MatSidenav) {
     this.isNewEvent = true;
     this.dialogTitle = this.translate.instant('TASK.NEW_TASK');
+    this.taskForm.enable();
     this.taskForm.reset();
     nav.open();
   }
@@ -93,6 +108,9 @@ export class TaskComponent {
     this.dialogTitle = this.translate.instant('TASK.EDIT_TASK');
     nav.open();
     this.taskForm = this.createFormGroup(task);
+    if (!this.canEdit) {
+      this.taskForm.disable();
+    }
   }
   closeSlider(nav: MatSidenav) {
     nav.close();
@@ -110,12 +128,23 @@ export class TaskComponent {
   async saveTask() {
 
     const task: Task = new Task({...this.taskForm.value});
-    await this.taskService.addTask(task);
-    this.taskForm.reset();
+    try {
+      await this.taskService.addTask(task);
+      this.taskForm.reset();
+    } catch {
+      this.notifyFailed('COMMON.SAVE_FAILED');
+    }
   }
-  async editTask() {
+  /** Resolves false when the save was refused. */
+  async editTask(): Promise<boolean> {
     const task: Task = new Task({...this.taskForm.value});
-    await this.taskService.editTask(task);
+    try {
+      await this.taskService.editTask(task);
+      return true;
+    } catch {
+      this.notifyFailed('COMMON.SAVE_FAILED');
+      return false;
+    }
   }
   deleteTask(nav: MatSidenav) {
     const task: Task = new Task({...this.taskForm.value});
@@ -126,8 +155,16 @@ export class TaskComponent {
       if (result !== 1) {
         return;
       }
-      await this.taskService.deleteTask(task);
-      nav.close();
+      try {
+        await this.taskService.deleteTask(task);
+        nav.close();
+      } catch {
+        this.notifyFailed('COMMON.DELETE_FAILED');
+      }
     });
+  }
+
+  private notifyFailed(key: string): void {
+    this.notificationService.showSnackBarNotification('snackbar-danger', this.translate.instant(key), 'bottom', 'center');
   }
 }

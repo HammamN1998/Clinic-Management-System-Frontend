@@ -11,6 +11,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AppDurationPipe } from '@core/pipe/app-duration.pipe';
 import { DoctorService } from '@core/service/doctor.service';
+import { ClinicContextService } from '@core/service/clinic-context.service';
 import { NotificationService } from '@core/service/notification.service';
 import { DURATION_OPTIONS, doctorDefaultDuration } from '@core/util/appointment-form.util';
 
@@ -55,17 +56,19 @@ export class AppointmentDurationFieldComponent implements OnDestroy {
 
   constructor(
     private doctorService: DoctorService,
+    private clinicContext: ClinicContextService,
     private notificationService: NotificationService,
     private translate: TranslateService,
     private liveAnnouncer: LiveAnnouncer,
   ) {}
 
   get defaultMinutes(): number {
-    return doctorDefaultDuration(this.doctorService.doctor);
+    return doctorDefaultDuration(this.doctorService.activeDoctor);
   }
 
   get isActionVisible(): boolean {
-    if (!this.allowSetDefault) {
+    // The default is saved on the signed-in doctor's own profile, so it is not offered inside another doctor's account.
+    if (!this.allowSetDefault || this.clinicContext.isActing) {
       return false;
     }
     return this.saveState !== 'idle' || this.control.value !== this.defaultMinutes;

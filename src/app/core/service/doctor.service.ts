@@ -4,6 +4,7 @@ import {AngularFirestore} from "@angular/fire/compat/firestore";
 import {from} from "rxjs";
 import * as firestore from "firebase/firestore";
 import {ClinicContextService} from "@core/service/clinic-context.service";
+import {User} from "@core/models/user";
 @Injectable({
   providedIn: 'root'
 })
@@ -21,8 +22,12 @@ export class DoctorService {
   }
 
   /** Owner of the records on screen: the signed-in doctor, or the linked doctor a clinic admin is working in. */
+  get activeDoctor(): User {
+    return this.clinicContext.activeDoctor ?? this.doctor;
+  }
+
   get activeDoctorId(): string {
-    return this.clinicContext.activeDoctor?.id ?? this.doctor.id;
+    return this.activeDoctor.id;
   }
 
   editDoctor (data: {[p:string]: string | number}) {

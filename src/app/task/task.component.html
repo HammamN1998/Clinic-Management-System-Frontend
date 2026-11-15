@@ -21,7 +21,7 @@
                   <h5>{{ 'TASK.TOTAL_TASK' | translate:{ count: tasks.length } }}</h5>
                 </div>
                 <div class="header-button">
-                  <button *ngIf="!sidenav.opened" mat-raised-button color="primary" (click)="addNewTask(sidenav)">{{ 'TASK.ADD_TASK' | translate }}</button>
+                  <button *ngIf="canEdit && !sidenav.opened" mat-raised-button color="primary" (click)="addNewTask(sidenav)">{{ 'TASK.ADD_TASK' | translate }}</button>
                 </div>
               </div>
               <div class="row">
@@ -32,13 +32,13 @@
                         <div class="header">
                           <h2 class="header-title">{{dialogTitle}}</h2>
                           <div class="header-close m-r-0">
-                            <button *ngIf="!isNewEvent" mat-icon-button type="button" (click)="deleteTask(sidenav)" [matTooltip]="'TASK.DELETE_TASK' | translate">
+                            <button *ngIf="!isNewEvent && canDelete" mat-icon-button type="button" (click)="deleteTask(sidenav)" [matTooltip]="'TASK.DELETE_TASK' | translate">
                               <mat-icon>delete</mat-icon>
                             </button>
                             <button *ngIf="isNewEvent" mat-icon-button type="submit" [disabled]="f.invalid" [matTooltip]="'TASK.SAVE_TASK' | translate">
                               <mat-icon>save</mat-icon>
                             </button>
-                            <button *ngIf="!isNewEvent" mat-icon-button type="submit" [disabled]="f.invalid" [matTooltip]="'TASK.EDIT_TASK' | translate">
+                            <button *ngIf="!isNewEvent && canEdit" mat-icon-button type="submit" [disabled]="f.invalid" [matTooltip]="'TASK.EDIT_TASK' | translate">
                               <mat-icon>save</mat-icon>
                             </button>
                             <button mat-icon-button type="button" (click)="closeSlider(sidenav)">
@@ -125,7 +125,7 @@
                                 <mat-icon aria-hidden="false">drag_indicator</mat-icon>
                               </div>
                             </div>
-                            <mat-checkbox (change)="toggle(task, sidenav)" [checked]="task.done" class="m-r-15"
+                            <mat-checkbox (change)="toggle(task, sidenav)" [checked]="task.done" [disabled]="!canEdit" class="m-r-15"
                               color="primary">
                             </mat-checkbox>
                             <div class="task-custom-placeholder" *cdkDragPlaceholder></div>

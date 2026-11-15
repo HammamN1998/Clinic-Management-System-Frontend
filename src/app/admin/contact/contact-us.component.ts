@@ -27,6 +27,7 @@ import { NotificationService } from '@core/service/notification.service';
 import { PaymentService } from '@core/service/payment.service';
 import { AnalyticsService } from '@core/service/analytics.service';
 import { ContactService } from '@core/service/contact.service';
+import { ClinicContextService } from '@core/service/clinic-context.service';
 import { User } from '@core/models/user';
 import { environment } from '../../../environments/environment';
 
@@ -79,12 +80,17 @@ export class ContactUsComponent implements ErrorStateMatcher {
     private paymentService: PaymentService,
     private analytics: AnalyticsService,
     private translate: TranslateService,
+    private clinicContext: ClinicContextService,
   ) {
     this.contactForm = this.createContactForm();
   }
 
   get doctor(): User {
     return this.doctorService.doctor;
+  }
+
+  get isActing(): boolean {
+    return this.clinicContext.isActing;
   }
 
   get whatsappUrl(): string {

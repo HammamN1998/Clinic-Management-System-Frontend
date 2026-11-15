@@ -70,7 +70,8 @@ export class EditPatientComponent {
   }
 
   onSubmit() {
-    const updatePatient: Patient = this.patientService.getDialogData();
+    // A copy, so a refused save leaves the profile showing what is stored.
+    const updatePatient: Patient = Object.assign(new Patient(), this.patientService.getDialogData());
     updatePatient.firstName = this.patientForm.value.firstName.toString();
     updatePatient.lastName = this.patientForm.value.lastName.toString();
     updatePatient.gender = this.patientForm.value.gender.toString();
@@ -84,14 +85,25 @@ export class EditPatientComponent {
     updatePatient.weight = this.patientForm.value.weight.toString();
     updatePatient.condition = this.patientForm.value.condition.toString();
 
-    this.patientService.updatePatient(updatePatient);
-    this.router.navigate(['/admin/patients/patient-profile']);
-    this.notificationService.showSnackBarNotification(
-      'black',
-      this.translate.instant('PATIENTS.MESSAGES.UPDATE_SUCCESS'),
-      'bottom',
-      'center'
-    )
+    this.patientService.updatePatient(updatePatient)
+      .then(() => {
+        this.router.navigate(['/admin/patients/patient-profile']);
+        this.notificationService.showSnackBarNotification(
+          'black',
+          this.translate.instant('PATIENTS.MESSAGES.UPDATE_SUCCESS'),
+          'bottom',
+          'center'
+        );
+      })
+      .catch((error) => {
+        console.log('error: ' + JSON.stringify(error));
+        this.notificationService.showSnackBarNotification(
+          'snackbar-danger',
+          this.translate.instant('COMMON.SAVE_FAILED'),
+          'bottom',
+          'center'
+        );
+      });
   }
   
   onCancel(): void {

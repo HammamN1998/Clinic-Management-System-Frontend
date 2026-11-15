@@ -151,6 +151,8 @@ export class FirebaseAuthenticationService {
   }
 
   logout() {
+    // Leaving a doctor's account first stops its watch, which would otherwise report the reads the sign-out refuses as lost access.
+    this.clinicContext.clear();
     this.auth.signOut();
     return of({ success: false });
   }

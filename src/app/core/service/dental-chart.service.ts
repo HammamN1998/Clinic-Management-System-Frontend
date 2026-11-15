@@ -6,8 +6,10 @@
  * when present so Firestore never receives `undefined`.
  */
 import { Injectable } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import { PatientService } from '@core/service/patient.service';
 import { DoctorService } from '@core/service/doctor.service';
+import { NotificationService } from '@core/service/notification.service';
 import {
   createEmptyDentalChart,
   createEmptyNotationChart,
@@ -37,11 +39,13 @@ export class DentalChartService {
   constructor(
     private patientService: PatientService,
     private doctorService: DoctorService,
+    private notificationService: NotificationService,
+    private translate: TranslateService,
   ) {}
 
   // ----- doctor-level preferred notation ---------------------------------
   getPreferredNotation(): DentalNotation {
-    return this.doctorService.doctor.preferredDentalNotation ?? DEFAULT_DENTAL_NOTATION;
+    return this.doctorService.activeDoctor.preferredDentalNotation ?? DEFAULT_DENTAL_NOTATION;
   }
 
   setPreferredNotation(notation: DentalNotation): Promise<void> {
@@ -281,7 +285,15 @@ export class DentalChartService {
   }
 
   private persist(): void {
-    this.patientService.updatePatient(this.patient);
+    this.patientService.updatePatient(this.patient).catch((error) => {
+      console.log('error: ' + JSON.stringify(error));
+      this.notificationService.showSnackBarNotification(
+        'snackbar-danger',
+        this.translate.instant('COMMON.SAVE_FAILED'),
+        'bottom',
+        'center',
+      );
+    });
   }
 
   private genId(prefix: string): string {

@@ -1,6 +1,7 @@
 import { Component, AfterViewInit, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { PatientService } from '@core/service/patient.service';
 import { ClinicService } from '@core/service/clinic.service';
+import { ClinicContextService } from '@core/service/clinic-context.service';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
@@ -82,6 +83,7 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
   private searchTerm = '';
   private searchPatientsCache: Patient[] | null = null;
   private lastPageSize = this.defaultPageSize;
+  private actingPatientsCount = 0;
 
   constructor(
     private dialog: MatDialog,
@@ -92,8 +94,36 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
     private firebaseAuthenticationService: FirebaseAuthenticationService,
     private translate: TranslateService,
     private clinicService: ClinicService,
+    private clinicContext: ClinicContextService,
   ) {
     super();
+  }
+
+  get canEdit(): boolean {
+    return this.clinicContext.canEdit;
+  }
+
+  get canDelete(): boolean {
+    return this.clinicContext.canDelete;
+  }
+
+  /** The signed-in doctor's count is kept on his subscription; inside another doctor's account it is counted by the server. */
+  private get patientsCount(): number {
+    return this.clinicContext.isActing ? this.actingPatientsCount : this.doctor.subscription.patientsCount;
+  }
+
+  private loadActingPatientsCount(): void {
+    if (!this.clinicContext.isActing) {
+      return;
+    }
+    this.patientService.countPatients()
+      .then((count) => {
+        this.actingPatientsCount = count;
+        if (!this.isSearchMode) {
+          this.paginatorLength = count;
+        }
+      })
+      .catch((error) => console.log('error: ' + JSON.stringify(error)));
   }
   @ViewChild(MatPaginator, { static: true })
   paginator!: MatPaginator;
@@ -109,7 +139,8 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
 
   ngAfterViewInit() {
     setTimeout(() => {
-      this.paginatorLength = this.doctor.subscription.patientsCount;
+      this.paginatorLength = this.patientsCount;
+      this.loadActingPatientsCount();
       this.patientService.clearPatientsPageCursors();
       this.loadData();
       this.subs.sink = fromEvent(this.filterInput.nativeElement, 'keyup').pipe(
@@ -127,6 +158,7 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
     if (!this.isSearchMode) {
       this.patientService.clearPatientsPageCursors();
     }
+    this.loadActingPatientsCount();
     this.selection.clear();
     if (this.paginator.pageIndex !== 0) {
       this.paginator.pageIndex = 0;
@@ -135,7 +167,8 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
     }
   }
   addNew() {
-    if (this.doctor.subscription.patientsCount >= this.doctor.subscription.maxPatientsLimit || this.doctor.subscription.status !== 'active') {
+    // Inside a doctor's account the rules check his own plan and patient limit.
+    if (!this.clinicContext.isActing && (this.doctor.subscription.patientsCount >= this.doctor.subscription.maxPatientsLimit || this.doctor.subscription.status !== 'active')) {
       const isInactive = this.doctor.subscription.status !== 'active';
       this.notificationService.showSwalDialogWithFunction(
         this.translate.instant(isInactive ? 'PATIENTS.MESSAGES.PLAN_INACTIVE_TITLE' : 'PATIENTS.MESSAGES.UPGRADE_TITLE'),
@@ -189,21 +222,32 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
     newPatient.bloodPressure = formValues.bloodPressure;
     newPatient.weight = formValues.weight;
     newPatient.img = formValues.img;
-    void this.patientService.addPatient(newPatient).then(() => {
-      this.invalidateSearchCache();
-      this.patientService.clearPatientsPageCursors();
-      if (this.paginator.pageIndex !== 0) {
-        this.paginator.pageIndex = 0;
-      } else {
-        this.loadCurrentPage();
-      }
-    });
-    this.notificationService.showSnackBarNotification(
-      'snackbar-success',
-      this.translate.instant('PATIENTS.MESSAGES.ADD_SUCCESS'),
-      'bottom',
-      'center'
-    );
+    this.patientService.addPatient(newPatient)
+      .then(() => {
+        this.notificationService.showSnackBarNotification(
+          'snackbar-success',
+          this.translate.instant('PATIENTS.MESSAGES.ADD_SUCCESS'),
+          'bottom',
+          'center'
+        );
+        this.invalidateSearchCache();
+        this.patientService.clearPatientsPageCursors();
+        this.loadActingPatientsCount();
+        if (this.paginator.pageIndex !== 0) {
+          this.paginator.pageIndex = 0;
+        } else {
+          this.loadCurrentPage();
+        }
+      })
+      .catch((error) => {
+        console.log('error: ' + JSON.stringify(error));
+        this.notificationService.showSwalOkDialog(
+          this.translate.instant(this.clinicContext.isActing ? 'CLINIC.ACTING.ADD_PATIENT_FAILED' : 'PATIENTS.MESSAGES.ADD_FAILED'),
+          'error',
+          'center',
+          this.translate.instant('COMMON.OK'),
+        );
+      });
   }
   /** Whether the number of selected elements matches the total number of rows. */
   isAllSelected() {
@@ -399,7 +443,7 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
       .subscribe({
         next: (result) => {
           this.dataSource.data = result.patients;
-          this.paginatorLength = this.doctor.subscription.patientsCount;
+          this.paginatorLength = this.patientsCount;
           this.isLoading = false;
         },
         error: (error) => {

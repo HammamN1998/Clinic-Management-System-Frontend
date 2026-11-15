@@ -33,7 +33,7 @@
                   <i class="material-icons align-middle" aria-hidden="true">credit_card</i>
                   {{ 'CONTACT.TRY_FIRST.BILLING' | translate }}
                 </button>
-                <a class="contact-us__chip" [routerLink]="['/admin/doctors/doctor-profile']" [queryParams]="{ tab: 'settings' }">
+                <a *ngIf="!isActing" class="contact-us__chip" [routerLink]="['/admin/doctors/doctor-profile']" [queryParams]="{ tab: 'settings' }">
                   <i class="material-icons align-middle" aria-hidden="true">manage_accounts</i>
                   {{ 'CONTACT.TRY_FIRST.PROFILE' | translate }}
                 </a>

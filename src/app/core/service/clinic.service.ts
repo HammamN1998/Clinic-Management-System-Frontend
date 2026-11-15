@@ -2,12 +2,16 @@ import { Injectable } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { AngularFirestore, QueryFn } from '@angular/fire/compat/firestore';
 import { AngularFireFunctions } from '@angular/fire/compat/functions';
+import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import firebase from 'firebase/compat/app';
-import { Observable, combineLatest, firstValueFrom, from, of } from 'rxjs';
+import { EMPTY, Observable, combineLatest, firstValueFrom, from, of } from 'rxjs';
 import { catchError, distinctUntilChanged, map, shareReplay, switchMap } from 'rxjs/operators';
 import { FirebaseAuthenticationService } from '../../authentication/services/firebase-authentication.service';
-import { UserSubscription } from '@core/models/user';
+import { ActingContext, ClinicContextService } from '@core/service/clinic-context.service';
+import { NotificationService } from '@core/service/notification.service';
+import { DentalNotation } from '@core/models/patient.model';
+import { User, UserSubscription } from '@core/models/user';
 import {
   AgreementStatus,
   ClinicAccess,
@@ -34,6 +38,13 @@ interface DoctorDoc {
   name?: string;
   email?: string;
   img?: string;
+  phoneNumber?: string;
+  address?: string;
+  logo?: string;
+  currency?: string;
+  defaultAppointmentDuration?: number;
+  calendarShowAttendedAppointments?: string;
+  preferredDentalNotation?: DentalNotation;
   isAdmin?: boolean;
   maxSeats?: number;
   clinicAdminId?: string;
@@ -130,6 +141,23 @@ function toMembership(doctorId: string, doc: DoctorDoc): ClinicMembership {
 
 function toLinkedDoctor(doc: DoctorDoc & { id: string }): LinkedDoctor {
   return { ...toMembership(doc.id, doc), name: doc.name ?? '', email: doc.email ?? '', img: doc.img ?? '' };
+}
+
+/** What the app reads of a doctor's profile while his clinic admin works in his account, with the defaults sign-in applies. */
+function toActingDoctor(doctorId: string, doc: DoctorDoc): User {
+  return Object.assign(new User(), {
+    id: doctorId,
+    name: doc.name ?? '',
+    email: doc.email ?? '',
+    img: doc.img ?? '',
+    phoneNumber: doc.phoneNumber ?? '',
+    address: doc.address ?? '',
+    logo: doc.logo ?? '',
+    currency: doc.currency,
+    defaultAppointmentDuration: doc.defaultAppointmentDuration ?? 30,
+    calendarShowAttendedAppointments: doc.calendarShowAttendedAppointments ?? 'true',
+    preferredDentalNotation: doc.preferredDentalNotation,
+  });
 }
 
 function toProfile(adminId: string, doc: ClinicDoc): ClinicProfile {
@@ -230,6 +258,9 @@ export class ClinicService {
     private functions: AngularFireFunctions,
     private translate: TranslateService,
     private authService: FirebaseAuthenticationService,
+    private clinicContext: ClinicContextService,
+    private router: Router,
+    private notificationService: NotificationService,
   ) {
     const uid$ = this.auth.authState.pipe(
       map((user) => user?.uid ?? null),
@@ -263,6 +294,24 @@ export class ClinicService {
       shareReplay({ bufferSize: 1, refCount: true }),
     );
     this.reloadSubscriptionOnLinkChange();
+    this.followActingDoctor(uid$);
+  }
+
+  /** Opens a linked doctor's account for the signed-in admin. Resolves to false when that doctor is no longer linked to him. */
+  async openDoctorAccount(doctorId: string): Promise<boolean> {
+    const adminId = this.authService.currentUserValue?.id;
+    try {
+      const snapshot = await firstValueFrom(this.firestore.collection('doctors').doc<DoctorDoc>(doctorId).get());
+      const doc = snapshot.data();
+      if (!adminId || doc?.clinicAdminId !== adminId) {
+        return false;
+      }
+      this.clinicContext.set(toActingDoctor(doctorId, doc), doc.clinicAccess ?? 'view');
+      return true;
+    } catch (err) {
+      console.error('Failed to open the doctor account', err);
+      return false;
+    }
   }
 
   clinicProfile$(adminId: string): Observable<ClinicProfile | null> {
@@ -509,6 +558,55 @@ export class ClinicService {
       }
       previous = current;
     });
+  }
+
+  /**
+   * Keeps the account a clinic admin works in current, since its doctor may change his settings
+   * or the access he gives, and leaves it once the doctor is no longer linked to him. After the
+   * unlink the rules refuse the read, which ends the watch with an error.
+   */
+  private followActingDoctor(uid$: Observable<string | null>): void {
+    const actingDoctorId$ = this.clinicContext.acting$.pipe(
+      map((acting) => acting?.doctor.id ?? null),
+      distinctUntilChanged(),
+    );
+    combineLatest([uid$, actingDoctorId$])
+      .pipe(
+        switchMap(([uid, doctorId]) => {
+          if (!uid || !doctorId) {
+            return EMPTY;
+          }
+          return this.firestore
+            .collection('doctors')
+            .doc<DoctorDoc>(doctorId)
+            .valueChanges()
+            .pipe(
+              map((doc): ActingContext | null =>
+                doc?.clinicAdminId === uid
+                  ? { doctor: toActingDoctor(doctorId, doc), access: doc.clinicAccess ?? 'view' }
+                  : null,
+              ),
+              catchError((err) => {
+                console.error('Failed to read the doctor account', err);
+                return of(null);
+              }),
+            );
+        }),
+      )
+      .subscribe((acting) => {
+        if (acting) {
+          this.clinicContext.set(acting.doctor, acting.access);
+          return;
+        }
+        this.clinicContext.clear();
+        void this.router.navigate(['/clinic/doctors']);
+        this.notificationService.showSnackBarNotification(
+          'snackbar-danger',
+          this.translate.instant('CLINIC.ACTING.ACCESS_ENDED'),
+          'bottom',
+          'center',
+        );
+      });
   }
 
   private async reloadSubscription(doctorId: string): Promise<void> {

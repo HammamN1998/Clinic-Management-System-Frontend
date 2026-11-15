@@ -4,7 +4,7 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { FirebaseStorageService } from '@core/service/firebase-storage.service';
-import { finalize, from } from 'rxjs';
+import { from } from 'rxjs';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { NgIf } from '@angular/common';
@@ -14,6 +14,7 @@ import storage = firebase.storage;
 import { Attachment } from '@core/models/patient.model';
 import { NotificationService } from '@core/service/notification.service';
 import { DoctorService } from '@core/service/doctor.service';
+import { ClinicContextService } from '@core/service/clinic-context.service';
 import { Router } from '@angular/router';
 import {
   DEFAULT_MAX_FILE_BYTES,
@@ -68,6 +69,7 @@ export class FileUploadComponent implements ControlValueAccessor, OnInit {
     private firebaseStorageService: FirebaseStorageService,
     private notificationService: NotificationService,
     private doctorService: DoctorService,
+    private clinicContext: ClinicContextService,
     private router: Router,
     private fileUploadPreprocessor: FileUploadPreprocessorService,
     private translate: TranslateService,
@@ -129,10 +131,12 @@ export class FileUploadComponent implements ControlValueAccessor, OnInit {
       this.isPreparing = false;
     }
 
+    // Inside a doctor's account the storage rules check his own plan and quota.
     if (
-      this.doctorService.doctor.subscription.storageBytesUsed + prepared!.file.size >
+      !this.clinicContext.isActing &&
+      (this.doctorService.doctor.subscription.storageBytesUsed + prepared!.file.size >
         this.doctorService.doctor.subscription.maxStorageLimitBytes ||
-      this.doctorService.doctor.subscription.status !== 'active'
+      this.doctorService.doctor.subscription.status !== 'active')
     ) {
       this.notificationService.showSwalDialogWithFunction(
         this.doctorService.doctor.subscription.status !== 'active'
@@ -160,15 +164,22 @@ export class FileUploadComponent implements ControlValueAccessor, OnInit {
         : displayName;
 
     this.isUploading = true;
-    from(
-      this.firebaseStorageService.uploadFile(
+    this.firebaseStorageService
+      .uploadFile(
         prepared!.file,
         `${this.rootFolder}/${storageFileName}`,
         prepared!.contentType,
-      ),
-    )
-      .pipe(
-        finalize(() => {
+      )
+      .subscribe({
+        next: (result) => {
+          this.progressPercentageField =
+            (result!.bytesTransferred / result!.totalBytes) * 100;
+          this.progressPercentage.emit(this.progressPercentageField);
+          feedback = result!;
+          this.totalFileSize = result!.totalBytes;
+        },
+        error: (err) => this.handleUploadError(err, input),
+        complete: () => {
           from(feedback!.ref.getDownloadURL()).subscribe({
             next: (url) => {
               this.downloadedAttachment.emit({
@@ -182,36 +193,22 @@ export class FileUploadComponent implements ControlValueAccessor, OnInit {
               this.isUploading = false;
               this.resetSelection(input);
             },
-            error: (err) => {
-              console.log('error: ' + err);
-              this.isUploading = false;
-              this.resetSelection(input);
-              this.notificationService.showSwalOkDialog(
-                this.translate.instant('SHARED.FILE_UPLOAD.UPLOAD_FAILED'),
-                'error',
-              );
-            },
+            error: (err) => this.handleUploadError(err, input),
           });
-        }),
-      )
-      .subscribe({
-        next: (result) => {
-          this.progressPercentageField =
-            (result!.bytesTransferred / result!.totalBytes) * 100;
-          this.progressPercentage.emit(this.progressPercentageField);
-          feedback = result!;
-          this.totalFileSize = result!.totalBytes;
-        },
-        error: (err) => {
-          console.log('error: ' + err);
-          this.isUploading = false;
-          this.resetSelection(input);
-          this.notificationService.showSwalOkDialog(
-            this.translate.instant('SHARED.FILE_UPLOAD.UPLOAD_FAILED'),
-            'error',
-          );
         },
       });
+  }
+
+  private handleUploadError(err: unknown, input: HTMLInputElement): void {
+    console.log('error: ' + err);
+    this.isUploading = false;
+    this.resetSelection(input);
+    this.notificationService.showSwalOkDialog(
+      this.translate.instant(
+        this.clinicContext.isActing ? 'CLINIC.ACTING.UPLOAD_FAILED' : 'SHARED.FILE_UPLOAD.UPLOAD_FAILED',
+      ),
+      'error',
+    );
   }
 
   formatBytes(bytes: number): string {

@@ -62,6 +62,10 @@
                   </span>
                 }
               </div>
+              <button mat-stroked-button color="primary" (click)="openAccount(doctor)" [disabled]="busy">
+                <mat-icon>login</mat-icon>
+                {{ 'CLINIC.DOCTORS.ACTIONS.OPEN_ACCOUNT' | translate }}
+              </button>
               <button mat-icon-button [matMenuTriggerFor]="doctorMenu" [disabled]="busy"
                       [attr.aria-label]="'COMMON.ACTIONS' | translate">
                 <mat-icon>more_vert</mat-icon>

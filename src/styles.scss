@@ -25,6 +25,18 @@ input[type='number'] {
   appearance: textfield;
 }
 
+/* Inside a doctor's account a 40px banner sits under the 60px header (ActingBannerComponent). */
+body.acting-mode {
+  .sidebar {
+    top: 100px;
+    height: calc(100vh - 100px);
+  }
+
+  section.content {
+    padding-top: 40px;
+  }
+}
+
 /* Phone view: stack expansion panel title/description so they aren't cramped */
 @media (max-width: 600px) {
   .mat-expansion-panel-header {

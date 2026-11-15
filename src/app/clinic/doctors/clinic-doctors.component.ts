@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { DatePipe, NgClass, formatDate } from '@angular/common';
+import { Router } from '@angular/router';
 import { Direction } from '@angular/cdk/bidi';
 import { MatDialog } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
@@ -77,6 +78,7 @@ export class ClinicDoctorsComponent extends UnsubscribeOnDestroyAdapter implemen
     private deleteConfirmDialog: DeleteConfirmDialogService,
     private notificationService: NotificationService,
     private translate: TranslateService,
+    private router: Router,
   ) {
     super();
   }
@@ -241,6 +243,24 @@ export class ClinicDoctorsComponent extends UnsubscribeOnDestroyAdapter implemen
       await this.clinicService.answerPatientDeletion(request.patientId, false);
       return this.translate.instant('CLINIC.DELETION.MESSAGES.REJECTED');
     });
+  }
+
+  async openAccount(doctor: LinkedDoctor): Promise<void> {
+    this.busy = true;
+    try {
+      if (await this.clinicService.openDoctorAccount(doctor.doctorId)) {
+        await this.router.navigate(['/admin/dashboard/main']);
+        return;
+      }
+      this.notificationService.showSwalOkDialog(
+        this.translate.instant('CLINIC.ACTING.OPEN_FAILED'),
+        'error',
+        'center',
+        this.translate.instant('COMMON.OK'),
+      );
+    } finally {
+      this.busy = false;
+    }
   }
 
   openHistory(doctor: LinkedDoctor): void {

@@ -46,6 +46,8 @@ import {buildTimeSlots, compareTimeSlots, doctorDefaultDuration, nextTimeSlot, r
 import {AppDurationPipe} from "@core/pipe/app-duration.pipe";
 import {AppointmentDurationFieldComponent} from "@shared/components/appointment-duration-field/appointment-duration-field.component";
 import {ClinicService} from "@core/service/clinic.service";
+import {ClinicContextService} from "@core/service/clinic-context.service";
+import {DoctorService} from "@core/service/doctor.service";
 import {PatientDeletionRequest} from "@core/models/clinic.model";
 import {getAppDateLocale} from "@core/util/app-locale.util";
 
@@ -118,6 +120,8 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter impleme
     private pdfService: PdfService,
     private currencyService: CurrencyService,
     private clinicService: ClinicService,
+    private clinicContext: ClinicContextService,
+    private doctorService: DoctorService,
   ) {
     super();
     if (this.patientService.getDialogData().id === '' ) this.router.navigate(['/admin/patients/all-patients']);
@@ -156,6 +160,19 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter impleme
   }
   get doctor(): User {
     return this.firebaseAuthenticationService.currentUserValue;
+  }
+
+  /** The doctor whose patient this is. */
+  get activeDoctor(): User {
+    return this.doctorService.activeDoctor;
+  }
+
+  get canEdit(): boolean {
+    return this.clinicContext.canEdit;
+  }
+
+  get canDelete(): boolean {
+    return this.clinicContext.canDelete;
   }
 
   /** This patient's request to the clinic, pending or rejected. */
@@ -327,6 +344,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter impleme
       },
       error: (error) => {
         console.log('error: ' + error)
+        this.notifySaveFailed();
       }
     })
   }
@@ -352,6 +370,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter impleme
         },
         error: (error) => {
           console.log('error: ' + error)
+          this.notifySaveFailed();
         }
       })
   }
@@ -378,6 +397,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter impleme
         },
         error: (error) => {
           console.log('error: ' + error)
+          this.notifySaveFailed();
         }
       })
   }
@@ -431,7 +451,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter impleme
     return this.formBuilder.group({
       date: [now, [Validators.required]],
       time: [nextTimeSlot(this.timeSlots), [Validators.required]],
-      durationMinutes: [doctorDefaultDuration(this.doctor), [Validators.required]],
+      durationMinutes: [doctorDefaultDuration(this.activeDoctor), [Validators.required]],
       details: [''],
       subjective: [''],
       objective: [''],
@@ -452,7 +472,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter impleme
   private readonly appointmentDurationControls = new Map<string, FormControl<number>>();
 
   appointmentDuration(appointment: AppointmentModel): number {
-    return resolveDuration(appointment, this.doctor);
+    return resolveDuration(appointment, this.activeDoctor);
   }
 
   appointmentDurationControl(appointment: AppointmentModel): FormControl<number> {
@@ -531,12 +551,21 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter impleme
 
   changeAppointmentAttended($event: MatSlideToggleChange, appointment: AppointmentModel) {
     appointment.attended = $event.checked;
-    this.patientService.changeAppointmentAttended(appointment, $event.checked);
+    this.patientService.changeAppointmentAttended(appointment, $event.checked).catch((error) => {
+      console.log('error: ' + JSON.stringify(error));
+      appointment.attended = !$event.checked;
+      this.notifySaveFailed();
+    });
   }
   changeAppointmentCostPaid($event: MatSlideToggleChange, appointment: AppointmentModel) {
     appointment.costPaid = $event.checked;
     this.refreshBalance();
-    this.patientService.changeAppointmentCostPaid(appointment, $event.checked);
+    this.patientService.changeAppointmentCostPaid(appointment, $event.checked).catch((error) => {
+      console.log('error: ' + JSON.stringify(error));
+      appointment.costPaid = !$event.checked;
+      this.refreshBalance();
+      this.notifySaveFailed();
+    });
   }
 
   updateAppointmentDetails(appointment: AppointmentModel, details: string) {
@@ -552,6 +581,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter impleme
       },
       error: (error) => {
         console.log('error: ' + JSON.stringify(error));
+        this.notifySaveFailed();
       }
     });
   }
@@ -639,6 +669,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter impleme
       },
       error: (error) => {
         console.log('error: ' + JSON.stringify(error));
+        this.notifySaveFailed();
       },
     });
   }
@@ -651,6 +682,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter impleme
     this.patientService.updateAppointmentPrescriptions(appointment).subscribe({
       error: (error) => {
         console.log('error: ' + JSON.stringify(error));
+        this.notifySaveFailed();
       }
     });
   }
@@ -663,6 +695,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter impleme
     this.patientService.updateAppointmentPrescriptions(appointment).subscribe({
       error: (error) => {
         console.log('error: ' + JSON.stringify(error));
+        this.notifySaveFailed();
       }
     });
   }
@@ -673,13 +706,15 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter impleme
     field: keyof AppointmentDrug,
     value: string
   ) {
-    if (!appointment.prescriptions || !appointment.prescriptions[index]) {
+    // A focus-out without a change, which is all a view-only field allows, saves nothing.
+    if (!appointment.prescriptions || !appointment.prescriptions[index] || appointment.prescriptions[index][field] === value) {
       return;
     }
     appointment.prescriptions[index][field] = value;
     this.patientService.updateAppointmentPrescriptions(appointment).subscribe({
       error: (error) => {
         console.log('error: ' + JSON.stringify(error));
+        this.notifySaveFailed();
       }
     });
   }
@@ -706,6 +741,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter impleme
       },
       error: (error) => {
         console.log('error: ' + JSON.stringify(error));
+        this.notifySaveFailed();
       }
     });
   }
@@ -723,6 +759,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter impleme
       },
       error: (error) => {
         console.log('error: ' + JSON.stringify(error));
+        this.notifySaveFailed();
       }
     });
   }
@@ -742,7 +779,11 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter impleme
         1,
       );
       this.refreshBalance();
-      this.patientService.deleteAppointment(appointment.id);
+      this.patientService.deleteAppointment(appointment.id).catch((error) => {
+        console.log('error: ' + JSON.stringify(error));
+        this.getPatientAppointments();
+        this.notifyDeleteFailed();
+      });
     });
   }
 
@@ -760,7 +801,11 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter impleme
         1,
       );
       this.refreshBalance();
-      this.patientService.deletePayment(payment.id);
+      this.patientService.deletePayment(payment.id).catch((error) => {
+        console.log('error: ' + JSON.stringify(error));
+        this.getPatientPayments();
+        this.notifyDeleteFailed();
+      });
     });
   }
 
@@ -777,7 +822,11 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter impleme
         1,
       );
       this.refreshBalance();
-      this.patientService.deleteTreatment(treatment.id);
+      this.patientService.deleteTreatment(treatment.id).catch((error) => {
+        console.log('error: ' + JSON.stringify(error));
+        this.getPatientTreatments();
+        this.notifyDeleteFailed();
+      });
     });
   }
 
@@ -903,13 +952,19 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter impleme
               0,
               this.doctor.subscription.storageBytesUsed - removedSize,
             );
-            this.patientService.updatePatient(this.patient);
-            this.notificationService.showSnackBarNotification(
-              'snackbar-success',
-              this.translate.instant('PATIENTS.PROFILE.MESSAGES.ATTACHMENT_DELETED_SUCCESS'),
-              'bottom',
-              'center',
-            );
+            this.patientService.updatePatient(this.patient)
+              .then(() => {
+                this.notificationService.showSnackBarNotification(
+                  'snackbar-success',
+                  this.translate.instant('PATIENTS.PROFILE.MESSAGES.ATTACHMENT_DELETED_SUCCESS'),
+                  'bottom',
+                  'center',
+                );
+              })
+              .catch((error) => {
+                console.log('error: ' + JSON.stringify(error));
+                this.notifySaveFailed();
+              });
           },
           error: (error) => {
             console.log('error: ' + error);
@@ -923,7 +978,9 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter impleme
   }
 
   addAttachment(attachment: Attachment) {
-    if (this.doctor.subscription.storageBytesUsed + attachment.size > this.doctor.subscription.maxStorageLimitBytes || this.doctor.subscription.status !== 'active') {
+    // Inside a doctor's account the upload counts against his plan, which the storage rules have already checked.
+    const isActing = this.clinicContext.isActing;
+    if (!isActing && (this.doctor.subscription.storageBytesUsed + attachment.size > this.doctor.subscription.maxStorageLimitBytes || this.doctor.subscription.status !== 'active')) {
       this.notificationService.showSwalDialogWithFunction(
         this.doctor.subscription.status !== 'active' ?
           this.translate.instant('PATIENTS.MESSAGES.PLAN_INACTIVE_TITLE') :
@@ -943,16 +1000,46 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter impleme
 
     if(isNullOrUndefined(this.patient.attachments)) this.patient.attachments = [];
     this.patient.attachments.push(attachment);
-    this.patientService.updatePatient(this.patient);
-    this.doctor.subscription.storageBytesUsed += attachment.size;
+    this.patientService.updatePatient(this.patient).catch((error) => {
+      console.log('error: ' + JSON.stringify(error));
+      this.patient.attachments = (this.patient.attachments ?? []).filter((a) => a.url !== attachment.url);
+      this.notifySaveFailed();
+    });
+    if (!isActing) {
+      this.doctor.subscription.storageBytesUsed += attachment.size;
+    }
     this.compressAttachments = true;
   }
 
   updatePatientNotes() {
-    this.patientService.updatePatientNotes(this.patient.notes);
+    this.patientService.updatePatientNotes(this.patient.notes)
+      .then(() => {
+        this.notificationService.showSnackBarNotification(
+          'black',
+          this.translate.instant('PATIENTS.PROFILE.MESSAGES.EDIT_NOTES_SUCCESS'),
+          'bottom',
+          'center'
+        );
+      })
+      .catch((error) => {
+        console.log('error: ' + JSON.stringify(error));
+        this.notifySaveFailed();
+      });
+  }
+
+  private notifySaveFailed(): void {
     this.notificationService.showSnackBarNotification(
-      'black',
-      this.translate.instant('PATIENTS.PROFILE.MESSAGES.EDIT_NOTES_SUCCESS'),
+      'snackbar-danger',
+      this.translate.instant('COMMON.SAVE_FAILED'),
+      'bottom',
+      'center'
+    );
+  }
+
+  private notifyDeleteFailed(): void {
+    this.notificationService.showSnackBarNotification(
+      'snackbar-danger',
+      this.translate.instant('COMMON.DELETE_FAILED'),
       'bottom',
       'center'
     );

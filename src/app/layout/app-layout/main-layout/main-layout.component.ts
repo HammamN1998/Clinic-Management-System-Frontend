@@ -7,6 +7,7 @@ import { RouterOutlet } from '@angular/router';
 import { RightSidebarComponent } from '../../right-sidebar/right-sidebar.component';
 import { SidebarComponent } from '../../sidebar/sidebar.component';
 import { HeaderComponent } from '../../header/header.component';
+import { ActingBannerComponent } from '../../acting-banner/acting-banner.component';
 import { UnsubscribeOnDestroyAdapter } from '@shared';
 import { ReligiousReminderOverlayComponent } from '@shared/components/religious-reminder-overlay/religious-reminder-overlay.component';
 import { ReligiousReminderService } from '@core/service/religious-reminder.service';
@@ -18,6 +19,7 @@ import { ReligiousReminderService } from '@core/service/religious-reminder.servi
   standalone: true,
   imports: [
     HeaderComponent,
+    ActingBannerComponent,
     SidebarComponent,
     RightSidebarComponent,
     BidiModule,

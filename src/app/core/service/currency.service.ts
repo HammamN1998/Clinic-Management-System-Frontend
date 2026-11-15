@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { FirebaseAuthenticationService } from '../../authentication/services/firebase-authentication.service';
+import { DoctorService } from '@core/service/doctor.service';
 import {
   CurrencyDisplay,
   CurrencyOption,
@@ -28,13 +28,13 @@ export class CurrencyService {
   private optionsCache: { locale: string; options: CurrencyOption[] } | null = null;
 
   constructor(
-    private readonly auth: FirebaseAuthenticationService,
+    private readonly doctorService: DoctorService,
     private readonly translate: TranslateService,
   ) {}
 
-  /** ISO 4217 code used for every amount the doctor sees. */
+  /** ISO 4217 code used for every amount the doctor sees. Inside a doctor's account it is that doctor's. */
   get code(): string {
-    const saved = this.auth.currentUserValue?.currency;
+    const saved = this.doctorService.activeDoctor?.currency;
     if (isSupportedCurrency(saved)) {
       return saved;
     }
@@ -55,7 +55,7 @@ export class CurrencyService {
 
   /** True once the doctor has explicitly picked a currency. */
   get isExplicitlySet(): boolean {
-    return isSupportedCurrency(this.auth.currentUserValue?.currency);
+    return isSupportedCurrency(this.doctorService.activeDoctor?.currency);
   }
 
   /** Options for the profile picker, localized and sorted by name. */

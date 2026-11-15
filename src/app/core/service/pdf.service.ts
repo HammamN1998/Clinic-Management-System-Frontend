@@ -31,7 +31,7 @@ import {
   formatDate,
   fullPatientName,
 } from '@core/util/pdf-document-template.util';
-import { FirebaseAuthenticationService } from '../../authentication/services/firebase-authentication.service';
+import { DoctorService } from '@core/service/doctor.service';
 import { CurrencyService } from '@core/service/currency.service';
 
 export interface PatientBalancePdfInput {
@@ -109,7 +109,7 @@ export class PdfService {
   constructor(
     private readonly http: HttpClient,
     private readonly translate: TranslateService,
-    private readonly auth: FirebaseAuthenticationService,
+    private readonly doctorService: DoctorService,
     private readonly currency: CurrencyService,
   ) {}
 
@@ -681,8 +681,9 @@ export class PdfService {
       this.translate.instant(key, params);
   }
 
+  /** Documents carry the details of the doctor whose patient they are for. */
   private getBranding(): ClinicBranding {
-    const doctor = this.auth.currentUserValue;
+    const doctor = this.doctorService.activeDoctor;
     return {
       doctorName: this.withDoctorPrefix(doctor?.name ?? ''),
       phone: doctor?.phoneNumber || undefined,

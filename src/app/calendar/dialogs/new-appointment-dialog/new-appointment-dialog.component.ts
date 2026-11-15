@@ -92,7 +92,7 @@ export class NewAppointmentDialogComponent extends UnsubscribeOnDestroyAdapter i
     this.appointmentForm = formBuilder.group({
       date: [now, [Validators.required]],
       time: [nextTimeSlot(this.timeSlots), [Validators.required]],
-      durationMinutes: [doctorDefaultDuration(doctorService.doctor), [Validators.required]],
+      durationMinutes: [doctorDefaultDuration(doctorService.activeDoctor), [Validators.required]],
       details: [''],
       cost: ['', [Validators.min(0)]],
       costPaid: [true],

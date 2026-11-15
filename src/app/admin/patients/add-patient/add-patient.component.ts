@@ -15,6 +15,7 @@ import * as firestore from 'firebase/firestore';
 import { User } from '@core/models/user';
 import {Router} from "@angular/router";
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { ClinicContextService } from '@core/service/clinic-context.service';
 
 @Component({
   selector: 'app-add-patient',
@@ -45,6 +46,7 @@ export class AddPatientComponent implements ErrorStateMatcher {
     private notificationService: NotificationService,
     private router: Router,
     private translate: TranslateService,
+    private clinicContext: ClinicContextService,
   ) {
     this.patientForm = this.createContactForm();
   }
@@ -86,7 +88,8 @@ export class AddPatientComponent implements ErrorStateMatcher {
       return;
     }
 
-    if (this.doctor.subscription.patientsCount >= this.doctor.subscription.maxPatientsLimit || this.doctor.subscription.status !== 'active') {
+    // Inside a doctor's account the rules check his own plan and patient limit.
+    if (!this.clinicContext.isActing && (this.doctor.subscription.patientsCount >= this.doctor.subscription.maxPatientsLimit || this.doctor.subscription.status !== 'active')) {
       const isInactive = this.doctor.subscription.status !== 'active';
       this.notificationService.showSwalDialogWithFunction(
         this.translate.instant(isInactive ? 'PATIENTS.MESSAGES.PLAN_INACTIVE_TITLE' : 'PATIENTS.MESSAGES.UPGRADE_TITLE'),
@@ -124,14 +127,25 @@ export class AddPatientComponent implements ErrorStateMatcher {
     newPatient.img = '';
 
     this.patientService.addPatient(newPatient)
-    this.notificationService.showSnackBarNotification(
-      'snackbar-success',
-      this.translate.instant('PATIENTS.MESSAGES.ADD_SUCCESS'),
-      'bottom',
-      'center'
-    )
-    this.submitted = false;
-    this.patientForm = this.createContactForm();
+      .then(() => {
+        this.notificationService.showSnackBarNotification(
+          'snackbar-success',
+          this.translate.instant('PATIENTS.MESSAGES.ADD_SUCCESS'),
+          'bottom',
+          'center'
+        );
+        this.submitted = false;
+        this.patientForm = this.createContactForm();
+      })
+      .catch((error) => {
+        console.log('error: ' + JSON.stringify(error));
+        this.notificationService.showSwalOkDialog(
+          this.translate.instant(this.clinicContext.isActing ? 'CLINIC.ACTING.ADD_PATIENT_FAILED' : 'PATIENTS.MESSAGES.ADD_FAILED'),
+          'error',
+          'center',
+          this.translate.instant('COMMON.OK'),
+        );
+      });
   }
 
   onCancel(): void {

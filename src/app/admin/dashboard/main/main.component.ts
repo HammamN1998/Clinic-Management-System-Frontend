@@ -25,6 +25,7 @@ import {BreadcrumbComponent} from '@shared/components/breadcrumb/breadcrumb.comp
 import {OnboardingChecklistComponent} from '@shared/components/onboarding-checklist/onboarding-checklist.component';
 import {from} from "rxjs";
 import {DoctorService} from "@core/service/doctor.service";
+import {ClinicContextService} from "@core/service/clinic-context.service";
 import {AppointmentModel} from "@core/models/appointment.model";
 import {TreatmentModel} from "@core/models/treatment.model";
 import {Patient} from "@core/models/patient.model";
@@ -85,6 +86,12 @@ interface RangeOption {
 export class MainComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly clinicContext = inject(ClinicContextService);
+
+  /** The onboarding steps are the signed-in doctor's own. */
+  get isActing(): boolean {
+    return this.clinicContext.isActing;
+  }
 
   rangeOptions: RangeOption[] = [
     {id: 'today', label: 'DASHBOARD.RANGE.TODAY'},

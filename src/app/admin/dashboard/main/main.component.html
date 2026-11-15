@@ -4,7 +4,7 @@
       <!-- breadcrumb -->
       <app-breadcrumb [title]="'MENUITEMS.DASHBOARD.TEXT' | translate" [items]="[]" [active_item]="'MENUITEMS.DASHBOARD.TEXT' | translate"></app-breadcrumb>
     </div>
-    <app-onboarding-checklist></app-onboarding-checklist>
+    <app-onboarding-checklist *ngIf="!isActing"></app-onboarding-checklist>
     <div class="dashboard-filters">
       <div class="range-display">
         <span class="range-label" dir="auto">{{ selectedRangeLabel }}</span>
