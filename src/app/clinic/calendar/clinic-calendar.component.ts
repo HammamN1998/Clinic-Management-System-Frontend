@@ -76,6 +76,11 @@ export class ClinicCalendarComponent extends UnsubscribeOnDestroyAdapter impleme
       nowIndicator: true,
       height: this.isMobile ? 'auto' : undefined,
       eventTimeFormat: { hour: 'numeric', minute: '2-digit', meridiem: 'short' },
+      // In the month and list views FullCalendar shows an event's colour only as a dot, which the
+      // theme hides in the month view, so each appointment is filled with its doctor's colour.
+      eventDidMount: ({ el, backgroundColor }) => {
+        el.style.backgroundColor = backgroundColor;
+      },
       eventClick: (arg) => void this.openPatient(arg),
       datesSet: (arg: DatesSetArg) => this.visibleRanges.next({ start: arg.start, end: arg.end }),
     };
@@ -156,7 +161,9 @@ export class ClinicCalendarComponent extends UnsubscribeOnDestroyAdapter impleme
         }
         const start = appointmentStart(appointment);
         events.push({
-          id: appointment.id,
+          // FullCalendar keeps an event's element while its id stays the same, and eventDidMount
+          // colours the element only when it is created, so a new colour needs a new id.
+          id: `${appointment.id}:${color}`,
           title: `${patient.firstName} ${patient.lastName}`.trim(),
           start,
           end: new Date(start.getTime() + resolveDuration(appointment, doctor) * 60_000),

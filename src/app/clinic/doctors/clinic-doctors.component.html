@@ -48,7 +48,7 @@
       <div class="body">
         @for (doctor of doctors; track doctor.doctorId) {
           <div class="clinic-doctors__item">
-            <div class="clinic-doctors__item-head">
+            <div class="clinic-doctors__item-head clinic-doctors__item-head--linked">
               <img class="clinic-doctors__avatar"
                    [src]="doctor.img || 'assets/images/patient/patient-default-profile.png'" alt="" />
               <div class="clinic-doctors__item-title">
@@ -62,7 +62,7 @@
                   </span>
                 }
               </div>
-              <button mat-stroked-button color="primary" (click)="openAccount(doctor)" [disabled]="busy">
+              <button mat-stroked-button color="primary" class="clinic-doctors__open" (click)="openAccount(doctor)" [disabled]="busy">
                 <mat-icon>login</mat-icon>
                 {{ 'CLINIC.DOCTORS.ACTIONS.OPEN_ACCOUNT' | translate }}
               </button>
