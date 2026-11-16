@@ -162,6 +162,13 @@ export function formatCurrencyAmount(
   return getFormatter(locale, code, display, digits).format(amount);
 }
 
+/** Rounds an amount to the currency's own decimals, e.g. 2 for USD and 3 for JOD, for a spreadsheet cell. */
+export function roundCurrencyAmount(value: number, currency: string): number {
+  const amount = Number.isFinite(value) ? value : 0;
+  const code = isSupportedCurrency(currency) ? currency : DEFAULT_CURRENCY_CODE;
+  return Number(amount.toFixed(fractionDigitsFor(amount, 'en', code)));
+}
+
 /** Ledger-style amount that always carries its sign, e.g. "+$120" / "-$40". */
 export function formatSignedCurrencyAmount(
   value: number,

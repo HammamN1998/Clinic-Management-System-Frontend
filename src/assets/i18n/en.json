@@ -1054,6 +1054,8 @@
       "SCHEDULE_FAILED": "Could not load today's appointments. Please try again later.",
       "LOAD_FAILED": "Some figures could not be loaded. Please try again later.",
       "CURRENCY_MIXED": "{{names}} use another currency. Their amounts are added here as if they were in {{currency}}.",
+      "EXPORT_CSV": "Export CSV",
+      "EXPORT_PDF": "Export PDF",
       "ATTENTION": {
         "TITLE": "Needs attention",
         "DELETION": "{{doctor}} asks you to delete the patient {{patient}}.",
@@ -1062,6 +1064,19 @@
         "PROPOSAL": "{{doctor}} has not answered your new terms yet.",
         "INVITE_EXPIRED": "The invitation to {{name}} expired. Resend or cancel it."
       }
+    },
+    "REPORT": {
+      "TITLE": "Clinic report",
+      "PERIOD": "Period",
+      "DOCTORS": "Doctors",
+      "COMMISSIONS": "Commissions",
+      "COMMISSION_BASE": "Collected since joining",
+      "RATE": "Rate",
+      "CURRENCY": "Currency",
+      "OUTSTANDING_NOTE": "Outstanding balances cover all time, not only this period. A patient who paid ahead lowers them.",
+      "COMMISSION_NOTE": "At each doctor's current rate, on the money collected in this period since they joined.",
+      "CURRENCY_MIXED": "Some doctors use another currency. The totals add their amounts without converting them.",
+      "PDF_FAILED": "Could not create the PDF. Please try again."
     },
     "CALENDAR": {
       "TITLE": "Clinic calendar",

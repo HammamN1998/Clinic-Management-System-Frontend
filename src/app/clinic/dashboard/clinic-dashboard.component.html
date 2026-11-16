@@ -127,8 +127,18 @@
 
     <!-- By doctor -->
     <div class="card">
-      <div class="header">
+      <div class="header d-flex flex-wrap align-items-center justify-content-between gap-2">
         <h2><strong>{{ 'CLINIC.DASHBOARD.COMPARISON_TITLE' | translate }}</strong></h2>
+        <div class="d-flex flex-wrap gap-2">
+          <button mat-stroked-button color="primary" type="button" (click)="exportCsv()" [disabled]="!canExport">
+            <mat-icon>download</mat-icon>
+            {{ 'CLINIC.DASHBOARD.EXPORT_CSV' | translate }}
+          </button>
+          <button mat-stroked-button color="primary" type="button" (click)="exportPdf()" [disabled]="!canExport || exporting">
+            <mat-icon>picture_as_pdf</mat-icon>
+            {{ 'CLINIC.DASHBOARD.EXPORT_PDF' | translate }}
+          </button>
+        </div>
       </div>
       <div class="body">
         <div class="table-responsive">

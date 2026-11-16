@@ -10,13 +10,16 @@ import {
 import { firstValueFrom } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 import { AppointmentModel } from '@core/models/appointment.model';
+import { ClinicReport, ClinicReportLine } from '@core/models/clinic-report.model';
 import { PaymentModel } from '@core/models/payment.model';
 import { TreatmentModel } from '@core/models/treatment.model';
+import { User } from '@core/models/user';
 import {
   ClinicBranding,
   PatientPdfContext,
   PaymentStatus,
 } from '@core/models/pdf-document.model';
+import { formatCurrencyAmount } from '@core/util/currency.util';
 import { containsArabic, pdfLabel, pdfTextCell } from '@core/util/pdf-arabic.util';
 import {
   BalanceLedgerLine,
@@ -429,6 +432,23 @@ export class PdfService {
     await this.downloadPdf(doc, this.fileName('letter', patientName));
   }
 
+  async downloadClinicReportPdf(report: ClinicReport): Promise<void> {
+    await this.ensurePdfMakeReady();
+    const t = this.translator();
+    const branding = await this.clinicReportBranding();
+    const doc = buildBrandedDocument(
+      {
+        title: t('CLINIC.REPORT.TITLE'),
+        branding,
+        logoDataUrl: await this.loadLogoAsDataUrl(branding.logoUrl),
+        generatedAt: new Date(),
+        body: this.buildClinicReportBody(report, t),
+      },
+      t,
+    );
+    await this.downloadPdf(doc, report.fileName);
+  }
+
   // --- Body builders -------------------------------------------------------
 
   private buildDetailedBalanceBody(
@@ -694,6 +714,105 @@ export class PdfService {
     body.push(pdfTextCell(value, undefined));
   }
 
+  /**
+   * The doctors' figures, then the commissions of those with an agreement in force. The period is
+   * in numeric dates, like the other documents' dates, since the Arabic font has no dash for a
+   * range written in Arabic.
+   */
+  private buildClinicReportBody(report: ClinicReport, t: Translator): Content[] {
+    const { firstDay, lastDay, total } = report;
+    const rtl = this.isRtl();
+    const header = (key: string) => pdfLabel(t(key), { style: 'tableHeader' });
+    const value = (content: Content) => ({ stack: [content], alignment: rtl ? 'right' : 'left' }) as Content;
+    const money = (line: ClinicReportLine, amount: number) => formatCurrencyAmount(amount, line.currency, 'en', 'code');
+    const row = (line: ClinicReportLine, cells: string[]): Content[] => {
+      const style = line === total ? 'totalValue' : undefined;
+      return [pdfTextCell(line.label, style), ...cells.map((text) => ({ text, style, alignment: 'right' }) as Content)];
+    };
+    const period = firstDay.getTime() === lastDay.getTime()
+      ? formatDate(firstDay)
+      : `${formatDate(firstDay)} – ${formatDate(lastDay)}`;
+
+    const body: Content[] = [
+      {
+        table: this.rtlTableDef({
+          widths: [80, '*'],
+          body: [
+            [header('CLINIC.REPORT.PERIOD'), value(period)],
+            [header('CLINIC.REPORT.DOCTORS'), value(pdfTextCell(report.doctors))],
+          ],
+        }),
+        layout: 'noBorders',
+      },
+      pdfLabel(t('CLINIC.DASHBOARD.COMPARISON_TITLE'), { style: 'sectionTitle' }),
+      {
+        table: this.rtlTableDef({
+          headerRows: 1,
+          widths: ['*', 62, 62, 62, 84, 84],
+          body: [
+            [
+              header('CLINIC.DASHBOARD.DOCTOR'),
+              header('DASHBOARD.APPOINTMENTS'),
+              header('DASHBOARD.TREATMENTS'),
+              header('DASHBOARD.NEW_PATIENTS'),
+              header('DASHBOARD.EARNING'),
+              header('CLINIC.DASHBOARD.OUTSTANDING'),
+            ],
+            ...[...report.lines, ...(total ? [total] : [])].map((line) =>
+              row(line, [
+                String(line.appointments),
+                String(line.treatments),
+                String(line.newPatients),
+                money(line, line.collected),
+                money(line, line.outstanding),
+              ]),
+            ),
+          ],
+        }),
+        layout: this.tableLayout(),
+      },
+      pdfLabel(t('CLINIC.REPORT.OUTSTANDING_NOTE'), { style: 'subtle', margin: [0, 4, 0, 0] }),
+    ];
+
+    const commissions = report.lines.filter((line) => line.commission !== null);
+    if (commissions.length) {
+      if (total && commissions.length > 1) {
+        commissions.push(total);
+      }
+      body.push(
+        pdfLabel(t('CLINIC.REPORT.COMMISSIONS'), { style: 'sectionTitle' }),
+        {
+          table: this.rtlTableDef({
+            headerRows: 1,
+            widths: ['*', 110, 60, 100],
+            body: [
+              [
+                header('CLINIC.DASHBOARD.DOCTOR'),
+                header('CLINIC.REPORT.COMMISSION_BASE'),
+                header('CLINIC.REPORT.RATE'),
+                header('CLINIC.DASHBOARD.COMMISSION'),
+              ],
+              ...commissions.map((line) =>
+                row(line, [
+                  money(line, line.commissionBase ?? 0),
+                  line.commissionPercent === null ? '' : `${line.commissionPercent}%`,
+                  money(line, line.commission ?? 0),
+                ]),
+              ),
+            ],
+          }),
+          layout: this.tableLayout(),
+        },
+        pdfLabel(t('CLINIC.REPORT.COMMISSION_NOTE'), { style: 'subtle', margin: [0, 4, 0, 0] }),
+      );
+    }
+
+    if (total && report.lines.some((line) => line.currency !== total.currency)) {
+      body.push(pdfLabel(t('CLINIC.REPORT.CURRENCY_MIXED'), { style: 'subtle', margin: [0, 10, 0, 0] }));
+    }
+    return body;
+  }
+
   // --- Helpers -------------------------------------------------------------
 
   private translator(): Translator {
@@ -705,12 +824,23 @@ export class PdfService {
   private async getBranding(): Promise<ClinicBranding> {
     const doctor = this.doctorService.activeDoctor;
     const clinic = await this.clinicService.activeClinic();
+    return this.brandingOf(doctor, clinic?.name, clinic ? clinic.logo : doctor?.logo);
+  }
+
+  /** The clinic report is the admin's own, under his clinic's name and logo once he has set them. */
+  private async clinicReportBranding(): Promise<ClinicBranding> {
+    const admin = this.doctorService.doctor;
+    const brand = await this.clinicService.ownBrand();
+    return this.brandingOf(admin, brand.name, brand.logo || admin?.logo);
+  }
+
+  private brandingOf(doctor: User | undefined, clinicName: string | undefined, logoUrl: string | undefined): ClinicBranding {
     return {
-      clinicName: clinic?.name || undefined,
+      clinicName: clinicName || undefined,
       doctorName: this.withDoctorPrefix(doctor?.name ?? ''),
       phone: doctor?.phoneNumber || undefined,
       address: doctor?.address || undefined,
-      logoUrl: (clinic ? clinic.logo : doctor?.logo) || undefined,
+      logoUrl: logoUrl || undefined,
     };
   }
 

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Injector, OnInit } from '@angular/core';
 import { DatePipe, NgClass, formatDate } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -15,6 +15,8 @@ import { ClinicService } from '@core/service/clinic.service';
 import { ClinicContextService } from '@core/service/clinic-context.service';
 import { ClinicRecordsService, DoctorRangeTotals } from '@core/service/clinic-records.service';
 import { CurrencyService } from '@core/service/currency.service';
+import { NotificationService } from '@core/service/notification.service';
+import { ClinicReport, ClinicReportLine } from '@core/models/clinic-report.model';
 import { Patient } from '@core/models/patient.model';
 import {
   ClinicAgreement,
@@ -25,7 +27,8 @@ import {
   inviteDisplayStatus,
 } from '@core/models/clinic.model';
 import { appointmentStart } from '@core/util/appointment-form.util';
-import { isSupportedCurrency } from '@core/util/currency.util';
+import { downloadCsv } from '@core/util/csv.util';
+import { isSupportedCurrency, roundCurrencyAmount } from '@core/util/currency.util';
 import {
   DashboardRangePreset,
   formatDashboardRangeLabel,
@@ -128,6 +131,7 @@ export class ClinicDashboardComponent extends UnsubscribeOnDestroyAdapter implem
   outstandingFailed = false;
   scheduleFailed = false;
   opening = false;
+  exporting = false;
   private linked: LinkedDoctor[] = [];
   /** By id. Null while loading. */
   private agreements: Map<string, ClinicAgreement> | null = null;
@@ -142,6 +146,8 @@ export class ClinicDashboardComponent extends UnsubscribeOnDestroyAdapter implem
     private currencyService: CurrencyService,
     private authService: FirebaseAuthenticationService,
     private translate: TranslateService,
+    private notificationService: NotificationService,
+    private injector: Injector,
   ) {
     super();
   }
@@ -379,6 +385,72 @@ export class ClinicDashboardComponent extends UnsubscribeOnDestroyAdapter implem
     return this.currencyService.code;
   }
 
+  /** Every figure By doctor shows has loaded. */
+  get canExport(): boolean {
+    return !!this.figures && !!this.outstanding && !!this.agreements;
+  }
+
+  exportCsv(): void {
+    const report = this.report();
+    if (!report) {
+      return;
+    }
+    const t = (key: string): string => this.translate.instant(key);
+    const lines = report.total ? [...report.lines, report.total] : report.lines;
+    downloadCsv(`${report.fileName}.csv`, [
+      [
+        t('CLINIC.DASHBOARD.DOCTOR'),
+        t('DASHBOARD.APPOINTMENTS'),
+        t('DASHBOARD.TREATMENTS'),
+        t('DASHBOARD.NEW_PATIENTS'),
+        t('DASHBOARD.EARNING'),
+        t('CLINIC.REPORT.COMMISSION_BASE'),
+        t('CLINIC.REPORT.RATE'),
+        t('CLINIC.DASHBOARD.COMMISSION'),
+        t('CLINIC.DASHBOARD.OUTSTANDING'),
+        t('CLINIC.REPORT.CURRENCY'),
+      ],
+      ...lines.map((line) => {
+        const amount = (value: number | null) => (value === null ? null : roundCurrencyAmount(value, line.currency));
+        return [
+          line.label,
+          line.appointments,
+          line.treatments,
+          line.newPatients,
+          amount(line.collected),
+          amount(line.commissionBase),
+          line.commissionPercent === null ? null : `${line.commissionPercent}%`,
+          amount(line.commission),
+          amount(line.outstanding),
+          line.currency,
+        ];
+      }),
+    ]);
+  }
+
+  async exportPdf(): Promise<void> {
+    const report = this.report();
+    if (!report) {
+      return;
+    }
+    this.exporting = true;
+    try {
+      // pdfmake is large, so the Clinic pages load it only when a PDF is made.
+      const { PdfService } = await import('@core/service/pdf.service');
+      await this.injector.get(PdfService).downloadClinicReportPdf(report);
+    } catch (err) {
+      console.error('Failed to create the clinic report PDF', err);
+      this.notificationService.showSwalOkDialog(
+        this.translate.instant('CLINIC.REPORT.PDF_FAILED'),
+        'error',
+        'center',
+        this.translate.instant('COMMON.OK'),
+      );
+    } finally {
+      this.exporting = false;
+    }
+  }
+
   /** Each item is handled on Clinic > Doctors. */
   get attentionItems(): AttentionItem[] {
     const items: AttentionItem[] = [];
@@ -452,6 +524,72 @@ export class ClinicDashboardComponent extends UnsubscribeOnDestroyAdapter implem
 
   private emitRange(): void {
     this.ranges.next(getDashboardRangeDates(this.selectedRange, this.rangeOffset));
+  }
+
+  /**
+   * What By doctor shows, for its exports. Null until all of it has loaded. Doctors go by their
+   * names alone, since "(you)" means nothing outside the app and the PDFs' Arabic font has no brackets.
+   */
+  private report(): ClinicReport | null {
+    const { figures, outstanding, agreements } = this;
+    if (!figures || !outstanding || !agreements) {
+      return null;
+    }
+    const lines: ClinicReportLine[] = [];
+    for (const doctor of this.shownDoctors) {
+      const doctorFigures = figures.get(doctor.doctorId);
+      const balance = outstanding.get(doctor.doctorId);
+      if (!doctorFigures || balance === undefined) {
+        return null;
+      }
+      const percent = this.commissionPercent(doctor);
+      lines.push({
+        label: doctor.name,
+        appointments: doctorFigures.totals.appointments,
+        treatments: doctorFigures.totals.treatments,
+        newPatients: doctorFigures.totals.newPatients,
+        collected: doctorFigures.totals.collected,
+        commissionBase: percent === null ? null : doctorFigures.commissionBase,
+        commissionPercent: percent,
+        commission: this.commissionOf(doctor),
+        outstanding: balance,
+        currency: isSupportedCurrency(doctor.currency) ? doctor.currency : this.currencyCode,
+      });
+    }
+    if (!lines.length) {
+      return null;
+    }
+    const sum = (pick: (line: ClinicReportLine) => number | null) =>
+      lines.reduce((total, line) => total + (pick(line) ?? 0), 0);
+    const { start, end } = this.ranges.value;
+    const lastDay = new Date(end);
+    lastDay.setDate(lastDay.getDate() - 1);
+    const day = (date: Date) => formatDate(date, 'yyyy-MM-dd', 'en');
+    return {
+      firstDay: start,
+      lastDay,
+      doctors: this.selectedDoctorId ? lines[0].label : this.translate.instant('CLINIC.DASHBOARD.ALL_DOCTORS'),
+      lines,
+      total:
+        lines.length > 1
+          ? {
+              label: this.translate.instant('CLINIC.DASHBOARD.TOTAL'),
+              appointments: sum((line) => line.appointments),
+              treatments: sum((line) => line.treatments),
+              newPatients: sum((line) => line.newPatients),
+              collected: sum((line) => line.collected),
+              commissionBase: sum((line) => line.commissionBase),
+              commissionPercent: null,
+              commission: sum((line) => line.commission),
+              outstanding: sum((line) => line.outstanding),
+              currency: this.currencyCode,
+            }
+          : null,
+      fileName:
+        start.getTime() === lastDay.getTime()
+          ? `clinic-report-${day(start)}`
+          : `clinic-report-${day(start)}-to-${day(lastDay)}`,
+    };
   }
 
   private async loadFigures(doctors: ClinicDoctor[], range: DateRange): Promise<Map<string, DoctorFigures> | null> {
