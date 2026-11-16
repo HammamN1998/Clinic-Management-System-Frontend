@@ -20,6 +20,7 @@ import { NotificationService } from '@core/service/notification.service';
 import { getAppDateLocale } from '@core/util/app-locale.util';
 import {
   ClinicAgreement,
+  ClinicBrand,
   ClinicInvite,
   ClinicMembership,
   ClinicProfile,
@@ -34,6 +35,7 @@ import {
   RecordHistoryDialogData,
 } from '@shared/components/record-history-dialog/record-history-dialog.component';
 import { TermsDialogComponent, TermsDialogData } from '../terms-dialog/terms-dialog.component';
+import { BrandingDialogComponent } from '../branding-dialog/branding-dialog.component';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -171,6 +173,39 @@ export class ClinicDoctorsComponent extends UnsubscribeOnDestroyAdapter implemen
 
   openInviteDialog(): void {
     this.openTermsDialog({ mode: 'invite' }, 'CLINIC.DOCTORS.MESSAGES.INVITED');
+  }
+
+  async editBranding(): Promise<void> {
+    this.busy = true;
+    const brand = await this.clinicService.ownBrand().catch((err) => {
+      console.error('Failed to read the clinic name and logo', err);
+      return null;
+    });
+    this.busy = false;
+    if (!brand) {
+      this.notificationService.showSwalOkDialog(
+        this.translate.instant('CLINIC.BRANDING.LOAD_FAILED'),
+        'error',
+        'center',
+        this.translate.instant('COMMON.OK'),
+      );
+      return;
+    }
+    const dialogRef = this.dialog.open<BrandingDialogComponent, ClinicBrand, boolean>(BrandingDialogComponent, {
+      data: brand,
+      direction: this.direction,
+      width: '520px',
+      maxWidth: '95vw',
+      // Closed only through its buttons, which wait for an upload or a save to finish, so the
+      // dialog can delete a logo uploaded but not saved.
+      disableClose: true,
+      closeOnNavigation: false,
+    });
+    this.subs.sink = dialogRef.afterClosed().subscribe((saved) => {
+      if (saved) {
+        this.notifySuccess(this.translate.instant('CLINIC.BRANDING.SAVED'));
+      }
+    });
   }
 
   /** Starts from the open proposal when there is one, since that is what the admin last offered. */

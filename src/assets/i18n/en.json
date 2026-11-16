@@ -787,6 +787,19 @@
       "DECLINED": "Declined",
       "CANCELLED": "Cancelled"
     },
+    "BRANDING": {
+      "EDIT": "Name and logo",
+      "TITLE": "Clinic name and logo",
+      "HINT": "Your doctors see this name and logo in the app and at the top of their PDFs. Invitations and emails use the name.",
+      "NAME": "Clinic name",
+      "NAME_HINT": "Leave it empty to use your own name.",
+      "LOGO": "Logo",
+      "NO_LOGO": "No clinic logo. The logo from your profile is used, if you have one.",
+      "REMOVE_LOGO": "Remove logo",
+      "SAVED": "Saved. Your doctors will see the change shortly.",
+      "SAVE_FAILED": "The name and logo could not be saved. Please try again.",
+      "LOAD_FAILED": "The clinic name and logo could not be loaded. Please try again."
+    },
     "DOCTORS": {
       "TITLE": "Doctors",
       "SEATS": "Linked: {{linked}} · Invited: {{invited}} · Free seats: {{free}} of {{max}}",

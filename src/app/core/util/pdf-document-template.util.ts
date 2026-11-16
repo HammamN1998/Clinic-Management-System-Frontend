@@ -39,6 +39,7 @@ export const PDF_STYLES: StyleDictionary = {
   title: { fontSize: 16, bold: true },
   subtle: { fontSize: 9, color: '#555555' },
   clinicName: { fontSize: 14, bold: true },
+  clinicDoctor: { fontSize: 11, bold: true },
   clinicMeta: { fontSize: 9, color: '#555555' },
   sectionLabel: { fontSize: 10, bold: true, margin: [0, 0, 0, 2] },
   sectionTitle: { fontSize: 12, bold: true, margin: [0, 10, 0, 4] },
@@ -74,7 +75,9 @@ function buildHeader(
   branding: ClinicBranding,
   logoDataUrl?: string,
 ): Content {
-  const docInfo: Content[] = [pdfTextCell(branding.doctorName, 'clinicName')];
+  const docInfo: Content[] = branding.clinicName
+    ? [pdfTextCell(branding.clinicName, 'clinicName'), pdfTextCell(branding.doctorName, 'clinicDoctor')]
+    : [pdfTextCell(branding.doctorName, 'clinicName')];
   if (branding.phone) {
     docInfo.push(pdfTextCell(branding.phone, 'clinicMeta'));
   }
@@ -90,7 +93,7 @@ function buildHeader(
   // Vertically center the name/phone block against the logo height.
   const logoHeight = 50;
   const metaLines = (branding.phone ? 1 : 0) + (branding.address ? 1 : 0);
-  const infoHeight = 17 + metaLines * 11;
+  const infoHeight = 17 + (branding.clinicName ? 14 : 0) + metaLines * 11;
   const topOffset = logoDataUrl
     ? Math.max(0, Math.round((logoHeight - infoHeight) / 2))
     : 0;

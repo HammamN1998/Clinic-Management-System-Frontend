@@ -65,6 +65,16 @@ export interface ClinicProfile {
   logo: string;
 }
 
+/** The functions' emails cut a longer clinic name. */
+export const CLINIC_NAME_MAX_LENGTH = 80;
+
+/** The clinic name and logo as the admin set them. Empty ones make the clinic profile use his own name and PDF logo. */
+export interface ClinicBrand {
+  name: string;
+  logo: string;
+  logoSize: number;
+}
+
 export type InviteStatus = 'pending' | 'accepted' | 'declined' | 'cancelled' | 'expired';
 
 export interface ClinicInvite {

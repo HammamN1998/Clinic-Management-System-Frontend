@@ -1,9 +1,11 @@
 /** Clinic/doctor branding rendered in PDF headers and footers. */
 export interface ClinicBranding {
+  /** Set for a doctor in a clinic: the header shows it above his name. */
+  clinicName?: string;
   doctorName: string;
   phone?: string;
   address?: string;
-  /** Doctor brand logo URL (doctor.logo). Resolved to a base64 data URL by PdfService. */
+  /** The clinic's logo for a doctor in a clinic, otherwise his own (doctor.logo). Resolved to a base64 data URL by PdfService. */
   logoUrl?: string;
 }
 

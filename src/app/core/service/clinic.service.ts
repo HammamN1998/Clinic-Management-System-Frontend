@@ -17,6 +17,7 @@ import {
   AgreementStatus,
   ClinicAccess,
   ClinicAgreement,
+  ClinicBrand,
   ClinicDoctor,
   ClinicInvite,
   ClinicMembership,
@@ -43,6 +44,9 @@ interface DoctorDoc {
   phoneNumber?: string;
   address?: string;
   logo?: string;
+  clinicName?: string;
+  clinicLogo?: string;
+  clinicLogoSize?: number;
   currency?: string;
   defaultAppointmentDuration?: number;
   calendarShowAttendedAppointments?: string;
@@ -343,6 +347,36 @@ export class ClinicService {
     // Switching accounts closes the patient open in the previous one, so he is set after the switch.
     this.patientService.dialogData = patient;
     await this.router.navigate(['/admin/patients/patient-profile']);
+  }
+
+  /**
+   * The clinic of the doctor whose records are on screen: the signed-in doctor's, or the admin's
+   * own while he works in a linked doctor's account. Null for a doctor in no clinic.
+   */
+  async activeClinic(): Promise<ClinicProfile | null> {
+    const adminId = this.clinicContext.isActing
+      ? this.authService.currentUserValue?.id
+      : (await firstValueFrom(this.membership$))?.clinicAdminId;
+    return adminId ? firstValueFrom(this.clinicProfile$(adminId)) : null;
+  }
+
+  /** The signed-in admin's clinic name and logo, without the fallbacks the clinic profile applies. */
+  async ownBrand(): Promise<ClinicBrand> {
+    const snapshot = await firstValueFrom(
+      this.firestore.collection('doctors').doc<DoctorDoc>(this.authService.currentUserValue.id).get(),
+    );
+    const doc = snapshot.data();
+    return { name: doc?.clinicName ?? '', logo: doc?.clinicLogo ?? '', logoSize: doc?.clinicLogoSize ?? 0 };
+  }
+
+  /** Saves the signed-in admin's clinic name, and his clinic logo when given. A function then updates the clinic profile. */
+  saveBrand(name: string, logo?: { url: string; size: number }): Promise<void> {
+    const update: DoctorDoc = { clinicName: name };
+    if (logo) {
+      update.clinicLogo = logo.url;
+      update.clinicLogoSize = logo.size;
+    }
+    return this.firestore.collection('doctors').doc(this.authService.currentUserValue.id).update(update);
   }
 
   clinicProfile$(adminId: string): Observable<ClinicProfile | null> {

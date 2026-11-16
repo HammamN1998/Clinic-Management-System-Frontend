@@ -33,6 +33,7 @@ import {
 } from '@core/util/pdf-document-template.util';
 import { DoctorService } from '@core/service/doctor.service';
 import { CurrencyService } from '@core/service/currency.service';
+import { ClinicService } from '@core/service/clinic.service';
 
 export interface PatientBalancePdfInput {
   treatments: TreatmentModel[];
@@ -96,6 +97,24 @@ function arrayBufferToBase64(buffer: ArrayBuffer): string {
   return btoa(binary);
 }
 
+function isJpegOrPng(buffer: ArrayBuffer): boolean {
+  const bytes = new Uint8Array(buffer, 0, Math.min(4, buffer.byteLength));
+  const isJpeg = bytes[0] === 0xff && bytes[1] === 0xd8;
+  const isPng = bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47;
+  return isJpeg || isPng;
+}
+
+/** Redraws an image in another format (WebP, GIF, BMP) as a PNG. */
+async function toPngDataUrl(buffer: ArrayBuffer): Promise<string> {
+  const bitmap = await createImageBitmap(new Blob([buffer]));
+  const canvas = document.createElement('canvas');
+  canvas.width = bitmap.width;
+  canvas.height = bitmap.height;
+  canvas.getContext('2d')!.drawImage(bitmap, 0, 0);
+  bitmap.close();
+  return canvas.toDataURL('image/png');
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -111,6 +130,7 @@ export class PdfService {
     private readonly translate: TranslateService,
     private readonly doctorService: DoctorService,
     private readonly currency: CurrencyService,
+    private readonly clinicService: ClinicService,
   ) {}
 
   /** Documents carry the ISO currency code so amounts stay unambiguous. */
@@ -681,14 +701,16 @@ export class PdfService {
       this.translate.instant(key, params);
   }
 
-  /** Documents carry the details of the doctor whose patient they are for. */
-  private getBranding(): ClinicBranding {
+  /** Documents carry the details of the doctor whose patient they are for, under his clinic's name and logo when he is in one. */
+  private async getBranding(): Promise<ClinicBranding> {
     const doctor = this.doctorService.activeDoctor;
+    const clinic = await this.clinicService.activeClinic();
     return {
+      clinicName: clinic?.name || undefined,
       doctorName: this.withDoctorPrefix(doctor?.name ?? ''),
       phone: doctor?.phoneNumber || undefined,
       address: doctor?.address || undefined,
-      logoUrl: doctor?.logo || undefined,
+      logoUrl: (clinic ? clinic.logo : doctor?.logo) || undefined,
     };
   }
 
@@ -720,7 +742,7 @@ export class PdfService {
     patient?: PatientPdfContext,
   ): Promise<Omit<BaseDocumentOptions, 'title' | 'body'>> {
     await this.ensurePdfMakeReady();
-    const branding = this.getBranding();
+    const branding = await this.getBranding();
     const logoDataUrl = await this.loadLogoAsDataUrl(branding.logoUrl);
     return {
       branding,
@@ -748,10 +770,11 @@ export class PdfService {
           observe: 'response',
         }),
       );
-      const contentType =
-        response.headers.get('Content-Type') ?? 'image/png';
-      const base64 = arrayBufferToBase64(response.body as ArrayBuffer);
-      const dataUrl = `data:${contentType};base64,${base64}`;
+      const buffer = response.body as ArrayBuffer;
+      // pdfmake embeds only JPEG and PNG images and fails the whole document on any other format.
+      const dataUrl = isJpegOrPng(buffer)
+        ? `data:${response.headers.get('Content-Type') ?? 'image/png'};base64,${arrayBufferToBase64(buffer)}`
+        : await toPngDataUrl(buffer);
       this.logoCache.set(logoUrl, dataUrl);
       return dataUrl;
     } catch {
@@ -813,7 +836,8 @@ export class PdfService {
     generatedAt: Date,
   ): string {
     return this.buildQrPayload([
-      ['Clinic', branding.doctorName],
+      ['Clinic', branding.clinicName || branding.doctorName],
+      ['Doctor', branding.clinicName && branding.doctorName],
       ['Clinic Phone', branding.phone],
       ['Patient', patientName],
       ['Phone', patient?.phoneNumber],
@@ -837,7 +861,8 @@ export class PdfService {
     date: Date,
   ): string {
     return this.buildQrPayload([
-      ['Clinic', branding.doctorName],
+      ['Clinic', branding.clinicName || branding.doctorName],
+      ['Doctor', branding.clinicName && branding.doctorName],
       ['Clinic Phone', branding.phone],
       ['Patient', patientName],
       ['Phone', patient.phoneNumber],

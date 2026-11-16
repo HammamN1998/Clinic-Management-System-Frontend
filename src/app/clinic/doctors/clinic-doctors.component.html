@@ -27,10 +27,16 @@
             </span>
           </div>
         </div>
-        <button mat-raised-button color="primary" (click)="openInviteDialog()" [disabled]="busy || freeSeats === 0">
-          <mat-icon>person_add</mat-icon>
-          {{ 'CLINIC.DOCTORS.INVITE' | translate }}
-        </button>
+        <div class="d-flex flex-wrap gap-2">
+          <button mat-stroked-button color="primary" (click)="editBranding()" [disabled]="busy">
+            <mat-icon>edit</mat-icon>
+            {{ 'CLINIC.BRANDING.EDIT' | translate }}
+          </button>
+          <button mat-raised-button color="primary" (click)="openInviteDialog()" [disabled]="busy || freeSeats === 0">
+            <mat-icon>person_add</mat-icon>
+            {{ 'CLINIC.DOCTORS.INVITE' | translate }}
+          </button>
+        </div>
       </div>
       <div class="body">
         @if (freeSeats === 0) {

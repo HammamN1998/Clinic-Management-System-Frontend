@@ -1,0 +1,46 @@
+<h2 mat-dialog-title>{{ 'CLINIC.BRANDING.TITLE' | translate }}</h2>
+<div mat-dialog-content class="branding-dialog">
+  <p class="branding-dialog__hint">{{ 'CLINIC.BRANDING.HINT' | translate }}</p>
+
+  <mat-form-field appearance="outline" class="branding-dialog__field">
+    <mat-label>{{ 'CLINIC.BRANDING.NAME' | translate }}</mat-label>
+    <input matInput [formControl]="name" [attr.maxlength]="nameMaxLength" autocomplete="off">
+    <mat-hint>{{ 'CLINIC.BRANDING.NAME_HINT' | translate }}</mat-hint>
+    <mat-hint align="end">{{ name.value.length }} / {{ nameMaxLength }}</mat-hint>
+  </mat-form-field>
+
+  <span class="branding-dialog__label">{{ 'CLINIC.BRANDING.LOGO' | translate }}</span>
+  @if (logo) {
+    <img class="branding-dialog__logo" [src]="logo" alt="" />
+    <button mat-stroked-button color="warn" type="button" class="branding-dialog__remove"
+            (click)="removeLogo()" [disabled]="saving || uploading">
+      <mat-icon>delete</mat-icon>
+      {{ 'CLINIC.BRANDING.REMOVE_LOGO' | translate }}
+    </button>
+  } @else {
+    <span class="branding-dialog__small">{{ 'CLINIC.BRANDING.NO_LOGO' | translate }}</span>
+  }
+  <fieldset [disabled]="saving">
+    <app-file-upload
+      [rootFolder]="logoFolder"
+      [name]="logoFileName"
+      accept="image/*"
+      uploadMode="imageOnly"
+      [maxImageDimension]="1024"
+      (downloadedAttachment)="onUploaded($event)"
+    ></app-file-upload>
+  </fieldset>
+
+  @if (error) {
+    <div class="alert alert-danger branding-dialog__error" role="alert">{{ error }}</div>
+  }
+</div>
+<div mat-dialog-actions align="end">
+  <button mat-button type="button" (click)="cancel()" [disabled]="saving || uploading">{{ 'COMMON.CANCEL' | translate }}</button>
+  <button mat-flat-button color="primary" type="button"
+          [class.auth-spinner]="saving"
+          [disabled]="saving || uploading || name.invalid || !changed"
+          (click)="save()">
+    {{ 'COMMON.SAVE' | translate }}
+  </button>
+</div>
