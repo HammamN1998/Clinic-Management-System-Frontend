@@ -20,7 +20,7 @@ export interface ClinicReportLine {
   currency: string;
 }
 
-/** What By doctor on the clinic dashboard shows, for its CSV and PDF exports. */
+/** What By doctor on the clinic dashboard shows, for its Excel and PDF exports. */
 export interface ClinicReport {
   firstDay: Date;
   lastDay: Date;

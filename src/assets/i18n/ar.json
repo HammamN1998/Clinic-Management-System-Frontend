@@ -1054,7 +1054,7 @@
       "SCHEDULE_FAILED": "تعذّر تحميل مواعيد اليوم. يرجى المحاولة لاحقًا.",
       "LOAD_FAILED": "تعذّر تحميل بعض الأرقام. يرجى المحاولة لاحقًا.",
       "CURRENCY_MIXED": "يستخدم {{names}} عملة أخرى، وتُجمع مبالغهم هنا كأنها بعملة {{currency}}.",
-      "EXPORT_CSV": "تصدير CSV",
+      "EXPORT_EXCEL": "تصدير Excel",
       "EXPORT_PDF": "تصدير PDF",
       "ATTENTION": {
         "TITLE": "بحاجة إلى انتباهك",

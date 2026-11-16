@@ -27,7 +27,6 @@ import {
   inviteDisplayStatus,
 } from '@core/models/clinic.model';
 import { appointmentStart } from '@core/util/appointment-form.util';
-import { downloadCsv } from '@core/util/csv.util';
 import { isSupportedCurrency, roundCurrencyAmount } from '@core/util/currency.util';
 import {
   DashboardRangePreset,
@@ -35,6 +34,7 @@ import {
   getAppDateLocale,
   getDashboardRangeDates,
 } from '@core/util/dashboard-range-label.util';
+import { downloadXlsx } from '@core/util/xlsx.util';
 
 interface RangeOption {
   id: DashboardRangePreset;
@@ -390,42 +390,52 @@ export class ClinicDashboardComponent extends UnsubscribeOnDestroyAdapter implem
     return !!this.figures && !!this.outstanding && !!this.agreements;
   }
 
-  exportCsv(): void {
+  exportExcel(): void {
     const report = this.report();
     if (!report) {
       return;
     }
     const t = (key: string): string => this.translate.instant(key);
     const lines = report.total ? [...report.lines, report.total] : report.lines;
-    downloadCsv(`${report.fileName}.csv`, [
+    downloadXlsx(
+      `${report.fileName}.xlsx`,
       [
-        t('CLINIC.DASHBOARD.DOCTOR'),
-        t('DASHBOARD.APPOINTMENTS'),
-        t('DASHBOARD.TREATMENTS'),
-        t('DASHBOARD.NEW_PATIENTS'),
-        t('DASHBOARD.EARNING'),
-        t('CLINIC.REPORT.COMMISSION_BASE'),
-        t('CLINIC.REPORT.RATE'),
-        t('CLINIC.DASHBOARD.COMMISSION'),
-        t('CLINIC.DASHBOARD.OUTSTANDING'),
-        t('CLINIC.REPORT.CURRENCY'),
+        [
+          t('CLINIC.DASHBOARD.DOCTOR'),
+          t('DASHBOARD.APPOINTMENTS'),
+          t('DASHBOARD.TREATMENTS'),
+          t('DASHBOARD.NEW_PATIENTS'),
+          t('DASHBOARD.EARNING'),
+          t('CLINIC.REPORT.COMMISSION_BASE'),
+          t('CLINIC.REPORT.RATE'),
+          t('CLINIC.DASHBOARD.COMMISSION'),
+          t('CLINIC.DASHBOARD.OUTSTANDING'),
+          t('CLINIC.REPORT.CURRENCY'),
+        ],
+        ...lines.map((line) => {
+          const amount = (value: number | null) => (value === null ? null : roundCurrencyAmount(value, line.currency));
+          return [
+            line.label,
+            line.appointments,
+            line.treatments,
+            line.newPatients,
+            amount(line.collected),
+            amount(line.commissionBase),
+            line.commissionPercent === null ? null : line.commissionPercent / 100,
+            amount(line.commission),
+            amount(line.outstanding),
+            line.currency,
+          ];
+        }),
       ],
-      ...lines.map((line) => {
-        const amount = (value: number | null) => (value === null ? null : roundCurrencyAmount(value, line.currency));
-        return [
-          line.label,
-          line.appointments,
-          line.treatments,
-          line.newPatients,
-          amount(line.collected),
-          amount(line.commissionBase),
-          line.commissionPercent === null ? null : `${line.commissionPercent}%`,
-          amount(line.commission),
-          amount(line.outstanding),
-          line.currency,
-        ];
-      }),
-    ]);
+      {
+        name: t('CLINIC.REPORT.TITLE'),
+        widths: [28, 14, 12, 14, 14, 24, 10, 18, 20, 10],
+        boldRows: report.total ? [0, lines.length] : [0],
+        percentColumns: [6],
+        rightToLeft: this.translate.currentLang === 'ar',
+      },
+    );
   }
 
   async exportPdf(): Promise<void> {

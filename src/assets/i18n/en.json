@@ -1054,7 +1054,7 @@
       "SCHEDULE_FAILED": "Could not load today's appointments. Please try again later.",
       "LOAD_FAILED": "Some figures could not be loaded. Please try again later.",
       "CURRENCY_MIXED": "{{names}} use another currency. Their amounts are added here as if they were in {{currency}}.",
-      "EXPORT_CSV": "Export CSV",
+      "EXPORT_EXCEL": "Export Excel",
       "EXPORT_PDF": "Export PDF",
       "ATTENTION": {
         "TITLE": "Needs attention",
