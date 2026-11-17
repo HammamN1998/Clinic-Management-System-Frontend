@@ -57,6 +57,18 @@ export interface ClinicDoctor {
   linkedAt: Date | null;
 }
 
+/** The most patients one copyPatients call takes. */
+export const COPY_BATCH_SIZE = 10;
+
+/** What a copyPatients call did with the patients it was sent. */
+export interface CopyResult {
+  copied: number;
+  /** Copied to that account before, so skipped. */
+  alreadyCopied: number;
+  /** Not a patient the doctor added since he joined, such as one deleted since he was listed. */
+  notEligible: number;
+}
+
 /** `clinics/{adminId}`: what linked doctors see of their clinic. */
 export interface ClinicProfile {
   adminId: string;

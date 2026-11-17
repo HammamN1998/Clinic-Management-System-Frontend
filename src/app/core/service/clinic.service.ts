@@ -23,6 +23,7 @@ import {
   ClinicMembership,
   ClinicProfile,
   ClinicTerms,
+  CopyResult,
   FieldChange,
   HistoryAction,
   HistoryCollection,
@@ -238,6 +239,9 @@ function toHistoryEntry(id: string, doc: HistoryDoc): HistoryEntry {
     requestedAt: toDate(doc.requestedAt),
   };
 }
+
+/** copyPatients may run up to its 300-second timeout, well past the SDK's 70-second default. */
+const COPY_TIMEOUT_MS = 310_000;
 
 const newestFirst = (a: ClinicInvite, b: ClinicInvite) => (b.sentAt?.getTime() ?? 0) - (a.sentAt?.getTime() ?? 0);
 
@@ -563,6 +567,36 @@ export class ClinicService {
     return this.call('restoreRecord', { historyId });
   }
 
+  /** The patients copyPatients takes from a linked doctor: those added to his account since he joined. */
+  async copyablePatients(doctorId: string): Promise<string[]> {
+    const { patientIds } = await this.call<{ patientIds: string[] }>('listCopyablePatients', { doctorId });
+    return patientIds;
+  }
+
+  /** Copies up to COPY_BATCH_SIZE of a linked doctor's patients into the admin's account or another linked doctor's. */
+  copyPatients(doctorId: string, targetId: string, patientIds: string[]): Promise<CopyResult> {
+    return this.call('copyPatients', { doctorId, targetId, patientIds }, COPY_TIMEOUT_MS);
+  }
+
+  /**
+   * Re-reads the signed-in doctor's subscription after copies into his account. Functions count
+   * the copies a moment after writing them, so his patients are counted from the patients themselves.
+   */
+  async reloadOwnCounts(): Promise<void> {
+    const doctorId = this.authService.currentUserValue.id;
+    await this.reloadSubscription(doctorId);
+    try {
+      const patientsCount = await this.patientService.countPatients(doctorId);
+      const user = this.authService.currentUserValue;
+      if (user?.id === doctorId) {
+        user.subscription.patientsCount = patientsCount;
+        this.authService.persistCurrentUser();
+      }
+    } catch (err) {
+      console.error('Failed to count the patients', err);
+    }
+  }
+
   /** Translated message for a failed clinic call, from the `reason` the functions attach. */
   errorMessage(err: unknown): string {
     const reason = (err as { details?: { reason?: unknown } } | null)?.details?.reason;
@@ -577,8 +611,8 @@ export class ClinicService {
     return this.translate.instant('CLINIC.ERRORS.GENERIC');
   }
 
-  private call<T>(name: string, data: object): Promise<T> {
-    return firstValueFrom(this.functions.httpsCallable<object, T>(name)(data));
+  private call<T>(name: string, data: object, timeout?: number): Promise<T> {
+    return firstValueFrom(this.functions.httpsCallable<object, T>(name, { timeout })(data));
   }
 
   private watchMembership(doctorId: string): Observable<ClinicMembership | null> {

@@ -112,6 +112,10 @@
                 <span class="clinic-doctors__muted">
                   {{ (doctor.unlinkRequestedBy === 'doctor' ? 'CLINIC.DOCTORS.LEAVING_BY_DOCTOR' : 'CLINIC.DOCTORS.LEAVING_BY_ADMIN') | translate }}
                 </span>
+                <button mat-stroked-button color="primary" (click)="copyPatients(doctor)" [disabled]="busy">
+                  <mat-icon>content_copy</mat-icon>
+                  {{ 'CLINIC.DOCTORS.ACTIONS.COPY_PATIENTS' | translate }}
+                </button>
               </div>
             }
 

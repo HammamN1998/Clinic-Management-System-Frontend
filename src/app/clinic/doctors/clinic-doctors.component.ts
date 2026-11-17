@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { DatePipe, NgClass, formatDate } from '@angular/common';
 import { Router } from '@angular/router';
 import { Direction } from '@angular/cdk/bidi';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
@@ -36,6 +36,7 @@ import {
 } from '@shared/components/record-history-dialog/record-history-dialog.component';
 import { TermsDialogComponent, TermsDialogData } from '../terms-dialog/terms-dialog.component';
 import { BrandingDialogComponent } from '../branding-dialog/branding-dialog.component';
+import { CopyDialogComponent, CopyDialogData, CopyDialogResult } from '../copy-dialog/copy-dialog.component';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -221,7 +222,12 @@ export class ClinicDoctorsComponent extends UnsubscribeOnDestroyAdapter implemen
   }
 
   async startUnlink(doctor: LinkedDoctor): Promise<void> {
-    const noticeDays = this.currentAgreement(doctor)?.terms.noticeDays;
+    // Without a notice period the doctor is unlinked at once, leaving no time to copy his patients after.
+    if (this.currentAgreement(doctor)?.terms.noticeDays === 0 && !(await this.copyBeforeUnlink(doctor))) {
+      return;
+    }
+    // Read after the copy dialog, which may stay open while the doctor accepts terms with another notice period.
+    const noticeDays = this.currentAgreement(this.latest(doctor))?.terms.noticeDays;
     if (noticeDays === undefined) {
       return;
     }
@@ -251,6 +257,9 @@ export class ClinicDoctorsComponent extends UnsubscribeOnDestroyAdapter implemen
   }
 
   async unlinkNow(doctor: LinkedDoctor): Promise<void> {
+    if (!(await this.copyBeforeUnlink(doctor))) {
+      return;
+    }
     const name = this.displayName(doctor);
     const message = this.translate.instant('CLINIC.DOCTORS.CONFIRM.UNLINK_NOW', { name });
     if (!(await this.confirm(message, 'CLINIC.DOCTORS.ACTIONS.UNLINK_NOW'))) {
@@ -260,6 +269,10 @@ export class ClinicDoctorsComponent extends UnsubscribeOnDestroyAdapter implemen
       await this.clinicService.completeUnlink(doctor.doctorId);
       return this.translate.instant('CLINIC.DOCTORS.MESSAGES.UNLINKED', { name });
     });
+  }
+
+  copyPatients(doctor: LinkedDoctor): void {
+    this.openCopyDialog(doctor, false);
   }
 
   async approveDeletion(doctor: LinkedDoctor, request: PatientDeletionRequest): Promise<void> {
@@ -351,6 +364,27 @@ export class ClinicDoctorsComponent extends UnsubscribeOnDestroyAdapter implemen
       if (done) {
         this.notifySuccess(this.translate.instant(successKey));
       }
+    });
+  }
+
+  /** The doctor as the live list has him now, or as he was once he is no longer listed. */
+  private latest(doctor: LinkedDoctor): LinkedDoctor {
+    return this.doctors.find((linked) => linked.doctorId === doctor.doctorId) ?? doctor;
+  }
+
+  /** Resolves to whether the admin went on to unlink the doctor. */
+  private async copyBeforeUnlink(doctor: LinkedDoctor): Promise<boolean> {
+    return (await firstValueFrom(this.openCopyDialog(doctor, true).afterClosed())) === 'unlink';
+  }
+
+  private openCopyDialog(doctor: LinkedDoctor, beforeUnlink: boolean): MatDialogRef<CopyDialogComponent, CopyDialogResult> {
+    return this.dialog.open<CopyDialogComponent, CopyDialogData, CopyDialogResult>(CopyDialogComponent, {
+      data: { doctor, doctors: this.doctors, beforeUnlink },
+      direction: this.direction,
+      width: '560px',
+      maxWidth: '95vw',
+      // Only its buttons close it, so a stray click cannot stop a copy part way.
+      disableClose: true,
     });
   }
 

@@ -1,0 +1,88 @@
+<h2 mat-dialog-title>{{ 'CLINIC.COPY.TITLE' | translate: { name: doctorName } }}</h2>
+<div mat-dialog-content class="copy-dialog">
+  @if (beforeUnlink) {
+    <div class="alert alert-warning copy-dialog__note" role="note">{{ 'CLINIC.COPY.BEFORE_UNLINK' | translate }}</div>
+  }
+  <p class="copy-dialog__hint">{{ 'CLINIC.COPY.HINT' | translate }}</p>
+
+  @if (patientIds === null) {
+    @if (!error) {
+      <span class="copy-dialog__small">{{ 'CLINIC.COPY.LOADING' | translate }}</span>
+      <mat-progress-bar mode="indeterminate" class="copy-dialog__progress"></mat-progress-bar>
+    }
+  } @else if (patientIds.length === 0) {
+    <p>{{ 'CLINIC.COPY.NONE' | translate }}</p>
+  } @else {
+    <div class="copy-dialog__count">
+      <strong>{{ 'CLINIC.COPY.COUNT' | translate: { count: patientIds.length } }}</strong>
+      @if (linkedAt) {
+        <span class="copy-dialog__small">
+          {{ 'CLINIC.DOCTORS.LINKED_SINCE' | translate: { date: (linkedAt | date: 'mediumDate' : undefined : dateLocale) } }}
+        </span>
+      }
+    </div>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="copy-dialog__field">
+      <mat-label>{{ 'CLINIC.COPY.TARGET' | translate }}</mat-label>
+      <mat-select [(value)]="targetId" (selectionChange)="onTargetChange()" [disabled]="copying">
+        @for (target of targets; track target.id) {
+          <mat-option [value]="target.id">{{ target.name }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <span class="copy-dialog__small">
+      {{ (toOwnAccount ? 'CLINIC.COPY.TARGET_HINT_SELF' : 'CLINIC.COPY.TARGET_HINT_DOCTOR') | translate }}
+    </span>
+
+    @if (otherCurrency; as currency) {
+      <div class="alert alert-warning copy-dialog__note" role="note">
+        {{ 'CLINIC.COPY.CURRENCY_WARNING' | translate: { name: doctorName, from: doctorCurrency, to: currency } }}
+      </div>
+    }
+
+    @if (!beforeUnlink) {
+      <span class="copy-dialog__small">{{ 'CLINIC.COPY.LATER' | translate }}</span>
+    }
+
+    @if (copying || sent > 0) {
+      <mat-progress-bar mode="determinate" [value]="percent" class="copy-dialog__progress"></mat-progress-bar>
+      <span class="copy-dialog__small">{{ 'CLINIC.COPY.PROGRESS' | translate: { done: sent, total: patientIds.length } }}</span>
+    }
+    @if (copying) {
+      <span class="copy-dialog__small">{{ 'CLINIC.COPY.COPYING_HINT' | translate }}</span>
+    } @else if (sent > 0) {
+      @if (finished) {
+        <strong>{{ 'CLINIC.COPY.DONE' | translate }}</strong>
+      }
+      <ul class="copy-dialog__summary">
+        <li>{{ 'CLINIC.COPY.COPIED' | translate: { count: result.copied } }}</li>
+        @if (result.alreadyCopied) {
+          <li>{{ 'CLINIC.COPY.ALREADY_COPIED' | translate: { count: result.alreadyCopied } }}</li>
+        }
+        @if (result.notEligible) {
+          <li>{{ 'CLINIC.COPY.NOT_ELIGIBLE' | translate: { count: result.notEligible } }}</li>
+        }
+      </ul>
+    }
+  }
+
+  @if (error) {
+    <div class="alert alert-danger copy-dialog__note" role="alert">{{ error }}</div>
+  }
+</div>
+<div mat-dialog-actions align="end">
+  <button mat-button type="button" (click)="close()">{{ 'COMMON.CLOSE' | translate }}</button>
+  @if (beforeUnlink) {
+    <button mat-stroked-button color="warn" type="button" (click)="unlink()" [disabled]="copying">
+      {{ 'CLINIC.DOCTORS.ACTIONS.UNLINK_NOW' | translate }}
+    </button>
+  }
+  @if (total > 0 && !finished) {
+    <button mat-flat-button color="primary" type="button"
+            [class.auth-spinner]="copying"
+            [disabled]="copying"
+            (click)="copy()">
+      {{ (sent === 0 ? 'CLINIC.COPY.COPY' : 'CLINIC.COPY.CONTINUE') | translate }}
+    </button>
+  }
+</div>

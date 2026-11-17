@@ -819,7 +819,8 @@
         "CHANGE_TERMS": "Change terms",
         "START_UNLINK": "Start unlink",
         "WITHDRAW_UNLINK": "Withdraw unlink",
-        "UNLINK_NOW": "Unlink now"
+        "UNLINK_NOW": "Unlink now",
+        "COPY_PATIENTS": "Copy patients"
       },
       "CONFIRM": {
         "START_UNLINK": "Start unlinking {{name}}? It takes effect on {{date}}, at the end of the notice period. Until then you keep access to the doctor's records.",
@@ -833,6 +834,27 @@
         "UNLINK_WITHDRAWN": "Unlink withdrawn.",
         "UNLINKED": "{{name}} is no longer linked to your clinic."
       }
+    },
+    "COPY": {
+      "TITLE": "Copy {{name}}'s patients",
+      "HINT": "Each copy brings the patient's profile, dental chart, notes, appointments, treatments, payments, and files. The doctor's account stays as it is.",
+      "BEFORE_UNLINK": "Once the doctor is unlinked, their patients can no longer be copied. Copy them first, or unlink now.",
+      "LOADING": "Finding the patients…",
+      "COUNT": "Patients added since the doctor joined: {{count}}",
+      "NONE": "No patients were added since the doctor joined.",
+      "TARGET": "Copy into",
+      "TARGET_HINT_SELF": "The copies count toward your patient and storage limits. You can also copy into the account of a doctor who gave you edit access and is not leaving.",
+      "TARGET_HINT_DOCTOR": "The copies count in this doctor's account like patients added there: toward its patient and storage limits, and in the clinic figures, commission base included.",
+      "CURRENCY_WARNING": "{{name}}'s amounts are in {{from}}, and the receiving account's are in {{to}}. Amounts are copied as they are, without conversion.",
+      "LATER": "Patients the doctor adds later are not included. You can copy again until the membership ends.",
+      "COPY": "Copy patients",
+      "CONTINUE": "Continue",
+      "PROGRESS": "{{done}} of {{total}}",
+      "COPYING_HINT": "Closing stops the copy after the patients being copied. Copying again later skips the patients already copied.",
+      "DONE": "Copy finished.",
+      "COPIED": "Copied: {{count}}",
+      "ALREADY_COPIED": "Copied before: {{count}}",
+      "NOT_ELIGIBLE": "No longer in the doctor's account: {{count}}"
     },
     "INVITES": {
       "TITLE": "Invitations",
@@ -882,7 +904,7 @@
       "FACT_ACCOUNT": "You keep your account, your login, and all your patients.",
       "FACT_DELETE": "Only you can delete records, and a patient is deleted only when the clinic approves your request.",
       "FACT_HISTORY": "You and the clinic can see a history of the changes made to your patients and their records. It is kept until 90 days after your membership ends.",
-      "FACT_COPY": "When your membership ends, the clinic may keep a copy of the patients added to your account since {{date}}.",
+      "FACT_COPY": "When your membership ends, the clinic may keep a copy of the patients added to your account since {{date}}, in the clinic admin's account or another member's.",
       "CONFIRM": {
         "DECLINE_INVITE": "Decline the invitation from {{clinic}}?",
         "DECLINE_TERMS": "Decline the new terms? Your current terms stay in force.",
@@ -906,7 +928,7 @@
       "ACCOUNT": "You keep your own account, login, and patients. Neither you nor the clinic can delete the other's account.",
       "LIMITS": "While you are a member, the clinic covers your plan limits.",
       "HISTORY": "While you are a member, only you can delete records, and a patient is deleted only when the clinic approves your request. You and the clinic can see a history of the changes made to your patients and their records, kept until 90 days after the membership ends.",
-      "COPY": "When your membership ends, the clinic may keep a copy of the patients added to your account while you were a member: their profile, dental chart, notes, all appointments (including future ones), treatments, payments, and files.",
+      "COPY": "When your membership ends, the clinic may keep a copy of the patients added to your account while you were a member, in the clinic admin's account or another member's: their profile, dental chart, notes, all appointments (including future ones), treatments, payments, and files.",
       "LEAVING": "Either side can end the membership. It takes effect at the end of the notice period, and the clinic can also end it at once.",
       "OWN_PLAN": "Joining does not cancel a plan you pay for yourself. If you no longer need it, cancel it in the billing portal on the Plans page.",
       "AGREE": "I have read these terms and agree to them.",
@@ -1128,7 +1150,11 @@
       "TOO_LARGE": "This record was too large to keep, so it cannot be restored.",
       "ALREADY_RESTORED": "This record was already restored.",
       "ID_TAKEN": "Another record now uses this record's ID, so it cannot be restored.",
-      "PATIENT_MISSING": "This record's patient has been deleted, so it cannot be restored."
+      "PATIENT_MISSING": "This record's patient has been deleted, so it cannot be restored.",
+      "INVALID_TARGET": "Copies can go to your own account, or to a doctor who gave you edit access and is not leaving.",
+      "TARGET_INACTIVE": "The receiving account's plan is not active.",
+      "TARGET_PATIENT_LIMIT": "The receiving account has no room for more patients.",
+      "TARGET_STORAGE_LIMIT": "The receiving account does not have enough storage for these files."
     }
   },
   "MENUITEMS": {

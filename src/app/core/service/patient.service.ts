@@ -86,11 +86,14 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
     return snapshot.docs.map((doc) => doc.data() as Patient);
   }
 
-  /** Counted by the server. The stored count sits on the doctor's subscription, which only he can read. */
-  async countPatients(): Promise<number> {
+  /**
+   * Counted by the server. The stored count sits on the doctor's subscription, which only he can
+   * read, and functions update it a moment after a patient is written.
+   */
+  async countPatients(doctorId = this.doctorService.activeDoctorId): Promise<number> {
     const patients = firestore.query(
       firestore.collection(firestore.getFirestore(), 'patients'),
-      firestore.where('doctorId', '==', this.doctorService.activeDoctorId),
+      firestore.where('doctorId', '==', doctorId),
     );
     const snapshot = await firestore.getCountFromServer(patients);
     return snapshot.data().count;
