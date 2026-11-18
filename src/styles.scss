@@ -25,15 +25,15 @@ input[type='number'] {
   appearance: textfield;
 }
 
-/* Inside a doctor's account a 40px banner sits under the 60px header (ActingBannerComponent). */
+/* Inside a doctor's account a 48px banner sits under the 60px header (ActingBannerComponent). */
 body.acting-mode {
   .sidebar {
-    top: 100px;
-    height: calc(100vh - 100px);
+    top: 108px;
+    height: calc(100vh - 108px);
   }
 
   section.content {
-    padding-top: 40px;
+    padding-top: 48px;
   }
 }
 

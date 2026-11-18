@@ -7,7 +7,7 @@ import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import firebase from 'firebase/compat/app';
 import { EMPTY, Observable, combineLatest, firstValueFrom, of } from 'rxjs';
-import { catchError, distinctUntilChanged, filter, map, shareReplay, switchMap, take } from 'rxjs/operators';
+import { catchError, distinctUntilChanged, filter, map, shareReplay, switchMap } from 'rxjs/operators';
 import { FirebaseAuthenticationService } from '../../authentication/services/firebase-authentication.service';
 import { ClinicContextService } from '@core/service/clinic-context.service';
 import { NotificationService } from '@core/service/notification.service';
@@ -312,7 +312,7 @@ export class ClinicService {
       ),
       shareReplay({ bufferSize: 1, refCount: true }),
     );
-    this.followClinicAccount(uid$);
+    this.followClinicAccount();
   }
 
   /** The signed-in admin's secretary settings, read once for the Clinic > Doctors page. */
@@ -567,39 +567,26 @@ export class ClinicService {
   }
 
   /**
-   * A linked doctor starts each sign-in in his clinic's account, unless he chose his own account
-   * in this tab. A tab opened on My clinic, where the emails about his terms take him, counts as
-   * that choice, even when he has to sign in first. Accepting an invite later leaves him where he
-   * is. While he works in the clinic account it is watched, since its admin may change its
-   * settings, and left with a notice once he is no longer linked to it. After the unlink the rules
-   * refuse the read, which ends the watch with an error.
+   * A linked doctor or secretary starts in the clinic account as soon as he is linked, including
+   * the moment he accepts an invitation. A tab opened on My clinic, where the emails about his
+   * terms take him, stays there. While he works in the clinic account it is watched, since its
+   * admin may change its settings, and left with a notice once he is no longer linked to it.
+   * After the unlink the rules refuse the read, which ends the watch with an error.
    */
-  private followClinicAccount(uid$: Observable<string | null>): void {
-    // A secretary never has an account of his own to work in: he is taken to the clinic account at
-    // sign-in, and as soon as he accepts the invitation.
+  private followClinicAccount(): void {
     this.membership$
       .pipe(
-        map((membership) => (membership?.isSecretary ? membership.clinicAdminId : null)),
+        map((membership) => membership?.clinicAdminId ?? null),
         distinctUntilChanged(),
         filter((adminId) => !!adminId),
       )
       .subscribe(() => {
-        if (!this.clinicContext.isActing) {
-          void this.openClinicAccount();
-        }
-      });
-    uid$
-      .pipe(switchMap((uid) => (uid ? this.membership$.pipe(filter(isMembership), take(1)) : EMPTY)))
-      .subscribe((membership) => {
-        if (!membership.clinicAdminId || membership.isSecretary || this.clinicContext.isActing || this.clinicContext.choseOwnAccount) {
+        if (this.clinicContext.isActing) {
           return;
         }
-        // Unlike the router's URL, the path is already the tab's first page while it is still loading.
-        // A tab sent to sign in first keeps that page in returnUrl.
         const path = this.location.path();
         const page = this.router.parseUrl(path).queryParamMap.get('returnUrl') ?? path;
         if (page.startsWith('/admin/doctors/my-clinic')) {
-          this.clinicContext.chooseOwnAccount();
           return;
         }
         void this.openClinicAccount();

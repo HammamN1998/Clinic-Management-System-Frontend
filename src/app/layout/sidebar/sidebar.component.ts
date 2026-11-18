@@ -38,7 +38,7 @@ export class SidebarComponent extends UnsubscribeOnDestroyAdapter implements OnI
   userImg?: string;
   headerHeight = 60;
   /** Height of the banner shown under the header inside the clinic account. */
-  actingBannerHeight = 40;
+  actingBannerHeight = 48;
   isActing = false;
   currentRoute?: string;
 
