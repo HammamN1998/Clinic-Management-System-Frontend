@@ -91,7 +91,7 @@ const NO_FIGURES: DoctorFigures = { appointments: 0, treatments: 0, collected: 0
 
 /**
  * The clinic at a glance: what needs the admin, what each doctor did in a range with his
- * commission, and what the clinic's patients owe in all.
+ * share, and what the clinic's patients owe in all.
  */
 @Component({
   selector: 'app-clinic-dashboard',

@@ -720,7 +720,7 @@ export class PdfService {
 
   /**
    * The period and what the clinic's patients owe in all, then each doctor's figures and
-   * commission. The period is in numeric dates, like the other documents' dates, since the Arabic
+   * share. The period is in numeric dates, like the other documents' dates, since the Arabic
    * font has no dash for a range written in Arabic.
    */
   private buildClinicReportBody(report: ClinicReport, t: Translator): Content[] {

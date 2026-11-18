@@ -766,9 +766,9 @@
     },
     "TERMS": {
       "TITLE": "Terms",
-      "COMMISSION": "Commission",
-      "COMMISSION_VALUE": "{{percent}}% of collected payments",
-      "COMMISSION_HINT": "Percent of the payments the doctor collects. Used in reports only.",
+      "COMMISSION": "Doctor's share",
+      "COMMISSION_VALUE": "{{percent}}% is the doctor's share of collected payments. The clinic keeps the rest.",
+      "COMMISSION_HINT": "The doctor's share of what he collects, from 0 to 100. The clinic keeps the rest. Used in reports only.",
       "NOTES": "Notes",
       "NOTES_HINT": "Optional. The doctor sees them with the terms."
     },
@@ -883,7 +883,7 @@
       "OWN": "Your own account stays yours, and the clinic cannot see it.",
       "HISTORY": "The clinic records who changes what.",
       "LEAVING": "Leaving ends your access at once, and the patients stay. Links to files you already opened may keep working.",
-      "COMMISSION": "Commission is the agreed percent of what you collect.",
+      "COMMISSION": "Your share is the agreed percent of what you collect. The clinic keeps the rest.",
       "OWN_PLAN": "Joining does not cancel a plan you pay for yourself. If you no longer need it, cancel it in the billing portal on the Plans page.",
       "AGREE": "I have read these terms and agree to them.",
       "JOIN": "Join clinic"
@@ -976,8 +976,8 @@
       "TITLE": "Clinic dashboard",
       "COLLECTED": "Collected",
       "COLLECTED_HINT": "Payments and paid appointment fees in this range.",
-      "COMMISSION": "Clinic commission",
-      "COMMISSION_HINT": "At each doctor's agreed rate, on what they collected in this range. A doctor who left keeps their last rate.",
+      "COMMISSION": "Doctors' share",
+      "COMMISSION_HINT": "Each doctor's agreed share of what they collected in this range. The clinic keeps the rest. A doctor who left keeps their last rate.",
       "OUTSTANDING": "Outstanding balance",
       "OUTSTANDING_HINT": "All time. A patient who paid ahead lowers it.",
       "COMPARISON_TITLE": "By doctor",
@@ -999,7 +999,7 @@
       "RATE": "Rate",
       "CURRENCY": "Currency",
       "OUTSTANDING_NOTE": "The outstanding balance covers all time, not only this period. A patient who paid ahead lowers it.",
-      "COMMISSION_NOTE": "At each doctor's agreed rate, on what they collected in this period. A doctor who left keeps their last rate.",
+      "COMMISSION_NOTE": "Each doctor's agreed share of what they collected in this period. The clinic keeps the rest. A doctor who left keeps their last rate.",
       "PDF_FAILED": "Could not create the PDF. Please try again."
     },
     "ERRORS": {
