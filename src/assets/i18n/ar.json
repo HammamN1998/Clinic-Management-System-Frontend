@@ -756,6 +756,9 @@
     "SOMEONE": "مدير عيادة",
     "UNNAMED_CLINIC": "العيادة",
     "SELF_NAME": "{{name}} (أنت)",
+    "PROVIDER": {
+      "LABEL": "الطبيب"
+    },
     "HEADER": {
       "INVITE_TEXT": "لديك دعوة للانضمام إلى عيادة.",
       "INVITE_ACTION": "مراجعة؟",

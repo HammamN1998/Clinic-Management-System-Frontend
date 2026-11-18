@@ -56,12 +56,16 @@ export interface PaymentReceiptPdfInput {
 export interface AppointmentPdfInput {
   appointment: AppointmentModel;
   patient: PatientPdfContext;
+  /** The appointment's doctor, named in place of the signed-in doctor. */
+  doctorName?: string;
 }
 
 export interface PrescriptionPdfInput {
   appointment: AppointmentModel;
   patient: PatientPdfContext;
   note?: string;
+  /** The appointment's doctor, named in place of the signed-in doctor. */
+  doctorName?: string;
 }
 
 export interface PatientLetterPdfInput {
@@ -291,7 +295,7 @@ export class PdfService {
   }
 
   async downloadAppointmentPdf(input: AppointmentPdfInput): Promise<void> {
-    const ctx = await this.documentContext(input.patient);
+    const ctx = await this.documentContext(input.patient, input.doctorName);
     const t = this.translator();
     const patientName = fullPatientName(input.patient);
     const a = input.appointment;
@@ -365,7 +369,7 @@ export class PdfService {
   }
 
   async downloadPrescriptionPdf(input: PrescriptionPdfInput): Promise<void> {
-    const ctx = await this.documentContext(input.patient);
+    const ctx = await this.documentContext(input.patient, input.doctorName);
     const t = this.translator();
     const patientName = fullPatientName(input.patient);
     const a = input.appointment;
@@ -885,9 +889,10 @@ export class PdfService {
   /** Resolve branding + logo data URL + generation timestamp for a document. */
   private async documentContext(
     patient?: PatientPdfContext,
+    doctorName?: string,
   ): Promise<Omit<BaseDocumentOptions, 'title' | 'body'>> {
     await this.ensurePdfMakeReady();
-    const branding = await this.getBranding();
+    const branding = await this.getBranding(doctorName);
     const logoDataUrl = await this.loadLogoAsDataUrl(branding.logoUrl);
     return {
       branding,

@@ -257,6 +257,7 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
   addPatientAppointment(appointment: AppointmentModel, patient = this.getDialogData()) {
     appointment.patientId = patient.id;
     appointment.doctorId = patient.doctorId || this.doctorService.activeDoctorId;
+    appointment.providerId = appointment.providerId || this.doctor.id;
 
     const result = this.firestore.collection('appointments').add( {...appointment, lastModifiedBy: this.doctor.id} );
     from(result).subscribe({
@@ -277,6 +278,7 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
   addPatientPayment(payment: PaymentModel) {
     payment.patientId = this.getDialogData().id;
     payment.doctorId = this.getDialogData().doctorId;
+    payment.providerId = payment.providerId || this.doctor.id;
 
     const result = this.firestore.collection('payments').add( {...payment, lastModifiedBy: this.doctor.id} );
     from(result).subscribe({
@@ -294,6 +296,7 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
   addPatientTreatment(treatment: TreatmentModel) {
     treatment.patientId = this.getDialogData().id;
     treatment.doctorId = this.getDialogData().doctorId;
+    treatment.providerId = treatment.providerId || this.doctor.id;
 
     const result = this.firestore.collection('treatments').add( {...treatment, lastModifiedBy: this.doctor.id} );
     from(result).subscribe({

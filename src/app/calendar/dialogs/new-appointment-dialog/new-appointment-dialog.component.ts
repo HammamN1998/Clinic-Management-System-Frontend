@@ -26,6 +26,7 @@ import { PatientService } from '@core/service/patient.service';
 import { buildTimeSlots, compareTimeSlots, doctorDefaultDuration, nextTimeSlot, toAmount } from '@core/util/appointment-form.util';
 import { DoctorService } from '@core/service/doctor.service';
 import { AppointmentDurationFieldComponent } from '@shared/components/appointment-duration-field/appointment-duration-field.component';
+import { ProviderSelectComponent } from '@shared/components/provider-select/provider-select.component';
 import { matchesPatientSearch } from '@core/util/patient-search.util';
 import { UnsubscribeOnDestroyAdapter } from '@shared';
 
@@ -60,6 +61,7 @@ const RESULT_LIMIT = 50;
     TranslateModule,
     NumericInputDirective,
     AppointmentDurationFieldComponent,
+    ProviderSelectComponent,
   ],
 })
 export class NewAppointmentDialogComponent extends UnsubscribeOnDestroyAdapter implements OnInit {
@@ -96,11 +98,16 @@ export class NewAppointmentDialogComponent extends UnsubscribeOnDestroyAdapter i
       details: [''],
       cost: ['', [Validators.min(0)]],
       costPaid: [true],
+      providerId: [doctorService.doctor.id],
     });
   }
 
   get durationControl(): FormControl<number> {
     return this.appointmentForm.get('durationMinutes') as FormControl<number>;
+  }
+
+  get providerControl(): FormControl<string> {
+    return this.appointmentForm.get('providerId') as FormControl<string>;
   }
 
   ngOnInit(): void {
@@ -142,6 +149,7 @@ export class NewAppointmentDialogComponent extends UnsubscribeOnDestroyAdapter i
     appointment.details = this.appointmentForm.get('details')?.value ?? '';
     appointment.cost = toAmount(this.appointmentForm.get('cost')?.value);
     appointment.costPaid = !!this.appointmentForm.get('costPaid')?.value;
+    appointment.providerId = this.providerControl.value;
 
     this.isSaving = true;
     this.subs.sink = from(this.patientService.addPatientAppointment(appointment, patient)).subscribe({

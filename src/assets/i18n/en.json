@@ -756,6 +756,9 @@
     "SOMEONE": "A clinic admin",
     "UNNAMED_CLINIC": "the clinic",
     "SELF_NAME": "{{name}} (you)",
+    "PROVIDER": {
+      "LABEL": "Doctor"
+    },
     "HEADER": {
       "INVITE_TEXT": "You have a clinic invitation.",
       "INVITE_ACTION": "Review?",

@@ -46,7 +46,10 @@ import {buildTimeSlots, compareTimeSlots, doctorDefaultDuration, nextTimeSlot, r
 import {AppDurationPipe} from "@core/pipe/app-duration.pipe";
 import {AppointmentDurationFieldComponent} from "@shared/components/appointment-duration-field/appointment-duration-field.component";
 import {ClinicContextService} from "@core/service/clinic-context.service";
+import {ClinicService} from "@core/service/clinic.service";
 import {DoctorService} from "@core/service/doctor.service";
+import {ClinicDoctor} from "@core/models/clinic.model";
+import {ProviderSelectComponent} from "@shared/components/provider-select/provider-select.component";
 
 /** The parts of an appointment, each shown only once it has something in it. */
 type AppointmentTextSectionKey = 'details' | 'subjective' | 'objective' | 'assessment' | 'plan';
@@ -71,7 +74,7 @@ const APPOINTMENT_SECTIONS: AppointmentSection[] = [
   templateUrl: './patient-profile.component.html',
   styleUrls: ['./patient-profile.component.scss'],
   standalone: true,
-  imports: [BreadcrumbComponent, MatButtonModule, MatCheckboxModule, MatFormFieldModule, MatIconModule, MatInputModule, MatTabsModule, MatSelectModule, MatDatepickerModule, ReactiveFormsModule, SharedModule, FileUploadComponent, FullScreenImageComponent, EditableTextComponent, EditableTextCompactedComponent, TranslateModule, AppCurrencyPipe, NumericInputDirective, AppDurationPipe, AppointmentDurationFieldComponent],
+  imports: [BreadcrumbComponent, MatButtonModule, MatCheckboxModule, MatFormFieldModule, MatIconModule, MatInputModule, MatTabsModule, MatSelectModule, MatDatepickerModule, ReactiveFormsModule, SharedModule, FileUploadComponent, FullScreenImageComponent, EditableTextComponent, EditableTextCompactedComponent, TranslateModule, AppCurrencyPipe, NumericInputDirective, AppDurationPipe, AppointmentDurationFieldComponent, ProviderSelectComponent],
 })
 export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter implements AfterViewInit {
 
@@ -100,6 +103,9 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter impleme
 
   deletionBusy = false;
 
+  /** The clinic account's doctors, former ones included; empty in any other account. */
+  private accountDoctors: ClinicDoctor[] = [];
+
   constructor(
     private patientService: PatientService,
     private dentalChartService: DentalChartService,
@@ -115,10 +121,12 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter impleme
     private currencyService: CurrencyService,
     private clinicContext: ClinicContextService,
     private doctorService: DoctorService,
+    clinicService: ClinicService,
   ) {
     super();
     if (this.patientService.getDialogData().id === '' ) this.router.navigate(['/admin/patients/all-patients']);
     // constructor code
+    this.subs.sink = clinicService.accountDoctors$.subscribe((doctors) => (this.accountDoctors = doctors));
     this.appointmentForm = this.createAppointmentForm();
     this.paymentForm = this.createPaymentForm();
     this.treatmentForm = this.createTreatmentForm();
@@ -153,6 +161,27 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter impleme
 
   get canDeletePatients(): boolean {
     return this.clinicContext.canDeletePatients;
+  }
+
+  /** The doctor who did the work, in a clinic account; a record that names no one is the owner's. */
+  providerName(record: { providerId?: string }): string {
+    if (!this.accountDoctors.length) {
+      return '';
+    }
+    const providerId = record.providerId || this.activeDoctor.id;
+    return this.accountDoctors.find((doctor) => doctor.doctorId === providerId)?.name ?? '';
+  }
+
+  get appointmentProviderControl(): FormControl<string> {
+    return this.appointmentForm.get('providerId') as FormControl<string>;
+  }
+
+  get treatmentProviderControl(): FormControl<string> {
+    return this.treatmentForm.get('providerId') as FormControl<string>;
+  }
+
+  get paymentProviderControl(): FormControl<string> {
+    return this.paymentForm.get('providerId') as FormControl<string>;
   }
 
   /** Shown inside money inputs so it is clear which currency is being typed. */
@@ -260,6 +289,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter impleme
     newAppointment.objective = this.appointmentForm.get('objective')?.value ?? '';
     newAppointment.assessment = this.appointmentForm.get('assessment')?.value ?? '';
     newAppointment.plan = this.appointmentForm.get('plan')?.value ?? '';
+    newAppointment.providerId = this.appointmentProviderControl.value;
 
     // clear the form
     this.appointmentForm = this.createAppointmentForm();
@@ -289,6 +319,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter impleme
     newPayment.amount = toAmount(this.paymentForm.get('amount')?.value);
     newPayment.date = firestore.Timestamp.fromDate(this.paymentForm.get('date')?.value);
     newPayment.details = this.paymentForm.get('details')?.value;
+    newPayment.providerId = this.paymentProviderControl.value;
 
     this.paymentForm = this.createPaymentForm();
 
@@ -316,6 +347,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter impleme
     newTreatment.discount = toAmount(this.treatmentForm.get('discount')?.value);
     newTreatment.date = firestore.Timestamp.fromDate(this.treatmentForm.get('date')?.value);
     newTreatment.details = this.treatmentForm.get('details')?.value;
+    newTreatment.providerId = this.treatmentProviderControl.value;
 
     this.treatmentForm = this.createTreatmentForm();
 
@@ -395,6 +427,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter impleme
       cost: ['', [Validators.min(0)]],
       costPaid: [true],
       attended: [false],
+      providerId: [this.doctor.id],
       drugs: this.formBuilder.array([])
     })
   }
@@ -471,6 +504,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter impleme
       amount: ['', [Validators.min(0), Validators.max(100000), Validators.required]],
       date: [now, [Validators.required]],
       details: [''],
+      providerId: [this.doctor.id],
     })
   }
 
@@ -481,6 +515,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter impleme
       discount: ['', [Validators.min(0), Validators.max(100000)]],
       date: [now, [Validators.required]],
       details: [''],
+      providerId: [this.doctor.id],
     })
   }
 
@@ -787,7 +822,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter impleme
 
   downloadAppointmentPdf(appointment: AppointmentModel) {
     void this.pdfService
-      .downloadAppointmentPdf({ appointment, patient: this.patient })
+      .downloadAppointmentPdf({ appointment, patient: this.patient, doctorName: this.providerName(appointment) })
       .catch(() => {});
   }
 
@@ -800,7 +835,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter impleme
           return;
         }
         void this.pdfService
-          .downloadPrescriptionPdf({ appointment, patient: this.patient, note })
+          .downloadPrescriptionPdf({ appointment, patient: this.patient, note, doctorName: this.providerName(appointment) })
           .catch(() => {});
       });
   }

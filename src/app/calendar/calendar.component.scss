@@ -1,3 +1,19 @@
+.calendar-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin: 0 0 12px;
+
+  &__swatch {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    margin-inline-end: 6px;
+    border-radius: 50%;
+    vertical-align: middle;
+  }
+}
+
 @media (max-width: 767px) {
   .calendar-panel {
     overflow-x: auto;

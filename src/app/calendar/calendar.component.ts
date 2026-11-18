@@ -33,6 +33,8 @@ import {FullCalendarComponent, FullCalendarModule} from '@fullcalendar/angular';
 import {MatButtonModule} from '@angular/material/button';
 import {BreadcrumbComponent} from '@shared/components/breadcrumb/breadcrumb.component';
 import {DoctorService} from "@core/service/doctor.service";
+import {ClinicService} from "@core/service/clinic.service";
+import {ClinicDoctor} from "@core/models/clinic.model";
 import {forkJoin, from, Observable, of, Subject} from "rxjs";
 import {catchError, map, switchMap, tap} from "rxjs/operators";
 import {AppointmentModel} from "@core/models/appointment.model";
@@ -42,6 +44,9 @@ import {PatientService} from "@core/service/patient.service";
 import {Patient} from "@core/models/patient.model";
 import {Router} from "@angular/router";
 import {TranslateModule, TranslateService} from "@ngx-translate/core";
+
+/** One colour per doctor of a clinic account, in the order the doctors are listed. */
+const DOCTOR_COLORS = ['#3f51b5', '#e91e63', '#009688', '#ff9800', '#9c27b0', '#4caf50', '#795548', '#03a9f4', '#f44336', '#607d8b'];
 
 @Component({
   selector: 'app-calendar',
@@ -81,6 +86,10 @@ export class CalendarComponent  extends UnsubscribeOnDestroyAdapter  implements 
 
   calendarOptions: CalendarOptions;
 
+  /** The clinic account's doctors, former ones included, for the legend; empty in any other account. */
+  doctors: ClinicDoctor[] = [];
+  private readonly hiddenDoctorIds = new Set<string>();
+
   /** Every appointment loaded for the currently visible range, before filtering. */
   private rangeEvents: EventInput[] = [];
   private readonly rangeRequests = new Subject<{ start: Date; end: Date }>();
@@ -98,6 +107,7 @@ export class CalendarComponent  extends UnsubscribeOnDestroyAdapter  implements 
     private router: Router,
     private translate: TranslateService,
     private breakpointObserver: BreakpointObserver,
+    private clinicService: ClinicService,
   ) {
     super();
     this.isMobile = this.breakpointObserver.isMatched(
@@ -131,6 +141,33 @@ export class CalendarComponent  extends UnsubscribeOnDestroyAdapter  implements 
         this.rangeEvents = events;
         this.applyEventFilters();
       });
+    this.subs.sink = this.clinicService.accountDoctors$.subscribe((doctors) => {
+      this.doctors = doctors;
+      this.applyEventFilters();
+    });
+  }
+
+  colorAt(index: number): string {
+    return DOCTOR_COLORS[index % DOCTOR_COLORS.length];
+  }
+
+  doctorLabel(doctor: ClinicDoctor): string {
+    return doctor.doctorId === this.doctorService.doctor.id
+      ? this.translate.instant('CLINIC.SELF_NAME', { name: doctor.name })
+      : doctor.name;
+  }
+
+  isShown(doctor: ClinicDoctor): boolean {
+    return !this.hiddenDoctorIds.has(doctor.doctorId);
+  }
+
+  toggleDoctor(doctor: ClinicDoctor, shown: boolean): void {
+    if (shown) {
+      this.hiddenDoctorIds.delete(doctor.doctorId);
+    } else {
+      this.hiddenDoctorIds.add(doctor.doctorId);
+    }
+    this.applyEventFilters();
   }
 
   /** Fires on first render and whenever the doctor changes the view or navigates dates. */
@@ -207,6 +244,26 @@ export class CalendarComponent  extends UnsubscribeOnDestroyAdapter  implements 
       details: appointment.details,
       patient: patient,
       attended: appointment.attended,
+      providerId: appointment.providerId || this.doctorService.activeDoctorId,
+    };
+  }
+
+  /** In a clinic account an appointment takes its doctor's colour in place of its attended colour. */
+  private withDoctorColor(event: EventInput): EventInput {
+    const index = this.doctors.findIndex((doctor) => doctor.doctorId === event['providerId']);
+    if (index < 0) {
+      return event;
+    }
+    const color = this.colorAt(index);
+    return {
+      ...event,
+      // FullCalendar keeps an event's element while its id stays the same, and eventDidMount
+      // colours the element only when it is created, so a new colour needs a new id.
+      id: `${event.id}:${color}`,
+      className: [],
+      backgroundColor: color,
+      borderColor: color,
+      textColor: '#fff',
     };
   }
 
@@ -317,6 +374,11 @@ export class CalendarComponent  extends UnsubscribeOnDestroyAdapter  implements 
       events = events.filter((event) => !event['attended']);
     }
     events = events.filter((event) => this.filterItems.includes(event.groupId as string));
+    if (this.doctors.length) {
+      events = events
+        .filter((event) => !this.hiddenDoctorIds.has(event['providerId']))
+        .map((event) => this.withDoctorColor(event));
+    }
     this.calendarEvents = events;
     this.calendarOptions.events = [...events];
   }
@@ -481,6 +543,13 @@ export class CalendarComponent  extends UnsubscribeOnDestroyAdapter  implements 
       nowIndicator: true,
       height: isMobile ? 'auto' : undefined,
       eventTimeFormat: { hour: 'numeric', minute: '2-digit', meridiem: 'short' },
+      // In the month and list views FullCalendar shows a doctor's colour only as a dot, which the
+      // theme hides in the month view, so the appointment is filled with it.
+      eventDidMount: ({ el, backgroundColor }) => {
+        if (backgroundColor) {
+          el.style.backgroundColor = backgroundColor;
+        }
+      },
       views: {
         listWeek: { buttonText: 'List' },
         timeGridDay: {

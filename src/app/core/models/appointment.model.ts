@@ -24,6 +24,8 @@ export class AppointmentModel {
   plan: string = '';
   doctorId: string = '';
   patientId: string = '';
+  /** The doctor the appointment is with. Missing on older records, which count as the account owner's. */
+  providerId?: string;
   constructor() {}
 
 }

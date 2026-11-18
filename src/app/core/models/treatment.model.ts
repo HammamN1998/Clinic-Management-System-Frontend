@@ -8,6 +8,8 @@ export class TreatmentModel {
   details: string = '';
   doctorId: string = '';
   patientId: string = '';
+  /** The doctor who did the treatment. Missing on older records, which count as the account owner's. */
+  providerId?: string;
   constructor() {}
 
 }

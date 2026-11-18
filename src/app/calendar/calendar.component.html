@@ -8,6 +8,16 @@
       <div class="card-body">
         <div class="row">
           <div class="col-md-12 col-sm-12">
+            @if (doctors.length) {
+              <div class="calendar-legend">
+                @for (doctor of doctors; track doctor.doctorId; let index = $index) {
+                  <mat-checkbox [checked]="isShown(doctor)" (change)="toggleDoctor(doctor, $event.checked)">
+                    <span class="calendar-legend__swatch" [style.background-color]="colorAt(index)"></span>
+                    {{ doctorLabel(doctor) }}
+                  </mat-checkbox>
+                }
+              </div>
+            }
             <div class="panel-body calendar-panel">
               <full-calendar [options]="calendarOptions"></full-calendar>
             </div>

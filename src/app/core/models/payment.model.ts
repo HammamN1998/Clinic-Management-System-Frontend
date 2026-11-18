@@ -7,6 +7,8 @@ export class PaymentModel {
   details: string = '';
   doctorId: string = '';
   patientId: string = '';
+  /** The doctor who collected the payment. Missing on older records, which count as the account owner's. */
+  providerId?: string;
   constructor() {}
 
 }
