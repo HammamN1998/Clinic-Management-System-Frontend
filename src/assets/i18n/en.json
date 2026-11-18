@@ -758,22 +758,11 @@
     "SELF_NAME": "{{name}} (you)",
     "HEADER": {
       "INVITE_TEXT": "You have a clinic invitation.",
-      "INVITE_ACTION": "Review?"
+      "INVITE_ACTION": "Review?",
+      "OPEN_ACCOUNT": "Open the account of {{clinic}}"
     },
     "TERMS": {
       "TITLE": "Terms",
-      "ACCESS": "Access",
-      "ACCESS_VIEW": "View only",
-      "ACCESS_EDIT": "View and edit",
-      "ACCESS_VIEW_HINT": "The clinic admin can see the patients and their records.",
-      "ACCESS_EDIT_HINT": "The clinic admin can also add and change records, and restore deleted ones. Only the doctor can delete records.",
-      "NOTICE": "Notice period",
-      "NOTICE_HINT": "How long an unlink takes to take effect after either side asks for it.",
-      "NOTICE_NONE_HINT": "With no notice period, the doctor can leave at once, leaving no time to copy their patients.",
-      "NOTICE_0": "None, takes effect at once",
-      "NOTICE_7": "7 days",
-      "NOTICE_14": "14 days",
-      "NOTICE_30": "30 days",
       "COMMISSION": "Commission",
       "COMMISSION_VALUE": "{{percent}}% of collected payments",
       "COMMISSION_HINT": "Percent of the payments the doctor collects. Used in reports only.",
@@ -790,7 +779,7 @@
     "BRANDING": {
       "EDIT": "Name and logo",
       "TITLE": "Clinic name and logo",
-      "HINT": "Your doctors see this name and logo in the app and at the top of their PDFs. Invitations and emails use the name.",
+      "HINT": "This name and logo head the PDFs made in the clinic account, and your doctors see them in the app. Invitations and emails use the name.",
       "NAME": "Clinic name",
       "NAME_HINT": "Leave it empty to use your own name.",
       "LOGO": "Logo",
@@ -806,55 +795,23 @@
       "SEATS_HINT": "A pending invitation holds a seat until it is answered or expires.",
       "NO_SEATS": "No free seats.",
       "INVITE": "Invite doctor",
+      "HISTORY": "History",
       "LINKED_TITLE": "Linked doctors",
       "EMPTY": "No doctors yet. Invite a doctor by email to get started.",
       "LINKED_SINCE": "Linked since {{date}}",
-      "LEAVING": "Leaves on {{date}}",
-      "LEAVING_BY_DOCTOR": "The doctor asked to leave.",
-      "LEAVING_BY_ADMIN": "You started the unlink.",
       "PROPOSAL_PENDING": "New terms waiting for the doctor's answer",
       "ACTIONS": {
-        "OPEN_ACCOUNT": "Open account",
-        "HISTORY": "History",
         "CHANGE_TERMS": "Change terms",
-        "START_UNLINK": "Start unlink",
-        "WITHDRAW_UNLINK": "Withdraw unlink",
-        "UNLINK_NOW": "Unlink now",
-        "COPY_PATIENTS": "Copy patients"
+        "UNLINK": "Unlink"
       },
       "CONFIRM": {
-        "START_UNLINK": "Start unlinking {{name}}? It takes effect on {{date}}, at the end of the notice period. Until then you keep access to the doctor's records.",
-        "START_UNLINK_IMMEDIATE": "Unlink {{name}}? The terms have no notice period, so the doctor is unlinked right away and you lose access to their records.",
-        "UNLINK_NOW": "Unlink {{name}} now? The doctor leaves your clinic at once and you lose access to their records."
+        "UNLINK": "Unlink {{name}}? The doctor leaves your clinic at once and can no longer open its account. The patients and their records stay in your account."
       },
       "MESSAGES": {
         "INVITED": "Invitation sent.",
         "TERMS_PROPOSED": "New terms sent to the doctor.",
-        "UNLINK_STARTED": "Unlink started. It takes effect on {{date}}.",
-        "UNLINK_WITHDRAWN": "Unlink withdrawn.",
         "UNLINKED": "{{name}} is no longer linked to your clinic."
       }
-    },
-    "COPY": {
-      "TITLE": "Copy {{name}}'s patients",
-      "HINT": "Each copy brings the patient's profile, dental chart, notes, appointments, treatments, payments, and files. The doctor's account stays as it is.",
-      "BEFORE_UNLINK": "Once the doctor is unlinked, their patients can no longer be copied. Copy them first, or unlink now.",
-      "LOADING": "Finding the patients…",
-      "COUNT": "Patients added since the doctor joined: {{count}}",
-      "NONE": "No patients were added since the doctor joined.",
-      "TARGET": "Copy into",
-      "TARGET_HINT_SELF": "The copies count toward your patient and storage limits. You can also copy into the account of a doctor who gave you edit access and is not leaving.",
-      "TARGET_HINT_DOCTOR": "The copies count in this doctor's account like patients added there: toward its patient and storage limits, and in the clinic figures, commission base included.",
-      "CURRENCY_WARNING": "{{name}}'s amounts are in {{from}}, and the receiving account's are in {{to}}. Amounts are copied as they are, without conversion.",
-      "LATER": "Patients the doctor adds later are not included. You can copy again until the membership ends.",
-      "COPY": "Copy patients",
-      "CONTINUE": "Continue",
-      "PROGRESS": "{{done}} of {{total}}",
-      "COPYING_HINT": "Closing stops the copy after the patients being copied. Copying again later skips the patients already copied.",
-      "DONE": "Copy finished.",
-      "COPIED": "Copied: {{count}}",
-      "ALREADY_COPIED": "Copied before: {{count}}",
-      "NOT_ELIGIBLE": "No longer in the doctor's account: {{count}}"
     },
     "INVITES": {
       "TITLE": "Invitations",
@@ -888,6 +845,7 @@
       "EMPTY": "You are not part of a clinic. When a clinic invites you, the invitation appears here and in your email.",
       "ADMIN": "You manage a clinic, so you cannot join another one.",
       "OPEN_CLINIC": "Open your clinic",
+      "OPEN_ACCOUNT": "Open clinic account",
       "MANAGED_BY": "Managed by {{admin}}",
       "MEMBER_SINCE": "Member since {{date}}",
       "CURRENT_TERMS": "Your terms",
@@ -895,91 +853,46 @@
       "PROPOSAL_TITLE": "New terms proposed",
       "PROPOSAL_HINT": "Your current terms stay in force until you accept these.",
       "ACCEPT_TERMS": "Accept new terms",
-      "LEAVING_BY_DOCTOR": "You asked to leave. Your membership ends on {{date}}.",
-      "LEAVING_BY_ADMIN": "The clinic is ending your membership. It ends on {{date}}.",
-      "WITHDRAW": "Stay in the clinic",
       "LEAVE": "Leave clinic",
       "FACTS_TITLE": "While you are a member",
-      "FACT_LIMITS": "The clinic covers your plan limits.",
-      "FACT_ACCOUNT": "You keep your account, your login, and all your patients.",
-      "FACT_DELETE": "Only you can delete records, and a patient is deleted only when the clinic approves your request.",
-      "FACT_HISTORY": "You and the clinic can see a history of the changes made to your patients and their records. It is kept until 90 days after your membership ends.",
-      "FACT_COPY": "When your membership ends, the clinic may keep a copy of the patients added to your account since {{date}}, in the clinic admin's account or another member's.",
+      "FACT_ACCOUNT": "You work in the clinic's account. Its patients belong to the clinic, and every doctor there can see and edit them.",
+      "FACT_OWN": "Your own account stays yours, and the clinic cannot see it. Switch to it from the banner at the top.",
+      "FACT_HISTORY": "The clinic keeps a history of who changes what in its account.",
+      "FACT_LEAVING": "You can leave at any time, and the clinic can unlink you. Either way your access ends at once, and the patients stay with the clinic.",
       "CONFIRM": {
         "DECLINE_INVITE": "Decline the invitation from {{clinic}}?",
         "DECLINE_TERMS": "Decline the new terms? Your current terms stay in force.",
-        "LEAVE": "Leave {{clinic}}? You leave on {{date}}, at the end of your notice period. Until then the clinic keeps access to your records.",
-        "LEAVE_IMMEDIATE": "Leave {{clinic}}? Your terms have no notice period, so you leave right away."
+        "LEAVE": "Leave {{clinic}}? You can no longer open its account, and its patients stay with the clinic."
       },
       "MESSAGES": {
         "JOINED": "You joined {{clinic}}.",
         "INVITE_DECLINED": "Invitation declined.",
         "TERMS_ACCEPTED": "New terms accepted.",
         "TERMS_DECLINED": "New terms declined.",
-        "LEAVE_STARTED": "You leave the clinic on {{date}}.",
-        "LEFT": "You left {{clinic}}.",
-        "LEAVE_WITHDRAWN": "You are staying in the clinic."
+        "LEFT": "You left {{clinic}}."
       }
     },
     "CONSENT": {
       "TITLE": "Join {{clinic}}?",
       "INTRO": "{{admin}} invited you to join {{clinic}} on ClinicWell. Please read what joining means before you accept.",
       "RULES_TITLE": "What joining means",
-      "ACCOUNT": "You keep your own account, login, and patients. Neither you nor the clinic can delete the other's account.",
-      "LIMITS": "While you are a member, the clinic covers your plan limits.",
-      "HISTORY": "While you are a member, only you can delete records, and a patient is deleted only when the clinic approves your request. You and the clinic can see a history of the changes made to your patients and their records, kept until 90 days after the membership ends.",
-      "COPY": "When your membership ends, the clinic may keep a copy of the patients added to your account while you were a member, in the clinic admin's account or another member's: their profile, dental chart, notes, all appointments (including future ones), treatments, payments, and files.",
-      "LEAVING": "Either side can end the membership. It takes effect at the end of the notice period, and the clinic can also end it at once.",
+      "ACCOUNT": "You work in the clinic's account; its patients belong to the clinic, and every doctor there sees and edits them.",
+      "OWN": "Your own account stays yours, and the clinic cannot see it.",
+      "HISTORY": "The clinic records who changes what.",
+      "LEAVING": "Leaving ends your access at once, and the patients stay.",
+      "COMMISSION": "Commission is the agreed percent of what you collect.",
       "OWN_PLAN": "Joining does not cancel a plan you pay for yourself. If you no longer need it, cancel it in the billing portal on the Plans page.",
       "AGREE": "I have read these terms and agree to them.",
       "JOIN": "Join clinic"
     },
-    "DELETION": {
-      "REQUEST": "Request deletion",
-      "TOOLTIP_REQUEST": "REQUEST DELETION",
-      "CONFIRM_REQUEST": "Ask your clinic to delete {{name}}? The patient stays until the clinic approves. Once approved, the patient and all their records and files are deleted for good.",
-      "CONFIRM_REQUEST_MANY": "Ask your clinic to delete {{count}} patient(s)? Each patient stays until the clinic approves. Once approved, the patient and all their records and files are deleted for good.",
-      "PENDING": "You asked your clinic to delete this patient on {{date}}. The patient stays until the clinic approves.",
-      "REJECTED": "Your clinic rejected deleting this patient on {{date}}. You can ask again.",
-      "WITHDRAW": "Withdraw request",
-      "DISMISS": "Dismiss",
-      "MY_TITLE": "Patient deletion requests",
-      "MY_HINT": "While you are part of a clinic, a patient is deleted only when the clinic approves. Ask from the patient's page.",
-      "UNNAMED_PATIENT": "Unnamed patient",
-      "PENDING_SINCE": "Waiting for the clinic since {{date}}",
-      "REJECTED_ON": "Rejected by the clinic on {{date}}",
-      "ADMIN_TITLE": "Deletion requests",
-      "ADMIN_HINT": "The doctor asked you to delete these patients. Approving deletes the patient and all their records and files for good.",
-      "REQUESTED_ON": "Requested {{date}}",
-      "APPROVE": "Approve deletion",
-      "REJECT": "Reject",
-      "CONFIRM_APPROVE": "Delete {{patient}} from {{doctor}}'s account for good? The patient and all their records and files are deleted. This cannot be undone.",
-      "MESSAGES": {
-        "REQUESTED": "Deletion request sent to your clinic.",
-        "REQUESTED_MANY": "{{count}} deletion request(s) sent to your clinic.",
-        "SOME_NOT_SENT": "{{failed}} of {{count}} deletion requests were not sent. {{message}}",
-        "WITHDRAWN": "Deletion request withdrawn.",
-        "DISMISSED": "Answer dismissed.",
-        "APPROVED": "{{patient}} was deleted.",
-        "REJECTED": "Deletion rejected. The doctor can see your answer."
-      }
-    },
     "HISTORY": {
       "TITLE": "History",
-      "VIEW": "View history",
-      "MY_CARD": "See who added, changed, or deleted your patients and their records while you are part of a clinic, and restore deleted appointments, treatments, and payments.",
-      "LAST_CLINIC": "The history from your last clinic is kept for 90 days after you left. You can still restore deleted appointments, treatments, and payments from it.",
-      "MY_HINT": "Changes to your patients and their records while you are part of a clinic. The history is kept until 90 days after you leave.",
-      "DOCTOR_TITLE": "History: {{name}}",
-      "ADMIN_HINT": "Changes to this doctor's patients and their records while they are part of your clinic.",
+      "ADMIN_HINT": "Changes to the clinic's patients and their records, by any of its doctors.",
       "RESTORE_HINT": "Deleted appointments, treatments, and payments can be restored.",
-      "YOU": "You",
+      "DOCTOR": "Doctor",
+      "ALL_DOCTORS": "All doctors",
       "UNKNOWN": "Unknown",
       "BY": "By: {{name}}",
-      "REQUESTED_BY": "Requested by: {{name}}",
-      "REQUESTED_ON": "Requested on: {{date}}",
-      "APPROVED_BY": "Approved by: {{name}}",
-      "REJECTED_BY": "Rejected by: {{name}}",
       "CHANGED_FIELDS": "Changed: {{fields}}",
       "DENTAL_CHART": "Dental chart",
       "TOO_LARGE": "This record was too large to keep, so only who changed it and when are shown.",
@@ -999,8 +912,7 @@
       "ACTIONS": {
         "CREATE": "Added",
         "UPDATE": "Changed",
-        "DELETE": "Deleted",
-        "DELETE_REJECTED": "Deletion rejected"
+        "DELETE": "Deleted"
       },
       "COLLECTIONS": {
         "PATIENTS": "Patient",
@@ -1010,7 +922,8 @@
       },
       "FIELDS": {
         "ID": "Record ID",
-        "DOCTOR_ID": "Doctor",
+        "DOCTOR_ID": "Account",
+        "PROVIDER_ID": "Doctor",
         "PATIENT_ID": "Patient",
         "FIRST_NAME": "First name",
         "LAST_NAME": "Last name",
@@ -1048,16 +961,13 @@
         "RESTORED": "Record restored."
       }
     },
-    "PLANS_NOTE": "{{clinic}} covers your plan limits while you are a member. A plan you pay for yourself keeps renewing until you cancel it in the billing portal.",
     "ACTING": {
-      "BANNER": "You are working in {{name}}'s account",
-      "VIEW_ONLY": "View only",
-      "CAN_EDIT": "View and edit",
-      "BACK": "Back to my account",
-      "ACCESS_ENDED": "Your access to this doctor's account has ended.",
-      "OPEN_FAILED": "Could not open this doctor's account. They may no longer be linked to your clinic.",
-      "ADD_PATIENT_FAILED": "Could not add the patient. The doctor's plan may be inactive or at its patient limit.",
-      "UPLOAD_FAILED": "Could not upload the file. The doctor's plan may be inactive or out of storage."
+      "BANNER": "You are working in {{clinic}}",
+      "MY_ACCOUNT": "My own account",
+      "LINK_ENDED": "You are no longer linked to the clinic, so its account is closed.",
+      "OPEN_FAILED": "Could not open the clinic account. Please try again.",
+      "ADD_PATIENT_FAILED": "Could not add the patient. The clinic's plan may be inactive or at its patient limit.",
+      "UPLOAD_FAILED": "Could not upload the file. The clinic's plan may be inactive or out of storage."
     },
     "DASHBOARD": {
       "TITLE": "Clinic dashboard",
@@ -1080,9 +990,7 @@
       "EXPORT_PDF": "Export PDF",
       "ATTENTION": {
         "TITLE": "Needs attention",
-        "DELETION": "{{doctor}} asks you to delete the patient {{patient}}.",
-        "LEAVING_BY_DOCTOR": "{{doctor}} is leaving the clinic on {{date}}.",
-        "LEAVING_BY_ADMIN": "{{doctor}} will be unlinked on {{date}}.",
+        "EMPTY": "Nothing needs your attention.",
         "PROPOSAL": "{{doctor}} has not answered your new terms yet.",
         "INVITE_EXPIRED": "The invitation to {{name}} expired. Resend or cancel it."
       }
@@ -1099,20 +1007,6 @@
       "COMMISSION_NOTE": "At each doctor's current rate, on the money collected in this period since they joined.",
       "CURRENCY_MIXED": "Some doctors use another currency. The totals add their amounts without converting them.",
       "PDF_FAILED": "Could not create the PDF. Please try again."
-    },
-    "CALENDAR": {
-      "TITLE": "Clinic calendar",
-      "HINT": "Every doctor's appointments, view only. Click one to open the patient in their doctor's account.",
-      "LOAD_FAILED": "Could not load the appointments. Please try again later."
-    },
-    "PATIENTS": {
-      "TITLE": "Clinic patients",
-      "HEADING": "Patients of all doctors",
-      "PROMPT": "Search by name, phone, email, or address to find a patient of any of your doctors.",
-      "NO_MATCH": "No patients match your search.",
-      "LOAD_FAILED": "Could not load the patients. Please try again later.",
-      "DOCTOR": "Doctor",
-      "ADDED_ON": "Added on"
     },
     "ERRORS": {
       "GENERIC": "Something went wrong. Please try again.",
@@ -1132,29 +1026,14 @@
       "INVITE_CLOSED": "This invitation was already answered or cancelled.",
       "INVITE_EXPIRED": "This invitation has expired. Ask the clinic to send it again.",
       "CLINIC_UNAVAILABLE": "This clinic is no longer accepting doctors.",
-      "SUBSCRIPTION_MISSING": "Your account is still being set up. Try again shortly.",
       "NOT_LINKED": "This membership has already ended.",
-      "UNLINK_PENDING": "An unlink is already pending.",
-      "UNLINK_NOT_PENDING": "There is no pending unlink to withdraw.",
-      "UNLINK_DUE": "This unlink has already taken effect.",
-      "NOT_REQUESTER": "Only the side that started the unlink can withdraw it.",
-      "CLINIC_CLOSED": "This clinic is closing, so leaving cannot be withdrawn.",
       "PROPOSAL_CLOSED": "These terms are no longer open.",
-      "PATIENT_NOT_FOUND": "This patient was not found. They may have been deleted already.",
-      "ALREADY_REQUESTED": "Your clinic has not answered the request for this patient yet.",
-      "REQUEST_NOT_FOUND": "This deletion request was not found. It may have been withdrawn or answered already.",
-      "ALREADY_ANSWERED": "This request has already been answered.",
       "HISTORY_NOT_FOUND": "This history entry was not found.",
-      "READ_ONLY": "You have view-only access to this doctor.",
       "NOT_RESTORABLE": "Only deleted appointments, treatments, and payments can be restored.",
       "TOO_LARGE": "This record was too large to keep, so it cannot be restored.",
       "ALREADY_RESTORED": "This record was already restored.",
       "ID_TAKEN": "Another record now uses this record's ID, so it cannot be restored.",
-      "PATIENT_MISSING": "This record's patient has been deleted, so it cannot be restored.",
-      "INVALID_TARGET": "Copies can go to your own account, or to a doctor who gave you edit access and is not leaving.",
-      "TARGET_INACTIVE": "The receiving account's plan is not active.",
-      "TARGET_PATIENT_LIMIT": "The receiving account has no room for more patients.",
-      "TARGET_STORAGE_LIMIT": "The receiving account does not have enough storage for these files."
+      "PATIENT_MISSING": "This record's patient has been deleted, so it cannot be restored."
     }
   },
   "MENUITEMS": {
@@ -1188,8 +1067,6 @@
       "TEXT": "Clinic",
       "LIST": {
         "DASHBOARD": "Dashboard",
-        "CALENDAR": "Calendar",
-        "PATIENTS": "Patients",
         "DOCTORS": "Doctors"
       }
     },

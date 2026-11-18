@@ -4,16 +4,9 @@
  * `data` and `changed`, which hold record fields as stored.
  */
 
-export type ClinicAccess = 'view' | 'edit';
-
-/** The notice periods, in days, that the functions accept. */
-export const NOTICE_DAYS = [0, 7, 14, 30] as const;
-
 export const TERMS_NOTES_MAX_LENGTH = 1000;
 
 export interface ClinicTerms {
-  access: ClinicAccess;
-  noticeDays: number;
   commissionPercent: number;
   notes: string;
 }
@@ -25,11 +18,8 @@ export interface ClinicMembership {
   maxSeats: number;
   clinicAdminId: string | null;
   linkedAt: Date | null;
-  clinicAccess: ClinicAccess | null;
   currentAgreementId: string | null;
   pendingAgreementId: string | null;
-  unlinkEffectiveAt: Date | null;
-  unlinkRequestedBy: 'doctor' | 'admin' | null;
 }
 
 /** A doctor linked to the signed-in admin. */
@@ -37,36 +27,14 @@ export interface LinkedDoctor extends ClinicMembership {
   name: string;
   email: string;
   img: string;
-  /** Unset until the doctor picks one. */
-  currency?: string;
-  /** Minutes. Unset until the doctor picks one. */
-  defaultAppointmentDuration?: number;
 }
 
-/** A doctor whose records the Clinic pages show: the signed-in admin himself, or one of his linked doctors. */
+/** One of `clinics/{adminId}.doctors`: the admin, or a doctor who works or worked in his clinic. */
 export interface ClinicDoctor {
   doctorId: string;
-  /** The doctor's name, or his email when he has none. */
   name: string;
-  isSelf: boolean;
-  currency?: string;
-  defaultAppointmentDuration?: number;
-  /** Null for the admin himself, who has no agreement with his own clinic. */
-  currentAgreementId: string | null;
-  /** When the doctor joined the clinic. Null for the admin himself. */
-  linkedAt: Date | null;
-}
-
-/** The most patients one copyPatients call takes. */
-export const COPY_BATCH_SIZE = 10;
-
-/** What a copyPatients call did with the patients it was sent. */
-export interface CopyResult {
-  copied: number;
-  /** Copied to that account before, so skipped. */
-  alreadyCopied: number;
-  /** Not a patient the doctor added since he joined, such as one deleted since he was listed. */
-  notEligible: number;
+  /** False once the doctor left the clinic. */
+  active: boolean;
 }
 
 /** `clinics/{adminId}`: what linked doctors see of their clinic. */
@@ -116,32 +84,20 @@ export interface ClinicAgreement {
   acceptedAt: Date | null;
 }
 
-/** `patientDeletionRequests/{patientId}`: a linked doctor asking his clinic to delete a patient. */
-export interface PatientDeletionRequest {
-  patientId: string;
-  doctorId: string;
-  adminId: string;
-  patientName: string;
-  status: 'pending' | 'rejected';
-  requestedAt: Date | null;
-  answeredAt: Date | null;
-}
-
 export type HistoryCollection = 'patients' | 'appointments' | 'treatments' | 'payments';
 
-/** `delete-rejected` is the clinic rejecting a request to delete a patient. */
-export type HistoryAction = 'create' | 'update' | 'delete' | 'delete-rejected';
+export type HistoryAction = 'create' | 'update' | 'delete';
 
 export interface FieldChange {
   before: unknown;
   after: unknown;
 }
 
-/** `recordHistory/{id}`: one change to a linked doctor's patient, appointment, treatment, or payment. */
+/** `recordHistory/{id}`: one change to a patient, appointment, treatment, or payment in a clinic account. */
 export interface HistoryEntry {
   id: string;
+  /** The clinic account: its admin's id. */
   doctorId: string;
-  adminId: string;
   collection: HistoryCollection;
   recordId: string;
   patientId: string | null;
@@ -156,9 +112,6 @@ export interface HistoryEntry {
   dentalChartChanged: boolean;
   /** Too large to keep, so only who, what, and when were stored. */
   tooLarge: boolean;
-  /** For a patient's approved deletion: the admin who approved it. */
-  approvedBy: string | null;
-  requestedAt: Date | null;
 }
 
 /** Pending and not yet past `expiresAt`: the only invites the functions let a doctor answer. */

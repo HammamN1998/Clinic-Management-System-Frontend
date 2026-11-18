@@ -1,5 +1,4 @@
 import {Component, ElementRef, ViewChild, Input, Output, EventEmitter} from '@angular/core';
-import {NgIf} from "@angular/common";
 import {MatButtonModule} from "@angular/material/button";
 import {MatIconModule} from "@angular/material/icon";
 import {MatTooltipModule} from "@angular/material/tooltip";
@@ -10,7 +9,6 @@ import {TranslateModule} from "@ngx-translate/core";
   selector: 'app-editable-text',
   standalone: true,
   imports: [
-    NgIf,
     MatButtonModule,
     MatIconModule,
     MatTooltipModule,
@@ -25,7 +23,6 @@ export class EditableTextComponent  {
 
   @Input() headerText: string = '';
   @Input() bodyText: string = '';
-  @Input() readonly = false;
 
   @Output() bodyTextEdited = new EventEmitter<string>(); // Custom event
 
@@ -36,7 +33,7 @@ export class EditableTextComponent  {
   }
 
   makeEditable() {
-    if (!this.isEditable && !this.readonly) {
+    if (!this.isEditable) {
       this.isEditable = true;
       this.bodyTextElementRef.nativeElement.contentEditable = 'true';
       this.bodyTextElementRef.nativeElement.focus(); // Set focus for immediate editing

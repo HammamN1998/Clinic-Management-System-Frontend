@@ -67,7 +67,7 @@ export class AppointmentDurationFieldComponent implements OnDestroy {
   }
 
   get isActionVisible(): boolean {
-    // The default is saved on the signed-in doctor's own profile, so it is not offered inside another doctor's account.
+    // The default is saved on the signed-in doctor's own profile, so it is not offered in the clinic account.
     if (!this.allowSetDefault || this.clinicContext.isActing) {
       return false;
     }

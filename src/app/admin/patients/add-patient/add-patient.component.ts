@@ -88,7 +88,7 @@ export class AddPatientComponent implements ErrorStateMatcher {
       return;
     }
 
-    // Inside a doctor's account the rules check his own plan and patient limit.
+    // In the clinic account the rules check the clinic's plan and patient limit.
     if (!this.clinicContext.isActing && (this.doctor.subscription.patientsCount >= this.doctor.subscription.maxPatientsLimit || this.doctor.subscription.status !== 'active')) {
       const isInactive = this.doctor.subscription.status !== 'active';
       this.notificationService.showSwalDialogWithFunction(

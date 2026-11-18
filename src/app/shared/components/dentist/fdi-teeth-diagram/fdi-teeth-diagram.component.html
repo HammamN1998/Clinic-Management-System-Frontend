@@ -231,7 +231,6 @@
               <line class="badge-leader" [attr.x1]="card.lineX1" [attr.y1]="card.lineY1"
                 [attr.x2]="card.lineX2" [attr.y2]="card.lineY2"></line>
               <g class="badge-card" [attr.transform]="'translate(' + card.x + ',' + card.y + ')'"
-                [style.cursor]="badgesMovable ? null : 'default'"
                 (pointerdown)="onCardPointerDown(card, $event)">
                 <rect class="badge-card-bg" x="0" y="0" rx="7" ry="6"
                   [attr.width]="card.width" [attr.height]="card.height"></rect>

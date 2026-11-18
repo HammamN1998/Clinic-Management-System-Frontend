@@ -85,7 +85,7 @@ export class HeaderComponent
     public languageService: LanguageService,
     private paymentService: PaymentService,
     private analytics: AnalyticsService,
-    clinicService: ClinicService,
+    private clinicService: ClinicService,
     private clinicContext: ClinicContextService,
   ) {
     super();
@@ -96,6 +96,10 @@ export class HeaderComponent
 
   get isActing(): boolean {
     return this.clinicContext.isActing;
+  }
+
+  openClinicAccount(): void {
+    void this.clinicService.openClinicAccount();
   }
 
   listLang = [

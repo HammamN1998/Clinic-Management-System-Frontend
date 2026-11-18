@@ -14,7 +14,7 @@
       {{ (editingBridgeId ? 'PATIENTS.DENTAL_CHART.BRIDGE.EDIT' : 'PATIENTS.DENTAL_CHART.BRIDGE.TITLE') | translate }}
       <span class="count-badge">{{ bridgeDraftToothIds.length }} {{ 'PATIENTS.DENTAL_CHART.BRIDGE.SELECTED' | translate }}</span>
     </h4>
-    <p class="hint" *ngIf="!readOnly">{{ 'PATIENTS.DENTAL_CHART.BRIDGE.SELECT_HINT' | translate }}</p>
+    <p class="hint">{{ 'PATIENTS.DENTAL_CHART.BRIDGE.SELECT_HINT' | translate }}</p>
 
     <div class="chips">
       <span class="chip" *ngFor="let id of bridgeDraftToothIds">{{ toothLabel(id) }}</span>
@@ -26,7 +26,7 @@
 
     <mat-form-field class="full-width" appearance="outline">
       <mat-label>{{ 'PATIENTS.DENTAL_CHART.OPERATION' | translate }}</mat-label>
-      <mat-select [(ngModel)]="bridgeForm.operation" [disabled]="readOnly">
+      <mat-select [(ngModel)]="bridgeForm.operation">
         <mat-option *ngFor="let op of spanBridgeOperations" [value]="op.value">{{ op.labelKey | translate }}</mat-option>
       </mat-select>
     </mat-form-field>
@@ -34,14 +34,14 @@
     <div class="form-row">
       <mat-form-field class="full-width" appearance="outline">
         <mat-label>{{ 'PATIENTS.DENTAL_CHART.DATE' | translate }}</mat-label>
-        <input matInput [matDatepicker]="bridgePicker" [(ngModel)]="bridgeForm.date" [disabled]="readOnly" />
+        <input matInput [matDatepicker]="bridgePicker" [(ngModel)]="bridgeForm.date" />
         <mat-datepicker-toggle matSuffix [for]="bridgePicker"></mat-datepicker-toggle>
         <mat-datepicker #bridgePicker></mat-datepicker>
       </mat-form-field>
 
       <mat-form-field class="full-width" appearance="outline">
         <mat-label>{{ 'PATIENTS.DENTAL_CHART.STATUS_LABEL' | translate }}</mat-label>
-        <mat-select [(ngModel)]="bridgeForm.status" [disabled]="readOnly">
+        <mat-select [(ngModel)]="bridgeForm.status">
           <mat-option value="pending">{{ 'PATIENTS.DENTAL_CHART.STATUS.PENDING' | translate }}</mat-option>
           <mat-option value="done">{{ 'PATIENTS.DENTAL_CHART.STATUS.DONE' | translate }}</mat-option>
         </mat-select>
@@ -50,10 +50,10 @@
 
     <mat-form-field class="full-width" appearance="outline">
       <mat-label>{{ 'PATIENTS.DENTAL_CHART.NOTE' | translate }}</mat-label>
-      <textarea matInput rows="2" [(ngModel)]="bridgeForm.note" [readonly]="readOnly"></textarea>
+      <textarea matInput rows="2" [(ngModel)]="bridgeForm.note"></textarea>
     </mat-form-field>
 
-    <div class="actions" *ngIf="!readOnly">
+    <div class="actions">
       <button mat-raised-button color="primary"
         [disabled]="bridgeDraftToothIds.length < 2 || !bridgeForm.operation"
         (click)="saveBridge()">
@@ -66,7 +66,7 @@
       <!-- Click anywhere on the card to highlight + edit (delete excluded). -->
       <div class="bridge-row clickable" *ngFor="let b of bridges"
         [class.highlight]="b.id === selectedBridgeId"
-        (click)="editBridge.emit(b)" [matTooltip]="'COMMON.EDIT' | translate" [matTooltipDisabled]="readOnly">
+        (click)="editBridge.emit(b)" [matTooltip]="'COMMON.EDIT' | translate">
         <div class="b-main">
           <span class="b-teeth">{{ bridgeTeethLabel(b) }}</span>
           <span class="b-op">{{ operationLabelKey(b.operation) | translate }}</span>
@@ -74,7 +74,7 @@
             {{ (b.status === 'done' ? 'PATIENTS.DENTAL_CHART.STATUS.DONE' : 'PATIENTS.DENTAL_CHART.STATUS.PENDING') | translate }}
           </span>
         </div>
-        <div class="b-actions" *ngIf="canDelete">
+        <div class="b-actions">
           <button mat-icon-button color="warn" (click)="$event.stopPropagation(); deleteBridge(b)"
             [matTooltip]="'COMMON.DELETE' | translate">
             <mat-icon>delete</mat-icon>
@@ -104,7 +104,6 @@
           [class.swatch-none]="c.value === 'none'"
           [style.background]="c.color || null"
           [matTooltip]="c.labelKey | translate"
-          [disabled]="readOnly"
           (click)="selectCondition(c.value)"></button>
       </div>
       <div class="condition-current" *ngIf="currentConditionLabelKey">
@@ -114,72 +113,70 @@
       <!-- Tooth note (autosaves on blur). -->
       <mat-form-field class="full-width" appearance="outline">
         <mat-label>{{ 'PATIENTS.DENTAL_CHART.TOOTH_NOTE' | translate }}</mat-label>
-        <textarea matInput rows="2" [(ngModel)]="noteDraft" [readonly]="readOnly" (blur)="saveNote()"></textarea>
+        <textarea matInput rows="2" [(ngModel)]="noteDraft" (blur)="saveNote()"></textarea>
       </mat-form-field>
 
       <!-- Treatment add/edit form -->
-      <ng-container *ngIf="!readOnly">
-        <h5 class="section-label">
-          {{ (editingTreatmentId ? 'PATIENTS.DENTAL_CHART.EDIT_TREATMENT' : 'PATIENTS.DENTAL_CHART.ADD_TREATMENT') | translate }}
-        </h5>
+      <h5 class="section-label">
+        {{ (editingTreatmentId ? 'PATIENTS.DENTAL_CHART.EDIT_TREATMENT' : 'PATIENTS.DENTAL_CHART.ADD_TREATMENT') | translate }}
+      </h5>
+      <mat-form-field class="full-width" appearance="outline">
+        <mat-label>{{ 'PATIENTS.DENTAL_CHART.BRANCH' | translate }}</mat-label>
+        <mat-select [(ngModel)]="treatmentBranch" (selectionChange)="onTreatmentBranchChange()">
+          <mat-option *ngFor="let b of branchOptions" [value]="b.value">{{ b.labelKey | translate }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field class="full-width" appearance="outline">
+        <mat-label>{{ 'PATIENTS.DENTAL_CHART.OPERATION' | translate }}</mat-label>
+        <mat-select [(ngModel)]="treatmentForm.operation" (selectionChange)="onTreatmentOperationChange()">
+          <mat-option *ngFor="let op of treatmentOperations" [value]="op.value">{{ op.labelKey | translate }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <div class="form-row">
         <mat-form-field class="full-width" appearance="outline">
-          <mat-label>{{ 'PATIENTS.DENTAL_CHART.BRANCH' | translate }}</mat-label>
-          <mat-select [(ngModel)]="treatmentBranch" (selectionChange)="onTreatmentBranchChange()">
-            <mat-option *ngFor="let b of branchOptions" [value]="b.value">{{ b.labelKey | translate }}</mat-option>
+          <mat-label>{{ 'PATIENTS.DENTAL_CHART.DATE' | translate }}</mat-label>
+          <input matInput [matDatepicker]="txPicker" [(ngModel)]="treatmentForm.date" />
+          <mat-datepicker-toggle matSuffix [for]="txPicker"></mat-datepicker-toggle>
+          <mat-datepicker #txPicker></mat-datepicker>
+        </mat-form-field>
+        <mat-form-field class="full-width" appearance="outline">
+          <mat-label>{{ 'PATIENTS.DENTAL_CHART.STATUS_LABEL' | translate }}</mat-label>
+          <mat-select [(ngModel)]="treatmentForm.status">
+            <mat-option value="pending">{{ 'PATIENTS.DENTAL_CHART.STATUS.PENDING' | translate }}</mat-option>
+            <mat-option value="done">{{ 'PATIENTS.DENTAL_CHART.STATUS.DONE' | translate }}</mat-option>
           </mat-select>
         </mat-form-field>
-        <mat-form-field class="full-width" appearance="outline">
-          <mat-label>{{ 'PATIENTS.DENTAL_CHART.OPERATION' | translate }}</mat-label>
-          <mat-select [(ngModel)]="treatmentForm.operation" (selectionChange)="onTreatmentOperationChange()">
-            <mat-option *ngFor="let op of treatmentOperations" [value]="op.value">{{ op.labelKey | translate }}</mat-option>
-          </mat-select>
-        </mat-form-field>
-        <div class="form-row">
-          <mat-form-field class="full-width" appearance="outline">
-            <mat-label>{{ 'PATIENTS.DENTAL_CHART.DATE' | translate }}</mat-label>
-            <input matInput [matDatepicker]="txPicker" [(ngModel)]="treatmentForm.date" />
-            <mat-datepicker-toggle matSuffix [for]="txPicker"></mat-datepicker-toggle>
-            <mat-datepicker #txPicker></mat-datepicker>
-          </mat-form-field>
-          <mat-form-field class="full-width" appearance="outline">
-            <mat-label>{{ 'PATIENTS.DENTAL_CHART.STATUS_LABEL' | translate }}</mat-label>
-            <mat-select [(ngModel)]="treatmentForm.status">
-              <mat-option value="pending">{{ 'PATIENTS.DENTAL_CHART.STATUS.PENDING' | translate }}</mat-option>
-              <mat-option value="done">{{ 'PATIENTS.DENTAL_CHART.STATUS.DONE' | translate }}</mat-option>
-            </mat-select>
-          </mat-form-field>
-        </div>
-        <mat-form-field class="full-width" appearance="outline">
-          <mat-label>{{ 'PATIENTS.DENTAL_CHART.NOTE' | translate }}</mat-label>
-          <textarea matInput rows="2" [(ngModel)]="treatmentForm.note"></textarea>
-        </mat-form-field>
-        <div class="actions">
-          <button mat-raised-button color="primary" [disabled]="!treatmentForm.operation" (click)="submitTreatment()">
-            {{ (editingTreatmentId ? 'COMMON.UPDATE' : 'COMMON.ADD') | translate }}
-          </button>
-          <button mat-button *ngIf="editingTreatmentId" (click)="cancelTreatmentEdit()">
-            {{ 'COMMON.CANCEL' | translate }}
-          </button>
-        </div>
-      </ng-container>
+      </div>
+      <mat-form-field class="full-width" appearance="outline">
+        <mat-label>{{ 'PATIENTS.DENTAL_CHART.NOTE' | translate }}</mat-label>
+        <textarea matInput rows="2" [(ngModel)]="treatmentForm.note"></textarea>
+      </mat-form-field>
+      <div class="actions">
+        <button mat-raised-button color="primary" [disabled]="!treatmentForm.operation" (click)="submitTreatment()">
+          {{ (editingTreatmentId ? 'COMMON.UPDATE' : 'COMMON.ADD') | translate }}
+        </button>
+        <button mat-button *ngIf="editingTreatmentId" (click)="cancelTreatmentEdit()">
+          {{ 'COMMON.CANCEL' | translate }}
+        </button>
+      </div>
 
       <!-- Treatment list -->
       <div class="treatment-list">
         <!-- Click anywhere on the card to highlight + edit (controls excluded). -->
         <div class="treatment-row clickable" *ngFor="let t of treatments; let i = index"
           [class.highlight]="t.id === editingTreatmentId"
-          (click)="editTreatment(t)" [matTooltip]="'COMMON.EDIT' | translate" [matTooltipDisabled]="readOnly">
+          (click)="editTreatment(t)" [matTooltip]="'COMMON.EDIT' | translate">
           <div class="t-main">
             <span class="t-index">{{ i + 1 }}.</span>
             <span class="t-op">{{ operationLabelKey(t.operation) | translate }}</span>
             <span class="t-date">{{ t.date }}</span>
           </div>
           <div class="t-actions">
-            <mat-slide-toggle [checked]="t.status === 'done'" [disabled]="readOnly" (click)="$event.stopPropagation()"
+            <mat-slide-toggle [checked]="t.status === 'done'" (click)="$event.stopPropagation()"
               (change)="toggleStatus(t)">
               {{ (t.status === 'done' ? 'PATIENTS.DENTAL_CHART.STATUS.DONE' : 'PATIENTS.DENTAL_CHART.STATUS.PENDING') | translate }}
             </mat-slide-toggle>
-            <button *ngIf="canDelete" mat-icon-button color="warn" (click)="$event.stopPropagation(); deleteTreatment(t)"
+            <button mat-icon-button color="warn" (click)="$event.stopPropagation(); deleteTreatment(t)"
               [matTooltip]="'COMMON.DELETE' | translate">
               <mat-icon>delete</mat-icon>
             </button>

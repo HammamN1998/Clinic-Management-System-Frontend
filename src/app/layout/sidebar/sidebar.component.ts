@@ -37,7 +37,7 @@ export class SidebarComponent extends UnsubscribeOnDestroyAdapter implements OnI
   userFullName?: string;
   userImg?: string;
   headerHeight = 60;
-  /** Height of the banner shown under the header inside a doctor's account. */
+  /** Height of the banner shown under the header inside the clinic account. */
   actingBannerHeight = 40;
   isActing = false;
   currentRoute?: string;
@@ -103,15 +103,14 @@ export class SidebarComponent extends UnsubscribeOnDestroyAdapter implements OnI
       this.userImg = this.doctor.img;
 
       this.isActing = this.clinicContext.isActing;
-      this.sidebarItems = this.withClinicRoutes(null, false, false);
+      this.sidebarItems = this.withClinicRoutes(null, false);
       this.subs.sink = combineLatest([
         this.clinicService.membership$,
         this.clinicService.pendingInvites$,
-        this.clinicService.pastHistory$,
         this.clinicContext.acting$,
-      ]).subscribe(([membership, invites, pastHistory, acting]) => {
+      ]).subscribe(([membership, invites, acting]) => {
         this.isActing = acting !== null;
-        this.sidebarItems = this.withClinicRoutes(membership, invites.length > 0, pastHistory);
+        this.sidebarItems = this.withClinicRoutes(membership, invites.length > 0);
         this.setMenuHeight();
       });
     }
@@ -119,13 +118,13 @@ export class SidebarComponent extends UnsubscribeOnDestroyAdapter implements OnI
     this.initLeftSidebar();
     this.bodyTag = this.document.body;
   }
-  private withClinicRoutes(membership: ClinicMembership | null, hasOpenInvite: boolean, hasPastHistory: boolean): RouteInfo[] {
+  private withClinicRoutes(membership: ClinicMembership | null, hasOpenInvite: boolean): RouteInfo[] {
     const clinicRoutes: RouteInfo[] = [];
     if (membership?.isAdmin) {
       clinicRoutes.push(CLINIC_ROUTE);
     }
-    // Inside a doctor's account the menu is his, apart from the way back to the clinic.
-    if (!this.isActing && (membership?.clinicAdminId || hasOpenInvite || hasPastHistory)) {
+    // My clinic belongs to the doctor's own account, so the clinic account's menu leaves it out.
+    if (!this.isActing && (membership?.clinicAdminId || hasOpenInvite)) {
       clinicRoutes.push(MY_CLINIC_ROUTE);
     }
     const accountRoutes = this.isActing ? ROUTES.filter((route) => route.path !== PLANS_PATH) : ROUTES;

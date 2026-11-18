@@ -1,9 +1,16 @@
 <h2 mat-dialog-title>{{ data.title }}</h2>
 <div mat-dialog-content class="history">
   <p class="history__hint">{{ data.hint }}</p>
-  @if (data.canRestore) {
-    <p class="history__hint">{{ 'CLINIC.HISTORY.RESTORE_HINT' | translate }}</p>
-  }
+  <p class="history__hint">{{ 'CLINIC.HISTORY.RESTORE_HINT' | translate }}</p>
+  <mat-form-field appearance="outline" class="history__filter" subscriptSizing="dynamic">
+    <mat-label>{{ 'CLINIC.HISTORY.DOCTOR' | translate }}</mat-label>
+    <mat-select [value]="actorId" (selectionChange)="filterBy($event.value)" [disabled]="loading">
+      <mat-option [value]="null">{{ 'CLINIC.HISTORY.ALL_DOCTORS' | translate }}</mat-option>
+      @for (doctor of data.doctors; track doctor.id) {
+        <mat-option [value]="doctor.id">{{ doctor.name }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
 
   @for (row of rows; track row.entry.id) {
     <div class="history__entry">
@@ -27,17 +34,7 @@
 
       <div class="history__meta">
         <span>{{ row.entry.at | date: 'medium' : undefined : dateLocale }}</span>
-        @if (row.requester; as requester) {
-          <span>{{ 'CLINIC.HISTORY.REQUESTED_BY' | translate: { name: requester } }}</span>
-          @if (row.entry.requestedAt; as requestedAt) {
-            <span>{{ 'CLINIC.HISTORY.REQUESTED_ON' | translate: { date: (requestedAt | date: 'medium' : undefined : dateLocale) } }}</span>
-          }
-          <span>
-            {{ (row.entry.action === 'delete' ? 'CLINIC.HISTORY.APPROVED_BY' : 'CLINIC.HISTORY.REJECTED_BY') | translate: { name: row.actor } }}
-          </span>
-        } @else {
-          <span>{{ 'CLINIC.HISTORY.BY' | translate: { name: row.actor } }}</span>
-        }
+        <span>{{ 'CLINIC.HISTORY.BY' | translate: { name: row.actor } }}</span>
       </div>
 
       @if (row.changedSummary) {

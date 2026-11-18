@@ -21,7 +21,7 @@ export class DoctorService {
     return this.firebaseAuthenticationService.currentUserValue;
   }
 
-  /** Owner of the records on screen: the signed-in doctor, or the linked doctor a clinic admin is working in. */
+  /** Owner of the records on screen: the signed-in doctor, or the clinic admin whose account he works in. */
   get activeDoctor(): User {
     return this.clinicContext.activeDoctor ?? this.doctor;
   }

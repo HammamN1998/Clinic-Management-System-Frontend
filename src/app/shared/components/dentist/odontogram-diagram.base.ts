@@ -97,8 +97,6 @@ export abstract class OdontogramDiagramBase
   @Input() bridgeSelectMode = false;
   @Input() bridgeDraftToothIds: string[] = [];
   @Input() selectedBridgeId: string | null = null;
-  /** Off for a chart that is only being viewed, since a moved badge is saved. */
-  @Input() badgesMovable = true;
 
   // ----- chart outputs ---------------------------------------------------
   @Output() toothSelect = new EventEmitter<string>();
@@ -496,9 +494,6 @@ export abstract class OdontogramDiagramBase
 
   onCardPointerDown(card: BadgeCardVM, event: PointerEvent): void {
     event.stopPropagation();
-    if (!this.badgesMovable) {
-      return;
-    }
     this.drag = {
       toothId: card.toothId,
       startX: event.clientX,

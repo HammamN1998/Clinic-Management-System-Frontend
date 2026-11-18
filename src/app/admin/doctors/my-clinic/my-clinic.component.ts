@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { DatePipe, formatDate } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { Direction } from '@angular/cdk/bidi';
 import { RouterLink } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
@@ -15,23 +15,11 @@ import { DeleteConfirmDialogService } from '@shared/components/delete-confirm-di
 import { ClinicService } from '@core/service/clinic.service';
 import { NotificationService } from '@core/service/notification.service';
 import { getAppDateLocale } from '@core/util/app-locale.util';
-import {
-  ClinicAgreement,
-  ClinicInvite,
-  ClinicMembership,
-  ClinicProfile,
-  PatientDeletionRequest,
-} from '@core/models/clinic.model';
-import {
-  RecordHistoryDialogComponent,
-  RecordHistoryDialogData,
-} from '@shared/components/record-history-dialog/record-history-dialog.component';
+import { ClinicAgreement, ClinicInvite, ClinicMembership, ClinicProfile } from '@core/models/clinic.model';
 import {
   InviteConsentData,
   InviteConsentDialogComponent,
 } from './invite-consent-dialog/invite-consent-dialog.component';
-
-const DAY_MS = 24 * 60 * 60 * 1000;
 
 /** The signed-in doctor's side of a clinic: invitations to answer, or his membership and its terms. */
 @Component({
@@ -55,8 +43,6 @@ export class MyClinicComponent extends UnsubscribeOnDestroyAdapter implements On
   clinic: ClinicProfile | null = null;
   currentAgreement: ClinicAgreement | null = null;
   pendingAgreement: ClinicAgreement | null = null;
-  deletionRequests: PatientDeletionRequest[] = [];
-  hasPastHistory = false;
   loaded = false;
   busy = false;
 
@@ -82,8 +68,6 @@ export class MyClinicComponent extends UnsubscribeOnDestroyAdapter implements On
     this.subs.sink = this.clinicService.clinic$.subscribe((clinic) => (this.clinic = clinic));
     this.subs.sink = this.clinicService.currentAgreement$.subscribe((agreement) => (this.currentAgreement = agreement));
     this.subs.sink = this.clinicService.pendingAgreement$.subscribe((agreement) => (this.pendingAgreement = agreement));
-    this.subs.sink = this.clinicService.deletionRequests$.subscribe((requests) => (this.deletionRequests = requests));
-    this.subs.sink = this.clinicService.pastHistory$.subscribe((has) => (this.hasPastHistory = has));
   }
 
   get dateLocale(): string {
@@ -98,19 +82,16 @@ export class MyClinicComponent extends UnsubscribeOnDestroyAdapter implements On
     return this.pendingAgreement?.status === 'proposed' ? this.pendingAgreement : null;
   }
 
-  /** Only the side that started an unlink can withdraw it, and only before it takes effect. */
-  get canWithdrawLeave(): boolean {
-    return (
-      this.membership?.unlinkRequestedBy === 'doctor' && (this.membership.unlinkEffectiveAt?.getTime() ?? 0) > Date.now()
-    );
-  }
-
   inviteClinicName(invite: ClinicInvite): string {
     return invite.clinicName || this.translate.instant('CLINIC.UNNAMED_CLINIC');
   }
 
   inviteAdminName(invite: ClinicInvite): string {
     return invite.adminName || this.translate.instant('CLINIC.SOMEONE');
+  }
+
+  openClinicAccount(): void {
+    void this.clinicService.openClinicAccount();
   }
 
   reviewInvite(invite: ClinicInvite): void {
@@ -164,65 +145,15 @@ export class MyClinicComponent extends UnsubscribeOnDestroyAdapter implements On
     });
   }
 
-  async leave(agreement: ClinicAgreement): Promise<void> {
+  async leave(): Promise<void> {
     const clinic = this.clinicName;
-    const noticeDays = agreement.terms.noticeDays;
-    const message = noticeDays === 0
-      ? this.translate.instant('CLINIC.MY_CLINIC.CONFIRM.LEAVE_IMMEDIATE', { clinic })
-      : this.translate.instant('CLINIC.MY_CLINIC.CONFIRM.LEAVE', {
-        clinic,
-        date: this.formatDay(new Date(Date.now() + noticeDays * DAY_MS)),
-      });
+    const message = this.translate.instant('CLINIC.MY_CLINIC.CONFIRM.LEAVE', { clinic });
     if (!(await this.confirm(message, 'CLINIC.MY_CLINIC.LEAVE'))) {
       return;
     }
     await this.run(async () => {
-      const effectiveAt = await this.clinicService.requestUnlink();
-      return noticeDays === 0
-        ? this.translate.instant('CLINIC.MY_CLINIC.MESSAGES.LEFT', { clinic })
-        : this.translate.instant('CLINIC.MY_CLINIC.MESSAGES.LEAVE_STARTED', { date: this.formatDay(effectiveAt) });
-    });
-  }
-
-  async withdrawLeave(): Promise<void> {
-    await this.run(async () => {
-      await this.clinicService.cancelUnlink();
-      return this.translate.instant('CLINIC.MY_CLINIC.MESSAGES.LEAVE_WITHDRAWN');
-    });
-  }
-
-  /** Withdraws a pending request, or dismisses a rejected one. */
-  async clearDeletionRequest(request: PatientDeletionRequest): Promise<void> {
-    const pending = request.status === 'pending';
-    await this.run(async () => {
-      await this.clinicService.cancelPatientDeletion(request.patientId);
-      return this.translate.instant(pending ? 'CLINIC.DELETION.MESSAGES.WITHDRAWN' : 'CLINIC.DELETION.MESSAGES.DISMISSED');
-    });
-  }
-
-  openHistory(): void {
-    const membership = this.membership;
-    if (!membership) {
-      return;
-    }
-    const names: Record<string, string> = { [membership.doctorId]: this.translate.instant('CLINIC.HISTORY.YOU') };
-    if (membership.clinicAdminId && this.clinic?.adminName) {
-      names[membership.clinicAdminId] = this.clinic.adminName;
-    }
-    this.dialog.open<RecordHistoryDialogComponent, RecordHistoryDialogData>(RecordHistoryDialogComponent, {
-      data: {
-        title: this.translate.instant('CLINIC.HISTORY.TITLE'),
-        hint: this.translate.instant('CLINIC.HISTORY.MY_HINT'),
-        doctorId: membership.doctorId,
-        adminId: null,
-        canRestore: true,
-        names,
-        otherName: this.translate.instant('CLINIC.SOMEONE'),
-      },
-      direction: this.direction,
-      width: '760px',
-      maxWidth: '95vw',
-      maxHeight: '90vh',
+      await this.clinicService.unlink();
+      return this.translate.instant('CLINIC.MY_CLINIC.MESSAGES.LEFT', { clinic });
     });
   }
 
@@ -249,10 +180,6 @@ export class MyClinicComponent extends UnsubscribeOnDestroyAdapter implements On
 
   private notifySuccess(message: string): void {
     this.notificationService.showSnackBarNotification('snackbar-success', message, 'bottom', 'center');
-  }
-
-  private formatDay(date: Date): string {
-    return formatDate(date, 'mediumDate', this.dateLocale);
   }
 
   private get direction(): Direction {

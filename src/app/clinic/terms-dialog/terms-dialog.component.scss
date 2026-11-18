@@ -9,31 +9,6 @@
     margin-bottom: 8px;
   }
 
-  &__access {
-    margin-bottom: 16px;
-  }
-
-  &__label {
-    display: block;
-    font-weight: 500;
-  }
-
-  &__radios {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0 16px;
-  }
-
-  &__small {
-    display: block;
-    font-size: 12px;
-    color: #888;
-  }
-
-  &__warning {
-    color: #e65100;
-  }
-
   &__error {
     margin: 8px 0 0;
   }

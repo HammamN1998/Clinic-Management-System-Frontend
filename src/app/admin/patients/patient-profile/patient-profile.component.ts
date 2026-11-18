@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
 import { BreadcrumbComponent } from '@shared/components/breadcrumb/breadcrumb.component';
 import {PatientService} from "@core/service/patient.service";
 import {MatButtonModule} from "@angular/material/button";
@@ -16,7 +16,7 @@ import {SharedModule, UnsubscribeOnDestroyAdapter} from "@shared";
 import {MatDatepickerModule} from "@angular/material/datepicker";
 import {FormControl, ReactiveFormsModule, UntypedFormArray, UntypedFormBuilder, UntypedFormGroup, Validators} from "@angular/forms";
 import {AppointmentDrug, AppointmentModel} from "@core/models/appointment.model";
-import {combineLatest, from} from "rxjs";
+import {from} from "rxjs";
 import {MatSlideToggleChange} from "@angular/material/slide-toggle";
 import * as firestore from 'firebase/firestore';
 import {PaymentModel} from "@core/models/payment.model";
@@ -45,11 +45,8 @@ import {NumericInputDirective} from "@core/directive/numeric-input.directive";
 import {buildTimeSlots, compareTimeSlots, doctorDefaultDuration, nextTimeSlot, resolveDuration, toAmount} from "@core/util/appointment-form.util";
 import {AppDurationPipe} from "@core/pipe/app-duration.pipe";
 import {AppointmentDurationFieldComponent} from "@shared/components/appointment-duration-field/appointment-duration-field.component";
-import {ClinicService} from "@core/service/clinic.service";
 import {ClinicContextService} from "@core/service/clinic-context.service";
 import {DoctorService} from "@core/service/doctor.service";
-import {PatientDeletionRequest} from "@core/models/clinic.model";
-import {getAppDateLocale} from "@core/util/app-locale.util";
 
 /** The parts of an appointment, each shown only once it has something in it. */
 type AppointmentTextSectionKey = 'details' | 'subjective' | 'objective' | 'assessment' | 'plan';
@@ -76,7 +73,7 @@ const APPOINTMENT_SECTIONS: AppointmentSection[] = [
   standalone: true,
   imports: [BreadcrumbComponent, MatButtonModule, MatCheckboxModule, MatFormFieldModule, MatIconModule, MatInputModule, MatTabsModule, MatSelectModule, MatDatepickerModule, ReactiveFormsModule, SharedModule, FileUploadComponent, FullScreenImageComponent, EditableTextComponent, EditableTextCompactedComponent, TranslateModule, AppCurrencyPipe, NumericInputDirective, AppDurationPipe, AppointmentDurationFieldComponent],
 })
-export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter implements OnInit, AfterViewInit {
+export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter implements AfterViewInit {
 
   @ViewChild('appointmentsSection') appointmentsSection?: ElementRef<HTMLElement>;
 
@@ -101,10 +98,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter impleme
   selectedDentalForm: DentalNotation = 'universal';
   visibleDentalForms: DentalNotation[] = [];
 
-  /** Null until known. While linked, deleting a patient asks the clinic to approve it. */
-  linkedToClinic: boolean | null = null;
   deletionBusy = false;
-  private deletionRequests: PatientDeletionRequest[] = [];
 
   constructor(
     private patientService: PatientService,
@@ -119,7 +113,6 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter impleme
     private translate: TranslateService,
     private pdfService: PdfService,
     private currencyService: CurrencyService,
-    private clinicService: ClinicService,
     private clinicContext: ClinicContextService,
     private doctorService: DoctorService,
   ) {
@@ -137,15 +130,6 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter impleme
   }
 
 
-  ngOnInit(): void {
-    this.subs.sink = combineLatest([this.clinicService.membership$, this.clinicService.deletionRequests$]).subscribe(
-      ([membership, requests]) => {
-        this.linkedToClinic = !!membership?.clinicAdminId;
-        this.deletionRequests = requests;
-      },
-    );
-  }
-
   ngAfterViewInit(): void {
     if (history.state?.openSection !== 'appointments') {
       return;
@@ -162,26 +146,13 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter impleme
     return this.firebaseAuthenticationService.currentUserValue;
   }
 
-  /** The doctor whose patient this is. */
+  /** The account this patient belongs to. */
   get activeDoctor(): User {
     return this.doctorService.activeDoctor;
   }
 
-  get canEdit(): boolean {
-    return this.clinicContext.canEdit;
-  }
-
-  get canDelete(): boolean {
-    return this.clinicContext.canDelete;
-  }
-
-  /** This patient's request to the clinic, pending or rejected. */
-  get deletionRequest(): PatientDeletionRequest | null {
-    return this.deletionRequests.find((request) => request.patientId === this.patient.id) ?? null;
-  }
-
-  get dateLocale(): string {
-    return getAppDateLocale(this.translate.currentLang);
+  get canDeletePatients(): boolean {
+    return this.clinicContext.canDeletePatients;
   }
 
   /** Shown inside money inputs so it is clear which currency is being typed. */
@@ -235,55 +206,19 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter impleme
   }
 
   deletePatient() {
-    const linked = this.linkedToClinic;
-    if (linked === null) {
-      return;
-    }
-    const name = `${this.patient.firstName} ${this.patient.lastName}`.trim();
-    const message = linked
-      ? this.translate.instant('CLINIC.DELETION.CONFIRM_REQUEST', { name })
-      : this.translate.instant('PATIENTS.PROFILE.DELETE_PATIENT_CONFIRM', {
-        name,
-        gender: this.patient.gender,
-        bloodGroup: this.patient.bloodGroup,
-        mobile: this.patient.phoneNumber,
-      });
-    const dialogRef = this.deleteConfirmDialog.open(message, linked ? 'CLINIC.DELETION.REQUEST' : undefined);
+    const message = this.translate.instant('PATIENTS.PROFILE.DELETE_PATIENT_CONFIRM', {
+      name: `${this.patient.firstName} ${this.patient.lastName}`.trim(),
+      gender: this.patient.gender,
+      bloodGroup: this.patient.bloodGroup,
+      mobile: this.patient.phoneNumber,
+    });
+    const dialogRef = this.deleteConfirmDialog.open(message);
 
     this.subs.sink = dialogRef.afterClosed().subscribe((result) => {
       if (result === 1) {
-        void (linked ? this.requestDeletion() : this.deleteNow());
+        void this.deleteNow();
       }
     });
-  }
-
-  /** Withdraws a pending request, or dismisses a rejected one. */
-  async clearDeletionRequest(): Promise<void> {
-    const pending = this.deletionRequest?.status === 'pending';
-    await this.runDeletionCall(async () => {
-      await this.clinicService.cancelPatientDeletion(this.patient.id);
-      return pending ? 'CLINIC.DELETION.MESSAGES.WITHDRAWN' : 'CLINIC.DELETION.MESSAGES.DISMISSED';
-    });
-  }
-
-  private async requestDeletion(): Promise<void> {
-    await this.runDeletionCall(async () => {
-      await this.clinicService.requestPatientDeletion(this.patient.id);
-      return 'CLINIC.DELETION.MESSAGES.REQUESTED';
-    });
-  }
-
-  /** The call resolves to the key of its success message. */
-  private async runDeletionCall(call: () => Promise<string>): Promise<void> {
-    this.deletionBusy = true;
-    try {
-      const messageKey = await call();
-      this.notificationService.showSnackBarNotification('snackbar-success', this.translate.instant(messageKey), 'bottom', 'center');
-    } catch (err) {
-      this.notificationService.showSwalOkDialog(this.clinicService.errorMessage(err), 'error', 'center', this.translate.instant('COMMON.OK'));
-    } finally {
-      this.deletionBusy = false;
-    }
   }
 
   private async deleteNow(): Promise<void> {
@@ -948,10 +883,13 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter impleme
             this.patient.attachments = (this.patient.attachments ?? []).filter(
               (a) => a.url !== attachment.url,
             );
-            this.doctor.subscription.storageBytesUsed = Math.max(
-              0,
-              this.doctor.subscription.storageBytesUsed - removedSize,
-            );
+            // The cached storage use is the signed-in doctor's own, not the clinic's.
+            if (!this.clinicContext.isActing) {
+              this.doctor.subscription.storageBytesUsed = Math.max(
+                0,
+                this.doctor.subscription.storageBytesUsed - removedSize,
+              );
+            }
             this.patientService.updatePatient(this.patient)
               .then(() => {
                 this.notificationService.showSnackBarNotification(
@@ -978,7 +916,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter impleme
   }
 
   addAttachment(attachment: Attachment) {
-    // Inside a doctor's account the upload counts against his plan, which the storage rules have already checked.
+    // In the clinic account the upload counts against the clinic's plan, which the storage rules have already checked.
     const isActing = this.clinicContext.isActing;
     if (!isActing && (this.doctor.subscription.storageBytesUsed + attachment.size > this.doctor.subscription.maxStorageLimitBytes || this.doctor.subscription.status !== 'active')) {
       this.notificationService.showSwalDialogWithFunction(

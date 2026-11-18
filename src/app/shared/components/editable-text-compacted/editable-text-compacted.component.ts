@@ -28,7 +28,6 @@ export class EditableTextCompactedComponent implements AfterViewInit, OnChanges 
   @Input() bodyText = '';
   /** Opens ready to type, for a section the user has just chosen to add. */
   @Input() startInEditMode = false;
-  @Input() readonly = false;
 
   @Output() bodyTextEdited = new EventEmitter<string>();
 
@@ -38,7 +37,7 @@ export class EditableTextCompactedComponent implements AfterViewInit, OnChanges 
 
   ngAfterViewInit(): void {
     this.applyBodyTextFromInput();
-    if (this.startInEditMode && !this.readonly) {
+    if (this.startInEditMode) {
       this.onBodyClick();
       // Entering edit mode toggles the action buttons, which this view has already checked.
       this.changeDetector.detectChanges();
@@ -52,7 +51,7 @@ export class EditableTextCompactedComponent implements AfterViewInit, OnChanges 
   }
 
   onBodyClick(): void {
-    if (this.isEditing || this.readonly) {
+    if (this.isEditing) {
       return;
     }
     this.isEditing = true;

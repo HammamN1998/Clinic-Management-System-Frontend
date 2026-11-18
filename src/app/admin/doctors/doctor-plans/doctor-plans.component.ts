@@ -13,9 +13,6 @@ import { LegalPolicyFooterComponent } from '@shared/components/legal-policy-foot
 import {TranslateModule, TranslateService} from "@ngx-translate/core";
 import {AnalyticsService} from "@core/service/analytics.service";
 import {MetaPixelService} from "@core/service/meta-pixel.service";
-import { ClinicService } from '@core/service/clinic.service';
-import { ClinicProfile } from '@core/models/clinic.model';
-import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-doctor-plans',
@@ -37,8 +34,6 @@ export class DoctorPlansComponent {
 
   loading = false;
   billingPortalLoading = false;
-  /** Set while the doctor is linked: the clinic covers his limits. */
-  readonly clinic$: Observable<ClinicProfile | null>;
 
   constructor(
     private paymentService: PaymentService,
@@ -47,9 +42,7 @@ export class DoctorPlansComponent {
     private translate: TranslateService,
     private analytics: AnalyticsService,
     private metaPixel: MetaPixelService,
-    clinicService: ClinicService,
   ) {
-    this.clinic$ = clinicService.clinic$;
   }
 
   /** In-memory doctor from session (not re-fetched from Firestore on this page). */

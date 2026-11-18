@@ -2,7 +2,7 @@
   <img [src]="imgUrl" alt="Image description" (mouseenter)="showControl()">
   <div class="full-body" *ngIf="this.showUploadPictureArea">
     <app-file-upload
-      rootFolder="doctors/{{this.doctor.id}}/patients/{{this.patient.id}}/images"
+      rootFolder="doctors/{{accountId}}/patients/{{this.patient.id}}/images"
       accept="image/*"
       uploadMode="imageOnly"
       [maxImageDimension]="1024"
@@ -14,12 +14,12 @@
       <mat-icon>fullscreen</mat-icon>
     </button>
   </i>
-  <i class="icon-edit" *ngIf="canChangePhoto && showEditIcon">
+  <i class="icon-edit" *ngIf="showEditIcon">
     <button mat-icon-button  matTooltip="Edit" (click)="editImage()">
       <mat-icon>edit</mat-icon>
     </button>
   </i>
-  <i class="icon-delete" *ngIf="canChangePhoto && showDeleteIcon && patient.img !== ''">
+  <i class="icon-delete" *ngIf="showDeleteIcon && patient.img !== ''">
     <button mat-icon-button  matTooltip="Delete" (click)="deleteImage()">
       <mat-icon>delete</mat-icon>
     </button>

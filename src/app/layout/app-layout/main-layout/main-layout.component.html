@@ -4,5 +4,8 @@
 <app-right-sidebar></app-right-sidebar>
 <app-religious-reminder-overlay></app-religious-reminder-overlay>
 <div [dir]="direction">
-  <router-outlet></router-outlet>
+  <!-- Pages read their account's records when they open, so a change of account rebuilds the page. -->
+  @for (account of [accountId]; track account) {
+    <router-outlet></router-outlet>
+  }
 </div>

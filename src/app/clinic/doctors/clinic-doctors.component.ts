@@ -1,32 +1,29 @@
 import { Component, OnInit } from '@angular/core';
-import { DatePipe, NgClass, formatDate } from '@angular/common';
-import { Router } from '@angular/router';
+import { DatePipe, NgClass } from '@angular/common';
 import { Direction } from '@angular/cdk/bidi';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
-import { distinctUntilChanged, map, shareReplay, switchMap } from 'rxjs/operators';
 import { FirebaseAuthenticationService } from '@core';
 import { UnsubscribeOnDestroyAdapter } from '@shared';
 import { BreadcrumbComponent } from '@shared/components/breadcrumb/breadcrumb.component';
 import { ClinicTermsComponent } from '@shared/components/clinic-terms/clinic-terms.component';
 import { DeleteConfirmDialogService } from '@shared/components/delete-confirm-dialog/delete-confirm-dialog.service';
 import { ClinicService } from '@core/service/clinic.service';
-import { ClinicContextService } from '@core/service/clinic-context.service';
 import { NotificationService } from '@core/service/notification.service';
 import { getAppDateLocale } from '@core/util/app-locale.util';
 import {
   ClinicAgreement,
   ClinicBrand,
+  ClinicDoctor,
   ClinicInvite,
   ClinicMembership,
   ClinicProfile,
   InviteStatus,
   LinkedDoctor,
-  PatientDeletionRequest,
   inviteDisplayStatus,
   isOpenInvite,
 } from '@core/models/clinic.model';
@@ -36,9 +33,6 @@ import {
 } from '@shared/components/record-history-dialog/record-history-dialog.component';
 import { TermsDialogComponent, TermsDialogData } from '../terms-dialog/terms-dialog.component';
 import { BrandingDialogComponent } from '../branding-dialog/branding-dialog.component';
-import { CopyDialogComponent, CopyDialogData, CopyDialogResult } from '../copy-dialog/copy-dialog.component';
-
-const DAY_MS = 24 * 60 * 60 * 1000;
 
 const STATUS_BADGES: Record<InviteStatus, string> = {
   pending: 'badge-solid-blue',
@@ -48,7 +42,7 @@ const STATUS_BADGES: Record<InviteStatus, string> = {
   expired: 'badge-solid-orange',
 };
 
-/** The admin's doctors: linked doctors with their terms, and the invitations he sent. */
+/** The admin's doctors: linked doctors with their terms, the invitations he sent, and the clinic account's history. */
 @Component({
   selector: 'app-clinic-doctors',
   templateUrl: './clinic-doctors.component.html',
@@ -70,45 +64,28 @@ export class ClinicDoctorsComponent extends UnsubscribeOnDestroyAdapter implemen
   clinic: ClinicProfile | null = null;
   doctors: LinkedDoctor[] = [];
   invites: ClinicInvite[] = [];
+  /** Everyone who works or worked in the clinic, the admin included, as its history names them. */
+  clinicDoctors: ClinicDoctor[] = [];
   busy = false;
   private agreements = new Map<string, ClinicAgreement>();
-  /** Pending requests to delete patients, by doctor. */
-  private deletionRequests = new Map<string, PatientDeletionRequest[]>();
 
   constructor(
     private clinicService: ClinicService,
-    private clinicContext: ClinicContextService,
     private authService: FirebaseAuthenticationService,
     private dialog: MatDialog,
     private deleteConfirmDialog: DeleteConfirmDialogService,
     private notificationService: NotificationService,
     private translate: TranslateService,
-    private router: Router,
   ) {
     super();
   }
 
   ngOnInit(): void {
-    // The Clinic pages are the admin's own, so opening one leaves the doctor's account he was in.
-    this.clinicContext.clear();
     const adminId = this.authService.currentUserValue.id;
     this.subs.sink = this.clinicService.membership$.subscribe((membership) => (this.membership = membership));
     this.subs.sink = this.clinicService.clinicProfile$(adminId).subscribe((clinic) => (this.clinic = clinic));
-    const doctors$ = this.clinicService.linkedDoctors$(adminId).pipe(shareReplay({ bufferSize: 1, refCount: true }));
-    this.subs.sink = doctors$.subscribe((doctors) => (this.doctors = doctors));
-    this.subs.sink = doctors$
-      .pipe(
-        map((doctors) => doctors.map((doctor) => doctor.doctorId).sort()),
-        distinctUntilChanged((a, b) => a.join() === b.join()),
-        switchMap((doctorIds) => this.clinicService.clinicDeletionRequests$(adminId, doctorIds)),
-      )
-      .subscribe((requests) => {
-        const byDoctor = new Map<string, PatientDeletionRequest[]>();
-        for (const request of requests) {
-          byDoctor.set(request.doctorId, [...(byDoctor.get(request.doctorId) ?? []), request]);
-        }
-        this.deletionRequests = byDoctor;
-      });
+    this.subs.sink = this.clinicService.linkedDoctors$(adminId).subscribe((doctors) => (this.doctors = doctors));
+    this.subs.sink = this.clinicService.clinicDoctors$(adminId).subscribe((doctors) => (this.clinicDoctors = doctors));
     this.subs.sink = this.clinicService.adminInvites$(adminId).subscribe((invites) => (this.invites = invites));
     this.subs.sink = this.clinicService.adminAgreements$(adminId).subscribe((agreements) => {
       this.agreements = new Map(agreements.map((agreement) => [agreement.id, agreement]));
@@ -140,19 +117,6 @@ export class ClinicDoctorsComponent extends UnsubscribeOnDestroyAdapter implemen
   proposal(doctor: LinkedDoctor): ClinicAgreement | null {
     const proposal = doctor.pendingAgreementId ? this.agreements.get(doctor.pendingAgreementId) : undefined;
     return proposal?.status === 'proposed' ? proposal : null;
-  }
-
-  deletionRequestsOf(doctor: LinkedDoctor): PatientDeletionRequest[] {
-    return this.deletionRequests.get(doctor.doctorId) ?? [];
-  }
-
-  patientName(request: PatientDeletionRequest): string {
-    return request.patientName || this.translate.instant('CLINIC.DELETION.UNNAMED_PATIENT');
-  }
-
-  /** Only the side that started an unlink can withdraw it, and only before it takes effect. */
-  canWithdrawUnlink(doctor: LinkedDoctor): boolean {
-    return doctor.unlinkRequestedBy === 'admin' && (doctor.unlinkEffectiveAt?.getTime() ?? 0) > Date.now();
   }
 
   inviteStatus(invite: ClinicInvite): InviteStatus {
@@ -221,111 +185,31 @@ export class ClinicDoctorsComponent extends UnsubscribeOnDestroyAdapter implemen
     );
   }
 
-  async startUnlink(doctor: LinkedDoctor): Promise<void> {
-    // Without a notice period the doctor is unlinked at once, leaving no time to copy his patients after.
-    if (this.currentAgreement(doctor)?.terms.noticeDays === 0 && !(await this.copyBeforeUnlink(doctor))) {
-      return;
-    }
-    // Read after the copy dialog, which may stay open while the doctor accepts terms with another notice period.
-    const noticeDays = this.currentAgreement(this.latest(doctor))?.terms.noticeDays;
-    if (noticeDays === undefined) {
-      return;
-    }
+  async unlink(doctor: LinkedDoctor): Promise<void> {
     const name = this.displayName(doctor);
-    const message = noticeDays === 0
-      ? this.translate.instant('CLINIC.DOCTORS.CONFIRM.START_UNLINK_IMMEDIATE', { name })
-      : this.translate.instant('CLINIC.DOCTORS.CONFIRM.START_UNLINK', {
-        name,
-        date: this.formatDay(new Date(Date.now() + noticeDays * DAY_MS)),
-      });
-    if (!(await this.confirm(message, 'CLINIC.DOCTORS.ACTIONS.START_UNLINK'))) {
+    const message = this.translate.instant('CLINIC.DOCTORS.CONFIRM.UNLINK', { name });
+    if (!(await this.confirm(message, 'CLINIC.DOCTORS.ACTIONS.UNLINK'))) {
       return;
     }
     await this.run(async () => {
-      const effectiveAt = await this.clinicService.requestUnlink(doctor.doctorId);
-      return noticeDays === 0
-        ? this.translate.instant('CLINIC.DOCTORS.MESSAGES.UNLINKED', { name })
-        : this.translate.instant('CLINIC.DOCTORS.MESSAGES.UNLINK_STARTED', { date: this.formatDay(effectiveAt) });
-    });
-  }
-
-  async withdrawUnlink(doctor: LinkedDoctor): Promise<void> {
-    await this.run(async () => {
-      await this.clinicService.cancelUnlink(doctor.doctorId);
-      return this.translate.instant('CLINIC.DOCTORS.MESSAGES.UNLINK_WITHDRAWN');
-    });
-  }
-
-  async unlinkNow(doctor: LinkedDoctor): Promise<void> {
-    if (!(await this.copyBeforeUnlink(doctor))) {
-      return;
-    }
-    const name = this.displayName(doctor);
-    const message = this.translate.instant('CLINIC.DOCTORS.CONFIRM.UNLINK_NOW', { name });
-    if (!(await this.confirm(message, 'CLINIC.DOCTORS.ACTIONS.UNLINK_NOW'))) {
-      return;
-    }
-    await this.run(async () => {
-      await this.clinicService.completeUnlink(doctor.doctorId);
+      await this.clinicService.unlink(doctor.doctorId);
       return this.translate.instant('CLINIC.DOCTORS.MESSAGES.UNLINKED', { name });
     });
   }
 
-  copyPatients(doctor: LinkedDoctor): void {
-    this.openCopyDialog(doctor, false);
-  }
-
-  async approveDeletion(doctor: LinkedDoctor, request: PatientDeletionRequest): Promise<void> {
-    const patient = this.patientName(request);
-    const message = this.translate.instant('CLINIC.DELETION.CONFIRM_APPROVE', {
-      patient,
-      doctor: this.displayName(doctor),
-    });
-    if (!(await this.confirm(message, 'CLINIC.DELETION.APPROVE'))) {
-      return;
-    }
-    await this.run(async () => {
-      await this.clinicService.answerPatientDeletion(request.patientId, true);
-      return this.translate.instant('CLINIC.DELETION.MESSAGES.APPROVED', { patient });
-    });
-  }
-
-  async rejectDeletion(request: PatientDeletionRequest): Promise<void> {
-    await this.run(async () => {
-      await this.clinicService.answerPatientDeletion(request.patientId, false);
-      return this.translate.instant('CLINIC.DELETION.MESSAGES.REJECTED');
-    });
-  }
-
-  async openAccount(doctor: LinkedDoctor): Promise<void> {
-    this.busy = true;
-    try {
-      if (await this.clinicService.openDoctorAccount(doctor.doctorId)) {
-        await this.router.navigate(['/admin/dashboard/main']);
-        return;
-      }
-      this.notificationService.showSwalOkDialog(
-        this.translate.instant('CLINIC.ACTING.OPEN_FAILED'),
-        'error',
-        'center',
-        this.translate.instant('COMMON.OK'),
-      );
-    } finally {
-      this.busy = false;
-    }
-  }
-
-  openHistory(doctor: LinkedDoctor): void {
+  openHistory(): void {
     const adminId = this.authService.currentUserValue.id;
-    const name = this.displayName(doctor);
     this.dialog.open<RecordHistoryDialogComponent, RecordHistoryDialogData>(RecordHistoryDialogComponent, {
       data: {
-        title: this.translate.instant('CLINIC.HISTORY.DOCTOR_TITLE', { name }),
+        title: this.translate.instant('CLINIC.HISTORY.TITLE'),
         hint: this.translate.instant('CLINIC.HISTORY.ADMIN_HINT'),
-        doctorId: doctor.doctorId,
-        adminId,
-        canRestore: doctor.clinicAccess === 'edit',
-        names: { [adminId]: this.translate.instant('CLINIC.HISTORY.YOU'), [doctor.doctorId]: name },
+        accountId: adminId,
+        doctors: this.clinicDoctors.map((doctor) => ({
+          id: doctor.doctorId,
+          name: doctor.doctorId === adminId
+            ? this.translate.instant('CLINIC.SELF_NAME', { name: doctor.name })
+            : doctor.name,
+        })),
         otherName: this.translate.instant('CLINIC.HISTORY.UNKNOWN'),
       },
       direction: this.direction,
@@ -367,27 +251,6 @@ export class ClinicDoctorsComponent extends UnsubscribeOnDestroyAdapter implemen
     });
   }
 
-  /** The doctor as the live list has him now, or as he was once he is no longer listed. */
-  private latest(doctor: LinkedDoctor): LinkedDoctor {
-    return this.doctors.find((linked) => linked.doctorId === doctor.doctorId) ?? doctor;
-  }
-
-  /** Resolves to whether the admin went on to unlink the doctor. */
-  private async copyBeforeUnlink(doctor: LinkedDoctor): Promise<boolean> {
-    return (await firstValueFrom(this.openCopyDialog(doctor, true).afterClosed())) === 'unlink';
-  }
-
-  private openCopyDialog(doctor: LinkedDoctor, beforeUnlink: boolean): MatDialogRef<CopyDialogComponent, CopyDialogResult> {
-    return this.dialog.open<CopyDialogComponent, CopyDialogData, CopyDialogResult>(CopyDialogComponent, {
-      data: { doctor, doctors: this.doctors, beforeUnlink },
-      direction: this.direction,
-      width: '560px',
-      maxWidth: '95vw',
-      // Only its buttons close it, so a stray click cannot stop a copy part way.
-      disableClose: true,
-    });
-  }
-
   /** Runs one callable at a time; the action resolves to the success message. */
   private async run(action: () => Promise<string>): Promise<void> {
     this.busy = true;
@@ -411,10 +274,6 @@ export class ClinicDoctorsComponent extends UnsubscribeOnDestroyAdapter implemen
 
   private notifySuccess(message: string): void {
     this.notificationService.showSnackBarNotification('snackbar-success', message, 'bottom', 'center');
-  }
-
-  private formatDay(date: Date): string {
-    return formatDate(date, 'mediumDate', this.dateLocale);
   }
 
   private get direction(): Direction {

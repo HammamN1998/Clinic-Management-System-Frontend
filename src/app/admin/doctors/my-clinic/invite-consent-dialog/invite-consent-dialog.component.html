@@ -3,15 +3,15 @@
   <p>{{ 'CLINIC.CONSENT.INTRO' | translate: { admin: data.adminName, clinic: data.clinicName } }}</p>
 
   <h3 class="consent__title">{{ 'CLINIC.TERMS.TITLE' | translate }}</h3>
-  <app-clinic-terms [terms]="data.invite.terms" [explainAccess]="true"></app-clinic-terms>
+  <app-clinic-terms [terms]="data.invite.terms"></app-clinic-terms>
 
   <h3 class="consent__title">{{ 'CLINIC.CONSENT.RULES_TITLE' | translate }}</h3>
   <ul class="consent__rules">
     <li>{{ 'CLINIC.CONSENT.ACCOUNT' | translate }}</li>
-    <li>{{ 'CLINIC.CONSENT.LIMITS' | translate }}</li>
+    <li>{{ 'CLINIC.CONSENT.OWN' | translate }}</li>
     <li>{{ 'CLINIC.CONSENT.HISTORY' | translate }}</li>
-    <li>{{ 'CLINIC.CONSENT.COPY' | translate }}</li>
     <li>{{ 'CLINIC.CONSENT.LEAVING' | translate }}</li>
+    <li>{{ 'CLINIC.CONSENT.COMMISSION' | translate }}</li>
   </ul>
 
   @if (data.paysOwnPlan) {

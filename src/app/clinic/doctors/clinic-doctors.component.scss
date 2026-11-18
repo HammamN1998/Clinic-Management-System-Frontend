@@ -48,20 +48,6 @@
     word-break: break-word;
   }
 
-  // On a phone, Open account moves under the doctor's details so they keep the row's width.
-  @media (max-width: 767px) {
-    &__item-head--linked {
-      display: grid;
-      grid-template-columns: auto 1fr auto;
-    }
-
-    &__open {
-      grid-row: 2;
-      grid-column: 2 / -1;
-      justify-self: start;
-    }
-  }
-
   &__avatar {
     width: 40px;
     height: 40px;
@@ -69,33 +55,10 @@
     object-fit: cover;
   }
 
-  &__notice {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 6px 10px;
-    margin-bottom: 8px;
-  }
-
   &__proposal {
     margin-top: 10px;
     padding: 10px 12px;
     border-radius: 6px;
     background-color: rgba(4, 142, 251, 0.06);
-  }
-
-  &__requests {
-    margin-top: 10px;
-    padding: 10px 12px;
-    border-radius: 6px;
-    background-color: rgba(244, 67, 54, 0.06);
-  }
-
-  &__request {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 8px 12px;
-    padding: 8px 0 0;
   }
 }

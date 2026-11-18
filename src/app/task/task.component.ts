@@ -18,7 +18,6 @@ import { BreadcrumbComponent } from '@shared/components/breadcrumb/breadcrumb.co
 import {TaskService} from "@core/service/task.service";
 import { DeleteConfirmDialogService } from '@shared/components/delete-confirm-dialog/delete-confirm-dialog.service';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ClinicContextService } from '@core/service/clinic-context.service';
 import { NotificationService } from '@core/service/notification.service';
 
 @Component({
@@ -66,7 +65,6 @@ export class TaskComponent {
     private taskService: TaskService,
     private deleteConfirmDialog: DeleteConfirmDialogService,
     private translate: TranslateService,
-    private clinicContext: ClinicContextService,
     private notificationService: NotificationService,
   ){
 
@@ -75,14 +73,6 @@ export class TaskComponent {
     // getTasks already logs a failed load; the list then stays empty.
     this.taskService.reloadTasks().catch(() => undefined);
     this.taskService.tasks$.subscribe(tasks => this.tasks = tasks);
-  }
-
-  get canEdit(): boolean {
-    return this.clinicContext.canEdit;
-  }
-
-  get canDelete(): boolean {
-    return this.clinicContext.canDelete;
   }
 
   drop(event: CdkDragDrop<string[]>) {
@@ -99,7 +89,6 @@ export class TaskComponent {
   addNewTask(nav: MatSidenav) {
     this.isNewEvent = true;
     this.dialogTitle = this.translate.instant('TASK.NEW_TASK');
-    this.taskForm.enable();
     this.taskForm.reset();
     nav.open();
   }
@@ -108,9 +97,6 @@ export class TaskComponent {
     this.dialogTitle = this.translate.instant('TASK.EDIT_TASK');
     nav.open();
     this.taskForm = this.createFormGroup(task);
-    if (!this.canEdit) {
-      this.taskForm.disable();
-    }
   }
   closeSlider(nav: MatSidenav) {
     nav.close();

@@ -820,26 +820,41 @@ export class PdfService {
       this.translate.instant(key, params);
   }
 
-  /** Documents carry the details of the doctor whose patient they are for, under his clinic's name and logo when he is in one. */
-  private async getBranding(): Promise<ClinicBranding> {
-    const doctor = this.doctorService.activeDoctor;
+  /**
+   * Documents name the doctor who makes them, or the record's doctor when given. In a clinic account
+   * they carry the clinic's name and logo and the account's contact details.
+   */
+  private async getBranding(doctorName?: string): Promise<ClinicBranding> {
+    const doctor = this.doctorService.doctor;
+    const name = doctorName || doctor?.name || '';
     const clinic = await this.clinicService.activeClinic();
-    return this.brandingOf(doctor, clinic?.name, clinic ? clinic.logo : doctor?.logo);
+    if (!clinic) {
+      return this.brandingOf(name, doctor, undefined, doctor?.logo);
+    }
+    const account = this.doctorService.activeDoctor;
+    return this.brandingOf(name, account, clinic.name, clinic.logo || account?.logo);
   }
 
   /** The clinic report is the admin's own, under his clinic's name and logo once he has set them. */
   private async clinicReportBranding(): Promise<ClinicBranding> {
     const admin = this.doctorService.doctor;
     const brand = await this.clinicService.ownBrand();
-    return this.brandingOf(admin, brand.name, brand.logo || admin?.logo);
+    return this.brandingOf(admin?.name ?? '', admin, brand.name, brand.logo || admin?.logo);
   }
 
-  private brandingOf(doctor: User | undefined, clinicName: string | undefined, logoUrl: string | undefined): ClinicBranding {
+  /** A clinic that goes by its doctor's name is left out, so the name is not printed twice. */
+  private brandingOf(
+    doctorName: string,
+    contact: User | undefined,
+    clinicName: string | undefined,
+    logoUrl: string | undefined,
+  ): ClinicBranding {
+    const sameName = clinicName?.trim() === doctorName.trim();
     return {
-      clinicName: clinicName || undefined,
-      doctorName: this.withDoctorPrefix(doctor?.name ?? ''),
-      phone: doctor?.phoneNumber || undefined,
-      address: doctor?.address || undefined,
+      clinicName: (!sameName && clinicName) || undefined,
+      doctorName: this.withDoctorPrefix(doctorName),
+      phone: contact?.phoneNumber || undefined,
+      address: contact?.address || undefined,
       logoUrl: logoUrl || undefined,
     };
   }

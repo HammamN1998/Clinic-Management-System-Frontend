@@ -11,6 +11,7 @@ import { NotificationService } from '@core/service/notification.service';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { ClinicContextService } from '@core/service/clinic-context.service';
+import { DoctorService } from '@core/service/doctor.service';
 
 @Component({
   selector: 'app-full-screen-image',
@@ -39,6 +40,7 @@ export class FullScreenImageComponent {
     private router: Router,
     private translate: TranslateService,
     private clinicContext: ClinicContextService,
+    private doctorService: DoctorService,
   ) {
   }
 
@@ -50,8 +52,13 @@ export class FullScreenImageComponent {
     return this.patientService.doctor;
   }
 
-  /** Replacing or removing the photo deletes its file, which only the doctor himself may do. */
-  get canChangePhoto(): boolean {
+  /** The account the patient belongs to, whose folder keeps his photo. */
+  get accountId(): string {
+    return this.doctorService.activeDoctorId;
+  }
+
+  /** The cached plan and storage use are the signed-in doctor's own; in the clinic account the rules check the clinic's. */
+  private get usesOwnPlan(): boolean {
     return !this.clinicContext.isActing;
   }
 
@@ -77,10 +84,12 @@ export class FullScreenImageComponent {
         this.patient.img = '';
         this.patient.imgSize = 0;
         this.patientService.updatePatient(this.patient).catch((error) => this.notifySaveFailed(error));
-        this.doctor.subscription.storageBytesUsed = Math.max(
-          0,
-          this.doctor.subscription.storageBytesUsed - removedSize,
-        );
+        if (this.usesOwnPlan) {
+          this.doctor.subscription.storageBytesUsed = Math.max(
+            0,
+            this.doctor.subscription.storageBytesUsed - removedSize,
+          );
+        }
       };
       if (this.patient.img === '') {
         finalizeDelete();
@@ -101,7 +110,7 @@ export class FullScreenImageComponent {
   }
 
   updatePatientProfilePicture(attachment: Attachment) {
-    if (this.doctor.subscription.storageBytesUsed + attachment.size > this.doctor.subscription.maxStorageLimitBytes || this.doctor.subscription.status !== 'active') {
+    if (this.usesOwnPlan && (this.doctor.subscription.storageBytesUsed + attachment.size > this.doctor.subscription.maxStorageLimitBytes || this.doctor.subscription.status !== 'active')) {
       this.notificationService.showSwalDialogWithFunction(
         this.doctor.subscription.status !== 'active' ?
           this.translate.instant('PATIENTS.MESSAGES.PLAN_INACTIVE_TITLE') :
@@ -123,7 +132,9 @@ export class FullScreenImageComponent {
       this.patient.imgSize = attachment.size;
       this.patientService.updatePatient(this.patient).catch((error) => this.notifySaveFailed(error));
       this.showUploadPictureArea = !this.showUploadPictureArea;
-      this.doctor.subscription.storageBytesUsed += attachment.size;
+      if (this.usesOwnPlan) {
+        this.doctor.subscription.storageBytesUsed += attachment.size;
+      }
     } else {
       const oldImgSize = this.patient.imgSize;
       const oldImgUrl = this.patient.img;
@@ -132,7 +143,9 @@ export class FullScreenImageComponent {
           this.patient.img = attachment.url;
           this.patient.imgSize = attachment.size;
           this.patientService.updatePatient(this.patient).catch((error) => this.notifySaveFailed(error));
-          this.doctor.subscription.storageBytesUsed += attachment.size - oldImgSize;
+          if (this.usesOwnPlan) {
+            this.doctor.subscription.storageBytesUsed += attachment.size - oldImgSize;
+          }
         },
         error: (error) => {
           console.log('error: ' + error);

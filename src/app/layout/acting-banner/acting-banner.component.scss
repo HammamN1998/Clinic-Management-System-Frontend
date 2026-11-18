@@ -27,22 +27,8 @@
     text-overflow: ellipsis;
   }
 
-  &__access {
-    flex-shrink: 0;
-    padding: 2px 8px;
-    border-radius: 10px;
-    background-color: rgba(102, 60, 0, 0.1);
-    font-size: 12px;
-  }
-
   &__back {
     flex-shrink: 0;
     height: 30px;
-  }
-}
-
-@media (max-width: 600px) {
-  .acting-banner__access {
-    display: none;
   }
 }

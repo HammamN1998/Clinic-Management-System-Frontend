@@ -32,7 +32,7 @@ export class CurrencyService {
     private readonly translate: TranslateService,
   ) {}
 
-  /** ISO 4217 code used for every amount the doctor sees. Inside a doctor's account it is that doctor's. */
+  /** ISO 4217 code used for every amount the doctor sees. In the clinic account it is the clinic admin's. */
   get code(): string {
     const saved = this.doctorService.activeDoctor?.currency;
     if (isSupportedCurrency(saved)) {

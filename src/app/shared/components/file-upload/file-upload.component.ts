@@ -131,7 +131,7 @@ export class FileUploadComponent implements ControlValueAccessor, OnInit {
       this.isPreparing = false;
     }
 
-    // Inside a doctor's account the storage rules check his own plan and quota.
+    // In the clinic account the storage rules check the clinic's plan and quota.
     if (
       !this.clinicContext.isActing &&
       (this.doctorService.doctor.subscription.storageBytesUsed + prepared!.file.size >

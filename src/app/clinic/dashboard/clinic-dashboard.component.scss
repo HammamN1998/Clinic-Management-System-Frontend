@@ -1,15 +1,3 @@
-@use '../../admin/dashboard/dashboard-filters';
-
-.doctor-filter {
-  max-width: 100%;
-
-  .range-label {
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-}
-
 .clinic-dashboard {
   &__attention {
     color: inherit;
@@ -22,15 +10,4 @@
       color: #f57c00;
     }
   }
-
-  &__warning {
-    background-color: #fff4e5;
-    color: #663c00;
-  }
-}
-
-.link-button {
-  padding: 0;
-  min-width: 0;
-  text-transform: none;
 }

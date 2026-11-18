@@ -11,6 +11,8 @@ import { ActingBannerComponent } from '../../acting-banner/acting-banner.compone
 import { UnsubscribeOnDestroyAdapter } from '@shared';
 import { ReligiousReminderOverlayComponent } from '@shared/components/religious-reminder-overlay/religious-reminder-overlay.component';
 import { ReligiousReminderService } from '@core/service/religious-reminder.service';
+import { ClinicContextService } from '@core/service/clinic-context.service';
+import { distinctUntilChanged, map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-main-layout',
@@ -30,15 +32,24 @@ import { ReligiousReminderService } from '@core/service/religious-reminder.servi
 export class MainLayoutComponent extends UnsubscribeOnDestroyAdapter implements AfterViewInit {
   direction!: Direction;
   public config!: InConfiguration;
+  /** The clinic account on screen, or null for the signed-in doctor's own. */
+  accountId: string | null = null;
   constructor(
     private directoryService: DirectionService,
     private configService: ConfigService,
     @Inject(DOCUMENT) private document: Document,
     private renderer: Renderer2,
-    private religiousReminderService: ReligiousReminderService
+    private religiousReminderService: ReligiousReminderService,
+    private clinicContext: ClinicContextService,
   ) {
     super();
     this.config = this.configService.configData;
+    this.subs.sink = this.clinicContext.acting$
+      .pipe(
+        map((acting) => acting?.doctor.id ?? null),
+        distinctUntilChanged(),
+      )
+      .subscribe((accountId) => (this.accountId = accountId));
     this.subs.sink = this.directoryService.currentData.subscribe((currentData) => {
       if (currentData) {
         this.direction = currentData === 'ltr' ? 'ltr' : 'rtl';

@@ -2,7 +2,9 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { DatePipe, NgClass, formatDate } from '@angular/common';
 import { MAT_DIALOG_DATA, MatDialogActions, MatDialogClose, MatDialogContent, MatDialogTitle } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
+import { MatSelectModule } from '@angular/material/select';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ClinicService, HistoryPage } from '@core/service/clinic.service';
 import { NotificationService } from '@core/service/notification.service';
@@ -12,12 +14,10 @@ import { HistoryAction, HistoryEntry } from '@core/models/clinic.model';
 export interface RecordHistoryDialogData {
   title: string;
   hint: string;
-  doctorId: string;
-  /** The clinic admin's own id when he is the reader, since his reads must name him. Null for the doctor. */
-  adminId: string | null;
-  canRestore: boolean;
-  /** Display names by uid. Anyone else shows as `otherName`. */
-  names: Record<string, string>;
+  /** The clinic account: its admin's id. */
+  accountId: string;
+  /** Everyone in the clinic, with the names the entries show. Anyone else shows as `otherName`. */
+  doctors: { id: string; name: string }[];
   otherName: string;
 }
 
@@ -37,10 +37,7 @@ interface HistoryRow {
   actionKey: string;
   collectionKey: string;
   badge: string;
-  /** Who made the change; for a patient's deletion, the clinic admin who answered. */
   actor: string;
-  /** The doctor who asked, when this is the answer to a request to delete a patient. */
-  requester: string | null;
   changedSummary: string;
   fields: FieldRow[];
   changes: ChangeRow[];
@@ -56,14 +53,13 @@ const ACTION_BADGES: Record<HistoryAction, string> = {
   create: 'badge-solid-green',
   update: 'badge-solid-blue',
   delete: 'badge-solid-red',
-  'delete-rejected': 'badge-solid-orange',
 };
 
 /** Shown in this order; any other field follows, by name. */
 const FIELD_ORDER = [
   'firstName', 'lastName', 'phoneNumber', 'email', 'gender', 'birthDate', 'maritalState', 'address',
   'bloodGroup', 'bloodPressure', 'weight', 'condition', 'notes', 'img', 'attachments', 'createdAt',
-  'date', 'time', 'durationMinutes', 'amount', 'price', 'discount', 'cost', 'costPaid', 'attended',
+  'providerId', 'date', 'time', 'durationMinutes', 'amount', 'price', 'discount', 'cost', 'costPaid', 'attended',
   'details', 'subjective', 'objective', 'assessment', 'plan', 'prescriptions', 'id', 'doctorId', 'patientId',
 ];
 
@@ -96,8 +92,8 @@ function byFieldOrder([a]: [string, unknown], [b]: [string, unknown]): number {
 }
 
 /**
- * A linked doctor's history, newest first, for the doctor or his clinic admin. Restores
- * deleted appointments, treatments, and payments when the reader may.
+ * The clinic account's history, newest first, for its admin: everyone's changes, or one
+ * doctor's. Restores deleted appointments, treatments, and payments.
  */
 @Component({
   selector: 'app-record-history-dialog',
@@ -112,7 +108,9 @@ function byFieldOrder([a]: [string, unknown], [b]: [string, unknown]): number {
     MatDialogActions,
     MatDialogClose,
     MatButtonModule,
+    MatFormFieldModule,
     MatIconModule,
+    MatSelectModule,
     TranslateModule,
   ],
 })
@@ -122,14 +120,19 @@ export class RecordHistoryDialogComponent implements OnInit {
   failed = false;
   hasMore = false;
   restoringId: string | null = null;
+  /** Shows only this doctor's changes. Null shows everyone's. */
+  actorId: string | null = null;
   private last: HistoryPage['last'] = null;
+  private readonly names: Map<string, string>;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) readonly data: RecordHistoryDialogData,
     private clinicService: ClinicService,
     private notificationService: NotificationService,
     private translate: TranslateService,
-  ) {}
+  ) {
+    this.names = new Map(data.doctors.map((doctor) => [doctor.id, doctor.name]));
+  }
 
   ngOnInit(): void {
     void this.loadMore();
@@ -139,11 +142,20 @@ export class RecordHistoryDialogComponent implements OnInit {
     return getAppDateLocale(this.translate.currentLang);
   }
 
+  /** The filter is disabled while a page loads, so a page always matches the filter it was read for. */
+  filterBy(actorId: string | null): void {
+    this.actorId = actorId;
+    this.rows = [];
+    this.last = null;
+    this.hasMore = false;
+    void this.loadMore();
+  }
+
   async loadMore(): Promise<void> {
     this.loading = true;
     this.failed = false;
     try {
-      const page = await this.clinicService.historyPage(this.data.doctorId, this.data.adminId, PAGE_SIZE, this.last);
+      const page = await this.clinicService.historyPage(this.data.accountId, this.actorId, PAGE_SIZE, this.last);
       this.rows = [...this.rows, ...page.entries.map((entry) => this.toRow(entry))];
       this.last = page.last ?? this.last;
       this.hasMore = page.entries.length === PAGE_SIZE;
@@ -179,8 +191,6 @@ export class RecordHistoryDialogComponent implements OnInit {
   }
 
   private toRow(entry: HistoryEntry): HistoryRow {
-    // Only the answers to a doctor's request to delete a patient are about patients being deleted.
-    const isAnswer = entry.collection === 'patients' && (entry.action === 'delete' || entry.action === 'delete-rejected');
     const changes = Object.entries(entry.changed ?? {})
       .filter(([field]) => !HIDDEN_CHANGES.includes(field))
       .sort(byFieldOrder)
@@ -195,25 +205,24 @@ export class RecordHistoryDialogComponent implements OnInit {
     }
     return {
       entry,
-      actionKey: `CLINIC.HISTORY.ACTIONS.${entry.action.toUpperCase().replace('-', '_')}`,
+      actionKey: `CLINIC.HISTORY.ACTIONS.${entry.action.toUpperCase()}`,
       collectionKey: `CLINIC.HISTORY.COLLECTIONS.${entry.collection.toUpperCase()}`,
       badge: ACTION_BADGES[entry.action] ?? 'badge-solid-brown',
-      actor: this.nameOf(entry.action === 'delete' && isAnswer ? entry.approvedBy : entry.actorId),
-      requester: isAnswer ? this.nameOf(entry.doctorId) : null,
+      actor: this.nameOf(entry.actorId),
       changedSummary: changedLabels.join(', '),
       fields: Object.entries(entry.data ?? {})
         .filter(([field, value]) => !HIDDEN_RECORD_FIELDS.includes(field) && !isEmpty(value))
         .sort(byFieldOrder)
         .map(([field, value]) => ({ label: this.fieldLabel(field), value: this.formatValue(field, value) })),
       changes,
-      restorable: this.data.canRestore && entry.action === 'delete' && !isAnswer && !entry.tooLarge && !!entry.data,
+      restorable: entry.action === 'delete' && entry.collection !== 'patients' && !entry.tooLarge && !!entry.data,
       restored: false,
       open: false,
     };
   }
 
   private nameOf(uid: string | null): string {
-    return (uid && this.data.names[uid]) || this.data.otherName;
+    return (uid && this.names.get(uid)) || this.data.otherName;
   }
 
   private fieldLabel(field: string): string {
@@ -225,6 +234,9 @@ export class RecordHistoryDialogComponent implements OnInit {
   private formatValue(field: string, value: unknown): string {
     if (isEmpty(value)) {
       return '—';
+    }
+    if (field === 'providerId' && typeof value === 'string') {
+      return this.nameOf(value);
     }
     if (typeof value === 'boolean') {
       return this.translate.instant(value ? 'COMMON.YES' : 'COMMON.NO');

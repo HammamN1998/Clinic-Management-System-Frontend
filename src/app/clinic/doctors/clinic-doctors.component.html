@@ -28,6 +28,10 @@
           </div>
         </div>
         <div class="d-flex flex-wrap gap-2">
+          <button mat-stroked-button color="primary" (click)="openHistory()" [disabled]="!clinicDoctors.length">
+            <mat-icon>history</mat-icon>
+            {{ 'CLINIC.DOCTORS.HISTORY' | translate }}
+          </button>
           <button mat-stroked-button color="primary" (click)="editBranding()" [disabled]="busy">
             <mat-icon>edit</mat-icon>
             {{ 'CLINIC.BRANDING.EDIT' | translate }}
@@ -54,7 +58,7 @@
       <div class="body">
         @for (doctor of doctors; track doctor.doctorId) {
           <div class="clinic-doctors__item">
-            <div class="clinic-doctors__item-head clinic-doctors__item-head--linked">
+            <div class="clinic-doctors__item-head">
               <img class="clinic-doctors__avatar"
                    [src]="doctor.img || 'assets/images/patient/patient-default-profile.png'" alt="" />
               <div class="clinic-doctors__item-title">
@@ -68,56 +72,21 @@
                   </span>
                 }
               </div>
-              <button mat-stroked-button color="primary" class="clinic-doctors__open" (click)="openAccount(doctor)" [disabled]="busy">
-                <mat-icon>login</mat-icon>
-                {{ 'CLINIC.DOCTORS.ACTIONS.OPEN_ACCOUNT' | translate }}
-              </button>
               <button mat-icon-button [matMenuTriggerFor]="doctorMenu" [disabled]="busy"
                       [attr.aria-label]="'COMMON.ACTIONS' | translate">
                 <mat-icon>more_vert</mat-icon>
               </button>
               <mat-menu #doctorMenu="matMenu">
-                <button mat-menu-item (click)="openHistory(doctor)">
-                  <mat-icon>history</mat-icon>
-                  <span>{{ 'CLINIC.DOCTORS.ACTIONS.HISTORY' | translate }}</span>
-                </button>
-                <button mat-menu-item (click)="changeTerms(doctor)"
-                        [disabled]="!!doctor.unlinkEffectiveAt || !currentAgreement(doctor)">
+                <button mat-menu-item (click)="changeTerms(doctor)" [disabled]="!currentAgreement(doctor)">
                   <mat-icon>edit_note</mat-icon>
                   <span>{{ 'CLINIC.DOCTORS.ACTIONS.CHANGE_TERMS' | translate }}</span>
                 </button>
-                @if (!doctor.unlinkEffectiveAt) {
-                  <button mat-menu-item (click)="startUnlink(doctor)" [disabled]="!currentAgreement(doctor)">
-                    <mat-icon>schedule</mat-icon>
-                    <span>{{ 'CLINIC.DOCTORS.ACTIONS.START_UNLINK' | translate }}</span>
-                  </button>
-                } @else if (canWithdrawUnlink(doctor)) {
-                  <button mat-menu-item (click)="withdrawUnlink(doctor)">
-                    <mat-icon>undo</mat-icon>
-                    <span>{{ 'CLINIC.DOCTORS.ACTIONS.WITHDRAW_UNLINK' | translate }}</span>
-                  </button>
-                }
-                <button mat-menu-item (click)="unlinkNow(doctor)">
+                <button mat-menu-item (click)="unlink(doctor)">
                   <mat-icon color="warn">link_off</mat-icon>
-                  <span>{{ 'CLINIC.DOCTORS.ACTIONS.UNLINK_NOW' | translate }}</span>
+                  <span>{{ 'CLINIC.DOCTORS.ACTIONS.UNLINK' | translate }}</span>
                 </button>
               </mat-menu>
             </div>
-
-            @if (doctor.unlinkEffectiveAt; as effectiveAt) {
-              <div class="clinic-doctors__notice">
-                <span class="badge badge-solid-orange">
-                  {{ 'CLINIC.DOCTORS.LEAVING' | translate: { date: (effectiveAt | date: 'mediumDate' : undefined : dateLocale) } }}
-                </span>
-                <span class="clinic-doctors__muted">
-                  {{ (doctor.unlinkRequestedBy === 'doctor' ? 'CLINIC.DOCTORS.LEAVING_BY_DOCTOR' : 'CLINIC.DOCTORS.LEAVING_BY_ADMIN') | translate }}
-                </span>
-                <button mat-stroked-button color="primary" (click)="copyPatients(doctor)" [disabled]="busy">
-                  <mat-icon>content_copy</mat-icon>
-                  {{ 'CLINIC.DOCTORS.ACTIONS.COPY_PATIENTS' | translate }}
-                </button>
-              </div>
-            }
 
             @if (currentAgreement(doctor); as agreement) {
               <app-clinic-terms [terms]="agreement.terms"></app-clinic-terms>
@@ -127,29 +96,6 @@
               <div class="clinic-doctors__proposal">
                 <span class="badge badge-solid-blue">{{ 'CLINIC.DOCTORS.PROPOSAL_PENDING' | translate }}</span>
                 <app-clinic-terms [terms]="proposed.terms"></app-clinic-terms>
-              </div>
-            }
-
-            @if (deletionRequestsOf(doctor).length) {
-              <div class="clinic-doctors__requests">
-                <strong>{{ 'CLINIC.DELETION.ADMIN_TITLE' | translate }}</strong>
-                <span class="clinic-doctors__muted">{{ 'CLINIC.DELETION.ADMIN_HINT' | translate }}</span>
-                @for (request of deletionRequestsOf(doctor); track request.patientId) {
-                  <div class="clinic-doctors__request">
-                    <div class="clinic-doctors__item-title">
-                      <span>{{ patientName(request) }}</span>
-                      <span class="clinic-doctors__muted">
-                        {{ 'CLINIC.DELETION.REQUESTED_ON' | translate: { date: (request.requestedAt | date: 'mediumDate' : undefined : dateLocale) } }}
-                      </span>
-                    </div>
-                    <button mat-stroked-button color="warn" (click)="approveDeletion(doctor, request)" [disabled]="busy">
-                      {{ 'CLINIC.DELETION.APPROVE' | translate }}
-                    </button>
-                    <button mat-stroked-button (click)="rejectDeletion(request)" [disabled]="busy">
-                      {{ 'CLINIC.DELETION.REJECT' | translate }}
-                    </button>
-                  </div>
-                }
               </div>
             }
           </div>

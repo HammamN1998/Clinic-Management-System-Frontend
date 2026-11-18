@@ -73,23 +73,14 @@
             </div>
           </div>
           <div class="body">
-            @if (membership?.unlinkEffectiveAt; as effectiveAt) {
-              <div class="alert alert-warning my-clinic__leaving" role="status">
-                <span>
-                  {{ (membership?.unlinkRequestedBy === 'doctor' ? 'CLINIC.MY_CLINIC.LEAVING_BY_DOCTOR' : 'CLINIC.MY_CLINIC.LEAVING_BY_ADMIN')
-                    | translate: { date: (effectiveAt | date: 'mediumDate' : undefined : dateLocale) } }}
-                </span>
-                @if (canWithdrawLeave) {
-                  <button mat-stroked-button (click)="withdrawLeave()" [disabled]="busy">
-                    {{ 'CLINIC.MY_CLINIC.WITHDRAW' | translate }}
-                  </button>
-                }
-              </div>
-            }
+            <button mat-raised-button color="primary" (click)="openClinicAccount()">
+              <mat-icon>login</mat-icon>
+              {{ 'CLINIC.MY_CLINIC.OPEN_ACCOUNT' | translate }}
+            </button>
 
             @if (currentAgreement; as agreement) {
               <h3 class="my-clinic__title">{{ 'CLINIC.MY_CLINIC.CURRENT_TERMS' | translate }}</h3>
-              <app-clinic-terms [terms]="agreement.terms" [explainAccess]="true"></app-clinic-terms>
+              <app-clinic-terms [terms]="agreement.terms"></app-clinic-terms>
               @if (agreement.acceptedAt; as acceptedAt) {
                 <span class="my-clinic__muted">
                   {{ 'CLINIC.MY_CLINIC.ACCEPTED_ON' | translate: { date: (acceptedAt | date: 'mediumDate' : undefined : dateLocale) } }}
@@ -101,7 +92,7 @@
               <div class="my-clinic__proposal">
                 <h3 class="my-clinic__title">{{ 'CLINIC.MY_CLINIC.PROPOSAL_TITLE' | translate }}</h3>
                 <span class="my-clinic__muted">{{ 'CLINIC.MY_CLINIC.PROPOSAL_HINT' | translate }}</span>
-                <app-clinic-terms [terms]="proposed.terms" [explainAccess]="true"></app-clinic-terms>
+                <app-clinic-terms [terms]="proposed.terms"></app-clinic-terms>
                 <div class="my-clinic__actions">
                   <button mat-raised-button color="primary" (click)="acceptTerms(proposed)" [disabled]="busy">
                     {{ 'CLINIC.MY_CLINIC.ACCEPT_TERMS' | translate }}
@@ -115,80 +106,22 @@
 
             <h3 class="my-clinic__title">{{ 'CLINIC.MY_CLINIC.FACTS_TITLE' | translate }}</h3>
             <ul class="my-clinic__facts">
-              <li>{{ 'CLINIC.MY_CLINIC.FACT_LIMITS' | translate }}</li>
               <li>{{ 'CLINIC.MY_CLINIC.FACT_ACCOUNT' | translate }}</li>
-              <li>{{ 'CLINIC.MY_CLINIC.FACT_DELETE' | translate }}</li>
+              <li>{{ 'CLINIC.MY_CLINIC.FACT_OWN' | translate }}</li>
               <li>{{ 'CLINIC.MY_CLINIC.FACT_HISTORY' | translate }}</li>
-              @if (membership?.linkedAt; as linkedAt) {
-                <li>{{ 'CLINIC.MY_CLINIC.FACT_COPY' | translate: { date: (linkedAt | date: 'mediumDate' : undefined : dateLocale) } }}</li>
-              }
+              <li>{{ 'CLINIC.MY_CLINIC.FACT_LEAVING' | translate }}</li>
             </ul>
 
-            @if (!membership?.unlinkEffectiveAt) {
-              @if (currentAgreement; as agreement) {
-                <button mat-stroked-button color="warn" (click)="leave(agreement)" [disabled]="busy">
-                  <mat-icon>logout</mat-icon>
-                  {{ 'CLINIC.MY_CLINIC.LEAVE' | translate }}
-                </button>
-              }
-            }
+            <button mat-stroked-button color="warn" (click)="leave()" [disabled]="busy">
+              <mat-icon>logout</mat-icon>
+              {{ 'CLINIC.MY_CLINIC.LEAVE' | translate }}
+            </button>
           </div>
         </div>
       } @else if (!invites.length) {
         <div class="card">
           <div class="body">
             <span>{{ 'CLINIC.MY_CLINIC.EMPTY' | translate }}</span>
-          </div>
-        </div>
-      }
-
-      <!-- Patient deletion requests -->
-      @if (deletionRequests.length) {
-        <div class="card">
-          <div class="header">
-            <h2><strong>{{ 'CLINIC.DELETION.MY_TITLE' | translate }}</strong></h2>
-          </div>
-          <div class="body">
-            <span class="my-clinic__muted">{{ 'CLINIC.DELETION.MY_HINT' | translate }}</span>
-            @for (request of deletionRequests; track request.patientId) {
-              <div class="my-clinic__item">
-                <strong>{{ request.patientName || ('CLINIC.DELETION.UNNAMED_PATIENT' | translate) }}</strong>
-                @if (request.status === 'pending') {
-                  <span class="my-clinic__muted">
-                    {{ 'CLINIC.DELETION.PENDING_SINCE' | translate: { date: (request.requestedAt | date: 'mediumDate' : undefined : dateLocale) } }}
-                  </span>
-                } @else {
-                  <span class="my-clinic__muted">
-                    {{ 'CLINIC.DELETION.REJECTED_ON' | translate: { date: (request.answeredAt | date: 'mediumDate' : undefined : dateLocale) } }}
-                  </span>
-                }
-                <div class="my-clinic__actions">
-                  <button mat-stroked-button (click)="clearDeletionRequest(request)" [disabled]="busy">
-                    {{ (request.status === 'pending' ? 'CLINIC.DELETION.WITHDRAW' : 'CLINIC.DELETION.DISMISS') | translate }}
-                  </button>
-                </div>
-              </div>
-            }
-          </div>
-        </div>
-      }
-
-      <!-- History -->
-      @if (membership?.clinicAdminId || hasPastHistory) {
-        <div class="card">
-          <div class="header">
-            <h2><strong>{{ 'CLINIC.HISTORY.TITLE' | translate }}</strong></h2>
-          </div>
-          <div class="body">
-            <span class="my-clinic__muted">
-              {{ (membership?.clinicAdminId ? 'CLINIC.HISTORY.MY_CARD' : 'CLINIC.HISTORY.LAST_CLINIC') | translate }}
-            </span>
-            <div class="my-clinic__actions">
-              <button mat-stroked-button color="primary" (click)="openHistory()">
-                <mat-icon>history</mat-icon>
-                {{ 'CLINIC.HISTORY.VIEW' | translate }}
-              </button>
-            </div>
           </div>
         </div>
       }

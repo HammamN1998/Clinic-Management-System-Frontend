@@ -1,21 +1,19 @@
 import { Injectable } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
-import { AngularFirestore, QueryFn } from '@angular/fire/compat/firestore';
+import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { AngularFireFunctions } from '@angular/fire/compat/functions';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import firebase from 'firebase/compat/app';
-import { EMPTY, Observable, combineLatest, firstValueFrom, from, of } from 'rxjs';
-import { catchError, distinctUntilChanged, map, shareReplay, switchMap } from 'rxjs/operators';
+import { EMPTY, Observable, combineLatest, firstValueFrom, of } from 'rxjs';
+import { catchError, distinctUntilChanged, filter, map, shareReplay, switchMap, take } from 'rxjs/operators';
 import { FirebaseAuthenticationService } from '../../authentication/services/firebase-authentication.service';
-import { ActingContext, ClinicContextService } from '@core/service/clinic-context.service';
+import { ClinicContextService } from '@core/service/clinic-context.service';
 import { NotificationService } from '@core/service/notification.service';
-import { PatientService } from '@core/service/patient.service';
-import { DentalNotation, Patient } from '@core/models/patient.model';
-import { User, UserSubscription } from '@core/models/user';
+import { DentalNotation } from '@core/models/patient.model';
+import { User } from '@core/models/user';
 import {
   AgreementStatus,
-  ClinicAccess,
   ClinicAgreement,
   ClinicBrand,
   ClinicDoctor,
@@ -23,14 +21,12 @@ import {
   ClinicMembership,
   ClinicProfile,
   ClinicTerms,
-  CopyResult,
   FieldChange,
   HistoryAction,
   HistoryCollection,
   HistoryEntry,
   InviteStatus,
   LinkedDoctor,
-  PatientDeletionRequest,
   isOpenInvite,
 } from '@core/models/clinic.model';
 
@@ -56,17 +52,15 @@ interface DoctorDoc {
   maxSeats?: number;
   clinicAdminId?: string;
   linkedAt?: StoredTimestamp;
-  clinicAccess?: ClinicAccess;
   currentAgreementId?: string;
   pendingAgreementId?: string;
-  unlinkEffectiveAt?: StoredTimestamp;
-  unlinkRequestedBy?: 'doctor' | 'admin';
 }
 
 interface ClinicDoc {
   name?: string;
   adminName?: string;
   logo?: string;
+  doctors?: Record<string, { name?: string; active?: boolean }>;
 }
 
 interface InviteDoc {
@@ -92,19 +86,8 @@ interface AgreementDoc {
   acceptedAt?: StoredTimestamp;
 }
 
-interface DeletionRequestDoc {
-  doctorId: string;
-  adminId: string;
-  patientId: string;
-  patientName?: string;
-  status: 'pending' | 'rejected';
-  requestedAt?: StoredTimestamp;
-  answeredAt?: StoredTimestamp;
-}
-
 interface HistoryDoc {
   doctorId: string;
-  adminId: string;
   collection: HistoryCollection;
   recordId: string;
   patientId?: string | null;
@@ -116,8 +99,6 @@ interface HistoryDoc {
   changed?: Record<string, FieldChange>;
   dentalChartChanged?: boolean;
   tooLarge?: boolean;
-  approvedBy?: string;
-  requestedAt?: StoredTimestamp;
 }
 
 export interface HistoryPage {
@@ -138,11 +119,8 @@ function toMembership(doctorId: string, doc: DoctorDoc): ClinicMembership {
     maxSeats: typeof doc.maxSeats === 'number' && doc.maxSeats > 0 ? Math.floor(doc.maxSeats) : 0,
     clinicAdminId: doc.clinicAdminId || null,
     linkedAt: toDate(doc.linkedAt),
-    clinicAccess: doc.clinicAccess ?? null,
     currentAgreementId: doc.currentAgreementId || null,
     pendingAgreementId: doc.pendingAgreementId || null,
-    unlinkEffectiveAt: toDate(doc.unlinkEffectiveAt),
-    unlinkRequestedBy: doc.unlinkRequestedBy ?? null,
   };
 }
 
@@ -152,15 +130,13 @@ function toLinkedDoctor(doc: DoctorDoc & { id: string }): LinkedDoctor {
     name: doc.name ?? '',
     email: doc.email ?? '',
     img: doc.img ?? '',
-    currency: doc.currency,
-    defaultAppointmentDuration: doc.defaultAppointmentDuration,
   };
 }
 
-/** What the app reads of a doctor's profile while his clinic admin works in his account, with the defaults sign-in applies. */
-function toActingDoctor(doctorId: string, doc: DoctorDoc): User {
+/** What the app reads of the clinic admin's profile while a linked doctor works in his account, with the defaults sign-in applies. */
+function toClinicAccount(adminId: string, doc: DoctorDoc): User {
   return Object.assign(new User(), {
-    id: doctorId,
+    id: adminId,
     name: doc.name ?? '',
     email: doc.email ?? '',
     img: doc.img ?? '',
@@ -176,6 +152,24 @@ function toActingDoctor(doctorId: string, doc: DoctorDoc): User {
 
 function toProfile(adminId: string, doc: ClinicDoc): ClinicProfile {
   return { adminId, name: doc.name ?? '', adminName: doc.adminName ?? '', logo: doc.logo ?? '' };
+}
+
+/**
+ * The clinic's doctors, the admin first, then by name. A clinic saved before the list was added
+ * has no entry for its admin until he next changes his profile, so one is made for him.
+ */
+function toClinicDoctors(adminId: string, doc: ClinicDoc | undefined, adminName: string): ClinicDoctor[] {
+  const doctors = Object.entries(doc?.doctors ?? {}).map(([doctorId, entry]) => ({
+    doctorId,
+    name: entry?.name ?? '',
+    active: entry?.active !== false,
+  }));
+  if (!doctors.some((doctor) => doctor.doctorId === adminId)) {
+    doctors.push({ doctorId: adminId, name: adminName, active: true });
+  }
+  return doctors.sort(
+    (a, b) => Number(b.doctorId === adminId) - Number(a.doctorId === adminId) || a.name.localeCompare(b.name),
+  );
 }
 
 function toInvite(doc: InviteDoc & { id: string }): ClinicInvite {
@@ -207,23 +201,10 @@ function toAgreement(id: string, doc: AgreementDoc): ClinicAgreement {
   };
 }
 
-function toDeletionRequest(doc: DeletionRequestDoc): PatientDeletionRequest {
-  return {
-    patientId: doc.patientId,
-    doctorId: doc.doctorId,
-    adminId: doc.adminId,
-    patientName: doc.patientName ?? '',
-    status: doc.status,
-    requestedAt: toDate(doc.requestedAt),
-    answeredAt: toDate(doc.answeredAt),
-  };
-}
-
 function toHistoryEntry(id: string, doc: HistoryDoc): HistoryEntry {
   return {
     id,
     doctorId: doc.doctorId,
-    adminId: doc.adminId,
     collection: doc.collection,
     recordId: doc.recordId,
     patientId: doc.patientId ?? null,
@@ -235,18 +216,12 @@ function toHistoryEntry(id: string, doc: HistoryDoc): HistoryEntry {
     changed: doc.changed ?? null,
     dentalChartChanged: doc.dentalChartChanged === true,
     tooLarge: doc.tooLarge === true,
-    approvedBy: doc.approvedBy ?? null,
-    requestedAt: toDate(doc.requestedAt),
   };
 }
 
-/** copyPatients may run up to its 300-second timeout, well past the SDK's 70-second default. */
-const COPY_TIMEOUT_MS = 310_000;
-
 const newestFirst = (a: ClinicInvite, b: ClinicInvite) => (b.sentAt?.getTime() ?? 0) - (a.sentAt?.getTime() ?? 0);
 
-const newestRequestFirst = (a: PatientDeletionRequest, b: PatientDeletionRequest) =>
-  (b.requestedAt?.getTime() ?? 0) - (a.requestedAt?.getTime() ?? 0);
+const isMembership = (membership: ClinicMembership | null): membership is ClinicMembership => membership !== null;
 
 /**
  * Clinic state and actions. Only Cloud Functions write clinic data, so this service reads
@@ -264,10 +239,13 @@ export class ClinicService {
   readonly currentAgreement$: Observable<ClinicAgreement | null>;
   /** New terms waiting for the signed-in doctor's answer. */
   readonly pendingAgreement$: Observable<ClinicAgreement | null>;
-  /** The signed-in doctor's requests to delete patients, pending or rejected, newest first. Always empty for an admin. */
-  readonly deletionRequests$: Observable<PatientDeletionRequest[]>;
-  /** Whether the signed-in doctor, no longer linked, still has history from the clinic he left. It outlasts the link by 90 days. */
-  readonly pastHistory$: Observable<boolean>;
+  /**
+   * The admin of the clinic account on screen: the signed-in admin in his own account, or the
+   * admin whose account a linked doctor works in. Null in any other account.
+   */
+  readonly clinicAccountId$: Observable<string | null>;
+  /** Everyone who works or worked in the clinic account on screen. Empty in any other account. */
+  readonly accountDoctors$: Observable<ClinicDoctor[]>;
 
   constructor(
     private auth: AngularFireAuth,
@@ -278,7 +256,6 @@ export class ClinicService {
     private clinicContext: ClinicContextService,
     private router: Router,
     private notificationService: NotificationService,
-    private patientService: PatientService,
   ) {
     const uid$ = this.auth.authState.pipe(
       map((user) => user?.uid ?? null),
@@ -297,70 +274,47 @@ export class ClinicService {
     this.clinic$ = this.followMembership((m) => m.clinicAdminId, (id) => this.clinicProfile$(id));
     this.currentAgreement$ = this.followMembership((m) => m.currentAgreementId, (id) => this.agreement$(id));
     this.pendingAgreement$ = this.followMembership((m) => m.pendingAgreementId, (id) => this.agreement$(id));
-    this.deletionRequests$ = this.membership$.pipe(
-      map((membership) => (membership && !membership.isAdmin ? membership.doctorId : null)),
+    this.clinicAccountId$ = combineLatest([this.membership$, this.clinicContext.acting$]).pipe(
+      map(([membership, acting]) => acting?.doctor.id ?? (membership?.isAdmin ? membership.doctorId : null)),
       distinctUntilChanged(),
-      switchMap((doctorId) =>
-        doctorId ? this.watchDeletionRequests((ref) => ref.where('doctorId', '==', doctorId)) : of([]),
-      ),
       shareReplay({ bufferSize: 1, refCount: true }),
     );
-    this.pastHistory$ = this.membership$.pipe(
-      map((membership) => (membership && !membership.isAdmin && !membership.clinicAdminId ? membership.doctorId : null)),
-      distinctUntilChanged(),
-      switchMap((doctorId) => (doctorId ? from(this.hasHistory(doctorId)) : of(false))),
+    this.accountDoctors$ = this.clinicAccountId$.pipe(
+      switchMap((adminId) => (adminId ? this.clinicDoctors$(adminId) : of([]))),
       shareReplay({ bufferSize: 1, refCount: true }),
     );
-    this.reloadSubscriptionOnLinkChange();
-    this.followActingDoctor(uid$);
-  }
-
-  /** Opens a linked doctor's account for the signed-in admin. Resolves to false when that doctor is no longer linked to him. */
-  async openDoctorAccount(doctorId: string): Promise<boolean> {
-    const adminId = this.authService.currentUserValue?.id;
-    try {
-      const snapshot = await firstValueFrom(this.firestore.collection('doctors').doc<DoctorDoc>(doctorId).get());
-      const doc = snapshot.data();
-      if (!adminId || doc?.clinicAdminId !== adminId) {
-        return false;
-      }
-      this.clinicContext.set(toActingDoctor(doctorId, doc), doc.clinicAccess ?? 'view');
-      return true;
-    } catch (err) {
-      console.error('Failed to open the doctor account', err);
-      return false;
-    }
+    this.followClinicAccount(uid$);
   }
 
   /**
-   * Opens a patient's profile in the account he belongs to: the signed-in admin's own, or a
-   * linked doctor's. Says so when that doctor is no longer linked to the admin.
+   * Opens the clinic account for the signed-in linked doctor, on its dashboard. Says so when it
+   * cannot be read, as once his link has ended.
    */
-  async openPatient(patient: Patient): Promise<void> {
-    if (patient.doctorId === this.authService.currentUserValue?.id) {
-      this.clinicContext.clear();
-    } else if (!(await this.openDoctorAccount(patient.doctorId))) {
+  async openClinicAccount(): Promise<void> {
+    try {
+      const adminId = (await firstValueFrom(this.membership$))?.clinicAdminId;
+      const doc = adminId
+        ? (await firstValueFrom(this.firestore.collection('doctors').doc<DoctorDoc>(adminId).get())).data()
+        : undefined;
+      if (!adminId || !doc) {
+        throw new Error('The signed-in doctor is not linked to a clinic');
+      }
+      this.clinicContext.set(toClinicAccount(adminId, doc));
+      await this.router.navigate(['/admin/dashboard/main']);
+    } catch (err) {
+      console.error('Failed to open the clinic account', err);
       this.notificationService.showSwalOkDialog(
         this.translate.instant('CLINIC.ACTING.OPEN_FAILED'),
         'error',
         'center',
         this.translate.instant('COMMON.OK'),
       );
-      return;
     }
-    // Switching accounts closes the patient open in the previous one, so he is set after the switch.
-    this.patientService.dialogData = patient;
-    await this.router.navigate(['/admin/patients/patient-profile']);
   }
 
-  /**
-   * The clinic of the doctor whose records are on screen: the signed-in doctor's, or the admin's
-   * own while he works in a linked doctor's account. Null for a doctor in no clinic.
-   */
+  /** The clinic of the account on screen, whose name and logo head its PDFs. Null in any other account. */
   async activeClinic(): Promise<ClinicProfile | null> {
-    const adminId = this.clinicContext.isActing
-      ? this.authService.currentUserValue?.id
-      : (await firstValueFrom(this.membership$))?.clinicAdminId;
+    const adminId = await firstValueFrom(this.clinicAccountId$);
     return adminId ? firstValueFrom(this.clinicProfile$(adminId)) : null;
   }
 
@@ -394,6 +348,22 @@ export class ClinicService {
       );
   }
 
+  /** Everyone who works or worked in the admin's clinic: the admin first, then by name. */
+  clinicDoctors$(adminId: string): Observable<ClinicDoctor[]> {
+    return this.firestore
+      .collection('clinics')
+      .doc<ClinicDoc>(adminId)
+      .valueChanges()
+      .pipe(
+        map((doc) => {
+          const user = this.authService.currentUserValue;
+          const adminName = doc?.adminName || (user?.id === adminId ? user.name || user.email : '');
+          return toClinicDoctors(adminId, doc, adminName);
+        }),
+        catchError((err) => this.readFailed('clinic doctors', err, [])),
+      );
+  }
+
   agreement$(agreementId: string): Observable<ClinicAgreement | null> {
     return this.firestore
       .collection('clinicAgreements')
@@ -414,36 +384,6 @@ export class ClinicService {
         map((docs) => docs.map(toLinkedDoctor).sort((a, b) => (a.name || a.email).localeCompare(b.name || b.email))),
         catchError((err) => this.readFailed('linked doctors', err, [])),
       );
-  }
-
-  /** The doctors the Clinic pages cover: the signed-in admin first, then his linked doctors by name. */
-  clinicDoctors$(): Observable<ClinicDoctor[]> {
-    const admin = this.authService.currentUserValue;
-    if (!admin) {
-      return of([]);
-    }
-    return this.linkedDoctors$(admin.id).pipe(
-      map((linked) => [
-        {
-          doctorId: admin.id,
-          name: admin.name || admin.email,
-          isSelf: true,
-          currency: admin.currency,
-          defaultAppointmentDuration: admin.defaultAppointmentDuration,
-          currentAgreementId: null,
-          linkedAt: null,
-        },
-        ...linked.map((doctor) => ({
-          doctorId: doctor.doctorId,
-          name: doctor.name || doctor.email,
-          isSelf: false,
-          currency: doctor.currency,
-          defaultAppointmentDuration: doctor.defaultAppointmentDuration,
-          currentAgreementId: doctor.currentAgreementId,
-          linkedAt: doctor.linkedAt,
-        })),
-      ]),
-    );
   }
 
   /** Every invitation the admin sent, in any status, newest first. */
@@ -468,34 +408,16 @@ export class ClinicService {
       );
   }
 
-  /**
-   * Pending requests to delete patients from the given doctors, all linked to the admin. The
-   * rules let him read them one doctor at a time.
-   */
-  clinicDeletionRequests$(adminId: string, doctorIds: string[]): Observable<PatientDeletionRequest[]> {
-    if (!doctorIds.length) {
-      return of([]);
-    }
-    return combineLatest(
-      doctorIds.map((doctorId) =>
-        this.watchDeletionRequests((ref) => ref.where('doctorId', '==', doctorId).where('adminId', '==', adminId)),
-      ),
-    ).pipe(map((lists) => lists.flat().filter((request) => request.status === 'pending')));
-  }
-
-  /**
-   * One page of a doctor's history, newest first. The clinic admin passes his own id, since
-   * the rules let him read only his clinic's entries, and only while the doctor is linked.
-   */
+  /** One page of the clinic account's history, newest first, of everyone's changes or only those of `actorId`. */
   async historyPage(
-    doctorId: string,
-    adminId: string | null,
+    accountId: string,
+    actorId: string | null,
     pageSize: number,
     after: firebase.firestore.QueryDocumentSnapshot<unknown> | null,
   ): Promise<HistoryPage> {
-    let query = this.firestore.collection('recordHistory').ref.where('doctorId', '==', doctorId);
-    if (adminId) {
-      query = query.where('adminId', '==', adminId);
+    let query = this.firestore.collection('recordHistory').ref.where('doctorId', '==', accountId);
+    if (actorId) {
+      query = query.where('actorId', '==', actorId);
     }
     query = query.orderBy('at', 'desc').limit(pageSize);
     if (after) {
@@ -532,69 +454,14 @@ export class ClinicService {
     return this.call('respondToTerms', { agreementId, accept });
   }
 
-  /** Without `doctorId` the signed-in doctor leaves his clinic. Resolves to when the unlink takes effect. */
-  async requestUnlink(doctorId?: string): Promise<Date> {
-    const { effectiveAt } = await this.call<{ effectiveAt: number }>('requestUnlink', doctorId ? { doctorId } : {});
-    return new Date(effectiveAt);
-  }
-
-  /** Without `doctorId` the signed-in doctor withdraws his own leave request. */
-  cancelUnlink(doctorId?: string): Promise<{ withdrawn: boolean }> {
-    return this.call('cancelUnlink', doctorId ? { doctorId } : {});
-  }
-
-  completeUnlink(doctorId: string): Promise<{ unlinked: boolean }> {
-    return this.call('completeUnlink', { doctorId });
-  }
-
-  /** The signed-in doctor asks his clinic to delete a patient. Asking again after a rejection reopens it. */
-  requestPatientDeletion(patientId: string): Promise<{ requested: boolean }> {
-    return this.call('requestPatientDeletion', { patientId });
-  }
-
-  /** The signed-in doctor withdraws his request, or clears a rejected one. */
-  cancelPatientDeletion(patientId: string): Promise<{ withdrawn: boolean }> {
-    return this.call('cancelPatientDeletion', { patientId });
-  }
-
-  /** The clinic admin's answer. Approving deletes the patient for good. */
-  answerPatientDeletion(patientId: string, approve: boolean): Promise<{ approved: boolean }> {
-    return this.call('answerPatientDeletion', { patientId, approve });
+  /** Ends a link at once. Without `doctorId` the signed-in doctor leaves his clinic; with it his admin removes him. */
+  unlink(doctorId?: string): Promise<{ unlinked: boolean }> {
+    return this.call('unlink', doctorId ? { doctorId } : {});
   }
 
   /** Recreates the deleted appointment, treatment, or payment a history entry kept. */
   restoreRecord(historyId: string): Promise<{ restored: boolean }> {
     return this.call('restoreRecord', { historyId });
-  }
-
-  /** The patients copyPatients takes from a linked doctor: those added to his account since he joined. */
-  async copyablePatients(doctorId: string): Promise<string[]> {
-    const { patientIds } = await this.call<{ patientIds: string[] }>('listCopyablePatients', { doctorId });
-    return patientIds;
-  }
-
-  /** Copies up to COPY_BATCH_SIZE of a linked doctor's patients into the admin's account or another linked doctor's. */
-  copyPatients(doctorId: string, targetId: string, patientIds: string[]): Promise<CopyResult> {
-    return this.call('copyPatients', { doctorId, targetId, patientIds }, COPY_TIMEOUT_MS);
-  }
-
-  /**
-   * Re-reads the signed-in doctor's subscription after copies into his account. Functions count
-   * the copies a moment after writing them, so his patients are counted from the patients themselves.
-   */
-  async reloadOwnCounts(): Promise<void> {
-    const doctorId = this.authService.currentUserValue.id;
-    await this.reloadSubscription(doctorId);
-    try {
-      const patientsCount = await this.patientService.countPatients(doctorId);
-      const user = this.authService.currentUserValue;
-      if (user?.id === doctorId) {
-        user.subscription.patientsCount = patientsCount;
-        this.authService.persistCurrentUser();
-      }
-    } catch (err) {
-      console.error('Failed to count the patients', err);
-    }
   }
 
   /** Translated message for a failed clinic call, from the `reason` the functions attach. */
@@ -611,8 +478,8 @@ export class ClinicService {
     return this.translate.instant('CLINIC.ERRORS.GENERIC');
   }
 
-  private call<T>(name: string, data: object, timeout?: number): Promise<T> {
-    return firstValueFrom(this.functions.httpsCallable<object, T>(name, { timeout })(data));
+  private call<T>(name: string, data: object): Promise<T> {
+    return firstValueFrom(this.functions.httpsCallable<object, T>(name)(data));
   }
 
   private watchMembership(doctorId: string): Observable<ClinicMembership | null> {
@@ -642,26 +509,6 @@ export class ClinicService {
       );
   }
 
-  private async hasHistory(doctorId: string): Promise<boolean> {
-    try {
-      const snapshot = await this.firestore.collection('recordHistory').ref.where('doctorId', '==', doctorId).limit(1).get();
-      return !snapshot.empty;
-    } catch (err) {
-      console.error('Failed to read the record history', err);
-      return false;
-    }
-  }
-
-  private watchDeletionRequests(query: QueryFn): Observable<PatientDeletionRequest[]> {
-    return this.firestore
-      .collection<DeletionRequestDoc>('patientDeletionRequests', query)
-      .valueChanges()
-      .pipe(
-        map((docs) => docs.map(toDeletionRequest).sort(newestRequestFirst)),
-        catchError((err) => this.readFailed('deletion requests', err, [])),
-      );
-  }
-
   /** Watches the document whose id a field of the signed-in doctor's membership holds, or emits null. */
   private followMembership<T>(
     idOf: (membership: ClinicMembership) => string | null,
@@ -676,79 +523,66 @@ export class ClinicService {
   }
 
   /**
-   * Linking and unlinking rewrite the doctor's limits in the same transaction as his link
-   * fields, so a change of `clinicAdminId` means the subscription cached at sign-in is stale.
+   * A linked doctor starts each sign-in in his clinic's account, unless he chose his own account
+   * in this tab. Accepting an invite later leaves him where he is. While he works in the clinic
+   * account it is watched, since its admin may change its settings, and left with a notice once
+   * he is no longer linked to it. After the unlink the rules refuse the read, which ends the
+   * watch with an error.
    */
-  private reloadSubscriptionOnLinkChange(): void {
-    let previous: ClinicMembership | null = null;
-    this.membership$.subscribe((current) => {
-      if (current && previous?.doctorId === current.doctorId && previous.clinicAdminId !== current.clinicAdminId) {
-        this.reloadSubscription(current.doctorId);
-      }
-      previous = current;
-    });
-  }
+  private followClinicAccount(uid$: Observable<string | null>): void {
+    uid$
+      .pipe(switchMap((uid) => (uid ? this.membership$.pipe(filter(isMembership), take(1)) : EMPTY)))
+      .subscribe((membership) => {
+        if (membership.clinicAdminId && !this.clinicContext.isActing && !this.clinicContext.choseOwnAccount) {
+          void this.openClinicAccount();
+        }
+      });
 
-  /**
-   * Keeps the account a clinic admin works in current, since its doctor may change his settings
-   * or the access he gives, and leaves it once the doctor is no longer linked to him. After the
-   * unlink the rules refuse the read, which ends the watch with an error.
-   */
-  private followActingDoctor(uid$: Observable<string | null>): void {
-    const actingDoctorId$ = this.clinicContext.acting$.pipe(
+    const linkedTo$ = this.membership$.pipe(
+      filter(isMembership),
+      map((membership) => membership.clinicAdminId),
+      distinctUntilChanged(),
+    );
+    const accountId$ = this.clinicContext.acting$.pipe(
       map((acting) => acting?.doctor.id ?? null),
       distinctUntilChanged(),
     );
-    combineLatest([uid$, actingDoctorId$])
+    combineLatest([linkedTo$, accountId$])
       .pipe(
-        switchMap(([uid, doctorId]) => {
-          if (!uid || !doctorId) {
+        switchMap(([linkedTo, accountId]) => {
+          if (!accountId) {
             return EMPTY;
+          }
+          if (linkedTo !== accountId) {
+            return of(null);
           }
           return this.firestore
             .collection('doctors')
-            .doc<DoctorDoc>(doctorId)
+            .doc<DoctorDoc>(accountId)
             .valueChanges()
             .pipe(
-              map((doc): ActingContext | null =>
-                doc?.clinicAdminId === uid
-                  ? { doctor: toActingDoctor(doctorId, doc), access: doc.clinicAccess ?? 'view' }
-                  : null,
-              ),
+              map((doc) => (doc ? toClinicAccount(accountId, doc) : null)),
               catchError((err) => {
-                console.error('Failed to read the doctor account', err);
+                console.error('Failed to read the clinic account', err);
                 return of(null);
               }),
             );
         }),
       )
-      .subscribe((acting) => {
-        if (acting) {
-          this.clinicContext.set(acting.doctor, acting.access);
+      .subscribe((account) => {
+        if (account) {
+          this.clinicContext.set(account);
           return;
         }
         this.clinicContext.clear();
-        void this.router.navigate(['/clinic/doctors']);
+        void this.router.navigate(['/admin/doctors/my-clinic']);
         this.notificationService.showSnackBarNotification(
           'snackbar-danger',
-          this.translate.instant('CLINIC.ACTING.ACCESS_ENDED'),
+          this.translate.instant('CLINIC.ACTING.LINK_ENDED'),
           'bottom',
           'center',
         );
       });
-  }
-
-  private async reloadSubscription(doctorId: string): Promise<void> {
-    try {
-      const snapshot = await firstValueFrom(this.firestore.collection('doctorSubscriptions').doc(doctorId).get());
-      const user = this.authService.currentUserValue;
-      if (snapshot.exists && user?.id === doctorId) {
-        user.subscription = snapshot.data() as UserSubscription;
-        this.authService.persistCurrentUser();
-      }
-    } catch (err) {
-      console.error('Failed to reload the subscription', err);
-    }
   }
 
   private readFailed<T>(what: string, err: unknown, fallback: T): Observable<T> {

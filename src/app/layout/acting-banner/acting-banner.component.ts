@@ -6,8 +6,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { TranslateModule } from '@ngx-translate/core';
 import { UnsubscribeOnDestroyAdapter } from '@shared';
 import { ActingContext, ClinicContextService } from '@core/service/clinic-context.service';
+import { ClinicService } from '@core/service/clinic.service';
 
-/** Shown under the header while a clinic admin works in one of his doctors' accounts. */
+/** Shown under the header while a linked doctor works in his clinic's account. */
 @Component({
   selector: 'app-acting-banner',
   templateUrl: './acting-banner.component.html',
@@ -17,9 +18,11 @@ import { ActingContext, ClinicContextService } from '@core/service/clinic-contex
 })
 export class ActingBannerComponent extends UnsubscribeOnDestroyAdapter implements OnDestroy {
   acting: ActingContext | null = null;
+  private clinicName = '';
 
   constructor(
     private clinicContext: ClinicContextService,
+    clinicService: ClinicService,
     private router: Router,
     private renderer: Renderer2,
     @Inject(DOCUMENT) private document: Document,
@@ -34,15 +37,17 @@ export class ActingBannerComponent extends UnsubscribeOnDestroyAdapter implement
         this.renderer.removeClass(this.document.body, 'acting-mode');
       }
     });
+    this.subs.sink = clinicService.clinic$.subscribe((clinic) => (this.clinicName = clinic?.name ?? ''));
   }
 
-  get doctorName(): string {
-    return this.acting?.doctor.name || this.acting?.doctor.email || '';
+  /** The clinic's name, or its admin's until the clinic profile is read. */
+  get name(): string {
+    return this.clinicName || this.acting?.doctor.name || this.acting?.doctor.email || '';
   }
 
-  backToMyAccount(): void {
-    this.clinicContext.clear();
-    void this.router.navigate(['/clinic/dashboard']);
+  toMyAccount(): void {
+    this.clinicContext.chooseOwnAccount();
+    void this.router.navigate(['/admin/dashboard/main']);
   }
 
   override ngOnDestroy(): void {

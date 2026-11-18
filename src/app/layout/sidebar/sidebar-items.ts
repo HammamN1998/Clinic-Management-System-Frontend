@@ -1,6 +1,6 @@
 import { RouteInfo } from './sidebar.metadata';
 
-/** The doctor's own billing, left out of the menu inside another doctor's account. */
+/** The doctor's own billing, left out of the menu inside the clinic account. */
 export const PLANS_PATH = '/admin/doctors/doctor-plans';
 
 export const ROUTES: RouteInfo[] = [
@@ -113,28 +113,6 @@ export const CLINIC_ROUTE: RouteInfo = {
       submenu: [],
     },
     {
-      path: '/clinic/calendar',
-      title: 'MENUITEMS.CLINIC.LIST.CALENDAR',
-      iconType: '',
-      icon: '',
-      class: 'ml-menu',
-      groupTitle: false,
-      badge: '',
-      badgeClass: '',
-      submenu: [],
-    },
-    {
-      path: '/clinic/patients',
-      title: 'MENUITEMS.CLINIC.LIST.PATIENTS',
-      iconType: '',
-      icon: '',
-      class: 'ml-menu',
-      groupTitle: false,
-      badge: '',
-      badgeClass: '',
-      submenu: [],
-    },
-    {
       path: '/clinic/doctors',
       title: 'MENUITEMS.CLINIC.LIST.DOCTORS',
       iconType: '',
@@ -148,7 +126,7 @@ export const CLINIC_ROUTE: RouteInfo = {
   ],
 };
 
-/** Shown after Task to linked doctors, doctors with an open invitation, and doctors with history from a clinic they left. */
+/** Shown after Task to linked doctors and doctors with an open invitation, in their own account. */
 export const MY_CLINIC_ROUTE: RouteInfo = {
   path: '/admin/doctors/my-clinic',
   title: 'MENUITEMS.MY_CLINIC.TEXT',

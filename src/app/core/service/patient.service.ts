@@ -440,15 +440,32 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
   }
 
   deleteAppointment(id: string) {
-    return this.firestore.collection('appointments').doc(id).delete();
+    return this.deleteRecord('appointments', id);
   }
 
   deletePayment(id: string) {
-    return this.firestore.collection('payments').doc(id).delete();
+    return this.deleteRecord('payments', id);
   }
 
   deleteTreatment(id: string) {
-    return this.firestore.collection('treatments').doc(id).delete();
+    return this.deleteRecord('treatments', id);
+  }
+
+  /**
+   * A delete carries no name, so in a clinic account the rules let a doctor delete only a record
+   * he saved last, which names him in its history. One saved by someone else is saved under his
+   * name first.
+   */
+  private async deleteRecord(collection: 'appointments' | 'payments' | 'treatments', id: string): Promise<void> {
+    const ref = this.firestore.collection(collection).doc(id).ref;
+    const snapshot = await ref.get();
+    if (!snapshot.exists) {
+      return;
+    }
+    if (snapshot.get('lastModifiedBy') !== this.doctor.id) {
+      await ref.update({lastModifiedBy: this.doctor.id});
+    }
+    await ref.delete();
   }
 
   getPatientInfo(patientId: string) {

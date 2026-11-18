@@ -151,8 +151,8 @@ export class FirebaseAuthenticationService {
   }
 
   logout() {
-    // Leaving a doctor's account first stops its watch, which would otherwise report the reads the sign-out refuses as lost access.
-    this.clinicContext.clear();
+    // Leaving the clinic account first stops its watch, which would otherwise report the reads the sign-out refuses as a link ended.
+    this.clinicContext.reset();
     this.auth.signOut();
     return of({ success: false });
   }
@@ -376,7 +376,7 @@ export class FirebaseAuthenticationService {
         // remove user from local storage to log user out
         this.analytics.clearDoctorUserId();
         localStorage.removeItem('currentUser');
-        this.clinicContext.clear();
+        this.clinicContext.reset();
         this.router.navigate(['/authentication/signin']);
         console.log('user not logged in');
       }

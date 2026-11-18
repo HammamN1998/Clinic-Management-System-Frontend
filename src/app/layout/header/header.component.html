@@ -32,10 +32,11 @@
         </li>
         <!-- Clinic badge -->
         <li *ngIf="clinic$ | async as clinic">
-          <a class="clinic-badge" routerLink="/admin/doctors/my-clinic" [attr.title]="clinic.name">
+          <button type="button" class="clinic-badge" (click)="openClinicAccount()"
+            [attr.title]="'CLINIC.HEADER.OPEN_ACCOUNT' | translate: { clinic: clinic.name }">
             <img *ngIf="clinic.logo" class="clinic-badge__logo" [src]="clinic.logo" alt="" />
             <span class="clinic-badge__name">{{ clinic.name }}</span>
-          </a>
+          </button>
         </li>
         <!-- Email Verification -->
         <li *ngIf="!isEmailVerified">
@@ -49,7 +50,7 @@
           </span>
         </li>
         <!-- Billing Portal -->
-        <li *ngIf="this.doctor.subscription.status !== 'active'">
+        <li *ngIf="!isActing && this.doctor.subscription.status !== 'active'">
           <span style="color: red">
             {{ 'HEADER.PLAN_INACTIVE_TEXT' | translate }}
             <button type="button" style="background: none; border: none; color: red" (click)="openBillingPortal()" [class.auth-spinner]="billingPortalLoading" [disabled]="billingPortalLoading">

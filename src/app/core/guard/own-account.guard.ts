@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Router, UrlTree } from '@angular/router';
 import { ClinicContextService } from '@core/service/clinic-context.service';
 
-/** The signed-in user's own profile, plan and clinic link are closed while he works in a doctor's account. */
+/** The signed-in doctor's own profile, plan and clinic link are closed while he works in the clinic account. */
 @Injectable({
   providedIn: 'root',
 })

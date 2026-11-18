@@ -11,24 +11,20 @@ import {
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatRadioModule } from '@angular/material/radio';
-import { MatSelectModule } from '@angular/material/select';
 import { TranslateModule } from '@ngx-translate/core';
 import { ClinicService } from '@core/service/clinic.service';
-import { ClinicTerms, NOTICE_DAYS, TERMS_NOTES_MAX_LENGTH } from '@core/models/clinic.model';
+import { ClinicTerms, TERMS_NOTES_MAX_LENGTH } from '@core/models/clinic.model';
 
 export type TermsDialogData =
   | { mode: 'invite' }
   | { mode: 'propose'; doctorId: string; doctorName: string; terms: ClinicTerms };
 
-const DEFAULT_TERMS: ClinicTerms = { access: 'view', noticeDays: 14, commissionPercent: 0, notes: '' };
+const DEFAULT_TERMS: ClinicTerms = { commissionPercent: 0, notes: '' };
 
 function createForm(fb: FormBuilder, data: TermsDialogData) {
   const terms = data.mode === 'propose' ? data.terms : DEFAULT_TERMS;
   return fb.nonNullable.group({
     email: ['', data.mode === 'invite' ? [Validators.required, Validators.email, Validators.maxLength(254)] : []],
-    access: [terms.access],
-    noticeDays: [terms.noticeDays],
     commissionPercent: [terms.commissionPercent, [Validators.required, Validators.min(0), Validators.max(100)]],
     notes: [terms.notes, Validators.maxLength(TERMS_NOTES_MAX_LENGTH)],
   });
@@ -49,13 +45,10 @@ function createForm(fb: FormBuilder, data: TermsDialogData) {
     MatButtonModule,
     MatFormFieldModule,
     MatInputModule,
-    MatRadioModule,
-    MatSelectModule,
     TranslateModule,
   ],
 })
 export class TermsDialogComponent {
-  readonly noticeDays = NOTICE_DAYS;
   readonly notesMaxLength = TERMS_NOTES_MAX_LENGTH;
   readonly isInvite: boolean;
   readonly doctorName: string;
@@ -81,8 +74,6 @@ export class TermsDialogComponent {
     }
     const value = this.form.getRawValue();
     const terms: ClinicTerms = {
-      access: value.access,
-      noticeDays: value.noticeDays,
       commissionPercent: value.commissionPercent,
       notes: value.notes.trim(),
     };

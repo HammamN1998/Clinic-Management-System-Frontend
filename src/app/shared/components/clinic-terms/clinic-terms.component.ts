@@ -12,6 +12,4 @@ import { ClinicTerms } from '@core/models/clinic.model';
 })
 export class ClinicTermsComponent {
   @Input({ required: true }) terms!: ClinicTerms;
-  /** Adds what the access level lets the clinic admin do. */
-  @Input() explainAccess = false;
 }

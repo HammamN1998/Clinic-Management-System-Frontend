@@ -33,7 +33,6 @@ import {FullCalendarComponent, FullCalendarModule} from '@fullcalendar/angular';
 import {MatButtonModule} from '@angular/material/button';
 import {BreadcrumbComponent} from '@shared/components/breadcrumb/breadcrumb.component';
 import {DoctorService} from "@core/service/doctor.service";
-import {ClinicContextService} from "@core/service/clinic-context.service";
 import {forkJoin, from, Observable, of, Subject} from "rxjs";
 import {catchError, map, switchMap, tap} from "rxjs/operators";
 import {AppointmentModel} from "@core/models/appointment.model";
@@ -94,7 +93,6 @@ export class CalendarComponent  extends UnsubscribeOnDestroyAdapter  implements 
     public calendarService: CalendarService,
     private snackBar: MatSnackBar,
     private doctorService: DoctorService,
-    private clinicContext: ClinicContextService,
     private patientService: PatientService,
     private dateService: DateService,
     private router: Router,
@@ -501,18 +499,17 @@ export class CalendarComponent  extends UnsubscribeOnDestroyAdapter  implements 
     CalendarOptions,
     'headerToolbar' | 'dayHeaderFormat' | 'slotMinTime' | 'slotMaxTime'
   > {
-    const addButton = this.clinicContext.canEdit ? ' addAppointment' : '';
     return {
       headerToolbar: isMobile
         ? {
             left: 'prev,next',
             center: 'title',
-            right: `listWeek,timeGridDay,dayGridMonth${addButton}`,
+            right: 'listWeek,timeGridDay,dayGridMonth addAppointment',
           }
         : {
             left: 'prev,next today',
             center: 'title',
-            right: `dayGridMonth,timeGridWeek,timeGridDay,listMonth${addButton}`,
+            right: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth addAppointment',
           },
       dayHeaderFormat: isMobile
         ? { weekday: 'short' }

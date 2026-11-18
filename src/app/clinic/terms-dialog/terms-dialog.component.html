@@ -19,31 +19,6 @@
       </mat-form-field>
     }
 
-    <div class="terms-dialog__access">
-      <span class="terms-dialog__label">{{ 'CLINIC.TERMS.ACCESS' | translate }}</span>
-      <mat-radio-group formControlName="access" class="terms-dialog__radios">
-        <mat-radio-button value="view">{{ 'CLINIC.TERMS.ACCESS_VIEW' | translate }}</mat-radio-button>
-        <mat-radio-button value="edit">{{ 'CLINIC.TERMS.ACCESS_EDIT' | translate }}</mat-radio-button>
-      </mat-radio-group>
-      <span class="terms-dialog__small">
-        {{ (form.controls.access.value === 'edit' ? 'CLINIC.TERMS.ACCESS_EDIT_HINT' : 'CLINIC.TERMS.ACCESS_VIEW_HINT') | translate }}
-      </span>
-    </div>
-
-    <mat-form-field appearance="outline" class="terms-dialog__field">
-      <mat-label>{{ 'CLINIC.TERMS.NOTICE' | translate }}</mat-label>
-      <mat-select formControlName="noticeDays">
-        @for (days of noticeDays; track days) {
-          <mat-option [value]="days">{{ ('CLINIC.TERMS.NOTICE_' + days) | translate }}</mat-option>
-        }
-      </mat-select>
-      @if (form.controls.noticeDays.value === 0) {
-        <mat-hint class="terms-dialog__warning">{{ 'CLINIC.TERMS.NOTICE_NONE_HINT' | translate }}</mat-hint>
-      } @else {
-        <mat-hint>{{ 'CLINIC.TERMS.NOTICE_HINT' | translate }}</mat-hint>
-      }
-    </mat-form-field>
-
     <mat-form-field appearance="outline" class="terms-dialog__field">
       <mat-label>{{ 'CLINIC.TERMS.COMMISSION' | translate }}</mat-label>
       <input matInput type="number" formControlName="commissionPercent" min="0" max="100" step="0.01">

@@ -4,6 +4,12 @@
     margin-bottom: 8px;
   }
 
+  &__filter {
+    width: 100%;
+    max-width: 320px;
+    margin-bottom: 4px;
+  }
+
   &__entry {
     padding: 12px 0;
     border-bottom: 1px solid rgba(0, 0, 0, 0.08);
