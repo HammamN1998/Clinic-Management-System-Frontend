@@ -80,7 +80,7 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
   private searchTerm = '';
   private searchPatientsCache: Patient[] | null = null;
   private lastPageSize = this.defaultPageSize;
-  private actingPatientsCount = 0;
+  private patientsCount = 0;
 
   constructor(
     private dialog: MatDialog,
@@ -99,18 +99,11 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
     return this.clinicContext.canDeletePatients;
   }
 
-  /** The signed-in doctor's count is kept on his subscription; the clinic account's is counted by the server. */
-  private get patientsCount(): number {
-    return this.clinicContext.isActing ? this.actingPatientsCount : this.doctor.subscription.patientsCount;
-  }
-
-  private loadActingPatientsCount(): void {
-    if (!this.clinicContext.isActing) {
-      return;
-    }
+  /** Counted by the server: the subscription's count changes a moment after a patient is added or deleted. */
+  private loadPatientsCount(): void {
     this.patientService.countPatients()
       .then((count) => {
-        this.actingPatientsCount = count;
+        this.patientsCount = count;
         if (!this.isSearchMode) {
           this.paginatorLength = count;
         }
@@ -125,8 +118,7 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
 
   ngAfterViewInit() {
     setTimeout(() => {
-      this.paginatorLength = this.patientsCount;
-      this.loadActingPatientsCount();
+      this.loadPatientsCount();
       this.patientService.clearPatientsPageCursors();
       this.loadData();
       this.subs.sink = fromEvent(this.filterInput.nativeElement, 'keyup').pipe(
@@ -144,7 +136,7 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
     if (!this.isSearchMode) {
       this.patientService.clearPatientsPageCursors();
     }
-    this.loadActingPatientsCount();
+    this.loadPatientsCount();
     this.selection.clear();
     if (this.paginator.pageIndex !== 0) {
       this.paginator.pageIndex = 0;
@@ -218,7 +210,7 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
         );
         this.invalidateSearchCache();
         this.patientService.clearPatientsPageCursors();
-        this.loadActingPatientsCount();
+        this.loadPatientsCount();
         if (this.paginator.pageIndex !== 0) {
           this.paginator.pageIndex = 0;
         } else {
@@ -274,6 +266,7 @@ export class AllpatientsComponent extends UnsubscribeOnDestroyAdapter implements
       this.patientService.clearPatientsPageCursors();
     }
     this.selection.clear();
+    this.loadPatientsCount();
     this.loadCurrentPage();
 
     if (failed < patients.length) {

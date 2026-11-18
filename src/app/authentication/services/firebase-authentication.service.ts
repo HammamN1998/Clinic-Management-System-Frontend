@@ -356,14 +356,15 @@ export class FirebaseAuthenticationService {
               this.syncDoctorLocale(this.currentLocale());
             }
 
+            const [page] = this.router.url.split('?');
             const isOnAuthPages =
-              this.router.url === '/authentication/signup' ||
-              this.router.url === '/authentication/signin' ||
-              this.router.url === '/authentication/verify-email';
+              page === '/authentication/signup' ||
+              page === '/authentication/signin' ||
+              page === '/authentication/verify-email';
 
             if (isOnAuthPages) {
               if (fireAuthUser.emailVerified) {
-                this.router.navigate(['/admin/dashboard/main']);
+                this.router.navigateByUrl(this.returnUrl() ?? '/admin/dashboard/main');
               } else {
                 this.router.navigate(['/authentication/verify-email']);
               }
@@ -378,10 +379,19 @@ export class FirebaseAuthenticationService {
         this.analytics.clearDoctorUserId();
         localStorage.removeItem('currentUser');
         this.clinicContext.reset();
-        this.router.navigate(['/authentication/signin']);
+        // While a page is opening, the auth guard sends him to sign in, keeping the page to return to.
+        if (!this.router.getCurrentNavigation() && !this.router.url.startsWith('/authentication/signin')) {
+          this.router.navigate(['/authentication/signin']);
+        }
         console.log('user not logged in');
       }
     });
+  }
+
+  /** The app page the auth guard sent him to sign in from. */
+  private returnUrl(): string | null {
+    const url = this.router.parseUrl(this.router.url).queryParamMap.get('returnUrl');
+    return url?.startsWith('/') && !url.startsWith('/authentication/') ? url : null;
   }
 
   /**

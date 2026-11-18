@@ -911,20 +911,12 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter impleme
         return;
       }
       this.subs.sink = this.firebaseStorageService
-        .deleteFile(attachment.url)
+        .deleteFile(attachment.url, `doctors/${this.activeDoctor.id}/patients/${this.patient.id}`)
         .subscribe({
           next: () => {
-            const removedSize = attachment.size ?? 0;
             this.patient.attachments = (this.patient.attachments ?? []).filter(
               (a) => a.url !== attachment.url,
             );
-            // The cached storage use is the signed-in doctor's own, not the clinic's.
-            if (!this.clinicContext.isActing) {
-              this.doctor.subscription.storageBytesUsed = Math.max(
-                0,
-                this.doctor.subscription.storageBytesUsed - removedSize,
-              );
-            }
             this.patientService.updatePatient(this.patient)
               .then(() => {
                 this.notificationService.showSnackBarNotification(
@@ -950,27 +942,8 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter impleme
     });
   }
 
+  /** The upload already passed the plan checks, and the server adds the file to the storage use. */
   addAttachment(attachment: Attachment) {
-    // In the clinic account the upload counts against the clinic's plan, which the storage rules have already checked.
-    const isActing = this.clinicContext.isActing;
-    if (!isActing && (this.doctor.subscription.storageBytesUsed + attachment.size > this.doctor.subscription.maxStorageLimitBytes || this.doctor.subscription.status !== 'active')) {
-      this.notificationService.showSwalDialogWithFunction(
-        this.doctor.subscription.status !== 'active' ?
-          this.translate.instant('PATIENTS.MESSAGES.PLAN_INACTIVE_TITLE') :
-          this.translate.instant('PATIENTS.PROFILE.MESSAGES.UPGRADE_STORAGE_TITLE'),
-        this.doctor.subscription.status !== 'active' ?
-          this.translate.instant('PATIENTS.MESSAGES.PLAN_INACTIVE_TEXT') :
-          this.translate.instant('PATIENTS.PROFILE.MESSAGES.UPGRADE_STORAGE_TEXT', { bytes: this.doctor.subscription.maxStorageLimitBytes }),
-        'error',
-        true,
-        this.translate.instant('PATIENTS.MESSAGES.GO_TO_PLAN'),
-        () => {
-          this.router.navigate(['/admin/doctors/doctor-plans']);
-        }
-      );
-      return;
-    }
-
     if(isNullOrUndefined(this.patient.attachments)) this.patient.attachments = [];
     this.patient.attachments.push(attachment);
     this.patientService.updatePatient(this.patient).catch((error) => {
@@ -978,9 +951,6 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter impleme
       this.patient.attachments = (this.patient.attachments ?? []).filter((a) => a.url !== attachment.url);
       this.notifySaveFailed();
     });
-    if (!isActing) {
-      this.doctor.subscription.storageBytesUsed += attachment.size;
-    }
     this.compressAttachments = true;
   }
 

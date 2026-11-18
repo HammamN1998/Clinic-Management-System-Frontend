@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {from, Observable} from 'rxjs';
 import {distinctUntilChanged, map, skip} from 'rxjs/operators';
-import {Attachment, Patient} from '@core/models/patient.model';
+import {Patient} from '@core/models/patient.model';
 import {UnsubscribeOnDestroyAdapter} from '@shared';
 import {FirebaseAuthenticationService} from "../../authentication/services/firebase-authentication.service";
 import {AngularFirestore} from "@angular/fire/compat/firestore";
@@ -83,7 +83,12 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
     const snapshot = await this.firestore.collection('patients').ref
       .where('doctorId', '==', this.doctorService.activeDoctorId)
       .get();
-    return snapshot.docs.map((doc) => doc.data() as Patient);
+    return snapshot.docs.map((doc) => this.toPatient(doc));
+  }
+
+  /** The id is the document's: the stored field is written by whoever saved the patient. */
+  private toPatient(doc: firebase.firestore.QueryDocumentSnapshot<unknown>): Patient {
+    return { ...(doc.data() as Patient), id: doc.id };
   }
 
   /**
@@ -112,7 +117,7 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
       query = query.startAfter(startAfterDoc);
     }
     const snapshot = await query.get();
-    const patients = snapshot.docs.map((doc) => doc.data() as Patient);
+    const patients = snapshot.docs.map((doc) => this.toPatient(doc));
     const lastDoc = snapshot.docs.length > 0
       ? snapshot.docs[snapshot.docs.length - 1] as firebase.firestore.QueryDocumentSnapshot
       : null;
@@ -171,7 +176,7 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
       .limit(20)
       .get();
 
-    return snapshot.docs.map((doc) => doc.data() as Patient);
+    return snapshot.docs.map((doc) => this.toPatient(doc));
   }
 
   async checkBeforeAdd(
@@ -216,9 +221,8 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
     await this.firestore.collection('patients').doc(result.id).ref.update({id: result.id, lastModifiedBy: this.doctor.id});
     patient.id = result.id;
     this.dialogData = patient;
-    // The cached count and the onboarding progress are the signed-in doctor's own.
+    // The onboarding progress is the signed-in doctor's own.
     if (!this.clinicContext.isActing) {
-      this.doctor.subscription.patientsCount++;
       this.onboardingService.recordPatientAdded(wasFirstPatient);
     }
     console.log('patient ID: ' + JSON.stringify(result.id));
@@ -242,16 +246,7 @@ export class PatientService extends UnsubscribeOnDestroyAdapter {
       return;
     }
 
-    const foundPatient = doc.data() as Patient;
-    let totalSize = 0;
-    (foundPatient.attachments ?? []).forEach((attachment: Attachment) => {
-      totalSize += attachment.size;
-    });
-    totalSize += foundPatient.imgSize ?? 0;
-
     await this.firestore.collection('patients').doc(patientId).delete();
-    this.doctor.subscription.storageBytesUsed -= totalSize;
-    this.doctor.subscription.patientsCount--;
   }
 
   addPatientAppointment(appointment: AppointmentModel, patient = this.getDialogData()) {

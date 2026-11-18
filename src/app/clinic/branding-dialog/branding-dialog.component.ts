@@ -63,7 +63,7 @@ export class BrandingDialogComponent {
     private dialogRef: MatDialogRef<BrandingDialogComponent, boolean>,
     @Inject(MAT_DIALOG_DATA) private brand: ClinicBrand,
     private clinicService: ClinicService,
-    private doctorService: DoctorService,
+    doctorService: DoctorService,
     private storage: FirebaseStorageService,
     private translate: TranslateService,
   ) {
@@ -116,11 +116,8 @@ export class BrandingDialogComponent {
       this.saving = false;
       return;
     }
-    if (logoChanged) {
-      this.doctorService.doctor.subscription.storageBytesUsed += (uploaded?.size ?? 0) - this.brand.logoSize;
-      if (this.brand.logo) {
-        this.deleteFile(this.brand.logo);
-      }
+    if (logoChanged && this.brand.logo) {
+      this.deleteFile(this.brand.logo);
     }
     this.dialogRef.close(true);
   }
@@ -143,7 +140,7 @@ export class BrandingDialogComponent {
 
   private deleteFile(url: string): void {
     try {
-      this.storage.deleteFile(url).subscribe({
+      this.storage.deleteFile(url, this.logoFolder).subscribe({
         error: (err) => console.error('Failed to delete a clinic logo file', err),
       });
     } catch (err) {

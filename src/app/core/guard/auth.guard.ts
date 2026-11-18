@@ -19,7 +19,7 @@ export class AuthGuard {
     return this.auth.authState.pipe(
       map(user => {
         if (!user) {
-          this.router.navigate(['/authentication/signin']);
+          this.router.navigate(['/authentication/signin'], { queryParams: { returnUrl: state.url } });
           return false;
         }
 

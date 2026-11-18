@@ -21,7 +21,7 @@ import {FileUploadComponent} from "@shared/components/file-upload/file-upload.co
 import {FirebaseStorageService} from "@core/service/firebase-storage.service";
 import {isNullOrUndefined} from "@swimlane/ngx-datatable";
 import { Attachment } from '@core/models/patient.model';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { PatientService } from '@core/service/patient.service';
 import {TranslateModule, TranslateService} from "@ngx-translate/core";
 import { OnboardingService } from '@core/service/onboarding.service';
@@ -79,7 +79,6 @@ export class DoctorProfileComponent implements OnInit {
     private fb: UntypedFormBuilder,
     private auth: AngularFireAuth,
     private firebaseStorageService: FirebaseStorageService,
-    private router: Router,
     private route: ActivatedRoute,
     private patientService: PatientService,
     private translate: TranslateService,
@@ -305,20 +304,15 @@ export class DoctorProfileComponent implements OnInit {
     })
   }
 
+  /** The upload already passed the plan checks, and the server adds the file to the storage use. */
   updateDoctorProfilePicture(attachment: Attachment) {
-    if (!this.hasStorageQuotaFor(attachment.size)) {
-      return;
-    }
     if (isNullOrUndefined(this.doctor.img) || this.doctor.img === '') {
       this.doctor.img = attachment.url;
       this.doctor.imgSize = attachment.size;
       this.doctorService.editDoctor({ img: attachment.url, imgSize: attachment.size });
-      this.doctor.subscription.storageBytesUsed += attachment.size;
       this.showUploadProfilePicture = false;
     } else {
-      const oldImgSize = this.doctor.imgSize;
-      const oldImgUrl = this.doctor.img;
-      this.firebaseStorageService.deleteFile(oldImgUrl).subscribe({
+      this.firebaseStorageService.deleteFile(this.doctor.img, this.doctorFolder).subscribe({
         next: () => {
           this.doctor.img = attachment.url;
           this.doctor.imgSize = attachment.size;
@@ -326,7 +320,6 @@ export class DoctorProfileComponent implements OnInit {
             img: attachment.url,
             imgSize: attachment.size,
           });
-          this.doctor.subscription.storageBytesUsed += attachment.size - oldImgSize;
           this.showUploadProfilePicture = false;
         },
         error: (error) => {
@@ -340,42 +333,16 @@ export class DoctorProfileComponent implements OnInit {
     }
   }
 
-  private hasStorageQuotaFor(size: number): boolean {
-    if (
-      this.doctor.subscription.storageBytesUsed + size >
-        this.doctor.subscription.maxStorageLimitBytes ||
-      this.doctor.subscription.status !== 'active'
-    ) {
-      this.notificationService.showSwalDialogWithFunction(
-        this.doctor.subscription.status !== 'active'
-          ? this.translate.instant('PATIENTS.MESSAGES.PLAN_INACTIVE_TITLE')
-          : this.translate.instant('PATIENTS.PROFILE.MESSAGES.UPGRADE_STORAGE_TITLE'),
-        this.doctor.subscription.status !== 'active'
-          ? this.translate.instant('PATIENTS.MESSAGES.PLAN_INACTIVE_TEXT')
-          : this.translate.instant('PATIENTS.PROFILE.MESSAGES.UPGRADE_STORAGE_TEXT', {
-              bytes: this.doctor.subscription.maxStorageLimitBytes,
-            }),
-        'error',
-        true,
-        this.translate.instant('PATIENTS.MESSAGES.GO_TO_PLAN'),
-        () => {
-          this.router.navigate(['/admin/doctors/doctor-plans']);
-        },
-      );
-      return false;
-    }
-    return true;
+  private get doctorFolder(): string {
+    return `doctors/${this.doctor.id}`;
   }
 
+  /** The upload already passed the plan checks, and the server adds the file to the storage use. */
   updateDoctorLogo(attachment: Attachment) {
-    if (!this.hasStorageQuotaFor(attachment.size)) {
-      return;
-    }
     if (isNullOrUndefined(this.doctor.logo) || this.doctor.logo === '') {
       this.doctor.logo = attachment.url;
       this.doctor.logoSize = attachment.size;
       this.doctorService.editDoctor({ logo: attachment.url, logoSize: attachment.size });
-      this.doctor.subscription.storageBytesUsed += attachment.size;
       this.notificationService.showSnackBarNotification(
         'snackbar-success',
         this.translate.instant('DOCTORS.PROFILE.MESSAGES.UPDATE_LOGO_SUCCESS'),
@@ -385,9 +352,7 @@ export class DoctorProfileComponent implements OnInit {
       this.showUploadLogo = false;
       this.onboardingService.recordProfileIfComplete();
     } else {
-      const oldLogoSize = this.doctor.logoSize;
-      const oldLogoUrl = this.doctor.logo;
-      this.firebaseStorageService.deleteFile(oldLogoUrl).subscribe({
+      this.firebaseStorageService.deleteFile(this.doctor.logo, this.doctorFolder).subscribe({
         next: () => {
           this.doctor.logo = attachment.url;
           this.doctor.logoSize = attachment.size;
@@ -395,7 +360,6 @@ export class DoctorProfileComponent implements OnInit {
             logo: attachment.url,
             logoSize: attachment.size,
           });
-          this.doctor.subscription.storageBytesUsed += attachment.size - oldLogoSize;
           this.notificationService.showSnackBarNotification(
             'snackbar-success',
             this.translate.instant('DOCTORS.PROFILE.MESSAGES.UPDATE_LOGO_SUCCESS'),
@@ -427,14 +391,11 @@ export class DoctorProfileComponent implements OnInit {
       true,
       this.translate.instant('COMMON.DELETE'),
       () => {
-        const oldImgSize = this.doctor.imgSize;
-        const oldImgUrl = this.doctor.img;
-        this.firebaseStorageService.deleteFile(oldImgUrl).subscribe({
+        this.firebaseStorageService.deleteFile(this.doctor.img, this.doctorFolder).subscribe({
           next: () => {
             this.doctor.img = '';
             this.doctor.imgSize = 0;
             this.doctorService.editDoctor({ img: '', imgSize: 0 });
-            this.doctor.subscription.storageBytesUsed -= oldImgSize;
             this.showUploadProfilePicture = false;
             this.notificationService.showSnackBarNotification(
               'snackbar-success',
@@ -466,14 +427,11 @@ export class DoctorProfileComponent implements OnInit {
       true,
       this.translate.instant('COMMON.DELETE'),
       () => {
-        const oldLogoSize = this.doctor.logoSize;
-        const oldLogoUrl = this.doctor.logo;
-        this.firebaseStorageService.deleteFile(oldLogoUrl).subscribe({
+        this.firebaseStorageService.deleteFile(this.doctor.logo, this.doctorFolder).subscribe({
           next: () => {
             this.doctor.logo = '';
             this.doctor.logoSize = 0;
             this.doctorService.editDoctor({ logo: '', logoSize: 0 });
-            this.doctor.subscription.storageBytesUsed -= oldLogoSize;
             this.showUploadLogo = false;
             this.notificationService.showSnackBarNotification(
               'snackbar-success',

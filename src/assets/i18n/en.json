@@ -861,7 +861,7 @@
       "FACT_ACCOUNT": "You work in the clinic's account. Its patients belong to the clinic, and every doctor there can see and edit them.",
       "FACT_OWN": "Your own account stays yours, and the clinic cannot see it. Switch to it from the banner at the top.",
       "FACT_HISTORY": "The clinic keeps a history of who changes what in its account.",
-      "FACT_LEAVING": "You can leave at any time, and the clinic can unlink you. Either way your access ends at once, and the patients stay with the clinic.",
+      "FACT_LEAVING": "You can leave at any time, and the clinic can unlink you. Either way your access ends at once, and the patients stay with the clinic. Links to patient files you already opened may keep working.",
       "CONFIRM": {
         "DECLINE_INVITE": "Decline the invitation from {{clinic}}?",
         "DECLINE_TERMS": "Decline the new terms? Your current terms stay in force.",
@@ -882,7 +882,7 @@
       "ACCOUNT": "You work in the clinic's account; its patients belong to the clinic, and every doctor there sees and edits them.",
       "OWN": "Your own account stays yours, and the clinic cannot see it.",
       "HISTORY": "The clinic records who changes what.",
-      "LEAVING": "Leaving ends your access at once, and the patients stay.",
+      "LEAVING": "Leaving ends your access at once, and the patients stay. Links to files you already opened may keep working.",
       "COMMISSION": "Commission is the agreed percent of what you collect.",
       "OWN_PLAN": "Joining does not cancel a plan you pay for yourself. If you no longer need it, cancel it in the billing portal on the Plans page.",
       "AGREE": "I have read these terms and agree to them.",

@@ -527,10 +527,10 @@ export class ClinicService {
   /**
    * A linked doctor starts each sign-in in his clinic's account, unless he chose his own account
    * in this tab. A tab opened on My clinic, where the emails about his terms take him, counts as
-   * that choice. Accepting an invite later leaves him where he is. While he works in the clinic
-   * account it is watched, since its admin may change its settings, and left with a notice once
-   * he is no longer linked to it. After the unlink the rules refuse the read, which ends the
-   * watch with an error.
+   * that choice, even when he has to sign in first. Accepting an invite later leaves him where he
+   * is. While he works in the clinic account it is watched, since its admin may change its
+   * settings, and left with a notice once he is no longer linked to it. After the unlink the rules
+   * refuse the read, which ends the watch with an error.
    */
   private followClinicAccount(uid$: Observable<string | null>): void {
     uid$
@@ -540,7 +540,10 @@ export class ClinicService {
           return;
         }
         // Unlike the router's URL, the path is already the tab's first page while it is still loading.
-        if (this.location.path().startsWith('/admin/doctors/my-clinic')) {
+        // A tab sent to sign in first keeps that page in returnUrl.
+        const path = this.location.path();
+        const page = this.router.parseUrl(path).queryParamMap.get('returnUrl') ?? path;
+        if (page.startsWith('/admin/doctors/my-clinic')) {
           this.clinicContext.chooseOwnAccount();
           return;
         }
