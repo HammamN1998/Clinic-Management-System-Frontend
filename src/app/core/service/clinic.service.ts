@@ -581,7 +581,7 @@ export class ClinicService {
         filter((adminId) => !!adminId),
       )
       .subscribe(() => {
-        if (this.clinicContext.isActing) {
+        if (this.clinicContext.isActing || this.clinicContext.choseOwnAccount) {
           return;
         }
         const path = this.location.path();

@@ -2,7 +2,7 @@
   @if (doctors.length) {
     <mat-form-field class="example-full-width" [appearance]="appearance">
       <mat-label>{{ 'CLINIC.PROVIDER.LABEL' | translate }}</mat-label>
-      <mat-select [formControl]="control">
+      <mat-select [formControl]="formControl">
         @for (doctor of doctors; track doctor.doctorId) {
           <mat-option [value]="doctor.doctorId">{{ doctor.name }}</mat-option>
         }
