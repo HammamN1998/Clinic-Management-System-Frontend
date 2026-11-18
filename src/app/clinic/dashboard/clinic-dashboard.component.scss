@@ -1,3 +1,5 @@
+@use '../../admin/dashboard/dashboard-filters';
+
 .clinic-dashboard {
   &__attention {
     color: inherit;
@@ -9,5 +11,10 @@
     mat-icon {
       color: #f57c00;
     }
+  }
+
+  &__warning {
+    background-color: #fff4e5;
+    color: #663c00;
   }
 }

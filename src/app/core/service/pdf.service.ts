@@ -719,102 +719,64 @@ export class PdfService {
   }
 
   /**
-   * The doctors' figures, then the commissions of those with an agreement in force. The period is
-   * in numeric dates, like the other documents' dates, since the Arabic font has no dash for a
-   * range written in Arabic.
+   * The period and what the clinic's patients owe in all, then each doctor's figures and
+   * commission. The period is in numeric dates, like the other documents' dates, since the Arabic
+   * font has no dash for a range written in Arabic.
    */
   private buildClinicReportBody(report: ClinicReport, t: Translator): Content[] {
     const { firstDay, lastDay, total } = report;
     const rtl = this.isRtl();
     const header = (key: string) => pdfLabel(t(key), { style: 'tableHeader' });
     const value = (content: Content) => ({ stack: [content], alignment: rtl ? 'right' : 'left' }) as Content;
-    const money = (line: ClinicReportLine, amount: number) => formatCurrencyAmount(amount, line.currency, 'en', 'code');
-    const row = (line: ClinicReportLine, cells: string[]): Content[] => {
+    const money = (amount: number) => formatCurrencyAmount(amount, report.currency, 'en', 'code');
+    const row = (line: ClinicReportLine): Content[] => {
       const style = line === total ? 'totalValue' : undefined;
+      const cells = [
+        String(line.appointments),
+        String(line.treatments),
+        money(line.collected),
+        line.commissionPercent === null ? '-' : `${line.commissionPercent}%`,
+        line.commission === null ? '-' : money(line.commission),
+      ];
       return [pdfTextCell(line.label, style), ...cells.map((text) => ({ text, style, alignment: 'right' }) as Content)];
     };
     const period = firstDay.getTime() === lastDay.getTime()
       ? formatDate(firstDay)
       : `${formatDate(firstDay)} – ${formatDate(lastDay)}`;
 
-    const body: Content[] = [
+    return [
       {
         table: this.rtlTableDef({
-          widths: [80, '*'],
+          widths: [110, '*'],
           body: [
             [header('CLINIC.REPORT.PERIOD'), value(period)],
-            [header('CLINIC.REPORT.DOCTORS'), value(pdfTextCell(report.doctors))],
+            [header('CLINIC.DASHBOARD.OUTSTANDING'), value(money(report.outstanding))],
           ],
         }),
         layout: 'noBorders',
       },
+      pdfLabel(t('CLINIC.REPORT.OUTSTANDING_NOTE'), { style: 'subtle', margin: [0, 4, 0, 0] }),
       pdfLabel(t('CLINIC.DASHBOARD.COMPARISON_TITLE'), { style: 'sectionTitle' }),
       {
         table: this.rtlTableDef({
           headerRows: 1,
-          widths: ['*', 62, 62, 62, 84, 84],
+          widths: ['*', 62, 62, 84, 50, 84],
           body: [
             [
               header('CLINIC.DASHBOARD.DOCTOR'),
               header('DASHBOARD.APPOINTMENTS'),
               header('DASHBOARD.TREATMENTS'),
-              header('DASHBOARD.NEW_PATIENTS'),
-              header('DASHBOARD.EARNING'),
-              header('CLINIC.DASHBOARD.OUTSTANDING'),
+              header('CLINIC.DASHBOARD.COLLECTED'),
+              header('CLINIC.REPORT.RATE'),
+              header('CLINIC.DASHBOARD.COMMISSION'),
             ],
-            ...[...report.lines, ...(total ? [total] : [])].map((line) =>
-              row(line, [
-                String(line.appointments),
-                String(line.treatments),
-                String(line.newPatients),
-                money(line, line.collected),
-                money(line, line.outstanding),
-              ]),
-            ),
+            ...[...report.lines, ...(total ? [total] : [])].map(row),
           ],
         }),
         layout: this.tableLayout(),
       },
-      pdfLabel(t('CLINIC.REPORT.OUTSTANDING_NOTE'), { style: 'subtle', margin: [0, 4, 0, 0] }),
+      pdfLabel(t('CLINIC.REPORT.COMMISSION_NOTE'), { style: 'subtle', margin: [0, 4, 0, 0] }),
     ];
-
-    const commissions = report.lines.filter((line) => line.commission !== null);
-    if (commissions.length) {
-      if (total && commissions.length > 1) {
-        commissions.push(total);
-      }
-      body.push(
-        pdfLabel(t('CLINIC.REPORT.COMMISSIONS'), { style: 'sectionTitle' }),
-        {
-          table: this.rtlTableDef({
-            headerRows: 1,
-            widths: ['*', 110, 60, 100],
-            body: [
-              [
-                header('CLINIC.DASHBOARD.DOCTOR'),
-                header('CLINIC.REPORT.COMMISSION_BASE'),
-                header('CLINIC.REPORT.RATE'),
-                header('CLINIC.DASHBOARD.COMMISSION'),
-              ],
-              ...commissions.map((line) =>
-                row(line, [
-                  money(line, line.commissionBase ?? 0),
-                  line.commissionPercent === null ? '' : `${line.commissionPercent}%`,
-                  money(line, line.commission ?? 0),
-                ]),
-              ),
-            ],
-          }),
-          layout: this.tableLayout(),
-        },
-        pdfLabel(t('CLINIC.REPORT.COMMISSION_NOTE'), { style: 'subtle', margin: [0, 4, 0, 0] }),
-      );
-    }
-
-    if (total && report.lines.some((line) => line.currency !== total.currency)) {
-      body.push(pdfLabel(t('CLINIC.REPORT.CURRENCY_MIXED'), { style: 'subtle', margin: [0, 10, 0, 0] }));
-    }
-    return body;
   }
 
   // --- Helpers -------------------------------------------------------------

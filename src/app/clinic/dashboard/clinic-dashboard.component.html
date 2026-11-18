@@ -28,5 +28,142 @@
         }
       </div>
     </div>
+
+    <!-- Range -->
+    <div class="dashboard-filters">
+      <div class="range-display">
+        <span class="range-label" dir="auto">{{ selectedRangeLabel }}</span>
+        @if (!isCurrentRange) {
+          <span class="range-divider"></span>
+          <button mat-button type="button" class="current-range-button" (click)="resetToCurrentRange()">
+            <mat-icon>restore</mat-icon>
+            <span>{{ currentRangeButtonLabel | translate }}</span>
+          </button>
+        }
+      </div>
+      <div class="filter-controls">
+        <button mat-icon-button type="button" (click)="prevRange()" aria-label="Previous range">
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+        @for (range of rangeOptions; track range.id) {
+          <button mat-button type="button" class="filter-button" [class.active]="selectedRange === range.id" (click)="setRange(range.id)">
+            {{ range.label | translate }}
+          </button>
+        }
+        <button
+          mat-icon-button
+          type="button"
+          class="nav-range-button"
+          [class.nav-range-button--hidden]="!canGoNext"
+          (click)="nextRange()"
+          aria-label="Next range"
+          [attr.aria-hidden]="!canGoNext"
+          [tabindex]="canGoNext ? 0 : -1"
+        >
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    @if (figuresFailed || outstandingFailed) {
+      <div class="clinic-dashboard__warning d-flex align-items-center gap-2 mb-3 px-3 py-2 rounded small">
+        <mat-icon class="flex-shrink-0">error_outline</mat-icon>
+        <span>{{ 'CLINIC.DASHBOARD.LOAD_FAILED' | translate }}</span>
+      </div>
+    }
+
+    <!-- Totals -->
+    <div class="row">
+      @for (card of cards; track card.label) {
+        <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12">
+          <div class="card card-statistic-2">
+            <div class="clearfix">
+              <div class="card-icon shadow-primary" [ngClass]="card.color">
+                <i class="material-icons align-middle">{{ card.icon }}</i>
+              </div>
+              <div class="card-right">
+                <div>
+                  <h3 class="float-end">{{ card.label | translate }}</h3>
+                </div>
+                <div class="m-r-10 m-l-10">
+                  <h1 class="font-weight-bold float-end mb-0">
+                    @if (card.value === null) {
+                      –
+                    } @else {
+                      {{ card.value | appCurrency }}
+                    }
+                  </h1>
+                </div>
+              </div>
+            </div>
+            <span class="d-block px-3 pb-2 small text-muted">{{ card.hint | translate }}</span>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- By doctor -->
+    <div class="card">
+      <div class="header d-flex flex-wrap align-items-center justify-content-between gap-2">
+        <h2><strong>{{ 'CLINIC.DASHBOARD.COMPARISON_TITLE' | translate }}</strong></h2>
+        <div class="d-flex flex-wrap gap-2">
+          <button mat-stroked-button color="primary" type="button" (click)="exportExcel()" [disabled]="!canExport">
+            <mat-icon>download</mat-icon>
+            {{ 'CLINIC.DASHBOARD.EXPORT_EXCEL' | translate }}
+          </button>
+          <button mat-stroked-button color="primary" type="button" (click)="exportPdf()" [disabled]="!canExport || exporting">
+            <mat-icon>picture_as_pdf</mat-icon>
+            {{ 'CLINIC.DASHBOARD.EXPORT_PDF' | translate }}
+          </button>
+        </div>
+      </div>
+      <div class="body">
+        @if (rows === null) {
+          <span class="small text-muted">{{ (figuresFailed ? 'CLINIC.DASHBOARD.LOAD_FAILED' : 'COMMON.LOADING') | translate }}</span>
+        } @else {
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>{{ 'CLINIC.DASHBOARD.DOCTOR' | translate }}</th>
+                  <th>{{ 'DASHBOARD.APPOINTMENTS' | translate }}</th>
+                  <th>{{ 'DASHBOARD.TREATMENTS' | translate }}</th>
+                  <th>{{ 'CLINIC.DASHBOARD.COLLECTED' | translate }}</th>
+                  <th>{{ 'CLINIC.DASHBOARD.COMMISSION' | translate }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of rows; track row.doctorId) {
+                  <tr>
+                    <td>{{ doctorLabel(row) }}</td>
+                    <td>{{ row.figures.appointments }}</td>
+                    <td>{{ row.figures.treatments }}</td>
+                    <td>{{ row.figures.collected | appCurrency }}</td>
+                    <td>
+                      @if (row.commission === null) {
+                        –
+                      } @else {
+                        {{ row.commissionPercent }}% · {{ row.commission | appCurrency }}
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+              @if (total && rows.length > 1) {
+                <tfoot>
+                  <tr>
+                    <th>{{ 'CLINIC.DASHBOARD.TOTAL' | translate }}</th>
+                    <th>{{ total.figures.appointments }}</th>
+                    <th>{{ total.figures.treatments }}</th>
+                    <th>{{ total.figures.collected | appCurrency }}</th>
+                    <th>{{ total.commission | appCurrency }}</th>
+                  </tr>
+                </tfoot>
+              }
+            </table>
+          </div>
+        }
+      </div>
+    </div>
   </div>
 </section>
