@@ -13,7 +13,7 @@
           </div>
         </div>
         <!--Balance Section-->
-        <div class="card">
+        <div class="card" *ngIf="!hides('balance')">
           <div class="header">
             <h2>{{ 'PATIENTS.PROFILE.BALANCE' | translate }}</h2>
           </div>
@@ -33,7 +33,7 @@
           <button mat-button class="basic-btn" (click)="this.openDocuments()" ><i class="fas fa-file-pdf"></i> {{ 'PATIENTS.DOCUMENTS.HUB_TITLE' | translate }}</button>
         </div>
         <!--Attachments Section-->
-        <div class="card">
+        <div class="card" *ngIf="!hides('attachments')">
           <div class="header">
             <h2>{{ 'PATIENTS.PROFILE.ATTACHMENTS' | translate }}</h2>
           </div>
@@ -67,7 +67,7 @@
           </div>
         </div>
         <!--Notes Section-->
-        <div class="card">
+        <div class="card" *ngIf="!hides('notes')">
           <div class="header">
             <h2>{{ 'PATIENTS.PROFILE.NOTES' | translate }}</h2>
           </div>
@@ -512,7 +512,7 @@
           </div>
         </div>
         <!--Treatments Section-->
-        <div class="card">
+        <div class="card" *ngIf="!hides('treatments')">
           <div class="header">
             <h2>{{ 'PATIENTS.PROFILE.TREATMENTS_SECTION' | translate }}</h2>
           </div>
@@ -617,7 +617,7 @@
           </div>
         </div>
         <!--Payments Section-->
-        <div class="card">
+        <div class="card" *ngIf="!hides('payments')">
           <div class="header">
             <h2>{{ 'PATIENTS.PROFILE.PAYMENTS_SECTION' | translate }}</h2>
           </div>
@@ -717,7 +717,7 @@
           </div>
         </div>
         <!--Specialized Forms Section-->
-        <div class="card">
+        <div class="card" *ngIf="!hides('specializedForms')">
           <div class="header">
             {{ 'PATIENTS.PROFILE.SPECIALIZED_FORMS_SECTION' | translate }}
           </div>

@@ -38,7 +38,9 @@
                 <span class="my-clinic__muted">
                   {{ 'CLINIC.INVITES.EXPIRES_ON' | translate: { date: (invite.expiresAt | date: 'mediumDate' : undefined : dateLocale) } }}
                 </span>
-                <app-clinic-terms [terms]="invite.terms"></app-clinic-terms>
+                @if (invite.role !== 'secretary') {
+                  <app-clinic-terms [terms]="invite.terms"></app-clinic-terms>
+                }
                 <div class="my-clinic__actions">
                   <button mat-raised-button color="primary" (click)="reviewInvite(invite)" [disabled]="busy">
                     {{ 'CLINIC.MY_CLINIC.REVIEW' | translate }}

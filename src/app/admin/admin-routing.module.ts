@@ -1,9 +1,11 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
+import { NoSecretaryGuard } from '@core/guard/no-secretary.guard';
 
 const routes: Routes = [
   {
     path: 'dashboard',
+    canActivate: [NoSecretaryGuard],
     loadChildren: () =>
       import('./dashboard/dashboard.module').then((m) => m.DashboardModule),
   },

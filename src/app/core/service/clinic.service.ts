@@ -21,7 +21,9 @@ import {
   ClinicInvite,
   ClinicMembership,
   ClinicProfile,
+  ClinicRole,
   ClinicTerms,
+  DEFAULT_SECRETARY_HIDDEN,
   FieldChange,
   HistoryAction,
   HistoryCollection,
@@ -50,6 +52,8 @@ interface DoctorDoc {
   calendarShowAttendedAppointments?: string;
   preferredDentalNotation?: DentalNotation;
   isAdmin?: boolean;
+  isSecretary?: boolean;
+  secretaryHidden?: string[];
   maxSeats?: number;
   clinicAdminId?: string;
   linkedAt?: StoredTimestamp;
@@ -61,7 +65,7 @@ interface ClinicDoc {
   name?: string;
   adminName?: string;
   logo?: string;
-  doctors?: Record<string, { name?: string; active?: boolean }>;
+  doctors?: Record<string, { name?: string; active?: boolean; secretary?: boolean }>;
 }
 
 interface InviteDoc {
@@ -73,6 +77,7 @@ interface InviteDoc {
   doctorName?: string;
   status: InviteStatus;
   terms: ClinicTerms;
+  role?: ClinicRole;
   sentAt?: StoredTimestamp;
   sendCount?: number;
   expiresAt?: StoredTimestamp;
@@ -116,6 +121,7 @@ function toMembership(doctorId: string, doc: DoctorDoc): ClinicMembership {
   return {
     doctorId,
     isAdmin: doc.isAdmin === true,
+    isSecretary: doc.isSecretary === true,
     // Read the way the functions read it: anything but a positive number means no seats.
     maxSeats: typeof doc.maxSeats === 'number' && doc.maxSeats > 0 ? Math.floor(doc.maxSeats) : 0,
     clinicAdminId: doc.clinicAdminId || null,
@@ -164,9 +170,10 @@ function toClinicDoctors(adminId: string, doc: ClinicDoc | undefined, adminName:
     doctorId,
     name: entry?.name ?? '',
     active: entry?.active !== false,
+    secretary: entry?.secretary === true,
   }));
   if (!doctors.some((doctor) => doctor.doctorId === adminId)) {
-    doctors.push({ doctorId: adminId, name: adminName, active: true });
+    doctors.push({ doctorId: adminId, name: adminName, active: true, secretary: false });
   }
   return doctors.sort(
     (a, b) => Number(b.doctorId === adminId) - Number(a.doctorId === adminId) || a.name.localeCompare(b.name),
@@ -184,6 +191,7 @@ function toInvite(doc: InviteDoc & { id: string }): ClinicInvite {
     doctorName: doc.doctorName ?? '',
     status: doc.status,
     terms: doc.terms,
+    role: doc.role === 'secretary' ? 'secretary' : 'doctor',
     sentAt: toDate(doc.sentAt),
     sendCount: doc.sendCount ?? 1,
     expiresAt: toDate(doc.expiresAt),
@@ -247,6 +255,8 @@ export class ClinicService {
   readonly clinicAccountId$: Observable<string | null>;
   /** Everyone who works or worked in the clinic account on screen. Empty in any other account. */
   readonly accountDoctors$: Observable<ClinicDoctor[]>;
+  /** What the signed-in secretary's admin hid from him in patient profiles. Empty for anyone else. */
+  readonly secretaryHidden$: Observable<string[]>;
 
   constructor(
     private auth: AngularFireAuth,
@@ -285,7 +295,32 @@ export class ClinicService {
       switchMap((adminId) => (adminId ? this.clinicDoctors$(adminId) : of([]))),
       shareReplay({ bufferSize: 1, refCount: true }),
     );
+    this.secretaryHidden$ = this.membership$.pipe(
+      map((membership) => (membership?.isSecretary ? membership.clinicAdminId : null)),
+      distinctUntilChanged(),
+      switchMap((adminId) =>
+        adminId
+          ? this.firestore
+              .collection('doctors')
+              .doc<DoctorDoc>(adminId)
+              .valueChanges()
+              .pipe(
+                map((doc) => doc?.secretaryHidden ?? DEFAULT_SECRETARY_HIDDEN),
+                catchError((err) => this.readFailed('secretary settings', err, DEFAULT_SECRETARY_HIDDEN as string[])),
+              )
+          : of([] as string[]),
+      ),
+      shareReplay({ bufferSize: 1, refCount: true }),
+    );
     this.followClinicAccount(uid$);
+  }
+
+  /** The signed-in admin's secretary settings, read once for the Clinic > Doctors page. */
+  async ownSecretaryHidden(): Promise<string[]> {
+    const snapshot = await firstValueFrom(
+      this.firestore.collection('doctors').doc<DoctorDoc>(this.authService.currentUserValue.id).get(),
+    );
+    return snapshot.data()?.secretaryHidden ?? [...DEFAULT_SECRETARY_HIDDEN];
   }
 
   /**
@@ -302,7 +337,9 @@ export class ClinicService {
         throw new Error('The signed-in doctor is not linked to a clinic');
       }
       this.clinicContext.set(toClinicAccount(adminId, doc));
-      await this.router.navigate(['/admin/dashboard/main']);
+      // A secretary has no dashboard: his first page is the appointments calendar.
+      const secretary = (await firstValueFrom(this.membership$))?.isSecretary;
+      await this.router.navigate([secretary ? '/calendar' : '/admin/dashboard/main']);
     } catch (err) {
       console.error('Failed to open the clinic account', err);
       this.notificationService.showSwalOkDialog(
@@ -432,8 +469,13 @@ export class ClinicService {
     };
   }
 
-  inviteDoctor(email: string, terms: ClinicTerms): Promise<{ inviteId: string }> {
-    return this.call('inviteDoctor', { email, terms });
+  inviteDoctor(email: string, terms: ClinicTerms, role: ClinicRole): Promise<{ inviteId: string }> {
+    return this.call('inviteDoctor', { email, terms, role });
+  }
+
+  /** Saves which parts of the patient profile the signed-in admin's secretary cannot see. */
+  saveSecretaryHidden(hidden: string[]): Promise<void> {
+    return this.firestore.collection('doctors').doc(this.authService.currentUserValue.id).update({ secretaryHidden: hidden });
   }
 
   resendInvite(inviteId: string): Promise<{ inviteId: string }> {
@@ -533,10 +575,23 @@ export class ClinicService {
    * refuse the read, which ends the watch with an error.
    */
   private followClinicAccount(uid$: Observable<string | null>): void {
+    // A secretary never has an account of his own to work in: he is taken to the clinic account at
+    // sign-in, and as soon as he accepts the invitation.
+    this.membership$
+      .pipe(
+        map((membership) => (membership?.isSecretary ? membership.clinicAdminId : null)),
+        distinctUntilChanged(),
+        filter((adminId) => !!adminId),
+      )
+      .subscribe(() => {
+        if (!this.clinicContext.isActing) {
+          void this.openClinicAccount();
+        }
+      });
     uid$
       .pipe(switchMap((uid) => (uid ? this.membership$.pipe(filter(isMembership), take(1)) : EMPTY)))
       .subscribe((membership) => {
-        if (!membership.clinicAdminId || this.clinicContext.isActing || this.clinicContext.choseOwnAccount) {
+        if (!membership.clinicAdminId || membership.isSecretary || this.clinicContext.isActing || this.clinicContext.choseOwnAccount) {
           return;
         }
         // Unlike the router's URL, the path is already the tab's first page while it is still loading.

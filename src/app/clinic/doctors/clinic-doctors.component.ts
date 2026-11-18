@@ -3,6 +3,7 @@ import { DatePipe, NgClass } from '@angular/common';
 import { Direction } from '@angular/cdk/bidi';
 import { MatDialog } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -24,6 +25,8 @@ import {
   ClinicProfile,
   InviteStatus,
   LinkedDoctor,
+  SECRETARY_SECTIONS,
+  SecretarySection,
   inviteDisplayStatus,
   isOpenInvite,
 } from '@core/models/clinic.model';
@@ -54,6 +57,7 @@ const STATUS_BADGES: Record<InviteStatus, string> = {
     DatePipe,
     NgClass,
     MatButtonModule,
+    MatCheckboxModule,
     MatIconModule,
     MatMenuModule,
     TranslateModule,
@@ -67,6 +71,9 @@ export class ClinicDoctorsComponent extends UnsubscribeOnDestroyAdapter implemen
   /** Everyone who works or worked in the clinic, the admin included, as its history names them. */
   clinicDoctors: ClinicDoctor[] = [];
   busy = false;
+  readonly secretarySections = SECRETARY_SECTIONS;
+  /** What the admin hides from his secretary in patient profiles. */
+  secretaryHidden: string[] = [];
   private agreements = new Map<string, ClinicAgreement>();
 
   constructor(
@@ -87,6 +94,10 @@ export class ClinicDoctorsComponent extends UnsubscribeOnDestroyAdapter implemen
     this.subs.sink = this.clinicService.linkedDoctors$(adminId).subscribe((doctors) => (this.doctors = doctors));
     this.subs.sink = this.clinicService.clinicDoctors$(adminId).subscribe((doctors) => (this.clinicDoctors = doctors));
     this.subs.sink = this.clinicService.adminInvites$(adminId).subscribe((invites) => (this.invites = invites));
+    this.clinicService.ownSecretaryHidden().then(
+      (hidden) => (this.secretaryHidden = hidden),
+      (err) => console.error('Failed to read the secretary settings', err),
+    );
     this.subs.sink = this.clinicService.adminAgreements$(adminId).subscribe((agreements) => {
       this.agreements = new Map(agreements.map((agreement) => [agreement.id, agreement]));
     });
@@ -217,6 +228,27 @@ export class ClinicDoctorsComponent extends UnsubscribeOnDestroyAdapter implemen
       maxWidth: '95vw',
       maxHeight: '90vh',
     });
+  }
+
+  isHiddenFromSecretary(section: SecretarySection): boolean {
+    return this.secretaryHidden.includes(section);
+  }
+
+  async hideFromSecretary(section: SecretarySection, hide: boolean): Promise<void> {
+    const before = this.secretaryHidden;
+    this.secretaryHidden = hide ? [...before, section] : before.filter((hidden) => hidden !== section);
+    try {
+      await this.clinicService.saveSecretaryHidden(this.secretaryHidden);
+    } catch (err) {
+      console.error('Failed to save the secretary settings', err);
+      this.secretaryHidden = before;
+      this.notificationService.showSwalOkDialog(
+        this.translate.instant('CLINIC.SECRETARY.SAVE_FAILED'),
+        'error',
+        'center',
+        this.translate.instant('COMMON.OK'),
+      );
+    }
   }
 
   async resendInvite(invite: ClinicInvite): Promise<void> {

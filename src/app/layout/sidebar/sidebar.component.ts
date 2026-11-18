@@ -2,7 +2,7 @@
 import {NavigationEnd, Router, RouterLink, RouterLinkActive} from '@angular/router';
 import {DOCUMENT, NgClass} from '@angular/common';
 import {Component, ElementRef, HostListener, Inject, OnDestroy, OnInit, Renderer2,} from '@angular/core';
-import {CLINIC_ROUTE, MY_CLINIC_ROUTE, PLANS_PATH, ROUTES} from './sidebar-items';
+import {CLINIC_ROUTE, DASHBOARD_PATH, MY_CLINIC_ROUTE, PLANS_PATH, ROUTES} from './sidebar-items';
 import {RouteInfo} from './sidebar.metadata';
 import {TranslateModule} from '@ngx-translate/core';
 import {NgScrollbar} from 'ngx-scrollbar';
@@ -127,7 +127,9 @@ export class SidebarComponent extends UnsubscribeOnDestroyAdapter implements OnI
     if (!this.isActing && (membership?.clinicAdminId || hasOpenInvite)) {
       clinicRoutes.push(MY_CLINIC_ROUTE);
     }
-    const accountRoutes = this.isActing ? ROUTES.filter((route) => route.path !== PLANS_PATH) : ROUTES;
+    const accountRoutes = this.isActing
+      ? ROUTES.filter((route) => route.path !== PLANS_PATH && !(membership?.isSecretary && route.path === DASHBOARD_PATH))
+      : ROUTES;
     const afterTask = accountRoutes.findIndex((route) => route.path === 'task') + 1;
     return [...accountRoutes.slice(0, afterTask), ...clinicRoutes, ...accountRoutes.slice(afterTask)];
   }

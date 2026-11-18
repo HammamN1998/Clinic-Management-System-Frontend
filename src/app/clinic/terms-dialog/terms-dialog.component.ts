@@ -13,7 +13,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { TranslateModule } from '@ngx-translate/core';
 import { ClinicService } from '@core/service/clinic.service';
-import { ClinicTerms, TERMS_NOTES_MAX_LENGTH } from '@core/models/clinic.model';
+import { MatSelectModule } from '@angular/material/select';
+import { ClinicRole, ClinicTerms, TERMS_NOTES_MAX_LENGTH } from '@core/models/clinic.model';
 
 export type TermsDialogData =
   | { mode: 'invite' }
@@ -25,6 +26,7 @@ function createForm(fb: FormBuilder, data: TermsDialogData) {
   const terms = data.mode === 'propose' ? data.terms : DEFAULT_TERMS;
   return fb.nonNullable.group({
     email: ['', data.mode === 'invite' ? [Validators.required, Validators.email, Validators.maxLength(254)] : []],
+    role: ['doctor' as ClinicRole],
     commissionPercent: [terms.commissionPercent, [Validators.required, Validators.min(0), Validators.max(100)]],
     notes: [terms.notes, Validators.maxLength(TERMS_NOTES_MAX_LENGTH)],
   });
@@ -45,6 +47,7 @@ function createForm(fb: FormBuilder, data: TermsDialogData) {
     MatButtonModule,
     MatFormFieldModule,
     MatInputModule,
+    MatSelectModule,
     TranslateModule,
   ],
 })
@@ -67,6 +70,11 @@ export class TermsDialogComponent {
     this.form = createForm(fb, data);
   }
 
+  /** A secretary earns no share, so the commission is not asked. */
+  get isSecretary(): boolean {
+    return this.isInvite && this.form.controls.role.value === 'secretary';
+  }
+
   async submit(): Promise<void> {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -74,14 +82,14 @@ export class TermsDialogComponent {
     }
     const value = this.form.getRawValue();
     const terms: ClinicTerms = {
-      commissionPercent: value.commissionPercent,
+      commissionPercent: this.isSecretary ? 0 : value.commissionPercent,
       notes: value.notes.trim(),
     };
     this.sending = true;
     this.error = '';
     try {
       if (this.data.mode === 'invite') {
-        await this.clinicService.inviteDoctor(value.email.trim(), terms);
+        await this.clinicService.inviteDoctor(value.email.trim(), terms, value.role);
       } else {
         await this.clinicService.proposeTerms(this.data.doctorId, terms);
       }

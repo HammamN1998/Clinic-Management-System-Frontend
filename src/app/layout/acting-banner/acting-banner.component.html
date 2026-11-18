@@ -1,7 +1,7 @@
 <div class="acting-banner" *ngIf="acting" role="status">
   <mat-icon class="acting-banner__icon">local_hospital</mat-icon>
   <span class="acting-banner__text">{{ 'CLINIC.ACTING.BANNER' | translate: { clinic: name } }}</span>
-  <button mat-stroked-button type="button" class="acting-banner__back" (click)="toMyAccount()">
+  <button *ngIf="!secretary" mat-stroked-button type="button" class="acting-banner__back" (click)="toMyAccount()">
     {{ 'CLINIC.ACTING.MY_ACCOUNT' | translate }}
   </button>
 </div>

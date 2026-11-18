@@ -3,6 +3,9 @@ import { RouteInfo } from './sidebar.metadata';
 /** The doctor's own billing, left out of the menu inside the clinic account. */
 export const PLANS_PATH = '/admin/doctors/doctor-plans';
 
+/** Left out of a secretary's menu. */
+export const DASHBOARD_PATH = '/admin/dashboard/main';
+
 export const ROUTES: RouteInfo[] = [
   {
     path: '',
@@ -18,7 +21,7 @@ export const ROUTES: RouteInfo[] = [
 
   // Dashboard
   {
-    path: '/admin/dashboard/main',
+    path: DASHBOARD_PATH,
     title: 'MENUITEMS.DASHBOARD.TEXT',
     iconType: 'material-icons-two-tone',
     icon: 'space_dashboard',

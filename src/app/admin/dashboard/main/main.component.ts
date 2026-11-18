@@ -130,6 +130,11 @@ export class MainComponent implements OnInit {
   ) {
 
   }
+
+  /** A doctor working in the clinic account does not see its total earning. */
+  get showEarning(): boolean {
+    return !this.clinicContext.isActing;
+  }
   ngOnInit() {
     this.translate.onLangChange
       .pipe(takeUntilDestroyed(this.destroyRef))

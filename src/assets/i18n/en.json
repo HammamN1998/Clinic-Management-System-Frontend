@@ -837,7 +837,9 @@
       "EMAIL": "Doctor's email",
       "COMMISSION_RANGE": "Enter a number from 0 to 100.",
       "SEND_INVITE": "Send invitation",
-      "SEND_TERMS": "Send to doctor"
+      "SEND_TERMS": "Send to doctor",
+      "ROLE": "Joins as",
+      "SECRETARY_HINT": "A secretary works in the clinic account from the appointments calendar. He has no dashboard and no account of his own, and has no share."
     },
     "MY_CLINIC": {
       "TITLE": "My clinic",
@@ -886,7 +888,8 @@
       "COMMISSION": "Your share is the agreed percent of what you collect. The clinic keeps the rest.",
       "OWN_PLAN": "Joining does not cancel a plan you pay for yourself. If you no longer need it, cancel it in the billing portal on the Plans page.",
       "AGREE": "I have read these terms and agree to them.",
-      "JOIN": "Join clinic"
+      "JOIN": "Join clinic",
+      "SECRETARY": "You join as a secretary. You work in the clinic account only, from the appointments calendar, and you have no account of your own here."
     },
     "HISTORY": {
       "TITLE": "History",
@@ -1028,6 +1031,23 @@
       "ALREADY_RESTORED": "This record was already restored.",
       "ID_TAKEN": "Another record now uses this record's ID, so it cannot be restored.",
       "PATIENT_MISSING": "This record's patient has been deleted, so it cannot be restored."
+    },
+    "ROLE": {
+      "DOCTOR": "Doctor",
+      "SECRETARY": "Secretary"
+    },
+    "SECRETARY": {
+      "TITLE": "Secretary access",
+      "HINT": "Tick what a secretary cannot see in a patient's profile.",
+      "SAVE_FAILED": "The change could not be saved. Please try again.",
+      "SECTIONS": {
+        "balance": "Balance and documents",
+        "attachments": "Attachments",
+        "notes": "Notes",
+        "treatments": "Treatments",
+        "payments": "Payments",
+        "specializedForms": "Specialized forms"
+      }
     }
   },
   "MENUITEMS": {

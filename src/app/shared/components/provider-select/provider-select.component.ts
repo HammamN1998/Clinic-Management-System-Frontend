@@ -5,7 +5,7 @@ import { MatFormFieldAppearance, MatFormFieldModule } from '@angular/material/fo
 import { MatSelectModule } from '@angular/material/select';
 import { TranslateModule } from '@ngx-translate/core';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 import { ClinicDoctor } from '@core/models/clinic.model';
 import { ClinicService } from '@core/service/clinic.service';
 
@@ -23,6 +23,14 @@ export class ProviderSelectComponent {
   readonly doctors$: Observable<ClinicDoctor[]>;
 
   constructor(clinicService: ClinicService) {
-    this.doctors$ = clinicService.accountDoctors$.pipe(map((doctors) => doctors.filter((doctor) => doctor.active)));
+    this.doctors$ = clinicService.accountDoctors$.pipe(
+      map((doctors) => doctors.filter((doctor) => doctor.active && !doctor.secretary)),
+      // A secretary is not on the list, so his forms start on the clinic's admin, who is listed first.
+      tap((doctors) => {
+        if (doctors.length && !doctors.some((doctor) => doctor.doctorId === this.control.value)) {
+          this.control.setValue(doctors[0].doctorId);
+        }
+      }),
+    );
   }
 }

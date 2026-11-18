@@ -405,7 +405,7 @@ export class ClinicDashboardComponent extends UnsubscribeOnDestroyAdapter implem
       this.total = null;
       return;
     }
-    const listed = this.doctors.filter((doctor) => doctor.active || figures.has(doctor.doctorId));
+    const listed = this.doctors.filter((doctor) => (doctor.active && !doctor.secretary) || figures.has(doctor.doctorId));
     const unlisted = [...figures.keys()].filter((doctorId) => !this.doctors.some((doctor) => doctor.doctorId === doctorId));
     const rows: DoctorRow[] = [
       ...listed.map((doctor) => ({ doctorId: doctor.doctorId, name: doctor.name })),

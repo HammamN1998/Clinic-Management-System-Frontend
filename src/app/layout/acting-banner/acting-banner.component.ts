@@ -18,6 +18,8 @@ import { ClinicService } from '@core/service/clinic.service';
 })
 export class ActingBannerComponent extends UnsubscribeOnDestroyAdapter implements OnDestroy {
   acting: ActingContext | null = null;
+  /** A secretary has no account of his own to go back to. */
+  secretary = false;
   private clinicName = '';
 
   constructor(
@@ -37,6 +39,7 @@ export class ActingBannerComponent extends UnsubscribeOnDestroyAdapter implement
         this.renderer.removeClass(this.document.body, 'acting-mode');
       }
     });
+    this.subs.sink = clinicService.membership$.subscribe((membership) => (this.secretary = membership?.isSecretary === true));
     this.subs.sink = clinicService.clinic$.subscribe((clinic) => (this.clinicName = clinic?.name ?? ''));
   }
 

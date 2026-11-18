@@ -62,7 +62,12 @@
               <img class="clinic-doctors__avatar"
                    [src]="doctor.img || 'assets/images/patient/patient-default-profile.png'" alt="" />
               <div class="clinic-doctors__item-title">
-                <strong>{{ displayName(doctor) }}</strong>
+                <strong>
+                  {{ displayName(doctor) }}
+                  @if (doctor.isSecretary) {
+                    <span class="badge badge-solid-blue">{{ 'CLINIC.ROLE.SECRETARY' | translate }}</span>
+                  }
+                </strong>
                 @if (doctor.name) {
                   <span class="clinic-doctors__muted">{{ doctor.email }}</span>
                 }
@@ -77,7 +82,7 @@
                 <mat-icon>more_vert</mat-icon>
               </button>
               <mat-menu #doctorMenu="matMenu">
-                <button mat-menu-item (click)="changeTerms(doctor)" [disabled]="!currentAgreement(doctor)">
+                <button mat-menu-item (click)="changeTerms(doctor)" [disabled]="doctor.isSecretary || !currentAgreement(doctor)">
                   <mat-icon>edit_note</mat-icon>
                   <span>{{ 'CLINIC.DOCTORS.ACTIONS.CHANGE_TERMS' | translate }}</span>
                 </button>
@@ -88,7 +93,7 @@
               </mat-menu>
             </div>
 
-            @if (currentAgreement(doctor); as agreement) {
+            @if (!doctor.isSecretary && currentAgreement(doctor); as agreement) {
               <app-clinic-terms [terms]="agreement.terms"></app-clinic-terms>
             }
 
@@ -105,6 +110,23 @@
       </div>
     </div>
 
+    <!-- What a secretary cannot see -->
+    <div class="card">
+      <div class="header">
+        <h2><strong>{{ 'CLINIC.SECRETARY.TITLE' | translate }}</strong></h2>
+      </div>
+      <div class="body">
+        <span class="clinic-doctors__muted d-block mb-2">{{ 'CLINIC.SECRETARY.HINT' | translate }}</span>
+        @for (section of secretarySections; track section) {
+          <div>
+            <mat-checkbox [checked]="isHiddenFromSecretary(section)" (change)="hideFromSecretary(section, $event.checked)">
+              {{ 'CLINIC.SECRETARY.SECTIONS.' + section | translate }}
+            </mat-checkbox>
+          </div>
+        }
+      </div>
+    </div>
+
     <!-- Invitations -->
     <div class="card">
       <div class="header">
@@ -115,7 +137,12 @@
           <div class="clinic-doctors__item">
             <div class="clinic-doctors__item-head">
               <div class="clinic-doctors__item-title">
-                <strong>{{ invite.doctorName || invite.email }}</strong>
+                <strong>
+                  {{ invite.doctorName || invite.email }}
+                  @if (invite.role === 'secretary') {
+                    <span class="badge badge-solid-blue">{{ 'CLINIC.ROLE.SECRETARY' | translate }}</span>
+                  }
+                </strong>
                 @if (invite.doctorName) {
                   <span class="clinic-doctors__muted">{{ invite.email }}</span>
                 }
@@ -144,7 +171,9 @@
                 </mat-menu>
               }
             </div>
-            <app-clinic-terms [terms]="invite.terms"></app-clinic-terms>
+            @if (invite.role !== 'secretary') {
+              <app-clinic-terms [terms]="invite.terms"></app-clinic-terms>
+            }
           </div>
         } @empty {
           <span class="clinic-doctors__muted">{{ 'CLINIC.INVITES.EMPTY' | translate }}</span>

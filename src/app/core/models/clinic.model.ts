@@ -15,6 +15,8 @@ export interface ClinicTerms {
 export interface ClinicMembership {
   doctorId: string;
   isAdmin: boolean;
+  /** Set when he accepted an invitation as a secretary. The app hides pages for him; the rules do not. */
+  isSecretary: boolean;
   maxSeats: number;
   clinicAdminId: string | null;
   linkedAt: Date | null;
@@ -35,7 +37,16 @@ export interface ClinicDoctor {
   name: string;
   /** False once the doctor left the clinic. */
   active: boolean;
+  /** A secretary does no clinical work, so he is not offered as the doctor of a record. */
+  secretary: boolean;
 }
+
+export type ClinicRole = 'doctor' | 'secretary';
+
+/** The parts of a patient's profile the admin can hide from his secretary, and what is hidden until he chooses. */
+export const SECRETARY_SECTIONS = ['balance', 'attachments', 'notes', 'treatments', 'payments', 'specializedForms'] as const;
+export type SecretarySection = (typeof SECRETARY_SECTIONS)[number];
+export const DEFAULT_SECRETARY_HIDDEN: SecretarySection[] = ['balance', 'attachments', 'treatments', 'payments', 'specializedForms'];
 
 /** `clinics/{adminId}`: what linked doctors see of their clinic. */
 export interface ClinicProfile {
@@ -67,6 +78,7 @@ export interface ClinicInvite {
   doctorName: string;
   status: InviteStatus;
   terms: ClinicTerms;
+  role: ClinicRole;
   sentAt: Date | null;
   sendCount: number;
   expiresAt: Date | null;

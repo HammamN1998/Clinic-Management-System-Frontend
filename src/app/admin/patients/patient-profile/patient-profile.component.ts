@@ -48,7 +48,7 @@ import {AppointmentDurationFieldComponent} from "@shared/components/appointment-
 import {ClinicContextService} from "@core/service/clinic-context.service";
 import {ClinicService} from "@core/service/clinic.service";
 import {DoctorService} from "@core/service/doctor.service";
-import {ClinicDoctor} from "@core/models/clinic.model";
+import {ClinicDoctor, SecretarySection} from "@core/models/clinic.model";
 import {ProviderSelectComponent} from "@shared/components/provider-select/provider-select.component";
 
 /** The parts of an appointment, each shown only once it has something in it. */
@@ -105,6 +105,12 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter impleme
 
   /** The clinic account's doctors, former ones included; empty in any other account. */
   private accountDoctors: ClinicDoctor[] = [];
+  /** The sections the clinic admin hid from a signed-in secretary; empty for anyone else. */
+  private secretaryHidden: string[] = [];
+
+  hides(section: SecretarySection): boolean {
+    return this.secretaryHidden.includes(section);
+  }
 
   constructor(
     private patientService: PatientService,
@@ -127,6 +133,7 @@ export class PatientProfileComponent extends UnsubscribeOnDestroyAdapter impleme
     if (this.patientService.getDialogData().id === '' ) this.router.navigate(['/admin/patients/all-patients']);
     // constructor code
     this.subs.sink = clinicService.accountDoctors$.subscribe((doctors) => (this.accountDoctors = doctors));
+    this.subs.sink = clinicService.secretaryHidden$.subscribe((hidden) => (this.secretaryHidden = hidden));
     this.appointmentForm = this.createAppointmentForm();
     this.paymentForm = this.createPaymentForm();
     this.treatmentForm = this.createTreatmentForm();
