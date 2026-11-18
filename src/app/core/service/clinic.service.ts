@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Location } from '@angular/common';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { AngularFireFunctions } from '@angular/fire/compat/functions';
@@ -255,6 +256,7 @@ export class ClinicService {
     private authService: FirebaseAuthenticationService,
     private clinicContext: ClinicContextService,
     private router: Router,
+    private location: Location,
     private notificationService: NotificationService,
   ) {
     const uid$ = this.auth.authState.pipe(
@@ -524,7 +526,8 @@ export class ClinicService {
 
   /**
    * A linked doctor starts each sign-in in his clinic's account, unless he chose his own account
-   * in this tab. Accepting an invite later leaves him where he is. While he works in the clinic
+   * in this tab. A tab opened on My clinic, where the emails about his terms take him, counts as
+   * that choice. Accepting an invite later leaves him where he is. While he works in the clinic
    * account it is watched, since its admin may change its settings, and left with a notice once
    * he is no longer linked to it. After the unlink the rules refuse the read, which ends the
    * watch with an error.
@@ -533,9 +536,15 @@ export class ClinicService {
     uid$
       .pipe(switchMap((uid) => (uid ? this.membership$.pipe(filter(isMembership), take(1)) : EMPTY)))
       .subscribe((membership) => {
-        if (membership.clinicAdminId && !this.clinicContext.isActing && !this.clinicContext.choseOwnAccount) {
-          void this.openClinicAccount();
+        if (!membership.clinicAdminId || this.clinicContext.isActing || this.clinicContext.choseOwnAccount) {
+          return;
         }
+        // Unlike the router's URL, the path is already the tab's first page while it is still loading.
+        if (this.location.path().startsWith('/admin/doctors/my-clinic')) {
+          this.clinicContext.chooseOwnAccount();
+          return;
+        }
+        void this.openClinicAccount();
       });
 
     const linkedTo$ = this.membership$.pipe(

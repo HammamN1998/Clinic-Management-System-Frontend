@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {BehaviorSubject, firstValueFrom, from, map, Observable, of, throwError} from "rxjs";
+import {BehaviorSubject, catchError, distinctUntilChanged, EMPTY, firstValueFrom, from, map, Observable, of, switchMap, throwError} from "rxjs";
 import {User} from "@core";
 import { UserSubscription } from '@core/models/user';
 import {AngularFireAuth} from "@angular/fire/compat/auth";
@@ -41,6 +41,7 @@ export class FirebaseAuthenticationService {
     this.currentUser = this.currentUserSubject.asObservable();
 
     this.traceAuthenticationStatus();
+    this.followSubscription();
   }
 
   public get currentUserValue(): User {
@@ -381,6 +382,34 @@ export class FirebaseAuthenticationService {
         console.log('user not logged in');
       }
     });
+  }
+
+  /**
+   * The plan checks read the signed-in doctor's subscription, whose patient count and storage the
+   * server keeps. In a clinic admin's account his linked doctors add to them too, so it is watched.
+   */
+  private followSubscription(): void {
+    this.auth.authState
+      .pipe(
+        map((fireAuthUser) => fireAuthUser?.uid ?? null),
+        distinctUntilChanged(),
+        switchMap((uid) =>
+          uid
+            ? this.firestore.collection('doctorSubscriptions').doc<UserSubscription>(uid).valueChanges().pipe(
+                map((subscription) => ({ uid, subscription })),
+                catchError((err) => {
+                  console.error('Failed to watch the subscription', err);
+                  return EMPTY;
+                }),
+              )
+            : EMPTY,
+        ),
+      )
+      .subscribe(({ uid, subscription }) => {
+        if (subscription && this.currentUserValue?.id === uid) {
+          this.currentUserValue.subscription = subscription;
+        }
+      });
   }
 
 }
