@@ -9,22 +9,29 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  max-width: 220px;
-  margin: 8px;
-  padding: 8px 12px;
+  max-width: 180px;
+  margin: 0 4px;
+  padding: 2px 8px;
   border: 1px solid rgba(128, 128, 128, 0.35);
-  border-radius: 18px;
-  line-height: 1.2;
+  border-radius: 12px;
+  line-height: 1;
+  font-size: 12px;
   vertical-align: middle;
   color: inherit;
   background: none;
-  font: inherit;
+  font-family: inherit;
   cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+    border-color: rgba(128, 128, 128, 0.5);
+  }
 }
 
 .clinic-badge__logo {
-  width: 24px;
-  height: 24px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
   object-fit: cover;
 }
